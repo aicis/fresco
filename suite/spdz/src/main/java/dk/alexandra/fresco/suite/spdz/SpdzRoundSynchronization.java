@@ -62,7 +62,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
     SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(secRand,
         resourcePool.getMessageDigest(),
         store.popValues(),
-        resourcePool.getFieldDefinition().getModulus(),
+        resourcePool.getModulus(),
         resourcePool.getRandomGenerator(),
         resourcePool.getDataSupplier().getSecretSharedKey(),
         resourcePool.getSerializer(),

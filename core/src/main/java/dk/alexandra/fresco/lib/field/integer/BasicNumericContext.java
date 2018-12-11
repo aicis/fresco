@@ -50,7 +50,7 @@ public class BasicNumericContext {
    * @return The modulus used.
    */
   public BigInteger getModulus() {
-    return fieldDefinition.getModulus().getBigInteger();
+    return fieldDefinition.getModulus();
   }
 
   /**

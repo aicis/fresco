@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElementBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
@@ -17,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -187,7 +187,7 @@ public class InitializeStorage {
   public static void initStreamedStorage(StreamedStorage storage, int noOfPlayers,
       int noOfThreads, int noOfTriples, int noOfInputMasks, int noOfBits, int noOfExpPipes,
       FieldDefinition fieldDefinition) {
-    Modulus p = fieldDefinition.getModulus();
+    BigInteger p = fieldDefinition.getModulus();
     try {
       // Try get the last thread file. If that fails, we need to
       // generate the files
@@ -220,7 +220,7 @@ public class InitializeStorage {
         String storageName =
             SpdzStorageDataSupplier.STORAGE_NAME_PREFIX + noOfThreads + "_" + i + "_" + threadId
                 + "_";
-        storage.putNext(storageName + SpdzStorageDataSupplier.MODULUS_KEY, p.getBigInteger());
+        storage.putNext(storageName + SpdzStorageDataSupplier.MODULUS_KEY, p);
         storage.putNext(storageName + SpdzStorageDataSupplier.SSK_KEY, alphaShares.get(i - 1));
       }
     }

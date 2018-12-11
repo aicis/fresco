@@ -5,9 +5,5 @@ import java.math.BigInteger;
 
 public interface Modulus extends Serializable {
 
-  public BigInteger getBigInteger();
-
-  public int bytesLength();
-
-  public int bitLength();
+  BigInteger getBigInteger();
 }

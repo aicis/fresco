@@ -29,12 +29,12 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
       FieldDefinition fieldDefinition) {
     super(myId, noOfPlayers);
     this.fieldDefinition = fieldDefinition;
-    this.modulusSize = fieldDefinition.getModulus().bytesLength();
+    this.modulusSize = fieldDefinition.getModulus().toByteArray().length;
   }
 
   @Override
   public BigInteger getModulus() {
-    return fieldDefinition.getModulus().getBigInteger();
+    return fieldDefinition.getModulus();
   }
 
   @Override

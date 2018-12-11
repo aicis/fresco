@@ -11,8 +11,8 @@ public final class FieldDefinitionMersennePrime implements FieldDefinition {
   }
 
   @Override
-  public Modulus getModulus() {
-    return modulus;
+  public BigInteger getModulus() {
+    return modulus.getBigInteger();
   }
 
   @Override

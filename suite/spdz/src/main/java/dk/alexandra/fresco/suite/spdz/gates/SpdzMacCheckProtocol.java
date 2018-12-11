@@ -4,13 +4,13 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.List;
@@ -23,7 +23,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
 
   private final SecureRandom rand;
   private final MessageDigest digest;
-  private final Modulus modulus;
+  private final BigInteger modulus;
   private final Drbg jointDrbg;
   private final List<SpdzSInt> closedValues;
   private final List<FieldElement> openedValues;
@@ -43,7 +43,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
       final SecureRandom rand,
       final MessageDigest digest,
       final Pair<List<SpdzSInt>, List<FieldElement>> toCheck,
-      final Modulus modulus,
+      final BigInteger modulus,
       final Drbg jointDrbg,
       final FieldElement alpha,
       final ByteSerializer<FieldElement> serializer,

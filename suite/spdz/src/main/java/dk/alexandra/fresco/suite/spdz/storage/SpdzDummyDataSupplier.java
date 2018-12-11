@@ -31,7 +31,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
     this.secretSharedKey = secretSharedKey;
     this.expPipeLength = expPipeLength;
     this.supplier = new ArithmeticDummyDataSupplier(myId, noOfPlayers,
-        fieldDefinition.getModulus().getBigInteger());
+        fieldDefinition.getModulus());
   }
 
   @Override
@@ -68,7 +68,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
 
   @Override
   public BigInteger getModulus() {
-    return fieldDefinition.getModulus().getBigInteger();
+    return fieldDefinition.getModulus();
   }
 
   @Override
@@ -90,7 +90,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
     return new SpdzSInt(
         getBigIntegerI(raw.getSecond()),
         getBigIntegerI(raw.getFirst().multiply(secretSharedKey)
-            .mod(fieldDefinition.getModulus().getBigInteger()))
+            .mod(fieldDefinition.getModulus()))
     );
   }
 

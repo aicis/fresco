@@ -25,16 +25,6 @@ public final class ModulusBigInteger implements Modulus {
   }
 
   @Override
-  public int bytesLength() {
-    return value.toByteArray().length;
-  }
-
-  @Override
-  public int bitLength() {
-    return value.bitLength();
-  }
-
-  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;

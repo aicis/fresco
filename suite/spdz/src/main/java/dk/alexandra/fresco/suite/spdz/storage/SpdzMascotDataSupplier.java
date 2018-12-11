@@ -175,7 +175,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
 
   @Override
   public BigInteger getModulus() {
-    return fieldDefinition.getModulus().getBigInteger();
+    return fieldDefinition.getModulus();
   }
 
   @Override

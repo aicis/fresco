@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 public interface FieldDefinition {
 
-  Modulus getModulus();
+  BigInteger getModulus();
 
   FieldElement deserialize(byte[] bytes, int offset, int length);
 

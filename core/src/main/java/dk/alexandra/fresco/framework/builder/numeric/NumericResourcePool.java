@@ -33,7 +33,7 @@ public interface NumericResourcePool extends ResourcePool {
    * @return the signed BigInteger
    */
   default BigInteger convertRepresentation(FieldElement value) {
-    BigInteger modulus = getFieldDefinition().getModulus().getBigInteger();
+    BigInteger modulus = getFieldDefinition().getModulus();
     BigInteger actual = value.convertToBigInteger().mod(modulus);
     if (actual.compareTo(modulus.divide(BigInteger.valueOf(2))) > 0) {
       return actual.subtract(modulus);

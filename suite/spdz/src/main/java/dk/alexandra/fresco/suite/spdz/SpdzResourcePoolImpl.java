@@ -49,7 +49,7 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
 
   @Override
   public BigInteger getModulus() {
-    return getFieldDefinition().getModulus().getBigInteger();
+    return getFieldDefinition().getModulus();
   }
 
   @Override

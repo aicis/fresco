@@ -58,7 +58,7 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
   public <ResourcePoolT extends ResourcePool> void getNextProtocols(
       ProtocolCollection<ResourcePoolT> protocolCollection) {
     if (pp == null) {
-      BigInteger modulusBigInteger = definition.getModulus().getBigInteger();
+      BigInteger modulusBigInteger = definition.getModulus();
       if (round == 0) {
         BigInteger[] rs = sampleRandomCoefficients(openedValues.size(), jointDrbg, modulusBigInteger);
         BigInteger a = BigInteger.ZERO;

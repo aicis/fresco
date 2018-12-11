@@ -2,14 +2,10 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import java.math.BigInteger;
 import java.util.Objects;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class ModulusMersennePrime implements Modulus {
 
-  private static final Logger logger = LoggerFactory.getLogger(ModulusMersennePrime.class);
-
-  private BigInteger bigInteger;
+  private final BigInteger bigInteger;
   private final MersennePrimeInteger value;
 
   private ModulusMersennePrime(MersennePrimeInteger value) {
@@ -17,38 +13,15 @@ public final class ModulusMersennePrime implements Modulus {
       throw new IllegalArgumentException("modulus cannot be null");
     }
     this.value = value;
+    this.bigInteger = new BigInteger(value.toString());
   }
 
-  public ModulusMersennePrime(int value) {
-    this(new MersennePrimeInteger(value));
-  }
-
-  public ModulusMersennePrime(String value) {
-    this(new MersennePrimeInteger(value));
-  }
-
-  public MersennePrimeInteger getMersennePrimeInteger() {
+  MersennePrimeInteger getMersennePrimeInteger() {
     return value;
   }
 
   public BigInteger getBigInteger() {
-    if (bigInteger == null) {
-      logger.debug("Converting MersennePrimeInteger to BigInteger");
-      bigInteger = new BigInteger(value.toString());
-    }
     return bigInteger;
-  }
-
-  @Override
-  public int bytesLength() {
-    // todo EOA implement
-    return getBigInteger().toByteArray().length;
-  }
-
-  @Override
-  public int bitLength() {
-    // todo EOA implement
-    return getBigInteger().bitLength();
   }
 
   @Override

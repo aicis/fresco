@@ -62,7 +62,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
 
   @Override
   public BigInteger getModulus() {
-    return fieldDefinition.getModulus().getBigInteger();
+    return fieldDefinition.getModulus();
   }
 
   @Override

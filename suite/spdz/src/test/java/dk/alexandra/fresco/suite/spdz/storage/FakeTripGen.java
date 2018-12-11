@@ -370,7 +370,7 @@ public class FakeTripGen {
       SpdzSInt[][] expPipe = new SpdzSInt[noOfParties][EXP_PIPE_SIZE];
       FieldElement r = sample();
       FieldElement rInv = definition.createElement(
-          r.convertToBigInteger().modInverse(definition.getModulus().getBigInteger()));
+          r.convertToBigInteger().modInverse(definition.getModulus()));
       FieldElement mac = getMac(rInv);
       List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
       for (int i = 0; i < noOfParties; i++) {
@@ -402,7 +402,7 @@ public class FakeTripGen {
         SpdzSInt[][] expPipe = new SpdzSInt[noOfParties][EXP_PIPE_SIZE];
         FieldElement r = sample();
         FieldElement rInv = definition.createElement(
-            r.convertToBigInteger().modInverse(definition.getModulus().getBigInteger()));
+            r.convertToBigInteger().modInverse(definition.getModulus()));
         FieldElement mac = getMac(rInv);
         List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
         for (int i = 0; i < noOfParties; i++) {
@@ -469,12 +469,12 @@ public class FakeTripGen {
       }
       alpha = sample();
       size = 0;
-      byte[] bytes = definition.getModulus().getBigInteger().toByteArray();
+      byte[] bytes = definition.getModulus().toByteArray();
 
       if (bytes[0] == 0) {
-        size = definition.getModulus().getBigInteger().toByteArray().length - 1;
+        size = definition.getModulus().toByteArray().length - 1;
       } else {
-        size = definition.getModulus().getBigInteger().toByteArray().length;
+        size = definition.getModulus().toByteArray().length;
       }
 
       bytes = null;
@@ -712,7 +712,7 @@ public class FakeTripGen {
       FileWriter fw = new FileWriter(f);
       // Share stuff
       alphaShare = sample();
-      fw.write(definition.getModulus().getBigInteger().toString());
+      fw.write(definition.getModulus().toString());
       fw.write(" ");
       if (i != numberOfParties - 1) {
         fw.write(alphaShare.toString());
@@ -737,7 +737,7 @@ public class FakeTripGen {
     for (int j = 0; j < numberOfExps; j++) {
       FieldElement r = sample();
       FieldElement rInv = definition.createElement(
-          r.convertToBigInteger().modInverse(definition.getModulus().getBigInteger()));
+          r.convertToBigInteger().modInverse(definition.getModulus()));
       writeAsShared(rInv, channels);
       FieldElement exp = definition.createElement(1);
       for (int i = 1; i < EXP_PIPE_SIZE; i++) {
@@ -807,7 +807,7 @@ public class FakeTripGen {
    */
   private static FieldElement sample() {
     FieldElement result = sampleRandomBits(definition.getModulus().bitLength(), rand);
-    if (result.convertToBigInteger().compareTo(definition.getModulus().getBigInteger()) < 0) {
+    if (result.convertToBigInteger().compareTo(definition.getModulus()) < 0) {
       return result;
     } else {
       return sample();
