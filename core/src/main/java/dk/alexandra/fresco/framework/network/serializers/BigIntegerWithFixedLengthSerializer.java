@@ -53,7 +53,9 @@ public class BigIntegerWithFixedLengthSerializer implements ByteSerializer<Field
     int offset = 0;
     List<FieldElement> result = new ArrayList<>();
     while (offset < data.length) {
-      result.add(fieldDefinition.deserialize(data, offset, byteLength));
+      byte[] subArray = new byte[byteLength];
+      System.arraycopy(data, offset, subArray, 0, byteLength);
+      result.add(deserialize(subArray));
       offset += byteLength;
     }
     return result;

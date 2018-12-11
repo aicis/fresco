@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -46,7 +45,7 @@ public class MiMCTests {
 
           BigInteger result = runApplication(app);
 
-          ModulusBigInteger expectedModulus = new ModulusBigInteger(
+          BigInteger expectedModulus = new BigInteger(
               "13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006083527");
           Assert.assertEquals(expectedModulus, modulus[0]);
           BigInteger expectedCipherText = new BigInteger(
