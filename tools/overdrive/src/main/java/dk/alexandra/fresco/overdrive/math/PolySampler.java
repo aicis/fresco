@@ -158,7 +158,7 @@ public class PolySampler {
           coeff = drng.nextInt(2) == 0 ? -1 : 1;
         }
       }
-      coefficients.add(BigInteger.valueOf(coeff).mod(modulus));
+      coefficients.add(BigInteger.valueOf(coeff));
     }
     return new CoefficientRingPoly(coefficients, modulus);
   }
