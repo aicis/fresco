@@ -208,7 +208,7 @@ public class TestCmdLineUtil {
         cmd.parse(getArgs(2, "dummybool"));
         cmd.startNetwork();
         try {
-          this.wait(50);
+          Thread.sleep(50);
           cmd.closeNetwork();
         } catch (IOException e) {
         } catch (InterruptedException e) {
