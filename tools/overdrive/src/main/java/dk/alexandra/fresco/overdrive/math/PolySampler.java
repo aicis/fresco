@@ -194,7 +194,6 @@ public class PolySampler {
       double second = drng.nextDouble();
 
       double value = Math.sqrt(8 / Math.E) * (second - 0.5) / first;
-
       double squared = value * value;
 
       boolean earlyAcceptance = squared <= 5 - 4 * Math.pow(Math.E, 0.25) * first;
@@ -203,7 +202,6 @@ public class PolySampler {
       }
 
       boolean earlyRejection = squared >= 4 * Math.pow(Math.E, -1.35) / first + 1.4;
-
       if (!earlyRejection && squared <= -4 * Math.log(first)) {
         return value;
       }
