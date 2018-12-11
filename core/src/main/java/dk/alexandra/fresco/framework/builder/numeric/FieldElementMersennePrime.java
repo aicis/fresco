@@ -25,23 +25,27 @@ public final class FieldElementMersennePrime implements FieldElement {
     this(new BigInteger(bytes), modulus);
   }
 
-  private FieldElementMersennePrime create(BigInteger divide) {
-    return new FieldElementMersennePrime(divide, modulus);
+  private FieldElementMersennePrime create(BigInteger newValue) {
+    return new FieldElementMersennePrime(newValue, modulus);
   }
 
   @Override
   public FieldElementMersennePrime subtract(FieldElement operand) {
-    return create(value.subtract(operand.convertToBigInteger()));
+    return create(value.subtract(getValue(operand)));
   }
 
   @Override
   public FieldElementMersennePrime multiply(FieldElement operand) {
-    return create(value.multiply(operand.convertToBigInteger()));
+    return create(value.multiply(getValue(operand)));
   }
 
   @Override
   public FieldElementMersennePrime add(FieldElement operand) {
-    return create(value.add(operand.convertToBigInteger()));
+    return create(value.add(getValue(operand)));
+  }
+
+  private BigInteger getValue(FieldElement operand) {
+    return ((FieldElementMersennePrime) operand).value;
   }
 
   @Override
