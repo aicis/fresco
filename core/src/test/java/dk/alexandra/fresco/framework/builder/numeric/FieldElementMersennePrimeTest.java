@@ -15,14 +15,14 @@ public class FieldElementMersennePrimeTest {
     ModulusMersennePrime firstPrime = new ModulusMersennePrime(160, 47);
     ModulusMersennePrime secondPrime = new ModulusMersennePrime(160, 57);
     FieldElementMersennePrime firstElement =
-        new FieldElementMersennePrime(BigInteger.valueOf(27), firstPrime);
+        FieldElementMersennePrime.create(BigInteger.valueOf(27), firstPrime);
     FieldElementMersennePrime firstElementAgain =
-        new FieldElementMersennePrime(
+        FieldElementMersennePrime.create(
             firstPrime.getBigInteger().add(BigInteger.valueOf(27)), firstPrime);
     FieldElementMersennePrime differentValue =
-        new FieldElementMersennePrime(BigInteger.valueOf(28), firstPrime);
+        FieldElementMersennePrime.create(BigInteger.valueOf(28), firstPrime);
     FieldElementMersennePrime differentPrime =
-        new FieldElementMersennePrime(BigInteger.valueOf(27), secondPrime);
+        FieldElementMersennePrime.create(BigInteger.valueOf(27), secondPrime);
 
     assertTrue(firstElement.equals(firstElementAgain));
     assertFalse(firstElement.equals(differentValue));
@@ -37,7 +37,7 @@ public class FieldElementMersennePrimeTest {
   public void toStringTest() {
     ModulusMersennePrime firstPrime = new ModulusMersennePrime(160, 47);
     FieldElementMersennePrime element =
-        new FieldElementMersennePrime(BigInteger.valueOf(7854), firstPrime);
+        FieldElementMersennePrime.create(BigInteger.valueOf(7854), firstPrime);
 
     assertThat(element.toString(), StringContains.containsString("7854"));
   }

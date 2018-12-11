@@ -8,21 +8,25 @@ public final class FieldElementMersennePrime implements FieldElement {
   private final BigInteger value;
   private final ModulusMersennePrime modulus;
 
-  public FieldElementMersennePrime(BigInteger value, ModulusMersennePrime modulus) {
+  private FieldElementMersennePrime(BigInteger value, ModulusMersennePrime modulus) {
     this.value = modulus.mod(value);
     this.modulus = modulus;
   }
 
-  public FieldElementMersennePrime(int i, ModulusMersennePrime modulus) {
-    this(BigInteger.valueOf(i), modulus);
+  public static FieldElementMersennePrime create(int value, ModulusMersennePrime modulus) {
+    return new FieldElementMersennePrime(BigInteger.valueOf(value), modulus);
   }
 
-  public FieldElementMersennePrime(String toString, ModulusMersennePrime modulus) {
-    this(new BigInteger(toString), modulus);
+  public static FieldElementMersennePrime create(byte[] bytes, ModulusMersennePrime modulus) {
+    return new FieldElementMersennePrime(new BigInteger(bytes), modulus);
   }
 
-  public FieldElementMersennePrime(byte[] bytes, ModulusMersennePrime modulus) {
-    this(new BigInteger(bytes), modulus);
+  public static FieldElementMersennePrime create(String asString, ModulusMersennePrime modulus) {
+    return new FieldElementMersennePrime(new BigInteger(asString), modulus);
+  }
+
+  public static FieldElementMersennePrime create(BigInteger value, ModulusMersennePrime modulus) {
+    return new FieldElementMersennePrime(value, modulus);
   }
 
   private FieldElementMersennePrime create(BigInteger newValue) {

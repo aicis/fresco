@@ -25,9 +25,9 @@ public final class FieldDefinitionMersennePrime implements FieldDefinition {
     if (bytes.length > length) {
       byte[] dest = new byte[length];
       System.arraycopy(bytes, offset, dest, 0, length);
-      return new FieldElementMersennePrime(dest, modulus);
+      return FieldElementMersennePrime.create(dest, modulus);
     } else {
-      return new FieldElementMersennePrime(bytes, modulus);
+      return FieldElementMersennePrime.create(bytes, modulus);
     }
   }
 
@@ -38,16 +38,16 @@ public final class FieldDefinitionMersennePrime implements FieldDefinition {
 
   @Override
   public FieldElement createElement(int value) {
-    return new FieldElementMersennePrime(value, modulus);
+    return FieldElementMersennePrime.create(value, modulus);
   }
 
   @Override
   public FieldElement createElement(String value) {
-    return new FieldElementMersennePrime(value, modulus);
+    return FieldElementMersennePrime.create(value, modulus);
   }
 
   @Override
   public FieldElement createElement(BigInteger value) {
-    return new FieldElementMersennePrime(value, modulus);
+    return FieldElementMersennePrime.create(value, modulus);
   }
 }
