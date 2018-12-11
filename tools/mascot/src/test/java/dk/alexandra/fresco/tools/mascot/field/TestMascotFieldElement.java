@@ -139,7 +139,7 @@ public class TestMascotFieldElement {
   @Test
   public void testToString() {
     MascotFieldElement el = new MascotFieldElement("777", "65521");
-    assertEquals("MascotFieldElement [value=777, modulus=65521, bitLength=16]", el.toString());
+    assertEquals("MascotFieldElement [value=777, modulus=ModulusBigInteger{value=65521}, bitLength=16]", el.toString());
   }
 
   @Test
