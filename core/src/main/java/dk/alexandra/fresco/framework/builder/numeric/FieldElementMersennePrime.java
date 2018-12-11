@@ -13,19 +13,19 @@ public final class FieldElementMersennePrime implements FieldElement {
     this.modulus = modulus;
   }
 
-  public static FieldElementMersennePrime create(int value, ModulusMersennePrime modulus) {
+  static FieldElementMersennePrime create(int value, ModulusMersennePrime modulus) {
     return new FieldElementMersennePrime(BigInteger.valueOf(value), modulus);
   }
 
-  public static FieldElementMersennePrime create(byte[] bytes, ModulusMersennePrime modulus) {
+  static FieldElementMersennePrime create(byte[] bytes, ModulusMersennePrime modulus) {
     return new FieldElementMersennePrime(new BigInteger(bytes), modulus);
   }
 
-  public static FieldElementMersennePrime create(String asString, ModulusMersennePrime modulus) {
+  static FieldElementMersennePrime create(String asString, ModulusMersennePrime modulus) {
     return new FieldElementMersennePrime(new BigInteger(asString), modulus);
   }
 
-  public static FieldElementMersennePrime create(BigInteger value, ModulusMersennePrime modulus) {
+  static FieldElementMersennePrime create(BigInteger value, ModulusMersennePrime modulus) {
     return new FieldElementMersennePrime(value, modulus);
   }
 
