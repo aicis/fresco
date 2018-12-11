@@ -2,84 +2,62 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import java.math.BigInteger;
 import java.util.Objects;
-import java.util.function.BiConsumer;
 
-public class FieldElementMersennePrime implements FieldElement {
+public final class FieldElementMersennePrime implements FieldElement {
 
-  private MersennePrimeInteger value;
-  private ModulusMersennePrime modulus;
+  private final BigInteger value;
+  private final ModulusMersennePrime modulus;
 
-  public FieldElementMersennePrime(MersennePrimeInteger value, ModulusMersennePrime modulus) {
-    this.value = value;
+  public FieldElementMersennePrime(BigInteger value, ModulusMersennePrime modulus) {
+    this.value = modulus.mod(value);
     this.modulus = modulus;
   }
 
   public FieldElementMersennePrime(int i, ModulusMersennePrime modulus) {
-    this(new MersennePrimeInteger(i), modulus);
+    this(BigInteger.valueOf(i), modulus);
   }
 
   public FieldElementMersennePrime(String toString, ModulusMersennePrime modulus) {
-    this(new MersennePrimeInteger(toString), modulus);
+    this(new BigInteger(toString), modulus);
   }
 
   public FieldElementMersennePrime(byte[] bytes, ModulusMersennePrime modulus) {
-    this(MersennePrimeInteger.fromBytes(bytes), modulus);
-    this.value.mod(modulus.getMersennePrimeInteger());
+    this(new BigInteger(bytes), modulus);
   }
 
-  public FieldElementMersennePrime(BigInteger value, ModulusMersennePrime modulus) {
-    this(value.toString(), modulus);
-  }
-
-  @Override
-  public FieldElement add(FieldElement operand) {
-    return safe(this::add, operand);
-  }
-
-  private void add(MersennePrimeInteger left, MersennePrimeInteger right) {
-    left.add(right);
+  private FieldElementMersennePrime create(BigInteger divide) {
+    return new FieldElementMersennePrime(divide, modulus);
   }
 
   @Override
-  public FieldElement subtract(FieldElement operand) {
-    return safe(this::sub, operand);
-  }
-
-  private void sub(MersennePrimeInteger left, MersennePrimeInteger right) {
-    left.sub(right);
+  public FieldElementMersennePrime subtract(FieldElement operand) {
+    return create(value.subtract(operand.convertToBigInteger()));
   }
 
   @Override
-  public FieldElement multiply(FieldElement operand) {
-    return safe(this::mul, operand);
+  public FieldElementMersennePrime multiply(FieldElement operand) {
+    return create(value.multiply(operand.convertToBigInteger()));
   }
 
-  private void mul(MersennePrimeInteger left, MersennePrimeInteger right) {
-    left.mul(right);
-  }
-
-  private FieldElementMersennePrime safe(
-      BiConsumer<MersennePrimeInteger, MersennePrimeInteger> operation,
-      FieldElement operand) {
-    MersennePrimeInteger copy = value.copy();
-    operation.accept(copy, ((FieldElementMersennePrime) operand).value);
-    copy.mod(modulus.getMersennePrimeInteger());
-    return new FieldElementMersennePrime(copy, modulus);
+  @Override
+  public FieldElementMersennePrime add(FieldElement operand) {
+    return create(value.add(operand.convertToBigInteger()));
   }
 
   @Override
   public BigInteger convertToBigInteger() {
-    return new BigInteger(value.toString());
+    return value;
   }
 
   @Override
   public void toByteArray(byte[] bytes, int offset, int byteLength) {
-    value.toByteArray(bytes, offset, byteLength);
+    byte[] byteArray = value.toByteArray();
+    System.arraycopy(byteArray, 0, bytes, byteLength - byteArray.length + offset, byteArray.length);
   }
 
   @Override
   public int compareTo(FieldElement o) {
-    return value.compareTo(((FieldElementMersennePrime) o).value);
+    return value.compareTo(o.convertToBigInteger());
   }
 
   @Override

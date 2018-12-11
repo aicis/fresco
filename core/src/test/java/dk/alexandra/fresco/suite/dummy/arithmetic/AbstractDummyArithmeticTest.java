@@ -2,8 +2,9 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionMersennePrime;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusMersennePrime;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
@@ -36,8 +37,8 @@ import java.util.Map;
 public abstract class AbstractDummyArithmeticTest {
 
   protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
-  protected static final ModulusBigInteger DEFAULT_MODULUS = new ModulusBigInteger(
-      "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+  protected static final FieldDefinition DEFAULT_FIELD =
+      new FieldDefinitionMersennePrime(new ModulusMersennePrime(512, 569));
   protected static final int DEFAULT_MAX_BIT_LENGTH = 200;
   protected static final int DEFAULT_FIXED_POINT_PRECISION = BasicFixedPointTests.DEFAULT_PRECISION;
   protected static final int DEFAULT_PARTIES = 1;
@@ -70,15 +71,15 @@ public abstract class AbstractDummyArithmeticTest {
   protected void runTest(
       TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties) {
-    runTest(f, evalStrategy, noOfParties, DEFAULT_MODULUS, DEFAULT_MAX_BIT_LENGTH,
+    runTest(f, evalStrategy, noOfParties, DEFAULT_FIELD, DEFAULT_MAX_BIT_LENGTH,
         DEFAULT_FIXED_POINT_PRECISION, DEFAULT_PERFORMANCE_LOGGING);
   }
 
   private void runTest(
       TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy, int noOfParties, ModulusBigInteger mod, int maxBitLength,
+      EvaluationStrategy evalStrategy, int noOfParties, FieldDefinition fieldDefinition,
+      int maxBitLength,
       int fixedPointPrecision, boolean logPerformance) {
-    FieldDefinitionBigInteger fieldDefinition = new FieldDefinitionBigInteger(mod);
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -147,15 +148,15 @@ public abstract class AbstractDummyArithmeticTest {
    */
   public static class TestParameters {
 
-    private ModulusBigInteger modulus = DEFAULT_MODULUS;
+    private FieldDefinition modulus = DEFAULT_FIELD;
     private int maxBitLength = DEFAULT_MAX_BIT_LENGTH;
     private int fixedPointPrecesion = DEFAULT_FIXED_POINT_PRECISION;
     private int numParties = DEFAULT_PARTIES;
     private EvaluationStrategy evaluationStrategy = DEFAULT_EVALUATION_STRATEGY;
     private boolean performanceLogging = DEFAULT_PERFORMANCE_LOGGING;
 
-    public TestParameters modulus(ModulusBigInteger modulus) {
-      this.modulus = modulus;
+    public TestParameters field(FieldDefinition field) {
+      this.modulus = field;
       return this;
     }
 
