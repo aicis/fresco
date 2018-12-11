@@ -93,7 +93,7 @@ public class PolySampler {
     byte[] bytes = new byte[(length + halfByte - 1) / halfByte];
     drbg.nextBytes(bytes);
     int mask = 0b00000011;
-    for (int i = 0; i < length; i += halfByte) {
+    for (int i = 0; i < bytes.length - 1; i++) {
       coefficients.add(BigInteger.valueOf(translate((bytes[i] & mask))));
       coefficients.add(BigInteger.valueOf(translate((bytes[i] >> 2 & mask))));
       coefficients.add(BigInteger.valueOf(translate((bytes[i] >> 4 & mask))));
