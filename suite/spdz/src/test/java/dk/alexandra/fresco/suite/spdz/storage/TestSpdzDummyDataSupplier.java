@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElementBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.util.TransposeUtils;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -23,28 +22,29 @@ import org.junit.Test;
 
 public class TestSpdzDummyDataSupplier {
 
-  private final List<ModulusBigInteger> moduli = Arrays.asList(
-      new ModulusBigInteger("251"),
-      new ModulusBigInteger("340282366920938463463374607431768211283"),
-      new ModulusBigInteger(
+  private final List<BigInteger> moduli = Arrays.asList(
+      new BigInteger("251"),
+      new BigInteger("340282366920938463463374607431768211283"),
+      new BigInteger(
           "2582249878086908589655919172003011874329705792829223512830659356540647622016841"
               + "194629645353280137831435903171972747493557")
   );
 
   private List<SpdzDummyDataSupplier> setupSuppliers(int noOfParties,
-      ModulusBigInteger modulus) {
+      BigInteger modulus) {
     return setupSuppliers(noOfParties, modulus, 200);
   }
 
   private List<SpdzDummyDataSupplier> setupSuppliers(int noOfParties,
-      ModulusBigInteger modulus, int expPipeLength) {
+      BigInteger modulus, int expPipeLength) {
     List<SpdzDummyDataSupplier> suppliers = new ArrayList<>(noOfParties);
     Random random = new Random();
     for (int i = 0; i < noOfParties; i++) {
-      BigInteger macKeyShare = new BigInteger(modulus.getBigInteger().bitLength(), random)
-          .mod(modulus.getBigInteger());
+      BigInteger macKeyShare = new BigInteger(modulus.bitLength(), random)
+          .mod(modulus);
       suppliers.add(
-          new SpdzDummyDataSupplier(i + 1, noOfParties, new FieldDefinitionBigInteger(modulus),
+          new SpdzDummyDataSupplier(i + 1, noOfParties,
+              new FieldDefinitionBigInteger(new ModulusBigInteger(modulus)),
               macKeyShare,
               expPipeLength));
     }
@@ -61,7 +61,7 @@ public class TestSpdzDummyDataSupplier {
     return macKey;
   }
 
-  private void testGetNextTriple(int noOfParties, ModulusBigInteger modulus) {
+  private void testGetNextTriple(int noOfParties, BigInteger modulus) {
     List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
     FieldElement macKey = getMacKeyFromSuppliers(suppliers);
     List<SpdzTriple> triples = new ArrayList<>(noOfParties);
@@ -73,13 +73,13 @@ public class TestSpdzDummyDataSupplier {
   }
 
   private void testGetNextTriple(int noOfParties) {
-    for (ModulusBigInteger modulus : moduli) {
+    for (BigInteger modulus : moduli) {
       testGetNextTriple(noOfParties, modulus);
     }
   }
 
   private void testGetNextInputMask(int noOfParties, int towardParty,
-      ModulusBigInteger modulus) {
+      BigInteger modulus) {
     List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
     FieldElement macKey = getMacKeyFromSuppliers(suppliers);
     List<SpdzInputMask> masks = new ArrayList<>(noOfParties);
@@ -103,12 +103,12 @@ public class TestSpdzDummyDataSupplier {
   }
 
   private void testGetNextInputMask(int noOfParties, int towardParty) {
-    for (ModulusBigInteger modulus : moduli) {
+    for (BigInteger modulus : moduli) {
       testGetNextInputMask(noOfParties, towardParty, modulus);
     }
   }
 
-  private void testGetNextBit(int noOfParties, ModulusBigInteger modulus) {
+  private void testGetNextBit(int noOfParties, BigInteger modulus) {
     List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
     FieldElement macKey = getMacKeyFromSuppliers(suppliers);
     List<SpdzSInt> bitShares = new ArrayList<>(noOfParties);
@@ -123,12 +123,12 @@ public class TestSpdzDummyDataSupplier {
   }
 
   private void testGetNextBit(int noOfParties) {
-    for (ModulusBigInteger modulus : moduli) {
+    for (BigInteger modulus : moduli) {
       testGetNextBit(noOfParties, modulus);
     }
   }
 
-  private void testGetNextRandomFieldElement(int noOfParties, ModulusBigInteger modulus) {
+  private void testGetNextRandomFieldElement(int noOfParties, BigInteger modulus) {
     List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
     FieldElement macKey = getMacKeyFromSuppliers(suppliers);
     List<SpdzSInt> bitShares = new ArrayList<>(noOfParties);
@@ -145,12 +145,12 @@ public class TestSpdzDummyDataSupplier {
   }
 
   private void testGetNextRandomFieldElement(int noOfParties) {
-    for (ModulusBigInteger modulus : moduli) {
+    for (BigInteger modulus : moduli) {
       testGetNextRandomFieldElement(noOfParties, modulus);
     }
   }
 
-  private void testGetNextExpPipe(int noOfParties, ModulusBigInteger modulus,
+  private void testGetNextExpPipe(int noOfParties, BigInteger modulus,
       int expPipeLength) {
     List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
     FieldElement macKey = getMacKeyFromSuppliers(suppliers);
@@ -169,7 +169,7 @@ public class TestSpdzDummyDataSupplier {
   }
 
   private void testGetNextExpPipe(int noOfParties) {
-    for (ModulusBigInteger modulus : moduli) {
+    for (BigInteger modulus : moduli) {
       testGetNextExpPipe(noOfParties, modulus, 200);
     }
   }
@@ -215,7 +215,7 @@ public class TestSpdzDummyDataSupplier {
   @Test
   public void testGetters() {
     SpdzDummyDataSupplier supplier = new SpdzDummyDataSupplier(1, 2,
-        new FieldDefinitionBigInteger(moduli.get(0)), BigInteger.ONE);
+        new FieldDefinitionBigInteger(new ModulusBigInteger(moduli.get(0))), BigInteger.ONE);
     assertEquals(moduli.get(0), supplier.getModulus());
     assertEquals(BigInteger.ONE, supplier.getSecretSharedKey().convertToBigInteger());
   }
@@ -259,7 +259,7 @@ public class TestSpdzDummyDataSupplier {
   }
 
   private void assertExpPipeValid(List<SpdzSInt> recombined, FieldElement macKey,
-      Modulus modulus) {
+      BigInteger modulus) {
     for (SpdzSInt element : recombined) {
       assertMacCorrect(element, macKey);
     }
@@ -267,11 +267,11 @@ public class TestSpdzDummyDataSupplier {
         .collect(Collectors.toList());
     FieldElement inverted = values.get(0);
     FieldElement first = values.get(1);
-    BigInteger bigInteger = first.convertToBigInteger().modInverse(modulus.getBigInteger());
+    BigInteger bigInteger = first.convertToBigInteger().modInverse(modulus);
     assertEquals(inverted.convertToBigInteger(), bigInteger);
     for (int i = 1; i < values.size(); i++) {
       BigInteger expected = first.convertToBigInteger()
-          .modPow(BigInteger.valueOf(i), modulus.getBigInteger());
+          .modPow(BigInteger.valueOf(i), modulus);
       assertEquals(expected, values.get(i).convertToBigInteger());
     }
   }
