@@ -2,7 +2,6 @@ package dk.alexandra.fresco.suite.spdz2k.resource;
 
 import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.commitment.HashBasedCommitmentSerializer;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
@@ -102,11 +101,5 @@ public interface Spdz2kResourcePool<PlainT extends CompUInt<?, ?, PlainT>>
    */
   default ByteSerializer<HashBasedCommitment> getCommitmentSerializer() {
     return new HashBasedCommitmentSerializer();
-  }
-
-  @Override
-  default BigInteger convertRepresentation(FieldElement value) {
-    return convertRepresentation(
-        getFactory().createFromBigInteger(value.convertToBigInteger()));
   }
 }

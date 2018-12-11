@@ -4,6 +4,16 @@ import java.math.BigInteger;
 
 public interface FieldDefinition {
 
+  default BigInteger convertRepresentation(FieldElement value) {
+    BigInteger modulus = getModulus();
+    BigInteger actual = value.convertToBigInteger().mod(modulus);
+    if (actual.compareTo(getModulusHalved()) > 0) {
+      return actual.subtract(modulus);
+    } else {
+      return actual;
+    }
+  }
+
   BigInteger getModulus();
 
   BigInteger getModulusHalved();
