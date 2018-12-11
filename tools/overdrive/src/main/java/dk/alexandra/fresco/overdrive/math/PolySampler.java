@@ -101,8 +101,7 @@ public class PolySampler {
     }
     int size = coefficients.size();
     for (int i = 0; i < length - size; i++) {
-      coefficients.add(
-          BigInteger.valueOf(translate((bytes[bytes.length - 1] >> 2 * i & mask))).mod(modulus));
+      coefficients.add(BigInteger.valueOf(translate((bytes[bytes.length - 1] >> 2 * i & mask))));
     }
     return new CoefficientRingPoly(coefficients, modulus);
   }
