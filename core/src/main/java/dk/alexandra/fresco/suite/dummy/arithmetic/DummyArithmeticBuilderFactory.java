@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
@@ -171,12 +172,9 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
-        DummyArithmeticCloseProtocol c =
-            new DummyArithmeticCloseProtocol(
-                value != null ? basicNumericContext.getFieldDefinition().createElement(value)
-                    : null,
-                inputParty
-            );
+        FieldElement open =
+            value != null ? basicNumericContext.getFieldDefinition().createElement(value) : null;
+        DummyArithmeticCloseProtocol c = new DummyArithmeticCloseProtocol(open, inputParty);
         return builder.append(c);
       }
 

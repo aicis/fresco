@@ -9,5 +9,5 @@ import dk.alexandra.fresco.framework.value.SInt;
  */
 public interface DummyArithmeticResourcePool extends NumericResourcePool {
 
-  SInt createSInt(FieldElement add);
+  SInt createSInt(FieldElement fieldElement);
 }

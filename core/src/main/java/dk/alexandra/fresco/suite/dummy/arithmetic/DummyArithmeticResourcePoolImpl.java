@@ -33,7 +33,7 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
   }
 
   @Override
-  public SInt createSInt(FieldElement add) {
-    return new DummyArithmeticSInt(add);
+  public SInt createSInt(FieldElement fieldElement) {
+    return new DummyArithmeticSInt(fieldElement);
   }
 }

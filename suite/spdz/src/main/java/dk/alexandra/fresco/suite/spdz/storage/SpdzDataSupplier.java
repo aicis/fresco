@@ -43,9 +43,9 @@ public interface SpdzDataSupplier {
   SpdzSInt getNextBit();
 
   /**
-   * The field definition used for this instance of SPDZ.
+   * The modulus used for this instance of SPDZ.
    *
-   * @return a field definition
+   * @return a modulus
    */
   BigInteger getModulus();
 
