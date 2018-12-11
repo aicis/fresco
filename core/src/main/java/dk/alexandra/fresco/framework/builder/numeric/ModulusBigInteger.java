@@ -3,7 +3,7 @@ package dk.alexandra.fresco.framework.builder.numeric;
 import java.math.BigInteger;
 import java.util.Objects;
 
-public final class ModulusBigInteger implements Modulus<BigInteger> {
+public final class ModulusBigInteger implements Modulus {
 
   private final BigInteger value;
 
@@ -17,11 +17,6 @@ public final class ModulusBigInteger implements Modulus<BigInteger> {
 
   public ModulusBigInteger(String value) {
     this(new BigInteger(value));
-  }
-
-  @Override
-  public Modulus<BigInteger> half() {
-    return new ModulusBigInteger(value.divide(BigInteger.valueOf(2)));
   }
 
   @Override

@@ -5,7 +5,7 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class ModulusMersennePrime implements Modulus<MersennePrimeInteger> {
+public final class ModulusMersennePrime implements Modulus {
 
   private static final Logger logger = LoggerFactory.getLogger(ModulusMersennePrime.class);
 
@@ -25,13 +25,6 @@ public final class ModulusMersennePrime implements Modulus<MersennePrimeInteger>
 
   public ModulusMersennePrime(String value) {
     this(new MersennePrimeInteger(value));
-  }
-
-  @Override
-  public Modulus<MersennePrimeInteger> half() {
-    MersennePrimeInteger copy = value.copy();
-    copy.div(new MersennePrimeInteger(2));
-    return new ModulusMersennePrime(copy);
   }
 
   public MersennePrimeInteger getMersennePrimeInteger() {

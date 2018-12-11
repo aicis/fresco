@@ -2,7 +2,6 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
@@ -18,8 +17,8 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
 
   private final MessageDigest messageDigest;
   private final int modulusSize;
-  private final Modulus modulus;
-  private final Modulus modulusHalf;
+  private final BigInteger modulus;
+  private final BigInteger modulusHalf;
   private final OpenedValueStore<SpdzSInt, FieldElement> openedValueStore;
   private final SpdzDataSupplier dataSupplier;
   private Drbg drbg;
@@ -42,9 +41,9 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
         () -> MessageDigest.getInstance("SHA-256"),
         "Configuration error, SHA-256 is needed for Spdz");
     // Initialize various fields global to the computation.
-    this.modulus = dataSupplier.getFieldDefinition().getModulus();
-    this.modulusHalf = this.modulus.half();
-    this.modulusSize = this.modulus.bytesLength();
+    this.modulus = dataSupplier.getModulus();
+    this.modulusHalf = this.modulus.divide(BigInteger.valueOf(2));
+    this.modulusSize = this.modulus.toByteArray().length;
     this.drbg = drbg;
   }
 
@@ -89,9 +88,9 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
 
   @Override
   public BigInteger convertRepresentation(FieldElement value) {
-    BigInteger actual = value.convertToBigInteger().mod(modulus.getBigInteger());
-    if (actual.compareTo(modulusHalf.getBigInteger()) > 0) {
-      actual = actual.subtract(modulus.getBigInteger());
+    BigInteger actual = value.convertToBigInteger().mod(modulus);
+    if (actual.compareTo(modulusHalf) > 0) {
+      actual = actual.subtract(modulus);
     }
     return actual;
   }
