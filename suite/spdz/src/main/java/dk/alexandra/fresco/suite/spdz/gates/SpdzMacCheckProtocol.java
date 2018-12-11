@@ -64,11 +64,11 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
     return builder
         .seq(seq -> {
           FieldElement[] rs = sampleRandomCoefficients(openedValues.size());
-          FieldElement a = zero;
+          FieldElement closedValueHidden = zero;
           int index = 0;
           for (FieldElement openedValue : openedValues) {
             FieldElement multiply = openedValue.multiply(rs[index++]);
-            a = a.add(multiply);
+            closedValueHidden = closedValueHidden.add(multiply);
           }
 
           // compute gamma_i as the sum of all MAC's on the opened values times
@@ -80,8 +80,8 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
             gamma = gamma.add(multiply);
           }
 
-          // compute delta_i as: gamma_i - alpha_i*a
-          FieldElement delta = gamma.subtract(alpha.multiply(a));
+          // compute delta_i as: gamma_i - alpha_i*closedValueHidden
+          FieldElement delta = gamma.subtract(alpha.multiply(closedValueHidden));
           // Commit to delta and open it afterwards
           SpdzCommitment deltaCommitment = new SpdzCommitment(digest, delta, rand,
               modulus.bitLength());
