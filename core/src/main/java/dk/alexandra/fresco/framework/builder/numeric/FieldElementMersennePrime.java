@@ -72,8 +72,7 @@ public class FieldElementMersennePrime implements FieldElement {
     return new BigInteger(value.toString());
   }
 
-  @Override
-  public void toByteArray(byte[] bytes, int offset, int byteLength) {
+  void toByteArray(byte[] bytes, int offset, int byteLength) {
     value.toByteArray(bytes, offset, byteLength);
   }
 

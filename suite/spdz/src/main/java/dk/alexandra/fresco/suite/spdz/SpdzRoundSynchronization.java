@@ -65,7 +65,6 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
         resourcePool.getModulus(),
         resourcePool.getRandomGenerator(),
         resourcePool.getDataSupplier().getSecretSharedKey(),
-        resourcePool.getSerializer(),
         resourcePool.getFieldDefinition().createElement(0));
     ProtocolBuilderNumeric sequential = spdzBuilder.createSequential();
     macCheck.buildComputation(sequential);

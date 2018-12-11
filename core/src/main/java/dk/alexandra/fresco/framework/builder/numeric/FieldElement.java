@@ -12,6 +12,4 @@ public interface FieldElement extends Comparable<FieldElement>, Serializable {
   FieldElement multiply(FieldElement operand);
 
   BigInteger convertToBigInteger();
-
-  void toByteArray(byte[] bytes, int offset, int byteLength);
 }

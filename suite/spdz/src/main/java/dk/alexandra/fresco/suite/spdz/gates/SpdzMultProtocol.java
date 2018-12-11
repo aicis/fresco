@@ -1,9 +1,9 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -29,22 +29,22 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
       Network network) {
     SpdzDataSupplier dataSupplier = spdzResourcePool.getDataSupplier();
     int noOfPlayers = spdzResourcePool.getNoOfParties();
-    ByteSerializer<FieldElement> serializer = spdzResourcePool.getSerializer();
+    FieldDefinition definition = spdzResourcePool.getFieldDefinition();
     if (round == 0) {
       this.triple = dataSupplier.getNextTriple();
 
       epsilon = ((SpdzSInt) left.out()).subtract(triple.getA());
       delta = ((SpdzSInt) right.out()).subtract(triple.getB());
 
-      network.sendToAll(serializer.serialize(epsilon.getShare()));
-      network.sendToAll(serializer.serialize(delta.getShare()));
+      network.sendToAll(definition.serialize(epsilon.getShare()));
+      network.sendToAll(definition.serialize(delta.getShare()));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       FieldElement[] epsilonShares = new FieldElement[noOfPlayers];
       FieldElement[] deltaShares = new FieldElement[noOfPlayers];
       for (int i = 0; i < noOfPlayers; i++) {
-        epsilonShares[i] = serializer.deserialize(network.receive(i + 1));
-        deltaShares[i] = serializer.deserialize(network.receive(i + 1));
+        epsilonShares[i] = definition.deserialize(network.receive(i + 1));
+        deltaShares[i] = definition.deserialize(network.receive(i + 1));
       }
 
       FieldElement e = epsilonShares[0];

@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElementBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
-import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -104,10 +103,9 @@ public class TestSpdzDatatypes {
     MessageDigest H = MessageDigest.getInstance("SHA-256");
     SpdzCommitment c = new SpdzCommitment(H, get(BigInteger.ONE), new Random(0),
         modulus.getBigInteger().bitLength());
-    BigIntegerWithFixedLengthSerializer serializer =
-        new BigIntegerWithFixedLengthSerializer(20, new FieldDefinitionBigInteger(modulus));
-    FieldElement c1 = c.computeCommitment(serializer);
-    FieldElement c2 = c.computeCommitment(serializer);
+    FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(modulus);
+    FieldElement c1 = c.computeCommitment(definition);
+    FieldElement c2 = c.computeCommitment(definition);
     Assert.assertEquals(c1, c2);
   }
 }
