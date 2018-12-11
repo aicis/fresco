@@ -76,7 +76,7 @@ public final class MascotFieldElement implements Addable<MascotFieldElement> {
   }
 
   public MascotFieldElement sqrt() {
-    BigInteger rawSqrt = MathUtils.modularSqrt(value, modulus);
+    BigInteger rawSqrt = MathUtils.modularSqrt(value, modulus.getBigInteger());
     return new MascotFieldElement(rawSqrt, modulus);
   }
 
