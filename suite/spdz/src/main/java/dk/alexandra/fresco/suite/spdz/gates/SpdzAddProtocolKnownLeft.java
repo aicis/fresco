@@ -26,8 +26,7 @@ public class SpdzAddProtocolKnownLeft extends SpdzNativeProtocol<SInt> {
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       Network network) {
-    SpdzSInt left = SpdzKnownSIntProtocol.createKnownSpdzElement(spdzResourcePool,
-        this.left);
+    SpdzSInt left = SpdzKnownSIntProtocol.createKnownSpdzElement(spdzResourcePool, this.left);
     SpdzSInt right = (SpdzSInt) this.right.out();
     this.out = left.add(right);
     return EvaluationStatus.IS_DONE;

@@ -39,7 +39,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private final int instanceId;
   private final int numberOfPlayers;
   private final Supplier<Network> tripleNetwork;
-  private FieldDefinition fieldDefinition;
+  private final FieldDefinition fieldDefinition;
   private final Function<Integer, SpdzSInt[]> preprocessedValues;
   private final MascotFieldElement ssk;
 

@@ -10,7 +10,7 @@ import dk.alexandra.fresco.framework.value.SInt;
  */
 public interface DummyArithmeticResourcePool extends NumericResourcePool {
 
-  SInt createSInt(FieldElement add);
+  SInt createSInt(FieldElement fieldElement);
 
   /**
    * Gets a serializer for big integer that is aligned with the current system settings in this
