@@ -152,7 +152,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
   public MiscBigIntegerGenerators getBigIntegerHelper() {
     if (miscOIntGenerators == null) {
       miscOIntGenerators = new MiscBigIntegerGenerators(
-          basicNumericContext.getFieldDefinition().getModulus());
+          basicNumericContext.getModulus());
     }
     return miscOIntGenerators;
   }

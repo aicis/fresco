@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.cope;
 
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
@@ -8,6 +7,7 @@ import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeftHelper;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -63,7 +63,7 @@ public class CopeSigner {
   public List<MascotFieldElement> extend(int numInputs) {
     // compute chosen masks
     List<MascotFieldElement> chosenMasks = generateMasks(numInputs,
-        resourcePool.getFieldDefinition().getModulus());
+        resourcePool.getModulus());
     // use mac share for each input
     List<MascotFieldElement> macKeyShares =
         IntStream.range(0, numInputs).mapToObj(idx -> macKeyShare).collect(Collectors.toList());
@@ -74,7 +74,7 @@ public class CopeSigner {
     return multiplier.computeProductShares(macKeyShares, chosenMasks, diffs);
   }
 
-  private List<MascotFieldElement> generateMasks(int numInputs, Modulus modulus) {
+  private List<MascotFieldElement> generateMasks(int numInputs, BigInteger modulus) {
     // for each input pair, we use our prgs to get the next set of masks
     List<MascotFieldElement> masks = new ArrayList<>();
     // generate mask for each input

@@ -1,15 +1,13 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class FieldElementSerializer implements ByteSerializer<MascotFieldElement> {
 
-  private final Modulus modulus;
+  private final BigInteger modulus;
   private final int modBitLength;
   private final FieldElementUtils fieldElementUtils;
 
@@ -18,9 +16,9 @@ public class FieldElementSerializer implements ByteSerializer<MascotFieldElement
    *
    * @param modulus modulus of field elements
    */
-  public FieldElementSerializer(Modulus modulus) {
+  public FieldElementSerializer(BigInteger modulus) {
     this.modulus = modulus;
-    this.modBitLength = modulus.getBigInteger().bitLength();
+    this.modBitLength = modulus.bitLength();
     this.fieldElementUtils = new FieldElementUtils(modulus);
   }
 
@@ -88,5 +86,4 @@ public class FieldElementSerializer implements ByteSerializer<MascotFieldElement
     }
     return fieldElementUtils.unpack(data);
   }
-
 }

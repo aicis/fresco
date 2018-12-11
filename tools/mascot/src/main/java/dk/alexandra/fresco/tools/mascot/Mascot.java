@@ -94,7 +94,7 @@ public class Mascot {
     for (int partyId = 1; partyId <= resourcePool.getNoOfParties(); partyId++) {
       if (partyId == resourcePool.getMyId()) {
         List<MascotFieldElement> randomElements = resourcePool.getLocalSampler()
-            .getNext(resourcePool.getFieldDefinition().getModulus(), numElements);
+            .getNext(resourcePool.getModulus(), numElements);
         perPartyElements.add(elementGeneration.input(randomElements));
       } else {
         perPartyElements.add(elementGeneration.input(partyId, numElements));
@@ -113,7 +113,7 @@ public class Mascot {
   public List<InputMask> getInputMasks(Integer maskerId, int numMasks) {
     if (maskerId.equals(resourcePool.getMyId())) {
       List<MascotFieldElement> randomMasks = resourcePool.getLocalSampler()
-          .getNext(resourcePool.getFieldDefinition().getModulus(), numMasks);
+          .getNext(resourcePool.getModulus(), numMasks);
       List<AuthenticatedElement> authenticated = input(randomMasks);
       return IntStream.range(0, numMasks)
           .mapToObj(idx -> new InputMask(randomMasks.get(idx), authenticated.get(idx)))

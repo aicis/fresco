@@ -12,7 +12,7 @@ import org.junit.Test;
 
 public class TestMascotFieldElement {
 
-  private final ModulusBigInteger modulus = new ModulusBigInteger("251");
+  private final BigInteger modulus = new BigInteger("251");
   private final int bitLength = 8;
 
   // Positive tests
@@ -125,7 +125,7 @@ public class TestMascotFieldElement {
     MascotFieldElement el = new MascotFieldElement("777", "65521");
     StrictBitVector bv = el.toBitVector();
     MascotFieldElement actual = new MascotFieldElement(bv.toByteArray(),
-        new ModulusBigInteger("65521"));
+        new BigInteger("65521"));
     CustomAsserts.assertEquals(el, actual);
   }
 
@@ -147,7 +147,7 @@ public class TestMascotFieldElement {
     BigInteger raw = new BigInteger("121");
     MascotFieldElement el = new MascotFieldElement(raw, modulus);
     MascotFieldElement actual = el.modInverse();
-    MascotFieldElement expected = new MascotFieldElement(raw.modInverse(modulus.getBigInteger()), modulus);
+    MascotFieldElement expected = new MascotFieldElement(raw.modInverse(modulus), modulus);
     CustomAsserts.assertEquals(expected, actual);
   }
 
@@ -168,17 +168,17 @@ public class TestMascotFieldElement {
 
   @Test(expected = IllegalArgumentException.class)
   public void testSanityCheckNegativeMod() {
-    new MascotFieldElement(111, new ModulusBigInteger(-251));
+    new MascotFieldElement(111, new BigInteger("-251"));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testSanityCheckBitLengthMismatch() {
-    new MascotFieldElement(111, new ModulusBigInteger(1111));
+    new MascotFieldElement(111, new BigInteger("1111"));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testSanityCheckValueTooLarge() {
-    new MascotFieldElement(252, new ModulusBigInteger(251));
+    new MascotFieldElement(252, new BigInteger("251"));
   }
 
 }

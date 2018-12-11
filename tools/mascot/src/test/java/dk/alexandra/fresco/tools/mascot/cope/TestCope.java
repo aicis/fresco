@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
 import org.junit.Test;
 
 public class TestCope extends NetworkedTest {
@@ -84,7 +83,7 @@ public class TestCope extends NetworkedTest {
     List<MascotFieldElement> leftResults = results.get(0);
     List<MascotFieldElement> rightResults = results.get(1);
 
-    int modulusInt = getModulus().getBigInteger().intValue();
+    int modulusInt = getModulus().intValue();
     int[] expectedArr = {7 * 11231 % modulusInt, 444 * 11231 % modulusInt,
         112 * 11231 % modulusInt, 11 * 11231 % modulusInt};
     List<MascotFieldElement> expected =

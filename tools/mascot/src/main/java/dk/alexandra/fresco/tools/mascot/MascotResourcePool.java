@@ -65,7 +65,7 @@ public interface MascotResourcePool extends NumericResourcePool {
    * @return serializer
    */
   default ByteSerializer<MascotFieldElement> getFieldElementSerializer() {
-    return new FieldElementSerializer(getFieldDefinition().getModulus());
+    return new FieldElementSerializer(getModulus());
   }
 
   /**

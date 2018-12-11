@@ -93,7 +93,7 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
           // Get round constant
           BigInteger roundConstant =
               MiMCConstants.getConstant(reverseRoundCount,
-                  basicNumericContext.getFieldDefinition().getModulus());
+                  basicNumericContext.getModulus());
 
           // subtract key and round constant
           Numeric numeric = seq.numeric();
@@ -114,7 +114,7 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
   }
 
   private BigInteger calculateThreeInverse(BasicNumericContext basicNumericContext) {
-    BigInteger modulus = basicNumericContext.getFieldDefinition().getModulus().getBigInteger();
+    BigInteger modulus = basicNumericContext.getModulus();
     BigInteger expP = modulus.subtract(BigInteger.ONE);
     return BigInteger.valueOf(3).modInverse(expP);
   }

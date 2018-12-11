@@ -2,17 +2,16 @@ package dk.alexandra.fresco.tools.mascot.field;
 
 import static org.junit.Assert.assertEquals;
 
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
+import java.math.BigInteger;
 import java.util.List;
 import org.junit.Test;
 
 public class TestMascotFieldElementUtils {
 
-  private final ModulusBigInteger modulus = new ModulusBigInteger("65521");
+  private final BigInteger modulus = new BigInteger("65521");
   private final int modBitLength = 16;
   private final FieldElementUtils fieldElementUtils = new FieldElementUtils(modulus);
   private final int[] leftArr = {1, 2, 3, 4};
@@ -21,7 +20,6 @@ public class TestMascotFieldElementUtils {
   private final int[] rightArr = {5, 6, 7, 8};
   private final List<MascotFieldElement> right =
       MascotTestUtils.generateSingleRow(rightArr, modulus);
-
 
   @Test
   public void testPairWiseMultiply() {
@@ -87,7 +85,7 @@ public class TestMascotFieldElementUtils {
 
   @Test(expected = IllegalArgumentException.class)
   public void testRecombineWrongModulus() {
-    Modulus missingMod = new ModulusBigInteger("251");
+    BigInteger missingMod = new BigInteger("251");
     int[] leftArr = {1, 2, 3, 4};
     List<MascotFieldElement> left = MascotTestUtils.generateSingleRow(leftArr, missingMod);
     fieldElementUtils.recombine(left);
@@ -119,5 +117,4 @@ public class TestMascotFieldElementUtils {
     byte[] packed = new byte[17];
     fieldElementUtils.unpack(packed);
   }
-
 }

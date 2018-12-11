@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.lib.compare;
 
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,10 +16,10 @@ public class MiscBigIntegerGenerators {
   private List<BigInteger> twoPowersList;
   private BigInteger modulus;
 
-  public MiscBigIntegerGenerators(Modulus modulus) {
+  public MiscBigIntegerGenerators(BigInteger modulus) {
     coefficientsOfPolynomiums = new HashMap<>();
 
-    this.modulus = modulus.getBigInteger();
+    this.modulus = modulus;
     twoPowersList = new ArrayList<>(1);
     twoPowersList.add(BigInteger.ONE);
   }

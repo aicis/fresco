@@ -17,6 +17,13 @@ public interface NumericResourcePool extends ResourcePool {
    *
    * @return modulus
    */
+  BigInteger getModulus();
+
+  /**
+   * Gets the field definition.
+   *
+   * @return field definition
+   */
   FieldDefinition getFieldDefinition();
 
   /**

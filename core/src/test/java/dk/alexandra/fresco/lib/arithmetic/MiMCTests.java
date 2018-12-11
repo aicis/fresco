@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -35,10 +34,10 @@ public class MiMCTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          final Modulus[] modulus = new Modulus[1];
+          final BigInteger[] modulus = new BigInteger[1];
           Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
             Numeric intFactory = builder.numeric();
-            modulus[0] = builder.getBasicNumericContext().getFieldDefinition().getModulus();
+            modulus[0] = builder.getBasicNumericContext().getModulus();
             DRes<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
             DRes<SInt> plainText = intFactory.known(BigInteger.valueOf(10));
             DRes<SInt> cipherText = builder.seq(new MiMCEncryption(plainText, encryptionKey));

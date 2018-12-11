@@ -244,14 +244,15 @@ public abstract class AbstractSpdzTest {
       List<Integer> partyIds =
           IntStream.range(1, numberOfParties + 1).boxed().collect(Collectors.toList());
       Drbg drbg = getDrbg(myId, PRG_SEED_LENGTH);
-      ModulusBigInteger modulus = new ModulusBigInteger(
-          ModulusFinder.findSuitableModulus(modBitLength));
+      BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
       Map<Integer, RotList> seedOts =
           getSeedOts(myId, partyIds, PRG_SEED_LENGTH, drbg, otGenerator.createExtraNetwork(myId));
       MascotFieldElement ssk = SpdzMascotDataSupplier.createRandomSsk(modulus, PRG_SEED_LENGTH);
+      final FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(
+          new ModulusBigInteger(modulus));
       supplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, numberOfParties,
           () -> tripleGenerator.createExtraNetwork(myId), modBitLength,
-          new FieldDefinitionBigInteger(modulus),
+          definition,
           new Function<Integer, SpdzSInt[]>() {
 
             private SpdzMascotDataSupplier tripleSupplier;
@@ -262,7 +263,7 @@ public abstract class AbstractSpdzTest {
               if (pipeNetwork == null) {
                 pipeNetwork = expPipeGenerator.createExtraNetwork(myId);
                 tripleSupplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, numberOfParties,
-                    () -> pipeNetwork, modBitLength, new FieldDefinitionBigInteger(modulus), null,
+                    () -> pipeNetwork, modBitLength, definition, null,
                     seedOts, drbg, ssk);
               }
               DRes<List<DRes<SInt>>> pipe =

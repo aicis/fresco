@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.tools.mascot;
 
 import dk.alexandra.fresco.framework.Party;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.Network;
@@ -11,6 +10,7 @@ import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -55,8 +55,8 @@ public class MascotTestContext {
     return resourcePool;
   }
 
-  public Modulus getModulus() {
-    return resourcePool.getFieldDefinition().getModulus();
+  public BigInteger getModulus() {
+    return resourcePool.getModulus();
   }
 
   public int getMyId() {

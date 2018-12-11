@@ -71,7 +71,7 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
            * in the previous round
            */
           BigInteger roundConstantInteger = MiMCConstants.getConstant(state.round,
-              seq.getBasicNumericContext().getFieldDefinition().getModulus());
+              seq.getBasicNumericContext().getModulus());
           Numeric numeric = seq.numeric();
           DRes<SInt> masked = numeric.add(
               roundConstantInteger,
@@ -92,7 +92,7 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
   static int getRequiredRounds(BasicNumericContext basicNumericContext, Integer requestedRounds) {
     final int requiredRounds;
     if (requestedRounds == null) {
-      BigInteger modulus = basicNumericContext.getFieldDefinition().getModulus().getBigInteger();
+      BigInteger modulus = basicNumericContext.getModulus();
       requiredRounds = (int) Math.ceil(Math.log(modulus.doubleValue()) / Math.log(3));
     } else {
       requiredRounds = requestedRounds;

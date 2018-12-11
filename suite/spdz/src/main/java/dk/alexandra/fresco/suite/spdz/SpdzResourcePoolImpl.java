@@ -43,9 +43,14 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
         "Configuration error, SHA-256 is needed for Spdz");
     // Initialize various fields global to the computation.
     this.modulus = dataSupplier.getFieldDefinition().getModulus();
-    this.modulusHalf = dataSupplier.getFieldDefinition().getModulus().half();
-    this.modulusSize = dataSupplier.getFieldDefinition().getModulus().bytesLength();
+    this.modulusHalf = this.modulus.half();
+    this.modulusSize = this.modulus.bytesLength();
     this.drbg = drbg;
+  }
+
+  @Override
+  public BigInteger getModulus() {
+    return getFieldDefinition().getModulus().getBigInteger();
   }
 
   @Override

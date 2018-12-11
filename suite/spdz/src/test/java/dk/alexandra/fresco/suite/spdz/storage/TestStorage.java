@@ -4,12 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import java.io.IOException;
+import java.math.BigInteger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,8 +51,8 @@ public class TestStorage {
   @Test
   public void testMultipleCallsAndRandomElm() throws Throwable {
     SpdzDataSupplier supplier = (new Initializer()).numTriples(1).init();
-    Modulus m1 = supplier.getFieldDefinition().getModulus();
-    Modulus m2 = supplier.getFieldDefinition().getModulus();
+    BigInteger m1 = supplier.getModulus();
+    BigInteger m2 = supplier.getModulus();
     assertEquals(m1, m2);
     FieldElement ssk1 = supplier.getSecretSharedKey();
     FieldElement ssk2 = supplier.getSecretSharedKey();
@@ -63,7 +63,7 @@ public class TestStorage {
   @Test(expected = IllegalArgumentException.class)
   public void testMissingModulus() throws Throwable {
     SpdzDataSupplier supplier = new SpdzStorageDataSupplier(storage, storageName, 2);
-    supplier.getFieldDefinition().getModulus();
+    supplier.getModulus();
   }
 
   @Test(expected = IllegalArgumentException.class)

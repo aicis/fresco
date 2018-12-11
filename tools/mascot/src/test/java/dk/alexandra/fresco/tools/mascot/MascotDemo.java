@@ -34,7 +34,7 @@ public class MascotDemo {
     MascotResourcePool resourcePool = defaultResourcePool(myId, noOfParties,
         network);
     MascotFieldElement macKeyShare = resourcePool.getLocalSampler().getNext(
-        resourcePool.getFieldDefinition().getModulus());
+        resourcePool.getModulus());
     toClose = (Closeable) network;
     mascot = new Mascot(resourcePool, network, macKeyShare);
   }

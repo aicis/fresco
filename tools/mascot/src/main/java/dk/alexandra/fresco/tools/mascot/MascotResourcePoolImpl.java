@@ -18,6 +18,7 @@ import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
 import dk.alexandra.fresco.tools.ot.otextension.RotFactory;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Map;
 
@@ -57,6 +58,11 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
         new StrictBitVector(mascotSecurityParameters.getPrgSeedLength(), drbg));
     this.messageDigest = ExceptionConverter.safe(() -> MessageDigest.getInstance("SHA-256"),
         "Configuration error, SHA-256 is needed for Mascot");
+  }
+
+  @Override
+  public BigInteger getModulus() {
+    return fieldDefinition.getModulus().getBigInteger();
   }
 
   @Override

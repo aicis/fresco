@@ -2,7 +2,6 @@ package dk.alexandra.fresco.suite.spdz.storage;
 
 import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
@@ -20,6 +19,7 @@ import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
+import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayDeque;
 import java.util.HashMap;
@@ -110,7 +110,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   /**
    * Creates random field element that can be used as the mac key share by the calling party.
    */
-  public static MascotFieldElement createRandomSsk(Modulus modulus, int prgSeedLength) {
+  public static MascotFieldElement createRandomSsk(BigInteger modulus, int prgSeedLength) {
     byte[] seedBytes = new byte[prgSeedLength / 8];
     new SecureRandom().nextBytes(seedBytes);
     StrictBitVector seed = new StrictBitVector(seedBytes);
@@ -171,6 +171,11 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       logger.trace("Got another bit batch");
     }
     return new MascotFormatConverter(fieldDefinition).toSpdzSInt(randomBits.pop());
+  }
+
+  @Override
+  public BigInteger getModulus() {
+    return fieldDefinition.getModulus().getBigInteger();
   }
 
   @Override

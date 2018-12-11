@@ -1,8 +1,7 @@
 package dk.alexandra.fresco.tools.mascot;
 
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
+import java.math.BigInteger;
 import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
@@ -14,15 +13,14 @@ public abstract class NetworkedTest {
 
   private final MascotSecurityParameters defaultParameters = new MascotSecurityParameters(16, 16,
       256, 3);
-  private ModulusBigInteger modulus = new ModulusBigInteger(ModulusFinder.findSuitableModulus(16));
+  private BigInteger modulus = ModulusFinder.findSuitableModulus(16);
 
   public void initContexts(int noOfParties) {
     initContexts(noOfParties, defaultParameters);
   }
 
   public void initContexts(int noOfParties, MascotSecurityParameters securityParameters) {
-    modulus = new ModulusBigInteger(
-        ModulusFinder.findSuitableModulus(securityParameters.getModBitLength()));
+    modulus = ModulusFinder.findSuitableModulus(securityParameters.getModBitLength());
     contexts = testRuntime.initializeContexts(noOfParties, 1,
         securityParameters);
   }
@@ -43,12 +41,11 @@ public abstract class NetworkedTest {
     }
   }
 
-  protected Modulus getModulus() {
+  protected BigInteger getModulus() {
     return modulus;
   }
 
   protected MascotSecurityParameters getDefaultParameters() {
     return defaultParameters;
   }
-
 }

@@ -3,16 +3,16 @@ package dk.alexandra.fresco.tools.mascot.field;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 
 public class TestMascotFieldElementSerializer {
 
-  public static ModulusBigInteger modulus = new ModulusBigInteger("65521");
+  public static BigInteger modulus = new BigInteger("65521");
   public static FieldElementSerializer serializer =
       new FieldElementSerializer(modulus);
 
@@ -28,7 +28,7 @@ public class TestMascotFieldElementSerializer {
   @Test
   public void testSerializeEmptyList() {
     byte[] actual = serializer.serialize(new ArrayList<>());
-    byte[] expected = new byte[] {};
+    byte[] expected = new byte[]{};
     assertArrayEquals(expected, actual);
   }
 
@@ -44,7 +44,7 @@ public class TestMascotFieldElementSerializer {
 
   @Test
   public void testDeserializeEmptyArray() {
-    byte[] ser = new byte[] {};
+    byte[] ser = new byte[]{};
     List<MascotFieldElement> des = serializer.deserializeList(ser);
     assertEquals(true, des.isEmpty());
   }
@@ -61,7 +61,7 @@ public class TestMascotFieldElementSerializer {
 
   @Test(expected = IllegalArgumentException.class)
   public void testSerializeWrongModulusSingleElement() {
-    MascotFieldElement element = new MascotFieldElement(1, new ModulusBigInteger("251"));
+    MascotFieldElement element = new MascotFieldElement(1, new BigInteger("251"));
     serializer.serialize(element);
   }
 
@@ -69,7 +69,7 @@ public class TestMascotFieldElementSerializer {
   public void testSerializeWrongModulus() {
     int[] arr = {1, 42, 123, 111};
     List<MascotFieldElement> elements = MascotTestUtils
-        .generateSingleRow(arr, new ModulusBigInteger("251"));
+        .generateSingleRow(arr, new BigInteger("251"));
     serializer.serialize(elements);
   }
 
@@ -78,5 +78,4 @@ public class TestMascotFieldElementSerializer {
     byte[] serialized = {0x00, 0x01, 0x00, 0x02, 0x00, 0x03, 0x00, 0x04, 0x00};
     serializer.deserializeList(serialized);
   }
-
 }

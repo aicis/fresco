@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -23,7 +22,7 @@ public class AdvancedNumericTests {
 
     private int numerator;
     private int denominator;
-    private Modulus modulus;
+    private BigInteger modulus;
 
     public TestDivision(int numerator, int denominator) {
       this.numerator = numerator;
@@ -36,7 +35,7 @@ public class AdvancedNumericTests {
         @Override
         public void test() throws Exception {
           Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
-            modulus = builder.getBasicNumericContext().getFieldDefinition().getModulus();
+            modulus = builder.getBasicNumericContext().getModulus();
 
             DRes<SInt> p = builder.numeric().known(BigInteger.valueOf(numerator));
             DRes<SInt> q = builder.numeric().known(BigInteger.valueOf(denominator));
@@ -56,12 +55,11 @@ public class AdvancedNumericTests {
 
   }
 
-
-  private static BigInteger convertRepresentation(BigInteger b, Modulus modulus) {
+  private static BigInteger convertRepresentation(BigInteger b, BigInteger modulus) {
     // Stolen from Spdz Util
-    BigInteger actual = b.mod(modulus.getBigInteger());
-    if (actual.compareTo(modulus.getBigInteger().divide(BigInteger.valueOf(2))) > 0) {
-      actual = actual.subtract(modulus.getBigInteger());
+    BigInteger actual = b.mod(modulus);
+    if (actual.compareTo(modulus.divide(BigInteger.valueOf(2))) > 0) {
+      actual = actual.subtract(modulus);
     }
     return actual;
   }
@@ -71,7 +69,7 @@ public class AdvancedNumericTests {
 
     private int numerator;
     private int denominator;
-    private Modulus modulus;
+    private BigInteger modulus;
 
     public TestDivisionWithKnownDenominator(int numerator, int denominator) {
       this.numerator = numerator;
@@ -84,7 +82,7 @@ public class AdvancedNumericTests {
         @Override
         public void test() throws Exception {
           Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
-            modulus = builder.getBasicNumericContext().getFieldDefinition().getModulus();
+            modulus = builder.getBasicNumericContext().getModulus();
 
             DRes<SInt> p = builder.numeric().known(BigInteger.valueOf(numerator));
             BigInteger q = BigInteger.valueOf(denominator);

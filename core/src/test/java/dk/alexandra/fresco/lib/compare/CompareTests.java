@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -147,8 +146,8 @@ public class CompareTests {
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     // returns modulus / 2 + added
-    private BigInteger halfModPlus(Modulus modulus, String added) {
-      return modulus.getBigInteger().divide(BigInteger.valueOf(2)).add(new BigInteger(added));
+    private BigInteger halfModPlus(BigInteger modulus, String added) {
+      return modulus.divide(BigInteger.valueOf(2)).add(new BigInteger(added));
     }
 
     @Override
@@ -160,7 +159,7 @@ public class CompareTests {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
             Numeric input = builder.numeric();
             Comparison comparison = builder.comparison();
-            Modulus modulus = builder.getBasicNumericContext().getFieldDefinition().getModulus();
+            BigInteger modulus = builder.getBasicNumericContext().getModulus();
 
             // check (mod / 2) == (mod / 2)
             DRes<SInt> compResultOne = comparison

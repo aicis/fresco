@@ -58,18 +58,17 @@ public class ExponentiationPipeTests {
           int sumLengths = IntStream.range(0, lengths.length).map(i -> lengths[i]).sum();
           sumLengths += 2 * lengths.length;
           assertEquals(sumLengths, output.size());
-          Modulus modulus = ((DummyArithmeticResourcePoolImpl) this.conf.getResourcePool())
-              .getFieldDefinition().getModulus();
+          BigInteger modulus = ((DummyArithmeticResourcePoolImpl) this.conf.getResourcePool())
+              .getModulus();
           int offset = 0;
           for (int length : lengths) {
             BigInteger baseInv = output.get(offset++);
             BigInteger base = output.get(offset++);
-            BigInteger modulusBigInteger = modulus.getBigInteger();
-            assertEquals(base.modInverse(modulusBigInteger), baseInv.mod(modulusBigInteger));
+            assertEquals(base.modInverse(modulus), baseInv.mod(modulus));
             for (int i = 2; i < length + 2; i++) {
               BigInteger b = output.get(offset++);
-              assertEquals(b.mod(modulusBigInteger),
-                  base.modPow(BigInteger.valueOf(i), modulusBigInteger));
+              assertEquals(b.mod(modulus),
+                  base.modPow(BigInteger.valueOf(i), modulus));
             }
           }
         }

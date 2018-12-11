@@ -133,6 +133,11 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
+  public BigInteger getModulus() {
+    return getFieldDefinition().getModulus().getBigInteger();
+  }
+
+  @Override
   public FieldDefinition getFieldDefinition() {
     if (this.definition != null) {
       return this.definition;

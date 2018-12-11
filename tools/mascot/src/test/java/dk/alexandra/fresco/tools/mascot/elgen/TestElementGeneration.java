@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.elgen;
 
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
@@ -262,7 +261,7 @@ public class TestElementGeneration extends NetworkedTest {
   // util methods
 
   private List<AuthenticatedElement> computeExpected(List<MascotFieldElement> inputs,
-      List<MascotFieldElement> macKeyShares, Modulus modulus) {
+      List<MascotFieldElement> macKeyShares, BigInteger modulus) {
     MascotFieldElement macKey = Addable.sum(macKeyShares);
     Stream<AuthenticatedElement> expected = inputs.stream().map(fe -> {
       MascotFieldElement mac = fe.multiply(macKey);

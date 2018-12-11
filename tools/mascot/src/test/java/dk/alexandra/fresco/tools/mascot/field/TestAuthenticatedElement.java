@@ -2,13 +2,13 @@ package dk.alexandra.fresco.tools.mascot.field;
 
 import static org.junit.Assert.assertEquals;
 
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
+import java.math.BigInteger;
 import org.junit.Test;
 
 public class TestAuthenticatedElement {
 
-  private final ModulusBigInteger modulus = new ModulusBigInteger("251");
+  private final BigInteger modulus = new BigInteger("251");
 
   @Test
   public void testToString() {
@@ -42,5 +42,4 @@ public class TestAuthenticatedElement {
     CustomAsserts.assertEquals(actualPartyOne, expectedPartyOne);
     CustomAsserts.assertEquals(actualPartyTwo, expectedPartyTwo);
   }
-
 }

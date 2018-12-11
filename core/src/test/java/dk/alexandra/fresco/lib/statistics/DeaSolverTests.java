@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -152,13 +151,13 @@ public class DeaSolverTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        private Modulus modulus;
+        private BigInteger modulus;
 
         @Override
         public void test() {
 
           Application<DeaSolver, ProtocolBuilderNumeric> app = producer -> {
-            modulus = producer.getBasicNumericContext().getFieldDefinition().getModulus();
+            modulus = producer.getBasicNumericContext().getModulus();
             Numeric numeric = producer.numeric();
             List<List<BigInteger>> rawTargetOutputs = TestDeaSolver.this.rawTargetOutputs;
             List<List<DRes<SInt>>> targetOutputs = knownMatrix(numeric, rawTargetOutputs);
@@ -338,7 +337,7 @@ public class DeaSolverTests {
   /**
    * Reduces a field-element to a double using Gauss reduction.
    */
-  private static double postProcess(BigInteger input, AnalysisType type, Modulus modulus) {
+  private static double postProcess(BigInteger input, AnalysisType type, BigInteger modulus) {
     BigInteger[] gauss = gauss(input, modulus);
     double res = (gauss[0].doubleValue() / gauss[1].doubleValue());
     if (type == DeaSolver.AnalysisType.INPUT_EFFICIENCY) {
@@ -364,9 +363,9 @@ public class DeaSolverTests {
    * @param mod the modulus, i.e., <i>N</i>.
    * @return The fraction as represented as the rational number <i>r/s</i>.
    */
-  private static BigInteger[] gauss(BigInteger product, Modulus mod) {
-    product = product.mod(mod.getBigInteger());
-    BigInteger[] u = {mod.getBigInteger(), BigInteger.ZERO};
+  private static BigInteger[] gauss(BigInteger product, BigInteger mod) {
+    product = product.mod(mod);
+    BigInteger[] u = {mod, BigInteger.ZERO};
     BigInteger[] v = {product, BigInteger.ONE};
     BigInteger two = BigInteger.valueOf(2);
     BigInteger uv = innerproduct(u, v);

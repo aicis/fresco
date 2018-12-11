@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.triple;
 
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
@@ -67,7 +66,7 @@ class MultiplyRight {
         multiplyRightHelper.generateSeeds(rightFactors.size(), resourcePool.getModBitLength());
     // convert seeds pairs to field elements so we can compute on them
     List<Pair<MascotFieldElement, MascotFieldElement>> feSeedPairs =
-        seedsToFieldElements(seedPairs, resourcePool.getFieldDefinition().getModulus());
+        seedsToFieldElements(seedPairs, resourcePool.getModulus());
     // compute q0 - q1 + b for each seed pair
     List<MascotFieldElement> diffs = multiplyRightHelper.computeDiffs(feSeedPairs, rightFactors);
     // send diffs over to other party
@@ -80,7 +79,7 @@ class MultiplyRight {
   }
 
   private List<Pair<MascotFieldElement, MascotFieldElement>> seedsToFieldElements(
-      List<Pair<StrictBitVector, StrictBitVector>> seedPairs, Modulus modulus) {
+      List<Pair<StrictBitVector, StrictBitVector>> seedPairs, BigInteger modulus) {
     return seedPairs.parallelStream().map(pair -> {
       MascotFieldElement t0 = fromBits(pair.getFirst(), modulus);
       MascotFieldElement t1 = fromBits(pair.getSecond(), modulus);
@@ -88,9 +87,9 @@ class MultiplyRight {
     }).collect(Collectors.toList());
   }
 
-  private MascotFieldElement fromBits(StrictBitVector vector, Modulus modulus) {
+  private MascotFieldElement fromBits(StrictBitVector vector, BigInteger modulus) {
     // safe since the modulus is guaranteed to be close enough to 2^modBitLength
-    return new MascotFieldElement(new BigInteger(vector.toByteArray()).mod(modulus.getBigInteger()), modulus);
+    return new MascotFieldElement(new BigInteger(vector.toByteArray()).mod(modulus), modulus);
   }
 
 }

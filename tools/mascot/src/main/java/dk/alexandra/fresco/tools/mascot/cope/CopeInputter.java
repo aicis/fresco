@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.cope;
 
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
@@ -9,6 +8,7 @@ import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRightHelper;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -76,12 +76,12 @@ public class CopeInputter {
     List<Pair<MascotFieldElement, MascotFieldElement>> maskPairs = new ArrayList<>();
     for (int i = 0; i < numInputs; i++) {
       // generate masks for single input
-      maskPairs.addAll(generateMaskPairs(resourcePool.getFieldDefinition().getModulus()));
+      maskPairs.addAll(generateMaskPairs(resourcePool.getModulus()));
     }
     return maskPairs;
   }
 
-  private List<Pair<MascotFieldElement, MascotFieldElement>> generateMaskPairs(Modulus modulus) {
+  private List<Pair<MascotFieldElement, MascotFieldElement>> generateMaskPairs(BigInteger modulus) {
     Stream<Pair<MascotFieldElement, MascotFieldElement>> maskStream =
         IntStream.range(0, leftPrgs.size()).parallel().mapToObj(idx -> {
           MascotFieldElement t0 = this.leftPrgs.get(idx).getNext(modulus);

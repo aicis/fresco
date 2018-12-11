@@ -23,7 +23,7 @@ public class MultiplyLeftHelper {
 
   public MultiplyLeftHelper(MascotResourcePool resourcePool, Network network, int otherId) {
     this.resourcePool = resourcePool;
-    this.fieldElementUtils = new FieldElementUtils(resourcePool.getFieldDefinition().getModulus());
+    this.fieldElementUtils = new FieldElementUtils(resourcePool.getModulus());
     this.rot = resourcePool.createRot(otherId, network);
   }
 

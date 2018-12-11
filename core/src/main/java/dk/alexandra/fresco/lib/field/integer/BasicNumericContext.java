@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.lib.field.integer;
 
 import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
+import java.math.BigInteger;
 
 /**
  * Holds the most crucial properties about the finite field we are working within.
@@ -41,6 +42,15 @@ public class BasicNumericContext {
    */
   public FieldDefinition getFieldDefinition() {
     return fieldDefinition;
+  }
+
+  /**
+   * Returns the modulus used in the underlying arithmetic protocol suite.
+   *
+   * @return The modulus used.
+   */
+  public BigInteger getModulus() {
+    return fieldDefinition.getModulus().getBigInteger();
   }
 
   /**

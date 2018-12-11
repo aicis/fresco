@@ -11,7 +11,7 @@ public class TestSpdzStorage {
     SpdzStorageDataSupplier supplier =
         new SpdzStorageDataSupplier(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
             "invalid", 2);
-    supplier.getFieldDefinition().getModulus();
+    supplier.getModulus();
   }
 
   @Test(expected = IllegalArgumentException.class)

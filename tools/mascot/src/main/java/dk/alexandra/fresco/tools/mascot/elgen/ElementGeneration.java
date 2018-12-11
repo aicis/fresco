@@ -46,13 +46,13 @@ public class ElementGeneration {
       MascotFieldElement macKeyShare, FieldElementPrg jointSampler) {
     this.resourcePool = resourcePool;
     this.network = network;
-    this.fieldElementUtils = new FieldElementUtils(resourcePool.getFieldDefinition().getModulus());
+    this.fieldElementUtils = new FieldElementUtils(resourcePool.getModulus());
     this.macChecker = new MacCheck(resourcePool, network);
     this.macKeyShare = macKeyShare;
     this.localSampler = resourcePool.getLocalSampler();
     this.jointSampler = jointSampler;
     this.sharer = new AdditiveSecretSharer(localSampler,
-        resourcePool.getFieldDefinition().getModulus());
+        resourcePool.getModulus());
     this.copeSigners = new HashMap<>();
     this.copeInputters = new HashMap<>();
     initializeCope(resourcePool, network);
@@ -71,7 +71,7 @@ public class ElementGeneration {
 
     // add extra random element which will later be used to mask inputs (step 1)
     MascotFieldElement extraElement = localSampler
-        .getNext(resourcePool.getFieldDefinition().getModulus());
+        .getNext(resourcePool.getModulus());
     values.add(extraElement);
 
     // inputter secret-shares input values (step 2)
@@ -82,7 +82,7 @@ public class ElementGeneration {
 
     // generate coefficients for values and macs (step 6)
     List<MascotFieldElement> coefficients = jointSampler
-        .getNext(resourcePool.getFieldDefinition().getModulus(), values.size());
+        .getNext(resourcePool.getModulus(), values.size());
 
     // mask and combine values (step 7)
     MascotFieldElement maskedValue = fieldElementUtils.innerProduct(values, coefficients);
@@ -119,7 +119,7 @@ public class ElementGeneration {
 
     // generate coefficients for macs (step 6)
     List<MascotFieldElement> coefficients = jointSampler
-        .getNext(resourcePool.getFieldDefinition().getModulus(), numInputs + 1);
+        .getNext(resourcePool.getModulus(), numInputs + 1);
 
     // receive masked value we will use in mac-check (step 7)
     MascotFieldElement maskedValue =
@@ -144,7 +144,7 @@ public class ElementGeneration {
       List<MascotFieldElement> openValues) {
     // will use this to mask macs
     List<MascotFieldElement> masks = jointSampler
-        .getNext(resourcePool.getFieldDefinition().getModulus(), sharesWithMacs.size());
+        .getNext(resourcePool.getModulus(), sharesWithMacs.size());
     // only need macs
     List<MascotFieldElement> macs =
         sharesWithMacs.stream().map(AuthenticatedElement::getMac).collect(Collectors.toList());
@@ -237,7 +237,7 @@ public class ElementGeneration {
           MascotFieldElement share = shares.get(idx);
           MascotFieldElement mac = macs.get(idx);
           return new AuthenticatedElement(share, mac,
-              resourcePool.getFieldDefinition().getModulus());
+              resourcePool.getModulus());
         })
         .collect(Collectors.toList());
   }

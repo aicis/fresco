@@ -57,6 +57,11 @@ public class TestNumericResourcePool {
     }
 
     @Override
+    public BigInteger getModulus() {
+      return fieldDefinition.getModulus().getBigInteger();
+    }
+
+    @Override
     public FieldDefinition getFieldDefinition() {
       return fieldDefinition;
     }
