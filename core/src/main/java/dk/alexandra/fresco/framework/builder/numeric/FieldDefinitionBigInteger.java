@@ -1,13 +1,17 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class FieldDefinitionBigInteger implements FieldDefinition {
 
   private final ModulusBigInteger modulus;
+  private final int modulusLength;
 
   public FieldDefinitionBigInteger(ModulusBigInteger modulus) {
     this.modulus = modulus;
+    this.modulusLength = modulus.getBigInteger().toByteArray().length;
   }
 
   @Override
@@ -37,29 +41,31 @@ public final class FieldDefinitionBigInteger implements FieldDefinition {
 
   @Override
   public FieldElement deserialize(byte[] bytes) {
-    return deserialize(bytes, 0, bytes.length);
+    return new FieldElementBigInteger(bytes, modulus);
   }
 
   @Override
-  public FieldElement deserialize(byte[] bytes, int offset, int length) {
-    if (bytes.length > length) {
-      byte[] dest = new byte[length];
-      System.arraycopy(bytes, offset, dest, 0, length);
-      return new FieldElementBigInteger(dest, modulus);
-    } else {
-      return new FieldElementBigInteger(bytes, modulus);
+  public List<FieldElement> deserializeList(byte[] bytes) {
+    ArrayList<FieldElement> elements = new ArrayList<>();
+    for (int i = 0; i < bytes.length; i += modulusLength) {
+      byte[] copy = new byte[modulusLength];
+      System.arraycopy(bytes, i * modulusLength, copy, 0, modulusLength);
+      elements.add(new FieldElementBigInteger(copy, modulus));
     }
+    return elements;
   }
 
   @Override
   public byte[] serialize(FieldElement fieldElement) {
-    byte[] bytes = new byte[fieldElement.convertToBigInteger().toByteArray().length];
-    serialize(fieldElement, bytes, 0, bytes.length);
-    return bytes;
+    return ((FieldElementBigInteger) fieldElement).toByteArray();
   }
 
-  @Override
-  public void serialize(FieldElement fieldElement, byte[] bytes, int offset, int length) {
-    fieldElement.toByteArray(bytes, offset, length);
+  public byte[] serialize(List<FieldElement> fieldElements) {
+    byte[] bytes = new byte[modulusLength * fieldElements.size()];
+    for (int i = 0; i < fieldElements.size(); i++) {
+      FieldElementBigInteger fieldElement = (FieldElementBigInteger) fieldElements.get(i);
+      fieldElement.toByteArray(bytes, i * modulusLength, modulusLength);
+    }
+    return bytes;
   }
 }
