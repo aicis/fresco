@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -174,16 +172,44 @@ public class PolySampler {
    * Note: This is the distribution called <i>DG(&sigma;<sup>2</sup>)</i> in the Overdrive paper.
    * </p>
    *
-   * @param length
-   * @param variance
-   * @param modulus
-   * @return
+   * @param length the number of coefficients in the polynomials
+   * @param standardDeviation the standard deviation of the distribution
+   * @param modulus the modulus
+   * @return a ring poly with gaussian coefficients.
    */
-  CoefficientRingPoly gaussianPoly(int length, int variance, BigInteger modulus) {
-    throw new UnsupportedOperationException("Not Implemented");
+  CoefficientRingPoly gaussianPoly(int length, double standardDeviation, BigInteger modulus) {
+    List<BigInteger> coefficients = new ArrayList<>(length);
+    for (int i = 0; i < length; i++) {
+      coefficients.add(BigInteger.valueOf((long) (randomGaussian() * standardDeviation)));
+    }
+    return new CoefficientRingPoly(coefficients, modulus);
   }
 
+  /**
+   * Generate a random normal distributed value. Implemented as the "Ratio method", see
+   * https://en.wikipedia.org/wiki/Normal_distribution#Generating_values_from_normal_distribution
+   */
+  private double randomGaussian() {
+    while (true) {
+      double first = drng.nextDouble();
+      double second = drng.nextDouble();
 
+      double value = Math.sqrt(8 / Math.E) * (second - 0.5) / first;
+
+      double squared = value * value;
+
+      boolean earlyAcceptance = squared <= 5 - 4 * Math.pow(Math.E, 0.25) * first;
+      if (earlyAcceptance) {
+        return value;
+      }
+
+      boolean earlyRejection = squared >= 4 * Math.pow(Math.E, -1.35) / first + 1.4;
+
+      if (!earlyRejection && squared <= -4 * Math.log(first)) {
+        return value;
+      }
+    }
+  }
 
   /**
    * Translate a value in 0, 1, 2, 3 to 0, 1, -1, 0 respectively.
@@ -205,5 +231,4 @@ public class PolySampler {
     return IntStream.range(0, length).mapToObj(i -> drng.nextBigInteger(modulus))
         .collect(Collectors.toCollection(ArrayList::new));
   }
-
 }
