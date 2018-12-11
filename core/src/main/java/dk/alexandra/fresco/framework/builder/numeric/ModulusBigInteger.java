@@ -9,6 +9,7 @@ public final class ModulusBigInteger implements Modulus {
   private final BigInteger halved;
 
   public ModulusBigInteger(BigInteger value) {
+    Objects.requireNonNull(value);
     this.value = value;
     this.halved = value.divide(BigInteger.valueOf(2));
   }

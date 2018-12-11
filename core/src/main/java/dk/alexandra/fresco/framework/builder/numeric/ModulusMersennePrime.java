@@ -10,9 +10,7 @@ public final class ModulusMersennePrime implements Modulus {
   private final BigInteger halved;
 
   private ModulusMersennePrime(MersennePrimeInteger mersenne) {
-    if (mersenne == null) {
-      throw new IllegalArgumentException("modulus cannot be null");
-    }
+    Objects.requireNonNull(mersenne);
     this.mersenne = mersenne;
     this.value = new BigInteger(mersenne.toString());
     this.halved = this.value.divide(BigInteger.valueOf(2));
