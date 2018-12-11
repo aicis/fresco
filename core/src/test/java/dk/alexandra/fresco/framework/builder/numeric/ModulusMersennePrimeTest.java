@@ -4,7 +4,10 @@ import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.math.BigInteger;
+import java.util.Random;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.core.Is;
 import org.junit.Test;
 
 public class ModulusMersennePrimeTest {
@@ -31,5 +34,16 @@ public class ModulusMersennePrimeTest {
     assertThat(
         prime.toString(),
         CoreMatchers.containsString("1461501637330902918203684832716283019655932542929"));
+  }
+
+  @Test
+  public void modulus() {
+    ModulusMersennePrime modulus = new ModulusMersennePrime(160, 47);
+    Random random = new Random(0xFFAA115599L);
+    for (int i = 0; i < 50; i++) {
+      BigInteger value = new BigInteger(180 + random.nextInt(50), random);
+      BigInteger mod = modulus.mod(value);
+      assertThat(mod, Is.is(value.mod(modulus.getBigInteger())));
+    }
   }
 }
