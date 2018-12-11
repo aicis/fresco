@@ -5,7 +5,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class FieldElementSerializer implements ByteSerializer<MascotFieldElement> {
 
   private final BigInteger modulus;
@@ -87,5 +86,4 @@ public class FieldElementSerializer implements ByteSerializer<MascotFieldElement
     }
     return fieldElementUtils.unpack(data);
   }
-
 }

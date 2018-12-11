@@ -9,7 +9,7 @@ public interface FieldElementPrg {
 
   /**
    * Deterministically generates random field element.
-   * 
+   *
    * @param modulus field modulus
    * @return random field element
    */
@@ -32,7 +32,7 @@ public interface FieldElementPrg {
 
   /**
    * Generates a matrix of random field elements.
-   * 
+   *
    * @param modulus field modulus
    * @param numRows number of rows of random elements
    * @param numCols number of values per row
@@ -46,5 +46,4 @@ public interface FieldElementPrg {
     }
     return sampled;
   }
-
 }

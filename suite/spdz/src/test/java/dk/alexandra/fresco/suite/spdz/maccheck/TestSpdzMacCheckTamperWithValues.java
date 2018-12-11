@@ -1,13 +1,14 @@
 package dk.alexandra.fresco.suite.spdz.maccheck;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElementBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -16,6 +17,7 @@ import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import java.math.BigInteger;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.Test;
 
 public class TestSpdzMacCheckTamperWithValues extends AbstractSpdzTest {
@@ -58,7 +60,8 @@ public class TestSpdzMacCheckTamperWithValues extends AbstractSpdzTest {
             return producer.seq(seq -> {
               SInt value = input.out();
               if (seq.getBasicNumericContext().getMyId() == cheatingPartyId) {
-                value = ((SpdzSInt) value).multiply(new BigInt(2, BigInteger.TEN));
+                value = ((SpdzSInt) value)
+                    .multiply(new FieldElementBigInteger(2, new ModulusBigInteger(10)));
               }
               final SInt finalSInt = value;
               return seq.numeric().open(() -> finalSInt);
@@ -67,7 +70,7 @@ public class TestSpdzMacCheckTamperWithValues extends AbstractSpdzTest {
           try {
             runApplication(app);
           } catch (Exception e) {
-            assertTrue(e.getCause() instanceof MaliciousException);
+            assertThat(e.getCause(), IsInstanceOf.instanceOf(MaliciousException.class));
           }
         }
       };

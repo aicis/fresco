@@ -8,7 +8,6 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import java.math.BigInteger;
 
-
 public class FieldElementPrgImpl implements FieldElementPrg {
 
   private final Drng drng;
@@ -31,5 +30,4 @@ public class FieldElementPrgImpl implements FieldElementPrg {
   public MascotFieldElement getNext(BigInteger modulus) {
     return new MascotFieldElement(drng.nextBigInteger(modulus), modulus);
   }
-
 }

@@ -130,7 +130,7 @@ public class TestParallelMascots {
         Map<Integer, RotList> seedOt = seedOts.get(finalMyId - 1);
         mascotCreators.add(() -> new Mascot(
             new MascotResourcePoolImpl(finalMyId, noOfParties,
-              finalInstanceId, getDrbg(), seedOt, mascotSecurityParameters),
+                finalInstanceId, getDrbg(), seedOt, mascotSecurityParameters),
             normalManager.createExtraNetwork(finalMyId),
             randomSsk));
       }
@@ -188,6 +188,5 @@ public class TestParallelMascots {
       Thread.sleep(1000);
       logger.info("Testing the remaining " + futures.size() + " futures");
     }
-
   }
 }

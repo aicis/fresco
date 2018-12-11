@@ -42,5 +42,4 @@ public class TestAuthenticatedElement {
     CustomAsserts.assertEquals(actualPartyOne, expectedPartyOne);
     CustomAsserts.assertEquals(actualPartyTwo, expectedPartyTwo);
   }
-
 }

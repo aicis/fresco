@@ -12,6 +12,7 @@ public class SpdzProtocolSuite implements ProtocolSuiteNumeric<SpdzResourcePool>
   private final int fixedPointPrecision;
 
   public SpdzProtocolSuite(int maxBitLength, int fixedPointPrecision) {
+    // TODO EOA Include FieldDefinition
     this.maxBitLength = maxBitLength;
     this.fixedPointPrecision = fixedPointPrecision;
   }
@@ -19,7 +20,7 @@ public class SpdzProtocolSuite implements ProtocolSuiteNumeric<SpdzResourcePool>
   public SpdzProtocolSuite(int maxBitLength) {
     this(maxBitLength, maxBitLength / 8);
   }
-  
+
   @Override
   public BuilderFactoryNumeric init(SpdzResourcePool resourcePool, Network network) {
     BasicNumericContext numericContext = createNumericContext(resourcePool);
@@ -28,10 +29,10 @@ public class SpdzProtocolSuite implements ProtocolSuiteNumeric<SpdzResourcePool>
   }
 
   BasicNumericContext createNumericContext(SpdzResourcePool resourcePool) {
-    return new BasicNumericContext(maxBitLength, resourcePool.getModulus(),
-        resourcePool.getMyId(), resourcePool.getNoOfParties());
+    return new BasicNumericContext(maxBitLength, resourcePool.getMyId(),
+        resourcePool.getNoOfParties(), resourcePool.getFieldDefinition());
   }
-  
+
   RealNumericContext createRealNumericContext() {
     return new RealNumericContext(fixedPointPrecision);
   }
@@ -40,5 +41,4 @@ public class SpdzProtocolSuite implements ProtocolSuiteNumeric<SpdzResourcePool>
   public RoundSynchronization<SpdzResourcePool> createRoundSynchronization() {
     return new SpdzRoundSynchronization(this);
   }
-
 }

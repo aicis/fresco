@@ -3,7 +3,7 @@ package dk.alexandra.fresco.suite.spdz.maccheck;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -27,7 +27,7 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
   private int round = 0;
   private ProtocolProducer pp;
   private Map<Integer, FieldElement> commitments;
-  private BigInteger modulus;
+  private FieldDefinition definition;
   private MaliciousSpdzCommitProtocol comm;
   private MaliciousSpdzOpenCommitProtocol openComm;
   private final List<SpdzSInt> closedValues;
@@ -42,14 +42,14 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
       final SecureRandom rand,
       final MessageDigest digest,
       final Pair<List<SpdzSInt>, List<FieldElement>> toCheck,
-      final BigInteger modulus,
+      final FieldDefinition definition,
       final Drbg jointDrbg,
       final FieldElement alpha) {
     this.rand = rand;
     this.digest = digest;
     this.closedValues = toCheck.getFirst();
     this.openedValues = toCheck.getSecond();
-    this.modulus = modulus;
+    this.definition = definition;
     this.alpha = alpha;
     this.jointDrbg = jointDrbg;
   }
@@ -58,26 +58,31 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
   public <ResourcePoolT extends ResourcePool> void getNextProtocols(
       ProtocolCollection<ResourcePoolT> protocolCollection) {
     if (pp == null) {
+      BigInteger modulusBigInteger = definition.getModulus();
       if (round == 0) {
-        BigInteger[] rs = sampleRandomCoefficients(openedValues.size(), jointDrbg, modulus);
+        BigInteger[] rs = sampleRandomCoefficients(openedValues.size(), jointDrbg, modulusBigInteger);
         BigInteger a = BigInteger.ZERO;
         int index = 0;
         for (FieldElement openedValue : openedValues) {
-          a = a.add(rs[index++].multiply(openedValue.asBigInteger())).mod(modulus);
+          a = a.add(rs[index++].multiply(openedValue.convertToBigInteger()))
+              .mod(modulusBigInteger);
         }
 
         // compute gamma_i as the sum of all MAC's on the opened values times r_j.
         BigInteger gamma = BigInteger.ZERO;
         index = 0;
         for (SpdzSInt c : closedValues) {
-          gamma = gamma.add(rs[index++].multiply(c.getMac().asBigInteger())).mod(modulus);
+          gamma = gamma.add(rs[index++].multiply(c.getMac().convertToBigInteger()))
+              .mod(modulusBigInteger);
         }
 
         // compute delta_i as: gamma_i - alpha_i*a
-        BigInteger delta = gamma.subtract(alpha.asBigInteger().multiply(a)).mod(modulus);
+        BigInteger delta = gamma.subtract(alpha.convertToBigInteger().multiply(a))
+            .mod(modulusBigInteger);
         // Commit to delta and open it afterwards
-        SpdzCommitment commitment = new SpdzCommitment(digest, BigInt.fromConstant(delta, modulus),
-            rand, modulus.bitLength());
+        SpdzCommitment commitment = new SpdzCommitment(digest,
+            definition.createElement(delta),
+            rand, modulusBigInteger.bitLength());
         Map<Integer, FieldElement> comms = new HashMap<>();
         comm = new MaliciousSpdzCommitProtocol(commitment, comms, corruptCommitRound);
         commitments = new HashMap<>();
@@ -97,9 +102,9 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         }
         BigInteger deltaSum = BigInteger.ZERO;
         for (FieldElement d : commitments.values()) {
-          deltaSum = deltaSum.add(d.asBigInteger());
+          deltaSum = deltaSum.add(d.convertToBigInteger());
         }
-        deltaSum = deltaSum.mod(modulus);
+        deltaSum = deltaSum.mod(modulusBigInteger);
         if (!deltaSum.equals(BigInteger.ZERO)) {
           throw new MaliciousException(
               "The sum of delta's was not 0. Someone was corrupting something amongst "

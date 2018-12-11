@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.spdz.datatypes;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Spdz-specific representation of a secret integer.
@@ -90,41 +91,21 @@ public class SpdzSInt implements SInt, Serializable {
   }
 
   @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((mac == null) ? 0 : mac.hashCode());
-    result = prime * result + ((share == null) ? 0 : share.hashCode());
-    return result;
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    SpdzSInt spdzSInt = (SpdzSInt) o;
+    return Objects.equals(share, spdzSInt.share)
+        && Objects.equals(mac, spdzSInt.mac);
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    SpdzSInt other = (SpdzSInt) obj;
-    if (mac == null) {
-      if (other.mac != null) {
-        return false;
-      }
-    } else if (!mac.equals(other.mac)) {
-      return false;
-    }
-    if (share == null) {
-      if (other.share != null) {
-        return false;
-      }
-    } else if (!share.equals(other.share)) {
-      return false;
-    }
-    return true;
+  public int hashCode() {
+    return Objects.hash(share, mac);
   }
 
   @Override

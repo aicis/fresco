@@ -49,5 +49,4 @@ public interface SpdzResourcePool extends NumericResourcePool {
    * multiplication triples.
    */
   SpdzDataSupplier getDataSupplier();
-
 }

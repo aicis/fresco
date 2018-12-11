@@ -1,7 +1,9 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -32,7 +34,7 @@ public class FakeTripGen {
 
   public static int EXP_PIPE_SIZE = 200 + 1; // R^-1, R, R^2, ..., R^200
 
-  private static BigInteger mod;
+  private static FieldDefinition definition;
   private static FieldElement alpha;
   private static Random rand;
   private static boolean randKeyPresent = false;
@@ -63,9 +65,9 @@ public class FakeTripGen {
    */
   public static ByteBuffer elementToBytes(SpdzSInt element, int size) {
     FieldElement share = element.getShare();
-    byte[] shareBytes = share.asBigInteger().toByteArray();
+    byte[] shareBytes = share.convertToBigInteger().toByteArray();
     FieldElement mac = element.getMac();
-    byte[] macBytes = mac.asBigInteger().toByteArray();
+    byte[] macBytes = mac.convertToBigInteger().toByteArray();
     byte[] bytes = new byte[size * 2];
     if (shareBytes.length > size) {
       if (shareBytes.length == size + 1) {
@@ -98,7 +100,7 @@ public class FakeTripGen {
    * @return a byte representation.
    */
   public static ByteBuffer bigIntToBytes(FieldElement b, int size) {
-    byte[] bBytes = b.asBigInteger().toByteArray();
+    byte[] bBytes = b.convertToBigInteger().toByteArray();
     byte[] bytes = new byte[size];
     if (bBytes.length > size) {
       if (bBytes.length == size + 1) {
@@ -118,11 +120,12 @@ public class FakeTripGen {
    * Generates the given amount of triples. The list contains an array of size noOfParties - one
    * share for each party
    */
-  public static List<SpdzTriple[]> generateTriples(int amount, int noOfParties, BigInteger modulus,
+  public static List<SpdzTriple[]> generateTriples(int amount, int noOfParties,
+      FieldDefinition definition,
       FieldElement alpha) {
     FakeTripGen.rand = new Random();
     FakeTripGen.alpha = alpha;
-    FakeTripGen.mod = modulus;
+    FakeTripGen.definition = definition;
 
     List<SpdzTriple[]> triples = new ArrayList<>(amount);
     for (int i = 0; i < amount; i++) {
@@ -154,11 +157,11 @@ public class FakeTripGen {
    * @param streams the streams to write to. Innermost list should have size of parties, while
    *     outermost is per thread used online.
    */
-  public void generateTripleStream(int amount, int noOfParties, BigInteger modulus,
+  public void generateTripleStream(int amount, int noOfParties, FieldDefinition definition,
       FieldElement alpha, Random rand, List<List<ObjectOutputStream>> streams) throws IOException {
     FakeTripGen.rand = rand;
     FakeTripGen.alpha = alpha;
-    FakeTripGen.mod = modulus;
+    FakeTripGen.definition = definition;
 
     for (List<ObjectOutputStream> ooss : streams) {
       for (int i = 0; i < amount; i++) {
@@ -195,10 +198,10 @@ public class FakeTripGen {
    * knows the real value
    */
   public static List<List<SpdzInputMask[]>> generateInputMasks(int amount, int noOfParties,
-      BigInteger modulus, FieldElement alpha) {
+      FieldDefinition definition, FieldElement alpha) {
     FakeTripGen.rand = new Random(0);
     FakeTripGen.alpha = alpha;
-    FakeTripGen.mod = modulus;
+    FakeTripGen.definition = definition;
 
     List<List<SpdzInputMask[]>> res = new ArrayList<>(noOfParties);
     for (int currPId = 0; currPId < noOfParties; currPId++) {
@@ -232,10 +235,10 @@ public class FakeTripGen {
    * @param towardsPartyId Id starting from index 1.
    */
   public static List<SpdzInputMask[]> generateInputMasks(int amount, int towardsPartyId,
-      int noOfParties, BigInteger modulus, FieldElement alpha) {
+      int noOfParties, FieldDefinition definition, FieldElement alpha) {
     FakeTripGen.rand = new Random(0);
     FakeTripGen.alpha = alpha;
-    FakeTripGen.mod = modulus;
+    FakeTripGen.definition = definition;
 
     List<SpdzInputMask[]> inputs = new ArrayList<>(amount);
     for (int i = 0; i < amount; i++) {
@@ -265,18 +268,19 @@ public class FakeTripGen {
    * @param amount The amount of input masks to generate
    * @param noOfParties The number of parties in the MPC computation
    * @param inputterId The ID of the party inputting data
-   * @param modulus The modulus used
+   * @param definition The field definition
    * @param alpha The secret key used
    * @param rand The randomness used
    * @param streams The streams to write to. Innermost list should have size of parties, while
    *     outermost is per thread used online.
    */
   public void generateInputMaskStream(int amount, int noOfParties, int inputterId,
-      BigInteger modulus, FieldElement alpha, Random rand, List<List<ObjectOutputStream>> streams)
+      FieldDefinition definition, FieldElement alpha, Random rand,
+      List<List<ObjectOutputStream>> streams)
       throws IOException {
     FakeTripGen.rand = rand;
     FakeTripGen.alpha = alpha;
-    FakeTripGen.mod = modulus;
+    FakeTripGen.definition = definition;
 
     for (List<ObjectOutputStream> ooss : streams) {
       for (int i = 0; i < amount; i++) {
@@ -296,11 +300,12 @@ public class FakeTripGen {
     }
   }
 
-  public static List<SpdzSInt[]> generateBits(int amount, int noOfParties, BigInteger modulus,
+  public static List<SpdzSInt[]> generateBits(int amount, int noOfParties,
+      FieldDefinition definition,
       FieldElement alpha) {
     FakeTripGen.rand = new Random();
     FakeTripGen.alpha = alpha;
-    FakeTripGen.mod = modulus;
+    FakeTripGen.definition = definition;
 
     FieldElement bit;
     List<SpdzSInt[]> res = new ArrayList<>();
@@ -323,11 +328,12 @@ public class FakeTripGen {
    * @param streams the streams to write to. Innermost list should have size of parties, while
    *     outermost is per thread used online.
    */
-  public void generateBitStream(int amount, int noOfParties, BigInteger modulus, FieldElement alpha,
+  public void generateBitStream(int amount, int noOfParties, FieldDefinition definition,
+      FieldElement alpha,
       Random rand, List<List<ObjectOutputStream>> streams) throws IOException {
     FakeTripGen.rand = rand;
     FakeTripGen.alpha = alpha;
-    FakeTripGen.mod = modulus;
+    FakeTripGen.definition = definition;
 
     FieldElement bit;
     for (List<ObjectOutputStream> ooss : streams) {
@@ -353,24 +359,25 @@ public class FakeTripGen {
    * i.e. list.get(0)[0] contains the expPipe no. 1 for player 1.
    */
   public static List<SpdzSInt[][]> generateExpPipes(int amount, int noOfParties,
-      BigInteger modulus,
+      FieldDefinition definition,
       FieldElement alpha) {
     FakeTripGen.rand = new Random(0);
     FakeTripGen.alpha = alpha;
-    FakeTripGen.mod = modulus;
+    FakeTripGen.definition = definition;
 
     List<SpdzSInt[][]> res = new ArrayList<>();
     for (int j = 0; j < amount; j++) {
       SpdzSInt[][] expPipe = new SpdzSInt[noOfParties][EXP_PIPE_SIZE];
       FieldElement r = sample();
-      FieldElement rInv = BigInt.fromConstant(r.asBigInteger().modInverse(mod), mod);
+      FieldElement rInv = definition.createElement(
+          r.convertToBigInteger().modInverse(definition.getModulus()));
       FieldElement mac = getMac(rInv);
       List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
       for (int i = 0; i < noOfParties; i++) {
         expPipe[i][0] = elements.get(i);
       }
 
-      FieldElement exp = BigInt.fromConstant(BigInteger.ONE, modulus);
+      FieldElement exp = definition.createElement(1);
       for (int i = 1; i < EXP_PIPE_SIZE; i++) {
         exp = exp.multiply(r);
         mac = getMac(exp);
@@ -384,24 +391,25 @@ public class FakeTripGen {
     return res;
   }
 
-  public void generateExpPipeStream(int amount, int noOfParties, BigInteger modulus,
+  public void generateExpPipeStream(int amount, int noOfParties, FieldDefinition definition,
       FieldElement alpha, Random rand, List<List<ObjectOutputStream>> streams) throws IOException {
     FakeTripGen.rand = rand;
     FakeTripGen.alpha = alpha;
-    FakeTripGen.mod = modulus;
+    FakeTripGen.definition = definition;
 
     for (List<ObjectOutputStream> ooss : streams) {
       for (int j = 0; j < amount; j++) {
         SpdzSInt[][] expPipe = new SpdzSInt[noOfParties][EXP_PIPE_SIZE];
         FieldElement r = sample();
-        FieldElement rInv = BigInt.fromConstant(r.asBigInteger().modInverse(mod), mod);
+        FieldElement rInv = definition.createElement(
+            r.convertToBigInteger().modInverse(definition.getModulus()));
         FieldElement mac = getMac(rInv);
         List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
         for (int i = 0; i < noOfParties; i++) {
           expPipe[i][0] = elements.get(i);
         }
 
-        FieldElement exp = BigInt.fromConstant(BigInteger.ONE, modulus);
+        FieldElement exp = definition.createElement(1);
         for (int i = 1; i < EXP_PIPE_SIZE; i++) {
           exp = exp.multiply(r);
           mac = getMac(exp);
@@ -423,9 +431,10 @@ public class FakeTripGen {
     }
   }
 
-  public static List<FieldElement> generateAlphaShares(int noOfParties, BigInteger modulus) {
+  public static List<FieldElement> generateAlphaShares(int noOfParties,
+      FieldDefinition definition) {
     FakeTripGen.rand = new Random();
-    FakeTripGen.mod = modulus;
+    FakeTripGen.definition = definition;
 
     List<FieldElement> alphaShares = new ArrayList<>();
     FieldElement alphaShare;
@@ -460,12 +469,12 @@ public class FakeTripGen {
       }
       alpha = sample();
       size = 0;
-      byte[] bytes = mod.toByteArray();
+      byte[] bytes = definition.getModulus().toByteArray();
 
       if (bytes[0] == 0) {
-        size = mod.toByteArray().length - 1;
+        size = definition.getModulus().toByteArray().length - 1;
       } else {
-        size = mod.toByteArray().length;
+        size = definition.getModulus().toByteArray().length;
       }
 
       bytes = null;
@@ -521,7 +530,7 @@ public class FakeTripGen {
       String key = arg.substring(0, 3);
       String value = arg.substring(3);
       if (key.equals(primeKey)) {
-        mod = new BigInteger(value);
+        definition = new FieldDefinitionBigInteger(new ModulusBigInteger(value));
         primePresent = true;
       } else if (key.equals(tripKey)) {
         numberOfTriples = Integer.parseInt(value);
@@ -703,7 +712,7 @@ public class FakeTripGen {
       FileWriter fw = new FileWriter(f);
       // Share stuff
       alphaShare = sample();
-      fw.write(mod.toString());
+      fw.write(definition.getModulus().toString());
       fw.write(" ");
       if (i != numberOfParties - 1) {
         fw.write(alphaShare.toString());
@@ -727,9 +736,10 @@ public class FakeTripGen {
     }
     for (int j = 0; j < numberOfExps; j++) {
       FieldElement r = sample();
-      FieldElement rInv = BigInt.fromConstant(r.asBigInteger().modInverse(mod), mod);
+      FieldElement rInv = definition.createElement(
+          r.convertToBigInteger().modInverse(definition.getModulus()));
       writeAsShared(rInv, channels);
-      FieldElement exp = BigInt.fromConstant(BigInteger.ONE, mod);
+      FieldElement exp = definition.createElement(1);
       for (int i = 1; i < EXP_PIPE_SIZE; i++) {
         exp = exp.multiply(r);
         writeAsShared(exp, channels);
@@ -796,8 +806,8 @@ public class FakeTripGen {
    * @return a random integer.
    */
   private static FieldElement sample() {
-    FieldElement result = sampleRandomBits(mod.bitLength(), rand);
-    if (result.asBigInteger().compareTo(mod) < 0) {
+    FieldElement result = sampleRandomBits(definition.getModulus().bitLength(), rand);
+    if (result.convertToBigInteger().compareTo(definition.getModulus()) < 0) {
       return result;
     } else {
       return sample();
@@ -805,7 +815,7 @@ public class FakeTripGen {
   }
 
   private static FieldElement sampleRandomBits(int bitLength, Random rand) {
-    return BigInt.fromConstant(new BigInteger(bitLength, rand), mod);
+    return definition.createElement(new BigInteger(bitLength, rand));
   }
 
   public static void cleanup() throws IOException {

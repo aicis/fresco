@@ -1,7 +1,10 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElementBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -93,25 +96,28 @@ public class InitializeStorage {
     }
     Storage[] storages = tmpStores.toArray(new Storage[0]);
 
-    BigInteger p = new BigInteger(
+    ModulusBigInteger p = new ModulusBigInteger(
         "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
 
-    List<FieldElement> alphaShares = FakeTripGen.generateAlphaShares(noOfPlayers, p);
-    FieldElement alpha = new BigInt(0, p);
+    FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(p);
+    List<FieldElement> alphaShares = FakeTripGen.generateAlphaShares(noOfPlayers, definition);
+    FieldElement alpha = new FieldElementBigInteger(0, p);
     for (FieldElement share : alphaShares) {
       alpha.add(share);
     }
 
-    List<SpdzTriple[]> triples = FakeTripGen.generateTriples(noOfTriples, noOfPlayers, p, alpha);
+    List<SpdzTriple[]> triples = FakeTripGen
+        .generateTriples(noOfTriples, noOfPlayers, definition, alpha);
     List<List<SpdzInputMask[]>> inputMasks =
-        FakeTripGen.generateInputMasks(noOfInputMasks, noOfPlayers, p, alpha);
-    List<SpdzSInt[]> bits = FakeTripGen.generateBits(noOfBits, noOfPlayers, p, alpha);
-    List<SpdzSInt[][]> expPipes = FakeTripGen.generateExpPipes(noOfExpPipes, noOfPlayers, p, alpha);
+        FakeTripGen.generateInputMasks(noOfInputMasks, noOfPlayers, definition, alpha);
+    List<SpdzSInt[]> bits = FakeTripGen.generateBits(noOfBits, noOfPlayers, definition, alpha);
+    List<SpdzSInt[][]> expPipes = FakeTripGen
+        .generateExpPipes(noOfExpPipes, noOfPlayers, definition, alpha);
 
     for (Storage store : storages) {
       for (int i = 1; i < noOfPlayers + 1; i++) {
         String storageName = SpdzStorageDataSupplier.STORAGE_NAME_PREFIX + i;
-        store.putObject(storageName, SpdzStorageDataSupplier.MODULUS_KEY, p);
+        store.putObject(storageName, SpdzStorageDataSupplier.MODULUS_KEY, p.getBigInteger());
         store.putObject(storageName, SpdzStorageDataSupplier.SSK_KEY, alphaShares.get(i - 1));
       }
       // triples
@@ -176,11 +182,12 @@ public class InitializeStorage {
    * @param noOfInputMasks The number of masks for input to generate.
    * @param noOfBits The number of random bits to generate
    * @param noOfExpPipes The number of exponentiation pipes to generate.
-   * @param p The modulus to use.
+   * @param fieldDefinition field definition to use.
    */
   public static void initStreamedStorage(StreamedStorage storage, int noOfPlayers,
       int noOfThreads, int noOfTriples, int noOfInputMasks, int noOfBits, int noOfExpPipes,
-      BigInteger p) {
+      FieldDefinition fieldDefinition) {
+    BigInteger p = fieldDefinition.getModulus();
     try {
       // Try get the last thread file. If that fails, we need to
       // generate the files
@@ -200,8 +207,8 @@ public class InitializeStorage {
       f.mkdirs();
     }
 
-    List<FieldElement> alphaShares = FakeTripGen.generateAlphaShares(noOfPlayers, p);
-    FieldElement alpha = new BigInt(0, p);
+    List<FieldElement> alphaShares = FakeTripGen.generateAlphaShares(noOfPlayers, fieldDefinition);
+    FieldElement alpha = fieldDefinition.createElement(0);
     for (FieldElement share : alphaShares) {
       alpha.add(share);
     }
@@ -242,7 +249,8 @@ public class InitializeStorage {
     }
     // }
     try {
-      generator.generateTripleStream(noOfTriples, noOfPlayers, p, alpha, new Random(), streams);
+      generator.generateTripleStream(noOfTriples, noOfPlayers, fieldDefinition, alpha, new Random(),
+          streams);
       for (List<ObjectOutputStream> s : streams) {
         for (ObjectOutputStream o : s) {
           o.flush();
@@ -282,7 +290,9 @@ public class InitializeStorage {
     }
     try {
       for (int towardsPlayer = 0; towardsPlayer < noOfPlayers; towardsPlayer++) {
-        generator.generateInputMaskStream(noOfInputMasks, noOfPlayers, towardsPlayer, p, alpha,
+        generator
+            .generateInputMaskStream(noOfInputMasks, noOfPlayers, towardsPlayer, fieldDefinition,
+                alpha,
             new Random(), oosss.get(towardsPlayer));
       }
       for (List<List<ObjectOutputStream>> ooss : oosss) {
@@ -324,7 +334,8 @@ public class InitializeStorage {
       streams.add(ooss);
     }
     try {
-      generator.generateBitStream(noOfBits, noOfPlayers, p, alpha, new Random(), streams);
+      generator
+          .generateBitStream(noOfBits, noOfPlayers, fieldDefinition, alpha, new Random(), streams);
       for (List<ObjectOutputStream> s : streams) {
         for (ObjectOutputStream o : s) {
           o.flush();
@@ -361,7 +372,9 @@ public class InitializeStorage {
       streams.add(ooss);
     }
     try {
-      generator.generateExpPipeStream(noOfExpPipes, noOfPlayers, p, alpha, new Random(), streams);
+      generator
+          .generateExpPipeStream(noOfExpPipes, noOfPlayers, fieldDefinition, alpha, new Random(),
+              streams);
       for (List<ObjectOutputStream> s : streams) {
         for (ObjectOutputStream o : s) {
           o.flush();
@@ -377,16 +390,17 @@ public class InitializeStorage {
 
   /**
    * Does the same as
-   * {@link #initStreamedStorage(StreamedStorage, int, int, int, int, int, int, BigInteger)} but
+   * {@link #initStreamedStorage(StreamedStorage, int, int, int, int, int, int, FieldDefinition)}
+   * but
    * where the chosen modulus is chosen for you, and is the same as the one found in:
    * {@link SpdzDummyDataSupplier}
    */
   public static void initStreamedStorage(StreamedStorage streamedStorage,
       int noOfPlayers, int noOfThreads, int noOfTriples, int noOfInputMasks, int noOfBits,
       int noOfExpPipes) {
-    BigInteger p = new BigInteger(
+    ModulusBigInteger p = new ModulusBigInteger(
         "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
     InitializeStorage.initStreamedStorage(streamedStorage, noOfPlayers, noOfThreads, noOfTriples,
-        noOfInputMasks, noOfBits, noOfExpPipes, p);
+        noOfInputMasks, noOfBits, noOfExpPipes, new FieldDefinitionBigInteger(p));
   }
 }

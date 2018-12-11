@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests;
@@ -153,7 +154,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   // Statistics
-
 
   // Creditrater
   @Test
@@ -369,19 +369,19 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_MiMC_EncDec() {
     runTest(new MiMCTests.TestMiMCEncDec<>(), new TestParameters()
-        .modulus(ModulusFinder.findSuitableModulus(512)));
+        .modulus(getModulus(512)));
   }
 
   @Test
   public void test_MiMC_EncDecFixedRounds() {
     runTest(new MiMCTests.TestMiMCEncDecFixedRounds<>(), new TestParameters()
-        .modulus(ModulusFinder.findSuitableModulus(512)));
+        .modulus(getModulus(512)));
   }
 
   @Test
   public void test_MiMC_Deterministically() {
     runTest(new MiMCTests.TestMiMCEncryptsDeterministically<>(), new TestParameters()
-        .modulus(ModulusFinder.findSuitableModulus(512)));
+        .modulus(getModulus(512)));
   }
 
   // lib.list
@@ -419,10 +419,14 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.DANZIG),
         new TestParameters()
             .numParties(2)
-            .modulus(ModulusFinder.findSuitableModulus(128))
+            .modulus(getModulus(128))
             .maxBitLength(30)
             .fixedPointPrecesion(8)
             .performanceLogging(false));
+  }
+
+  private ModulusBigInteger getModulus(int i) {
+    return new ModulusBigInteger(ModulusFinder.findSuitableModulus(i));
   }
 
   @Test
@@ -438,7 +442,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new LpBuildingBlockTests.TestLpSolverDebug<>(), new TestParameters().numParties(2));
   }
 
-
   @Test
   public void test_DEASolver_2_Sequential_dummy_NoIterations() {
     runTest(
@@ -446,7 +449,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
             1, true),
         new TestParameters().numParties(2));
   }
-
 
   // lib.math.integer.binary
   @Test
@@ -502,7 +504,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     assertThat(performanceLoggers.get(1).getLoggedValues()
         .get(NumericLoggingDecorator.ARITHMETIC_BASIC_SUB), is((long) 19));
   }
-
 
   @Test
   public void test_ExponentiationOpenExponent() {
@@ -690,7 +691,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_Real_Matrix_Subtraction() {
     runTest(new LinearAlgebraTests.TestMatrixSubtraction<>(), new TestParameters().numParties(2));
   }
-  
+
   @Test
   public void test_Real_Matrix_Multiplication() {
     runTest(new LinearAlgebraTests.TestMatrixMultiplication<>(),
@@ -730,7 +731,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new LinearAlgebraTests.TestTransposeMatrix<>(),
         new TestParameters());
   }
-  
+
   @Test
   public void test_Real_Exp() {
     runTest(new MathTests.TestExp<>(), new TestParameters().numParties(2));
@@ -792,5 +793,4 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_trunctation() {
     runTest(new TruncationTests.TestTruncation<>(), new TestParameters().numParties(2));
   }
-
 }

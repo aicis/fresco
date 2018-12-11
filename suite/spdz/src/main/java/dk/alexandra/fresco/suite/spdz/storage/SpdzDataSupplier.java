@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestBruteforce;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -42,11 +43,18 @@ public interface SpdzDataSupplier {
   SpdzSInt getNextBit();
 
   /**
-   * The modulus used for this instance of SPDZ.
+   * The field definition used for this instance of SPDZ.
    *
-   * @return a modulus
+   * @return a field definition
    */
   BigInteger getModulus();
+
+  /**
+   * The field definition used for this instance of SPDZ.
+   *
+   * @return a field definition
+   */
+  FieldDefinition getFieldDefinition();
 
   /**
    * Returns the Players share of the Shared Secret Key (alpha). This is never to be send to anyone

@@ -48,5 +48,4 @@ public abstract class NetworkedTest {
   protected MascotSecurityParameters getDefaultParameters() {
     return defaultParameters;
   }
-
 }

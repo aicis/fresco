@@ -7,7 +7,6 @@ import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import java.math.BigInteger;
 import java.util.List;
-
 import org.junit.Test;
 
 public class TestMascotFieldElementUtils {
@@ -21,7 +20,6 @@ public class TestMascotFieldElementUtils {
   private final int[] rightArr = {5, 6, 7, 8};
   private final List<MascotFieldElement> right =
       MascotTestUtils.generateSingleRow(rightArr, modulus);
-
 
   @Test
   public void testPairWiseMultiply() {
@@ -119,5 +117,4 @@ public class TestMascotFieldElementUtils {
     byte[] packed = new byte[17];
     fieldElementUtils.unpack(packed);
   }
-
 }

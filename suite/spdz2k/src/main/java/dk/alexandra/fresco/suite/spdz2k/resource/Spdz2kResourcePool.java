@@ -90,7 +90,7 @@ public interface Spdz2kResourcePool<PlainT extends CompUInt<?, ?, PlainT>>
   default BigInteger convertRepresentation(PlainT value) {
     BigInteger modulus = getModulus();
     BigInteger actual = value.toBigInteger().mod(modulus);
-    if (actual.compareTo(modulus.divide(BigInteger.valueOf(2))) > 0) {
+    if (actual.compareTo(getModulusHalved()) > 0) {
       return actual.subtract(modulus);
     } else {
       return actual;
@@ -106,6 +106,7 @@ public interface Spdz2kResourcePool<PlainT extends CompUInt<?, ?, PlainT>>
 
   @Override
   default BigInteger convertRepresentation(FieldElement value) {
-    return convertRepresentation(getFactory().createFromBigInteger(value.asBigInteger()));
+    return convertRepresentation(
+        getFactory().createFromBigInteger(value.convertToBigInteger()));
   }
 }

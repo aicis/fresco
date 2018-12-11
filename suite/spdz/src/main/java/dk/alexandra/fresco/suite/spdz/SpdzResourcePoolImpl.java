@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
@@ -42,21 +42,20 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
         "Configuration error, SHA-256 is needed for Spdz");
     // Initialize various fields global to the computation.
     this.modulus = dataSupplier.getModulus();
-    this.modulusHalf = this.modulus.divide(BigInteger.valueOf(2));
+    this.modulusHalf = dataSupplier.getFieldDefinition().getModulusHalved();
     this.modulusSize = this.modulus.toByteArray().length;
     this.drbg = drbg;
   }
 
   @Override
-  public BigInteger getModulus() {
-    return modulus;
+  public FieldDefinition getFieldDefinition() {
+    return dataSupplier.getFieldDefinition();
   }
 
   @Override
   public ByteSerializer<FieldElement> getSerializer() {
     // TODO Define by the user of this class
-    return new BigIntegerWithFixedLengthSerializer(modulusSize,
-        bytes -> BigInt.fromBytes(bytes, modulus));
+    return new BigIntegerWithFixedLengthSerializer(modulusSize, getFieldDefinition());
   }
 
   @Override
@@ -84,8 +83,7 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
 
   @Override
   public BigInteger convertRepresentation(FieldElement value) {
-    BigInteger modulus = getModulus();
-    BigInteger actual = value.asBigInteger().mod(modulus);
+    BigInteger actual = value.convertToBigInteger().mod(modulus);
     if (actual.compareTo(modulusHalf) > 0) {
       actual = actual.subtract(modulus);
     }

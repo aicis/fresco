@@ -1,7 +1,9 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElementBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -16,12 +18,12 @@ import org.junit.Test;
 
 public class TestSpdzDatatypes {
 
+  private ModulusBigInteger modulus = new ModulusBigInteger(100);
   private SpdzSInt elm0 = new SpdzSInt(get(BigInteger.ZERO), get(BigInteger.ZERO));
   private SpdzSInt elm1 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE));
   private SpdzSInt elm2 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE));
   private SpdzSInt elmDiff1 =
       new SpdzSInt(get(BigInteger.ZERO), get(BigInteger.ONE));
-  private BigInteger modulus = BigInteger.TEN.multiply(BigInteger.TEN);
 
   @Test
   public void testElementEquals() {
@@ -29,23 +31,14 @@ public class TestSpdzDatatypes {
     Assert.assertEquals(elm1, elm2);
     Assert.assertNotEquals(elm0, elm2);
     Assert.assertNotEquals(elm0.hashCode(), elm2.hashCode());
-    Assert.assertEquals("spdz(BigInt{value=1, modulus =null}, BigInt{value=1, modulus =null})",
+    Assert.assertEquals(
+        "spdz(FieldElementBigInteger{value=1, modulus=ModulusBigInteger{value=100}}, FieldElementBigInteger{value=1, modulus=ModulusBigInteger{value=100}})",
         elm1.toString());
-    SpdzSInt elm3 = new SpdzSInt(
-        get(BigInteger.TEN), get(BigInteger.TEN));
+    SpdzSInt elm3 = new SpdzSInt(get(BigInteger.TEN), get(BigInteger.TEN));
     Assert.assertNotEquals(elm2, elm3);
-    Assert.assertNotEquals(elm2, new SpdzSInt(
-        get(BigInteger.ONE), get(BigInteger.ZERO)));
+    Assert.assertNotEquals(elm2, new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ZERO)));
     Assert.assertNotEquals(elm2, "");
     Assert.assertNotEquals(elm2, null);
-
-    SpdzSInt modNull1 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE));
-    SpdzSInt modNull2 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE));
-    Assert.assertEquals(modNull1, modNull2);
-    Assert.assertNotEquals(modNull1, elm1);
-
-    SpdzSInt modDiff = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE));
-    Assert.assertNotEquals(modDiff, elm1);
 
     SpdzSInt shareNull1 = new SpdzSInt(null, get(BigInteger.ONE));
     SpdzSInt shareNull2 = new SpdzSInt(null, get(BigInteger.ONE));
@@ -54,7 +47,7 @@ public class TestSpdzDatatypes {
   }
 
   private FieldElement get(BigInteger ten) {
-    return BigInt.fromConstant(ten, modulus);
+    return new FieldElementBigInteger(ten, modulus);
   }
 
   @Test
@@ -78,7 +71,7 @@ public class TestSpdzDatatypes {
     Assert.assertNotEquals(tripANull.hashCode(), tripCNull.hashCode());
     Assert
         .assertEquals(
-            "SpdzTriple [elementA=spdz(BigInt{value=1, modulus =null}, BigInt{value=1, modulus =null}), elementB=spdz(BigInt{value=1, modulus =null}, BigInt{value=1, modulus =null}), elementC=spdz(BigInt{value=1, modulus =null}, BigInt{value=1, modulus =null})]",
+            "SpdzTriple [elementA=spdz(FieldElementBigInteger{value=1, modulus=ModulusBigInteger{value=100}}, FieldElementBigInteger{value=1, modulus=ModulusBigInteger{value=100}}), elementB=spdz(FieldElementBigInteger{value=1, modulus=ModulusBigInteger{value=100}}, FieldElementBigInteger{value=1, modulus=ModulusBigInteger{value=100}}), elementC=spdz(FieldElementBigInteger{value=1, modulus=ModulusBigInteger{value=100}}, FieldElementBigInteger{value=1, modulus=ModulusBigInteger{value=100}})]",
             trip1.toString());
   }
 
@@ -92,7 +85,8 @@ public class TestSpdzDatatypes {
     Assert.assertNotEquals(i1, null);
     Assert.assertNotEquals(i1, "");
     Assert.assertNotEquals(i1, i3);
-    Assert.assertEquals("spdz(BigInt{value=1, modulus =null}, BigInt{value=1, modulus =null})",
+    Assert.assertEquals(
+        "spdz(FieldElementBigInteger{value=1, modulus=ModulusBigInteger{value=100}}, FieldElementBigInteger{value=1, modulus=ModulusBigInteger{value=100}})",
         i1.toString());
   }
 
@@ -104,13 +98,14 @@ public class TestSpdzDatatypes {
 
   @Test
   public void testCommitment() throws NoSuchAlgorithmException {
-    SpdzCommitment comm = new SpdzCommitment(null, null, new Random(1), modulus.bitLength());
+    SpdzCommitment comm = new SpdzCommitment(null, null, new Random(1),
+        modulus.getBigInteger().bitLength());
     Assert.assertEquals("SpdzCommitment[v:null, r:null, commitment:null]", comm.toString());
     MessageDigest H = MessageDigest.getInstance("SHA-256");
     SpdzCommitment c = new SpdzCommitment(H, get(BigInteger.ONE), new Random(0),
-        modulus.bitLength());
+        modulus.getBigInteger().bitLength());
     BigIntegerWithFixedLengthSerializer serializer =
-        new BigIntegerWithFixedLengthSerializer(20, bytes -> BigInt.fromBytes(bytes, modulus));
+        new BigIntegerWithFixedLengthSerializer(20, new FieldDefinitionBigInteger(modulus));
     FieldElement c1 = c.computeCommitment(serializer);
     FieldElement c2 = c.computeCommitment(serializer);
     Assert.assertEquals(c1, c2);

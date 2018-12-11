@@ -16,7 +16,8 @@ import org.junit.Test;
 
 public class TestPaddingPrg {
 
-  private final BigInteger modulus = new BigInteger("340282366920938463463374607431768211297");
+  private final BigInteger modulus = new BigInteger(
+      "340282366920938463463374607431768211297");
 
   @Test
   public void testGetNextProducesFieldElement() {
@@ -83,5 +84,4 @@ public class TestPaddingPrg {
     MascotFieldElement elTwo = prgTwo.getNext(modulus);
     assertNotEquals(elOne, elTwo);
   }
-
 }

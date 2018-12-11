@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
 import dk.alexandra.fresco.tools.mascot.arithm.Addable;
-
 import java.math.BigInteger;
 
 public class AuthenticatedElement implements Addable<AuthenticatedElement> {
@@ -17,7 +16,8 @@ public class AuthenticatedElement implements Addable<AuthenticatedElement> {
    * @param mac this party's share of the mac
    * @param modulus modulus of the underlying field elements
    */
-  public AuthenticatedElement(MascotFieldElement share, MascotFieldElement mac, BigInteger modulus) {
+  public AuthenticatedElement(MascotFieldElement share, MascotFieldElement mac,
+      BigInteger modulus) {
     this.share = share;
     this.mac = mac;
     this.modulus = modulus;

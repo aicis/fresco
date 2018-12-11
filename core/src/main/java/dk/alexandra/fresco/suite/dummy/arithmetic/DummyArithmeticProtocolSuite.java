@@ -2,16 +2,13 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.NativeFieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
-import java.math.BigInteger;
 
 /**
  * The {@link ProtocolSuite} of the Dummy Arithmetic suite. Uses a
@@ -21,20 +18,13 @@ import java.math.BigInteger;
 public class DummyArithmeticProtocolSuite
     implements ProtocolSuiteNumeric<DummyArithmeticResourcePool> {
 
-  private final FieldElement modulus;
+  private FieldDefinition fieldDefinition;
   private final int maxBitLength;
   private final int precision;
 
-  public DummyArithmeticProtocolSuite() {
-    this(ModulusFinder.findSuitableModulus(128), 32, 4);
-  }
-
-  public DummyArithmeticProtocolSuite(BigInteger modulus, int maxBitLength, int precision) {
-    this(new NativeFieldElement(modulus, modulus.add(BigInteger.ONE)), maxBitLength, precision);
-  }
-
-  public DummyArithmeticProtocolSuite(FieldElement modulus, int maxBitLength, int precision) {
-    this.modulus = modulus;
+  public DummyArithmeticProtocolSuite(FieldDefinition fieldDefinition, int maxBitLength,
+      int precision) {
+    this.fieldDefinition = fieldDefinition;
     this.maxBitLength = maxBitLength;
     this.precision = precision;
   }
@@ -42,8 +32,7 @@ public class DummyArithmeticProtocolSuite
   @Override
   public BuilderFactoryNumeric init(DummyArithmeticResourcePool resourcePool, Network network) {
     BasicNumericContext basicNumericContext = new BasicNumericContext(maxBitLength,
-        modulus.asBigInteger(),
-        resourcePool.getMyId(), resourcePool.getNoOfParties());
+        resourcePool.getMyId(), resourcePool.getNoOfParties(), fieldDefinition);
     RealNumericContext realNumericContext = new RealNumericContext(precision);
     return new DummyArithmeticBuilderFactory(basicNumericContext, realNumericContext);
   }

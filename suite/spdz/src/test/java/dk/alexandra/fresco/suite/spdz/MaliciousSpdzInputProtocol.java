@@ -9,7 +9,6 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzNativeProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +30,6 @@ public class MaliciousSpdzInputProtocol extends SpdzNativeProtocol<SInt> {
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool, Network network) {
     int myId = spdzResourcePool.getMyId();
-    BigInteger modulus = spdzResourcePool.getModulus();
     SpdzDataSupplier dataSupplier = spdzResourcePool.getDataSupplier();
     ByteSerializer<FieldElement> serializer = spdzResourcePool.getSerializer();
     if (round == 0) {
@@ -65,7 +63,7 @@ public class MaliciousSpdzInputProtocol extends SpdzNativeProtocol<SInt> {
 
   private byte[] sendMaliciousBroadcastValidation(MessageDigest dig, Network network,
       FieldElement b) {
-    dig.update(b.asBigInteger().toByteArray());
+    dig.update(b.convertToBigInteger().toByteArray());
     return sendAndReset(dig, network);
   }
 

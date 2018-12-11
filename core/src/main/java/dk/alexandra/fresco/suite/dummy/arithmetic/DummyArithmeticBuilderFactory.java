@@ -2,8 +2,6 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.NativeFieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
@@ -13,7 +11,6 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.lib.real.RealNumericContext;
 import java.math.BigInteger;
 import java.util.Random;
-import java.util.function.Function;
 
 /**
  * A {@link BuilderFactoryNumeric} implementation for the Dummy Arithmetic suite. This class has
@@ -26,7 +23,6 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
   private RealNumericContext realNumericContext;
   private MiscBigIntegerGenerators mog;
   private Random rand;
-  private Function<BigInteger, FieldElement> bigIntegerSupplier;
 
   /**
    * Creates a dummy arithmetic builder factory which creates basic numeric operations
@@ -40,8 +36,6 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
     this.basicNumericContext = basicNumericContext;
     this.realNumericContext = realNumericContext;
     this.rand = new Random(0);
-    this.bigIntegerSupplier = (number) ->
-        new NativeFieldElement(number, basicNumericContext.getModulus());
   }
 
   @Override
@@ -59,7 +53,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
     return new Numeric() {
 
       private DummyArithmeticSInt createSIntFromConstant(BigInteger b) {
-        return new DummyArithmeticSInt(bigIntegerSupplier.apply(b));
+        return new DummyArithmeticSInt(basicNumericContext.getFieldDefinition().createElement(b));
       }
 
       @Override
@@ -92,9 +86,10 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
           public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
               Network network) {
             BigInteger r;
+            BigInteger modulus = basicNumericContext.getModulus();
             do {
-              r = new BigInteger(basicNumericContext.getModulus().bitLength(), rand);
-            } while (r.compareTo(basicNumericContext.getModulus()) >= 0);
+              r = new BigInteger(modulus.bitLength(), rand);
+            } while (r.compareTo(modulus) >= 0);
             elm = createSIntFromConstant(r);
             return EvaluationStatus.IS_DONE;
           }
@@ -178,7 +173,10 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
       public DRes<SInt> input(BigInteger value, int inputParty) {
         DummyArithmeticCloseProtocol c =
             new DummyArithmeticCloseProtocol(
-                inputParty, () -> bigIntegerSupplier.apply(value));
+                value != null ? basicNumericContext.getFieldDefinition().createElement(value)
+                    : null,
+                inputParty
+            );
         return builder.append(c);
       }
 

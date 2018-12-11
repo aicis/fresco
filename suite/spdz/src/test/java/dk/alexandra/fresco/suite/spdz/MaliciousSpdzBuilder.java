@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -39,7 +38,7 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
       @Override
       public DRes<SInt> add(BigInteger a, DRes<SInt> b) {
         SpdzAddProtocolKnownLeft spdzAddProtocolKnownLeft =
-            new SpdzAddProtocolKnownLeft(convert(a), b, getZero());
+            new SpdzAddProtocolKnownLeft(convert(a), b);
         return protocolBuilder.append(spdzAddProtocolKnownLeft);
       }
 
@@ -52,14 +51,14 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
       @Override
       public DRes<SInt> sub(BigInteger a, DRes<SInt> b) {
         SpdzSubtractProtocolKnownLeft spdzSubtractProtocolKnownLeft =
-            new SpdzSubtractProtocolKnownLeft(convert(a), b, getZero());
+            new SpdzSubtractProtocolKnownLeft(convert(a), b);
         return protocolBuilder.append(spdzSubtractProtocolKnownLeft);
       }
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, BigInteger b) {
         SpdzSubtractProtocolKnownRight spdzSubtractProtocolKnownRight =
-            new SpdzSubtractProtocolKnownRight(a, convert(b), getZero());
+            new SpdzSubtractProtocolKnownRight(a, convert(b));
         return protocolBuilder.append(spdzSubtractProtocolKnownRight);
       }
 
@@ -87,7 +86,7 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
 
       @Override
       public DRes<SInt> known(BigInteger value) {
-        return protocolBuilder.append(new SpdzKnownSIntProtocol(convert(value), getZero()));
+        return protocolBuilder.append(new SpdzKnownSIntProtocol(convert(value)));
       }
 
       @Override
@@ -110,11 +109,7 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
     };
   }
 
-  private FieldElement getZero() {
-    return convert(BigInteger.ZERO);
-  }
-
   private FieldElement convert(BigInteger value) {
-    return BigInt.fromConstant(value, getBasicNumericContext().getModulus());
+    return getBasicNumericContext().getFieldDefinition().createElement(value);
   }
 }

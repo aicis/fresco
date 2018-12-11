@@ -2,12 +2,13 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
-import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -23,7 +24,6 @@ import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.logging.PerformanceLoggerCountingAggregate;
 import dk.alexandra.fresco.logging.PerformancePrinter;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,9 +36,8 @@ import java.util.Map;
 public abstract class AbstractDummyArithmeticTest {
 
   protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
-  protected static final BigInteger DEFAULT_MODULUS = new BigInteger(
-      "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443"
-      + "244279389455058889493431223951165286470575994074291745908195329");
+  protected static final ModulusBigInteger DEFAULT_MODULUS = new ModulusBigInteger(
+      "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
   protected static final int DEFAULT_MAX_BIT_LENGTH = 200;
   protected static final int DEFAULT_FIXED_POINT_PRECISION = BasicFixedPointTests.DEFAULT_PRECISION;
   protected static final int DEFAULT_PARTIES = 1;
@@ -48,6 +47,7 @@ public abstract class AbstractDummyArithmeticTest {
 
   /**
    * Runs test using the {@link TestParameters} class to set parameters.
+   *
    * @param f the test thread factory
    * @param p the parameters for the test
    */
@@ -76,8 +76,9 @@ public abstract class AbstractDummyArithmeticTest {
 
   private void runTest(
       TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy, int noOfParties, BigInteger mod, int maxBitLength,
+      EvaluationStrategy evalStrategy, int noOfParties, ModulusBigInteger mod, int maxBitLength,
       int fixedPointPrecision, boolean logPerformance) {
+    FieldDefinitionBigInteger fieldDefinition = new FieldDefinitionBigInteger(mod);
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -87,13 +88,13 @@ public abstract class AbstractDummyArithmeticTest {
         NetworkUtil.getNetworkConfigurations(ports);
     Map<Integer,
         TestThreadRunner.TestThreadConfiguration<
-          DummyArithmeticResourcePool,
-          ProtocolBuilderNumeric>
-        > conf =  new HashMap<>();
+            DummyArithmeticResourcePool,
+            ProtocolBuilderNumeric>
+        > conf = new HashMap<>();
     for (int playerId : netConf.keySet()) {
       PerformanceLoggerCountingAggregate aggregate = new PerformanceLoggerCountingAggregate();
-      ProtocolSuiteNumeric<DummyArithmeticResourcePool> ps =
-          new DummyArithmeticProtocolSuite(mod, maxBitLength, fixedPointPrecision);
+      ProtocolSuiteNumeric<DummyArithmeticResourcePool> ps = new DummyArithmeticProtocolSuite(
+          fieldDefinition, maxBitLength, fixedPointPrecision);
       if (logPerformance) {
         ps = new NumericSuiteLogging<>(ps);
         aggregate.add((PerformanceLogger) ps);
@@ -117,19 +118,18 @@ public abstract class AbstractDummyArithmeticTest {
       TestThreadRunner.TestThreadConfiguration<
           DummyArithmeticResourcePool,
           ProtocolBuilderNumeric> ttc =
-            new TestThreadRunner.TestThreadConfiguration<>(sce,
-                () -> new DummyArithmeticResourcePoolImpl(playerId, noOfParties, mod,
-                    bytes -> BigInt.fromBytes(bytes, mod)),
-                () -> {
-                  Network asyncNetwork = new SocketNetwork(partyNetConf);
-                  if (logPerformance) {
-                    NetworkLoggingDecorator network = new NetworkLoggingDecorator(asyncNetwork);
-                    aggregate.add(network);
-                    return network;
-                  } else {
-                    return asyncNetwork;
-                  }
-                });
+          new TestThreadRunner.TestThreadConfiguration<>(sce,
+              () -> new DummyArithmeticResourcePoolImpl(playerId, noOfParties, fieldDefinition),
+              () -> {
+                Network asyncNetwork = new SocketNetwork(partyNetConf);
+                if (logPerformance) {
+                  NetworkLoggingDecorator network = new NetworkLoggingDecorator(asyncNetwork);
+                  aggregate.add(network);
+                  return network;
+                } else {
+                  return asyncNetwork;
+                }
+              });
       conf.put(playerId, ttc);
       performanceLoggers.putIfAbsent(playerId, aggregate);
     }
@@ -147,14 +147,14 @@ public abstract class AbstractDummyArithmeticTest {
    */
   public static class TestParameters {
 
-    private BigInteger modulus = DEFAULT_MODULUS;
+    private ModulusBigInteger modulus = DEFAULT_MODULUS;
     private int maxBitLength = DEFAULT_MAX_BIT_LENGTH;
     private int fixedPointPrecesion = DEFAULT_FIXED_POINT_PRECISION;
     private int numParties = DEFAULT_PARTIES;
     private EvaluationStrategy evaluationStrategy = DEFAULT_EVALUATION_STRATEGY;
     private boolean performanceLogging = DEFAULT_PERFORMANCE_LOGGING;
 
-    public TestParameters modulus(BigInteger modulus) {
+    public TestParameters modulus(ModulusBigInteger modulus) {
       this.modulus = modulus;
       return this;
     }

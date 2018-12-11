@@ -9,13 +9,9 @@ public interface FieldElement extends Comparable<FieldElement>, Serializable {
 
   FieldElement subtract(FieldElement operand);
 
-  FieldElement multiply(FieldElement l);
+  FieldElement multiply(FieldElement operand);
 
-  FieldElement divide(FieldElement denominator);
-
-  FieldElement divide(int i);
-
-  BigInteger asBigInteger();
+  BigInteger convertToBigInteger();
 
   void toByteArray(byte[] bytes, int offset, int byteLength);
 }

@@ -55,7 +55,6 @@ public class AdvancedNumericTests {
 
   }
 
-
   private static BigInteger convertRepresentation(BigInteger b, BigInteger modulus) {
     // Stolen from Spdz Util
     BigInteger actual = b.mod(modulus);

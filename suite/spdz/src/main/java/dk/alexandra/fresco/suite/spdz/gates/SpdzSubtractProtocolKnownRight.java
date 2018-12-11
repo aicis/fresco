@@ -11,13 +11,11 @@ public class SpdzSubtractProtocolKnownRight extends SpdzNativeProtocol<SInt> {
 
   private final DRes<SInt> left;
   private final FieldElement right;
-  private final FieldElement zero;
   private SpdzSInt out;
 
-  public SpdzSubtractProtocolKnownRight(DRes<SInt> left, FieldElement right, FieldElement zero) {
+  public SpdzSubtractProtocolKnownRight(DRes<SInt> left, FieldElement right) {
     this.left = left;
     this.right = right;
-    this.zero = zero;
   }
 
   @Override
@@ -30,7 +28,7 @@ public class SpdzSubtractProtocolKnownRight extends SpdzNativeProtocol<SInt> {
       Network network) {
     SpdzSInt left = (SpdzSInt) this.left.out();
     SpdzSInt knownSpdzSInt =
-        SpdzKnownSIntProtocol.createKnownSpdzElement(spdzResourcePool, right, zero);
+        SpdzKnownSIntProtocol.createKnownSpdzElement(spdzResourcePool, right);
     this.out = left.subtract(knownSpdzSInt);
     return EvaluationStatus.IS_DONE;
   }

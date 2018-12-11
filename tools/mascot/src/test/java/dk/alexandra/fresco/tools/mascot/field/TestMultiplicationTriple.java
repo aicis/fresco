@@ -3,7 +3,6 @@ package dk.alexandra.fresco.tools.mascot.field;
 import static org.junit.Assert.assertEquals;
 
 import java.math.BigInteger;
-
 import org.junit.Test;
 
 public class TestMultiplicationTriple {
@@ -24,5 +23,4 @@ public class TestMultiplicationTriple {
     String expected = "MultiplicationTriple [left=AuthenticatedElement [share=MascotFieldElement [value=1, modulus=251, bitLength=8], mac=MascotFieldElement [value=2, modulus=251, bitLength=8]], right=AuthenticatedElement [share=MascotFieldElement [value=3, modulus=251, bitLength=8], mac=MascotFieldElement [value=4, modulus=251, bitLength=8]], product=AuthenticatedElement [share=MascotFieldElement [value=5, modulus=251, bitLength=8], mac=MascotFieldElement [value=6, modulus=251, bitLength=8]]]";
     assertEquals(expected, triple.toString());
   }
-
 }

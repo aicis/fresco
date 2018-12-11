@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -13,8 +13,8 @@ import dk.alexandra.fresco.tools.mascot.Mascot;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePoolImpl;
 import dk.alexandra.fresco.tools.mascot.MascotSecurityParameters;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.InputMask;
+import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
@@ -39,7 +39,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private final int instanceId;
   private final int numberOfPlayers;
   private final Supplier<Network> tripleNetwork;
-  private final BigInteger modulus;
+  private FieldDefinition fieldDefinition;
   private final Function<Integer, SpdzSInt[]> preprocessedValues;
   private final MascotFieldElement ssk;
 
@@ -52,7 +52,6 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private final int batchSize;
   private final Drbg drbg;
   private final Map<Integer, RotList> seedOts;
-  private final Function<BigInteger, FieldElement> converter;
   private Mascot mascot;
 
   /**
@@ -62,7 +61,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
    * @param numberOfPlayers number of players
    * @param instanceId identifier used to distinguish parallel instances of Mascot
    * @param tripleNetwork network supplier for network to be used by Mascot instance
-   * @param modulus field modulus
+   * @param fieldDefinition field definition
    * @param modBitLength bit length of modulus
    * @param preprocessedValues callback to generate exponentiation pipes
    * @param prgSeedLength bit length of prg
@@ -72,14 +71,14 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
    * @param drbg source of randomness
    */
   public SpdzMascotDataSupplier(int myId, int numberOfPlayers, int instanceId,
-      Supplier<Network> tripleNetwork, BigInteger modulus, int modBitLength,
+      Supplier<Network> tripleNetwork, FieldDefinition fieldDefinition, int modBitLength,
       Function<Integer, SpdzSInt[]> preprocessedValues, int prgSeedLength, int batchSize,
       MascotFieldElement ssk, Map<Integer, RotList> seedOts, Drbg drbg) {
     this.myId = myId;
     this.numberOfPlayers = numberOfPlayers;
     this.instanceId = instanceId;
     this.tripleNetwork = tripleNetwork;
-    this.modulus = modulus;
+    this.fieldDefinition = fieldDefinition;
     this.preprocessedValues = preprocessedValues;
     this.triples = new ArrayDeque<>();
     this.masks = new HashMap<>();
@@ -94,19 +93,17 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     this.ssk = ssk;
     this.seedOts = seedOts;
     this.drbg = drbg;
-    // TODO This should be defined in the config by the user
-    this.converter = bigInteger -> BigInt.fromConstant(bigInteger, modulus);
   }
 
   /**
    * Creates instance of {@link SpdzMascotDataSupplier}.
    */
   public static SpdzMascotDataSupplier createSimpleSupplier(int myId, int numberOfPlayers,
-      Supplier<Network> tripleNetwork, int modBitLength, BigInteger modulus,
+      Supplier<Network> tripleNetwork, int modBitLength, FieldDefinition fieldDefinition,
       Function<Integer, SpdzSInt[]> preprocessedValues,
       Map<Integer, RotList> seedOts, Drbg drbg, MascotFieldElement ssk) {
     int prgSeedLength = 256;
-    return new SpdzMascotDataSupplier(myId, numberOfPlayers, 1, tripleNetwork, modulus,
+    return new SpdzMascotDataSupplier(myId, numberOfPlayers, 1, tripleNetwork, fieldDefinition,
         modBitLength, preprocessedValues, prgSeedLength, 16, ssk, seedOts, drbg);
   }
 
@@ -130,7 +127,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       logger.trace("Got another triple batch");
     }
     MultiplicationTriple triple = triples.pop();
-    return new MascotFormatConverter(modulus).toSpdzTriple(triple);
+    return new MascotFormatConverter(fieldDefinition).toSpdzTriple(triple);
   }
 
   @Override
@@ -141,7 +138,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       randomElements.addAll(mascot.getRandomElements(batchSize));
       logger.trace("Got another random element batch");
     }
-    return new MascotFormatConverter(modulus).toSpdzSInt(randomElements.pop());
+    return new MascotFormatConverter(fieldDefinition).toSpdzSInt(randomElements.pop());
   }
 
   @Override
@@ -161,7 +158,8 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       inputMasks.addAll(mascot.getInputMasks(towardPlayerID, batchSize));
       logger.trace("Got another mask batch");
     }
-    return new MascotFormatConverter(modulus).toSpdzInputMask(inputMasks.pop());
+    return new MascotFormatConverter(fieldDefinition)
+        .toSpdzInputMask(inputMasks.pop());
   }
 
   @Override
@@ -172,17 +170,22 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       randomBits.addAll(mascot.getRandomBits(batchSize));
       logger.trace("Got another bit batch");
     }
-    return new MascotFormatConverter(modulus).toSpdzSInt(randomBits.pop());
+    return new MascotFormatConverter(fieldDefinition).toSpdzSInt(randomBits.pop());
   }
 
   @Override
   public BigInteger getModulus() {
-    return modulus;
+    return fieldDefinition.getModulus();
+  }
+
+  @Override
+  public FieldDefinition getFieldDefinition() {
+    return fieldDefinition;
   }
 
   @Override
   public FieldElement getSecretSharedKey() {
-    return converter.apply(ssk.toBigInteger());
+    return fieldDefinition.createElement(ssk.toBigInteger());
   }
 
   private void ensureInitialized() {

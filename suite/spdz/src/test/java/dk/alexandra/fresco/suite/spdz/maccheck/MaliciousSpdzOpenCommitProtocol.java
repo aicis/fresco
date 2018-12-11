@@ -1,13 +1,11 @@
 package dk.alexandra.fresco.suite.spdz.maccheck;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzNativeProtocol;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Collection;
@@ -55,8 +53,7 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
       network.sendToAll(serializer.serialize(value));
       FieldElement randomness = this.commitment.getRandomness();
       if (corruptNow) {
-        randomness = randomness
-            .add(BigInt.fromConstant(BigInteger.ONE, spdzResourcePool.getModulus()));
+        randomness = randomness.add(spdzResourcePool.getFieldDefinition().createElement(1));
       }
       network.sendToAll(serializer.serialize(randomness));
       return EvaluationStatus.HAS_MORE_ROUNDS;
@@ -107,7 +104,7 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
   private byte[] sendMaliciousBroadcastValidation(MessageDigest dig, Network network,
       Collection<FieldElement> bs) {
     for (FieldElement b : bs) {
-      dig.update(b.asBigInteger().toByteArray());
+      dig.update(b.convertToBigInteger().toByteArray());
     }
     return sendAndReset(dig, network);
   }

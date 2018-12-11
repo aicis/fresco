@@ -1,7 +1,5 @@
-
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -14,16 +12,16 @@ import dk.alexandra.fresco.framework.value.SInt;
 public class DummyArithmeticCloseProtocol extends DummyArithmeticNativeProtocol<SInt> {
 
   private int targetId;
-  private DRes<FieldElement> open;
+  private FieldElement open;
   private DummyArithmeticSInt closed;
 
   /**
    * Constructs a protocol to close an open value.
    *
-   * @param targetId id of the party supplying the open value.
    * @param open a computation output the value to close.
+   * @param targetId id of the party supplying the open value.
    */
-  public DummyArithmeticCloseProtocol(int targetId, DRes<FieldElement> open) {
+  public DummyArithmeticCloseProtocol(FieldElement open, int targetId) {
     this.targetId = targetId;
     this.open = open;
   }
@@ -32,8 +30,7 @@ public class DummyArithmeticCloseProtocol extends DummyArithmeticNativeProtocol<
   public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool rp, Network network) {
     if (round == 0) {
       if (targetId == rp.getMyId()) {
-        FieldElement out = open.out();
-        network.sendToAll(rp.getSerializer().serialize(out));
+        network.sendToAll(rp.getSerializer().serialize(open));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else { //if (round == 1) {

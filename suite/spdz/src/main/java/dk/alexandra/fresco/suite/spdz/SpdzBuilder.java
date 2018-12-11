@@ -1,9 +1,8 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.PreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -70,7 +69,8 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       @Override
       public DRes<SInt> add(BigInteger a, DRes<SInt> b) {
         SpdzAddProtocolKnownLeft spdzAddProtocolKnownLeft =
-            new SpdzAddProtocolKnownLeft(convert(a), b, getZero());
+            new SpdzAddProtocolKnownLeft(basicNumericContext.getFieldDefinition().createElement(a),
+                b);
         return protocolBuilder.append(spdzAddProtocolKnownLeft);
       }
 
@@ -83,14 +83,16 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       @Override
       public DRes<SInt> sub(BigInteger a, DRes<SInt> b) {
         SpdzSubtractProtocolKnownLeft spdzSubtractProtocolKnownLeft =
-            new SpdzSubtractProtocolKnownLeft(convert(a), b, getZero());
+            new SpdzSubtractProtocolKnownLeft(
+                basicNumericContext.getFieldDefinition().createElement(a), b);
         return protocolBuilder.append(spdzSubtractProtocolKnownLeft);
       }
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, BigInteger b) {
         SpdzSubtractProtocolKnownRight spdzSubtractProtocolKnownRight =
-            new SpdzSubtractProtocolKnownRight(a, convert(b), getZero());
+            new SpdzSubtractProtocolKnownRight(a,
+                basicNumericContext.getFieldDefinition().createElement(b));
         return protocolBuilder.append(spdzSubtractProtocolKnownRight);
       }
 
@@ -102,7 +104,8 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> mult(BigInteger a, DRes<SInt> b) {
-        SpdzMultProtocolKnownLeft spdzMultProtocol4 = new SpdzMultProtocolKnownLeft(convert(a), b);
+        SpdzMultProtocolKnownLeft spdzMultProtocol4 = new SpdzMultProtocolKnownLeft(
+            basicNumericContext.getFieldDefinition().createElement(a), b);
         return protocolBuilder.append(spdzMultProtocol4);
       }
 
@@ -118,13 +121,15 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> known(BigInteger value) {
-        FieldElement convertedValue = convert(value);
-        return protocolBuilder.append(new SpdzKnownSIntProtocol(convertedValue, getZero()));
+        FieldElement convertedValue = basicNumericContext.getFieldDefinition().createElement(value);
+        return protocolBuilder.append(new SpdzKnownSIntProtocol(convertedValue));
       }
 
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
-        SpdzInputProtocol protocol = new SpdzInputProtocol(convert(value), inputParty);
+        SpdzInputProtocol protocol = new SpdzInputProtocol(
+            value != null ? basicNumericContext.getFieldDefinition().createElement(value) : null,
+            inputParty);
         return protocolBuilder.append(protocol);
       }
 
@@ -143,19 +148,11 @@ class SpdzBuilder implements BuilderFactoryNumeric {
     };
   }
 
-  private FieldElement getZero() {
-    return convert(BigInteger.ZERO);
-  }
-
-  private FieldElement convert(BigInteger bigInteger) {
-    // TODO Define this in the config
-    return BigInt.fromConstant(bigInteger, basicNumericContext.getModulus());
-  }
-
   @Override
   public MiscBigIntegerGenerators getBigIntegerHelper() {
     if (miscOIntGenerators == null) {
-      miscOIntGenerators = new MiscBigIntegerGenerators(basicNumericContext.getModulus());
+      miscOIntGenerators = new MiscBigIntegerGenerators(
+          basicNumericContext.getModulus());
     }
     return miscOIntGenerators;
   }

@@ -5,7 +5,8 @@ import static org.junit.Assert.assertThat;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
@@ -24,7 +25,6 @@ import dk.alexandra.fresco.logging.arithmetic.NumericLoggingDecorator;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +51,7 @@ public class TestNumericSuiteLoggingDecorators {
         NetworkUtil.getNetworkConfigurations(ports);
     Map<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
-    BigInteger mod = new BigInteger(
+    ModulusBigInteger mod = new ModulusBigInteger(
         "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
 
     Map<Integer, NumericSuiteLogging<DummyArithmeticResourcePool>> performanceLoggers
@@ -61,7 +61,8 @@ public class TestNumericSuiteLoggingDecorators {
       NetworkConfiguration partyNetConf = netConf.get(playerId);
 
       NumericSuiteLogging<DummyArithmeticResourcePool> ps =
-          new NumericSuiteLogging<>(new DummyArithmeticProtocolSuite(mod, 200, 16));
+          new NumericSuiteLogging<>(
+              new DummyArithmeticProtocolSuite(new FieldDefinitionBigInteger(mod), 200, 16));
       performanceLoggers.put(playerId, ps);
       BatchEvaluationStrategy<DummyArithmeticResourcePool> strat = evalStrategy.getStrategy();
       ProtocolEvaluator<DummyArithmeticResourcePool> evaluator
@@ -72,8 +73,8 @@ public class TestNumericSuiteLoggingDecorators {
       Drbg drbg = new HmacDrbg();
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
-              () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  noOfParties, mod, bytes -> BigInt.fromBytes(bytes, mod)),
+              () -> new DummyArithmeticResourcePoolImpl(playerId, noOfParties,
+                  new FieldDefinitionBigInteger(mod)),
               () -> new SocketNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
@@ -116,7 +117,7 @@ public class TestNumericSuiteLoggingDecorators {
         NetworkUtil.getNetworkConfigurations(ports);
     Map<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
-    BigInteger mod = new BigInteger(
+    ModulusBigInteger mod = new ModulusBigInteger(
         "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
 
     Map<Integer, NumericSuiteLogging<DummyArithmeticResourcePool>> performanceLoggers
@@ -126,7 +127,7 @@ public class TestNumericSuiteLoggingDecorators {
       NetworkConfiguration partyNetConf = netConf.get(playerId);
 
       NumericSuiteLogging<DummyArithmeticResourcePool> ps = new NumericSuiteLogging<>(
-          new DummyArithmeticProtocolSuite(mod, 200, 16));
+          new DummyArithmeticProtocolSuite(new FieldDefinitionBigInteger(mod), 200, 16));
       performanceLoggers.put(playerId, ps);
 
       BatchEvaluationStrategy<DummyArithmeticResourcePool> strat = evalStrategy.getStrategy();
@@ -138,8 +139,8 @@ public class TestNumericSuiteLoggingDecorators {
       Drbg drbg = new HmacDrbg();
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
-              () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  noOfParties, mod, bytes -> BigInt.fromBytes(bytes, mod)),
+              () -> new DummyArithmeticResourcePoolImpl(playerId, noOfParties,
+                  new FieldDefinitionBigInteger(mod)),
               () -> new SocketNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }

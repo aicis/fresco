@@ -62,8 +62,8 @@ public class CopeSigner {
    */
   public List<MascotFieldElement> extend(int numInputs) {
     // compute chosen masks
-    List<MascotFieldElement> chosenMasks = generateMasks(numInputs, resourcePool.getModulus(),
-        resourcePool.getModBitLength());
+    List<MascotFieldElement> chosenMasks = generateMasks(numInputs,
+        resourcePool.getModulus());
     // use mac share for each input
     List<MascotFieldElement> macKeyShares =
         IntStream.range(0, numInputs).mapToObj(idx -> macKeyShare).collect(Collectors.toList());
@@ -74,7 +74,7 @@ public class CopeSigner {
     return multiplier.computeProductShares(macKeyShares, chosenMasks, diffs);
   }
 
-  private List<MascotFieldElement> generateMasks(int numInputs, BigInteger modulus, int modBitLength) {
+  private List<MascotFieldElement> generateMasks(int numInputs, BigInteger modulus) {
     // for each input pair, we use our prgs to get the next set of masks
     List<MascotFieldElement> masks = new ArrayList<>();
     // generate mask for each input

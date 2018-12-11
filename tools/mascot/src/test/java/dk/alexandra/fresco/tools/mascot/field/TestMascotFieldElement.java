@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import java.math.BigInteger;
-
 import org.junit.Test;
 
 public class TestMascotFieldElement {
@@ -124,7 +123,8 @@ public class TestMascotFieldElement {
   public void testConvertToBitVectorAndBack() {
     MascotFieldElement el = new MascotFieldElement("777", "65521");
     StrictBitVector bv = el.toBitVector();
-    MascotFieldElement actual = new MascotFieldElement(bv.toByteArray(), new BigInteger("65521"));
+    MascotFieldElement actual = new MascotFieldElement(bv.toByteArray(),
+        new BigInteger("65521"));
     CustomAsserts.assertEquals(el, actual);
   }
 
@@ -167,17 +167,17 @@ public class TestMascotFieldElement {
 
   @Test(expected = IllegalArgumentException.class)
   public void testSanityCheckNegativeMod() {
-    new MascotFieldElement(111, BigInteger.valueOf(-251));
+    new MascotFieldElement(111, new BigInteger("-251"));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testSanityCheckBitLengthMismatch() {
-    new MascotFieldElement(111, BigInteger.valueOf(1111));
+    new MascotFieldElement(111, new BigInteger("1111"));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testSanityCheckValueTooLarge() {
-    new MascotFieldElement(252, BigInteger.valueOf(251));
+    new MascotFieldElement(252, new BigInteger("251"));
   }
 
 }
