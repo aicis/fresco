@@ -7,27 +7,27 @@ import java.util.function.BiConsumer;
 public class FieldElementMersennePrime implements FieldElement {
 
   private MersennePrimeInteger value;
-  private Modulus modulus;
+  private ModulusMersennePrime modulus;
 
-  public FieldElementMersennePrime(MersennePrimeInteger value, Modulus modulus) {
+  public FieldElementMersennePrime(MersennePrimeInteger value, ModulusMersennePrime modulus) {
     this.value = value;
     this.modulus = modulus;
   }
 
-  public FieldElementMersennePrime(int i, Modulus modulus) {
+  public FieldElementMersennePrime(int i, ModulusMersennePrime modulus) {
     this(new MersennePrimeInteger(i), modulus);
   }
 
-  public FieldElementMersennePrime(String toString, Modulus modulus) {
+  public FieldElementMersennePrime(String toString, ModulusMersennePrime modulus) {
     this(new MersennePrimeInteger(toString), modulus);
   }
 
-  public FieldElementMersennePrime(byte[] bytes, Modulus modulus) {
+  public FieldElementMersennePrime(byte[] bytes, ModulusMersennePrime modulus) {
     this(MersennePrimeInteger.fromBytes(bytes), modulus);
-    this.value.mod((MersennePrimeInteger) modulus.get());
+    this.value.mod(modulus.getMersennePrimeInteger());
   }
 
-  public FieldElementMersennePrime(BigInteger value, Modulus modulus) {
+  public FieldElementMersennePrime(BigInteger value, ModulusMersennePrime modulus) {
     this(value.toString(), modulus);
   }
 
@@ -63,7 +63,7 @@ public class FieldElementMersennePrime implements FieldElement {
       FieldElement operand) {
     MersennePrimeInteger copy = value.copy();
     operation.accept(copy, ((FieldElementMersennePrime) operand).value);
-    copy.mod((MersennePrimeInteger) modulus.get());
+    copy.mod(modulus.getMersennePrimeInteger());
     return new FieldElementMersennePrime(copy, modulus);
   }
 

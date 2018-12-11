@@ -236,11 +236,10 @@ public abstract class AbstractSpdzTest {
       NetManager expPipeGenerator) {
     SpdzDataSupplier supplier;
     if (preProStrat == DUMMY) {
-      supplier = new SpdzDummyDataSupplier(myId, numberOfParties, new FieldDefinitionBigInteger(
-          new ModulusBigInteger(
-              new BigInteger(ModulusFinder.findSuitableModulus(512).bitLength(), new Random(0))
-                  .mod(ModulusFinder.findSuitableModulus(512)))),
-          ModulusFinder.findSuitableModulus(modBitLength));
+      BigInteger suitableModulus = ModulusFinder.findSuitableModulus(modBitLength);
+      supplier = new SpdzDummyDataSupplier(myId, numberOfParties,
+          new FieldDefinitionBigInteger(new ModulusBigInteger(suitableModulus)),
+          new BigInteger(suitableModulus.bitLength(), new Random(0)).mod(suitableModulus));
     } else if (preProStrat == MASCOT) {
       List<Integer> partyIds =
           IntStream.range(1, numberOfParties + 1).boxed().collect(Collectors.toList());

@@ -7,8 +7,6 @@ public interface Modulus<T> extends Serializable {
 
   public Modulus<T> half();
 
-  public T get();
-
   public BigInteger getBigInteger();
 
   public int bytesLength();

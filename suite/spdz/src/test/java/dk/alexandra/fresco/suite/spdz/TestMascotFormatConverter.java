@@ -2,8 +2,8 @@ package dk.alexandra.fresco.suite.spdz;
 
 import static org.junit.Assert.assertEquals;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElementMersennePrime;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -12,7 +12,6 @@ import dk.alexandra.fresco.suite.spdz.preprocessing.MascotFormatConverter;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
-import java.util.function.IntFunction;
 import org.junit.Test;
 
 public class TestMascotFormatConverter {
@@ -23,31 +22,31 @@ public class TestMascotFormatConverter {
     return new AuthenticatedElement(share, mac, modulus);
   }
 
-  private SpdzSInt getSpdzElement(int shareVal, int macVal, Modulus modulus) {
-    IntFunction<FieldElement> converter = (bigint) -> new FieldElementMersennePrime(bigint,
-        modulus);
-    return new SpdzSInt(converter.apply(shareVal), converter.apply(macVal));
+  private SpdzSInt getSpdzElement(int shareVal, int macVal, FieldDefinition definition) {
+    return new SpdzSInt(definition.createElement(shareVal), definition.createElement(macVal));
   }
 
   @Test
   public void convertSingleElement() {
-    Modulus modulus = new ModulusBigInteger("340282366920938463463374607431768211297");
+    ModulusBigInteger modulus = new ModulusBigInteger("340282366920938463463374607431768211297");
+    FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(modulus);
     AuthenticatedElement element = getAuthElement(100, 123, modulus);
-    SpdzSInt expected = getSpdzElement(100, 123, modulus);
-    SpdzSInt actual = new MascotFormatConverter(modulus).toSpdzSInt(element);
+    SpdzSInt expected = getSpdzElement(100, 123, definition);
+    SpdzSInt actual = new MascotFormatConverter(definition).toSpdzSInt(element);
     assertEquals(expected, actual);
   }
 
   @Test
   public void convertTriple() {
-    Modulus modulus = new ModulusBigInteger("340282366920938463463374607431768211297");
+    ModulusBigInteger modulus = new ModulusBigInteger("340282366920938463463374607431768211297");
+    FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(modulus);
     AuthenticatedElement left = getAuthElement(1, 2, modulus);
     AuthenticatedElement right = getAuthElement(3, 4, modulus);
     AuthenticatedElement product = getAuthElement(5, 6, modulus);
     MultiplicationTriple triple = new MultiplicationTriple(left, right, product);
-    SpdzTriple expected = new SpdzTriple(getSpdzElement(1, 2, modulus),
-        getSpdzElement(3, 4, modulus), getSpdzElement(5, 6, modulus));
-    SpdzTriple actual = new MascotFormatConverter(modulus).toSpdzTriple(triple);
+    SpdzTriple expected = new SpdzTriple(getSpdzElement(1, 2, definition),
+        getSpdzElement(3, 4, definition), getSpdzElement(5, 6, definition));
+    SpdzTriple actual = new MascotFormatConverter(definition).toSpdzTriple(triple);
     assertEquals(expected, actual);
   }
 }

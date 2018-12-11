@@ -4,11 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionMersennePrime;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElementMersennePrime;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElementBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusMersennePrime;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.util.TransposeUtils;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -23,28 +23,28 @@ import org.junit.Test;
 
 public class TestSpdzDummyDataSupplier {
 
-  private final List<ModulusMersennePrime> moduli = Arrays.asList(
-      new ModulusMersennePrime("251"),
-      new ModulusMersennePrime("340282366920938463463374607431768211283"),
-      new ModulusMersennePrime(
+  private final List<ModulusBigInteger> moduli = Arrays.asList(
+      new ModulusBigInteger("251"),
+      new ModulusBigInteger("340282366920938463463374607431768211283"),
+      new ModulusBigInteger(
           "2582249878086908589655919172003011874329705792829223512830659356540647622016841"
               + "194629645353280137831435903171972747493557")
   );
 
   private List<SpdzDummyDataSupplier> setupSuppliers(int noOfParties,
-      ModulusMersennePrime modulus) {
+      ModulusBigInteger modulus) {
     return setupSuppliers(noOfParties, modulus, 200);
   }
 
   private List<SpdzDummyDataSupplier> setupSuppliers(int noOfParties,
-      ModulusMersennePrime modulus, int expPipeLength) {
+      ModulusBigInteger modulus, int expPipeLength) {
     List<SpdzDummyDataSupplier> suppliers = new ArrayList<>(noOfParties);
     Random random = new Random();
     for (int i = 0; i < noOfParties; i++) {
       BigInteger macKeyShare = new BigInteger(modulus.getBigInteger().bitLength(), random)
           .mod(modulus.getBigInteger());
       suppliers.add(
-          new SpdzDummyDataSupplier(i + 1, noOfParties, new FieldDefinitionMersennePrime(modulus),
+          new SpdzDummyDataSupplier(i + 1, noOfParties, new FieldDefinitionBigInteger(modulus),
               macKeyShare,
               expPipeLength));
     }
@@ -52,8 +52,8 @@ public class TestSpdzDummyDataSupplier {
   }
 
   private FieldElement getMacKeyFromSuppliers(List<SpdzDummyDataSupplier> suppliers) {
-    FieldElement macKey = new FieldElementMersennePrime(0,
-        new ModulusMersennePrime("2582249878086908589655919172003011874329705"
+    FieldElement macKey = new FieldElementBigInteger(0,
+        new ModulusBigInteger("2582249878086908589655919172003011874329705"
             + "792829223512830659356540647622016841194629645353280137831435903171972747493557"));
     for (SpdzDummyDataSupplier supplier : suppliers) {
       macKey = macKey.add(supplier.getSecretSharedKey());
@@ -61,7 +61,7 @@ public class TestSpdzDummyDataSupplier {
     return macKey;
   }
 
-  private void testGetNextTriple(int noOfParties, ModulusMersennePrime modulus) {
+  private void testGetNextTriple(int noOfParties, ModulusBigInteger modulus) {
     List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
     FieldElement macKey = getMacKeyFromSuppliers(suppliers);
     List<SpdzTriple> triples = new ArrayList<>(noOfParties);
@@ -73,13 +73,13 @@ public class TestSpdzDummyDataSupplier {
   }
 
   private void testGetNextTriple(int noOfParties) {
-    for (ModulusMersennePrime modulus : moduli) {
+    for (ModulusBigInteger modulus : moduli) {
       testGetNextTriple(noOfParties, modulus);
     }
   }
 
   private void testGetNextInputMask(int noOfParties, int towardParty,
-      ModulusMersennePrime modulus) {
+      ModulusBigInteger modulus) {
     List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
     FieldElement macKey = getMacKeyFromSuppliers(suppliers);
     List<SpdzInputMask> masks = new ArrayList<>(noOfParties);
@@ -103,12 +103,12 @@ public class TestSpdzDummyDataSupplier {
   }
 
   private void testGetNextInputMask(int noOfParties, int towardParty) {
-    for (ModulusMersennePrime modulus : moduli) {
+    for (ModulusBigInteger modulus : moduli) {
       testGetNextInputMask(noOfParties, towardParty, modulus);
     }
   }
 
-  private void testGetNextBit(int noOfParties, ModulusMersennePrime modulus) {
+  private void testGetNextBit(int noOfParties, ModulusBigInteger modulus) {
     List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
     FieldElement macKey = getMacKeyFromSuppliers(suppliers);
     List<SpdzSInt> bitShares = new ArrayList<>(noOfParties);
@@ -123,12 +123,12 @@ public class TestSpdzDummyDataSupplier {
   }
 
   private void testGetNextBit(int noOfParties) {
-    for (ModulusMersennePrime modulus : moduli) {
+    for (ModulusBigInteger modulus : moduli) {
       testGetNextBit(noOfParties, modulus);
     }
   }
 
-  private void testGetNextRandomFieldElement(int noOfParties, ModulusMersennePrime modulus) {
+  private void testGetNextRandomFieldElement(int noOfParties, ModulusBigInteger modulus) {
     List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
     FieldElement macKey = getMacKeyFromSuppliers(suppliers);
     List<SpdzSInt> bitShares = new ArrayList<>(noOfParties);
@@ -145,12 +145,12 @@ public class TestSpdzDummyDataSupplier {
   }
 
   private void testGetNextRandomFieldElement(int noOfParties) {
-    for (ModulusMersennePrime modulus : moduli) {
+    for (ModulusBigInteger modulus : moduli) {
       testGetNextRandomFieldElement(noOfParties, modulus);
     }
   }
 
-  private void testGetNextExpPipe(int noOfParties, ModulusMersennePrime modulus,
+  private void testGetNextExpPipe(int noOfParties, ModulusBigInteger modulus,
       int expPipeLength) {
     List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
     FieldElement macKey = getMacKeyFromSuppliers(suppliers);
@@ -169,7 +169,7 @@ public class TestSpdzDummyDataSupplier {
   }
 
   private void testGetNextExpPipe(int noOfParties) {
-    for (ModulusMersennePrime modulus : moduli) {
+    for (ModulusBigInteger modulus : moduli) {
       testGetNextExpPipe(noOfParties, modulus, 200);
     }
   }
@@ -215,8 +215,7 @@ public class TestSpdzDummyDataSupplier {
   @Test
   public void testGetters() {
     SpdzDummyDataSupplier supplier = new SpdzDummyDataSupplier(1, 2,
-        new FieldDefinitionMersennePrime(moduli.get(0)),
-        BigInteger.ONE);
+        new FieldDefinitionBigInteger(moduli.get(0)), BigInteger.ONE);
     assertEquals(moduli.get(0), supplier.getFieldDefinition().getModulus());
     assertEquals(BigInteger.ONE, supplier.getSecretSharedKey().convertToBigInteger());
   }

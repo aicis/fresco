@@ -1,8 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.preprocessing;
 
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElementMersennePrime;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -14,10 +13,10 @@ import java.math.BigInteger;
 
 public class MascotFormatConverter {
 
-  private Modulus modulus;
+  private FieldDefinition fieldDefinition;
 
-  public MascotFormatConverter(Modulus modulus) {
-    this.modulus = modulus;
+  public MascotFormatConverter(FieldDefinition fieldDefinition) {
+    this.fieldDefinition = fieldDefinition;
   }
 
   /**
@@ -61,6 +60,6 @@ public class MascotFormatConverter {
   }
 
   private FieldElement convert(BigInteger bigInteger) {
-    return new FieldElementMersennePrime(bigInteger.toString(), modulus);
+    return fieldDefinition.createElement(bigInteger);
   }
 }

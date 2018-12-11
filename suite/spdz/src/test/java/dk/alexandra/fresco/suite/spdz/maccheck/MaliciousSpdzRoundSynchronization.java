@@ -27,7 +27,7 @@ public class MaliciousSpdzRoundSynchronization extends SpdzRoundSynchronization 
     MaliciousSpdzMacCheckProtocol macCheck = new MaliciousSpdzMacCheckProtocol(new SecureRandom(),
         resourcePool.getMessageDigest(),
         store.popValues(),
-        resourcePool.getFieldDefinition().getModulus(),
+        resourcePool.getFieldDefinition(),
         resourcePool.getRandomGenerator(),
         resourcePool.getDataSupplier().getSecretSharedKey());
     do {

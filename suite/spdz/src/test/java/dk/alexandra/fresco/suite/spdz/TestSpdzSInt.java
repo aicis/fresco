@@ -5,8 +5,8 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElementMersennePrime;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusMersennePrime;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElementBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import java.math.BigInteger;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class TestSpdzSInt {
   }
 
   private FieldElement getI(int i) {
-    return new FieldElementMersennePrime(BigInteger.valueOf(i), new ModulusMersennePrime(123456));
+    return new FieldElementBigInteger(BigInteger.valueOf(i), new ModulusBigInteger(123456));
   }
 
   @Test

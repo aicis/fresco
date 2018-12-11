@@ -34,8 +34,7 @@ public final class ModulusMersennePrime implements Modulus<MersennePrimeInteger>
     return new ModulusMersennePrime(copy);
   }
 
-  @Override
-  public MersennePrimeInteger get() {
+  public MersennePrimeInteger getMersennePrimeInteger() {
     return value;
   }
 

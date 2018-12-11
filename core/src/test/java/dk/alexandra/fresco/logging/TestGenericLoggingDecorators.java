@@ -6,8 +6,8 @@ import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionMersennePrime;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusMersennePrime;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
@@ -33,8 +33,8 @@ import org.junit.Test;
 
 public class TestGenericLoggingDecorators {
 
-  private final FieldDefinitionMersennePrime fieldDefinition = new FieldDefinitionMersennePrime(
-      new ModulusMersennePrime(
+  private final FieldDefinitionBigInteger fieldDefinition = new FieldDefinitionBigInteger(
+      new ModulusBigInteger(
           "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
 
   @Test

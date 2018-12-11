@@ -128,7 +128,8 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
         SpdzInputProtocol protocol = new SpdzInputProtocol(
-            basicNumericContext.getFieldDefinition().createElement(value), inputParty);
+            value != null ? basicNumericContext.getFieldDefinition().createElement(value) : null,
+            inputParty);
         return protocolBuilder.append(protocol);
       }
 

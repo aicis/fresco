@@ -27,16 +27,16 @@ public final class FieldDefinitionMersennePrime implements FieldDefinition {
 
   @Override
   public FieldElement createElement(int value) {
-    return new FieldElementMersennePrime(value, getModulus());
+    return new FieldElementMersennePrime(value, modulus);
   }
 
   @Override
   public FieldElement createElement(String value) {
-    return new FieldElementMersennePrime(value, getModulus());
+    return new FieldElementMersennePrime(value, modulus);
   }
 
   @Override
   public FieldElement createElement(BigInteger value) {
-    return new FieldElementMersennePrime(value, getModulus());
+    return new FieldElementMersennePrime(value, modulus);
   }
 }

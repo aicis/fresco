@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.builder.numeric.FieldElementBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElementMersennePrime;
 import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import java.math.BigInteger;
@@ -33,7 +32,7 @@ public class DummyArithmeticSIntTest {
     DummyArithmeticSInt value1 = new DummyArithmeticSInt(create(BigInteger.valueOf(42)));
     DummyArithmeticSInt value2 = new DummyArithmeticSInt(create(BigInteger.valueOf(42)));
     DummyArithmeticSInt value3 = new DummyArithmeticSInt(
-        new FieldElementMersennePrime(41, modulus));
+        new FieldElementBigInteger(41, modulus));
     Assert.assertThat(value1, Is.is(value2));
     Assert.assertThat(value1, IsNot.not(value3));
     Assert.assertThat(value1, Is.is(value1));
@@ -45,11 +44,11 @@ public class DummyArithmeticSIntTest {
   @Test
   public void testHashCode() {
     DummyArithmeticSInt value1 = new DummyArithmeticSInt(
-        new FieldElementMersennePrime(42, modulus));
+        new FieldElementBigInteger(42, modulus));
     DummyArithmeticSInt value2 = new DummyArithmeticSInt(
-        new FieldElementMersennePrime(42, modulus));
+        new FieldElementBigInteger(42, modulus));
     DummyArithmeticSInt value3 = new DummyArithmeticSInt(
-        new FieldElementMersennePrime(41, modulus));
+        new FieldElementBigInteger(41, modulus));
     Assert.assertThat(value1.hashCode(), Is.is(value2.hashCode()));
     Assert.assertThat(value1.hashCode(), IsNot.not(value3.hashCode()));
     Assert.assertThat(value1.hashCode(), Is.is(value1.hashCode()));

@@ -3,9 +3,8 @@ package dk.alexandra.fresco.suite.spdz.maccheck;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElementMersennePrime;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -28,7 +27,7 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
   private int round = 0;
   private ProtocolProducer pp;
   private Map<Integer, FieldElement> commitments;
-  private Modulus modulus;
+  private FieldDefinition definition;
   private MaliciousSpdzCommitProtocol comm;
   private MaliciousSpdzOpenCommitProtocol openComm;
   private final List<SpdzSInt> closedValues;
@@ -43,14 +42,14 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
       final SecureRandom rand,
       final MessageDigest digest,
       final Pair<List<SpdzSInt>, List<FieldElement>> toCheck,
-      final Modulus modulus,
+      final FieldDefinition definition,
       final Drbg jointDrbg,
       final FieldElement alpha) {
     this.rand = rand;
     this.digest = digest;
     this.closedValues = toCheck.getFirst();
     this.openedValues = toCheck.getSecond();
-    this.modulus = modulus;
+    this.definition = definition;
     this.alpha = alpha;
     this.jointDrbg = jointDrbg;
   }
@@ -59,7 +58,7 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
   public <ResourcePoolT extends ResourcePool> void getNextProtocols(
       ProtocolCollection<ResourcePoolT> protocolCollection) {
     if (pp == null) {
-      BigInteger modulusBigInteger = modulus.getBigInteger();
+      BigInteger modulusBigInteger = definition.getModulus().getBigInteger();
       if (round == 0) {
         BigInteger[] rs = sampleRandomCoefficients(openedValues.size(), jointDrbg, modulusBigInteger);
         BigInteger a = BigInteger.ZERO;
@@ -82,7 +81,7 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
             .mod(modulusBigInteger);
         // Commit to delta and open it afterwards
         SpdzCommitment commitment = new SpdzCommitment(digest,
-            new FieldElementMersennePrime(delta, modulus),
+            definition.createElement(delta),
             rand, modulusBigInteger.bitLength());
         Map<Integer, FieldElement> comms = new HashMap<>();
         comm = new MaliciousSpdzCommitProtocol(commitment, comms, corruptCommitRound);

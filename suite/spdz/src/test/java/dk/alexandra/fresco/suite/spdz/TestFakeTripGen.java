@@ -1,8 +1,9 @@
 package dk.alexandra.fresco.suite.spdz;
 
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElementMersennePrime;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusMersennePrime;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElementBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -16,21 +17,23 @@ import org.junit.Test;
 
 public class TestFakeTripGen {
 
-  private static final ModulusMersennePrime modulus = new ModulusMersennePrime(
+  private static final ModulusBigInteger modulus = new ModulusBigInteger(
       "670390396497129854978701249912381411527384857"
-      + "747113652742596601302650153670646435425544544324427938945505888949343122395116528647057599"
-      + "4074291745908195329");
-  private static final FieldElement alpha = new FieldElementMersennePrime(
+          + "747113652742596601302650153670646435425544544324427938945505888949343122395116528647057599"
+          + "4074291745908195329");
+  private static final FieldElement alpha = new FieldElementBigInteger(
       "50815870414411794389326350986203198"
-      + "947163686280292842928804080867034380413312008779802137700355698122966779351187154546507494"
-      + "02237663859711459266577679205", modulus);
-  private FieldElement zero = new FieldElementMersennePrime(0, modulus);
+          + "947163686280292842928804080867034380413312008779802137700355698122966779351187154546507494"
+          + "02237663859711459266577679205", modulus);
+  private FieldElement zero = new FieldElementBigInteger(0, modulus);
+  private FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(modulus);
 
   @Test
   public void testTripleGen() {
     int amount = 100000;
     int noOfParties = 2;
-    List<SpdzTriple[]> triples = FakeTripGen.generateTriples(amount, noOfParties, modulus, alpha);
+    List<SpdzTriple[]> triples = FakeTripGen
+        .generateTriples(amount, noOfParties, definition, alpha);
     for (SpdzTriple[] t : triples) {
       FieldElement a = t[0].getA().getShare().add(t[1].getA().getShare());
       FieldElement b = t[0].getB().getShare().add(t[1].getB().getShare());
@@ -43,7 +46,7 @@ public class TestFakeTripGen {
       FieldElement actual = a.multiply(b);
       Assert.assertEquals(c, actual);
 
-      FieldElement zero = new FieldElementMersennePrime(0, modulus);
+      FieldElement zero = new FieldElementBigInteger(0, modulus);
 
       Assert.assertEquals(zero, subtract(a, shareA));
       Assert.assertEquals(zero, subtract(b, shareB));
@@ -64,7 +67,7 @@ public class TestFakeTripGen {
     int amount = 1000;
     int noOfParties = 2;
     List<List<SpdzInputMask[]>> inps =
-        FakeTripGen.generateInputMasks(amount, noOfParties, modulus, alpha);
+        FakeTripGen.generateInputMasks(amount, noOfParties, definition, alpha);
     for (int towardsPlayer = 1; towardsPlayer < noOfParties + 1; towardsPlayer++) {
       List<SpdzInputMask[]> inputMasks = inps.get(towardsPlayer - 1);
       for (SpdzInputMask[] masks : inputMasks) {
@@ -87,7 +90,7 @@ public class TestFakeTripGen {
     int noOfParties = 2;
     int towardsPlayer = 1;
     List<SpdzInputMask[]> inputMasks =
-        FakeTripGen.generateInputMasks(amount, towardsPlayer, noOfParties, modulus, alpha);
+        FakeTripGen.generateInputMasks(amount, towardsPlayer, noOfParties, definition, alpha);
     for (SpdzInputMask[] masks : inputMasks) {
       SpdzInputMask realMask = masks[towardsPlayer - 1];
       Assert.assertNotNull(realMask.getRealValue());
@@ -105,7 +108,8 @@ public class TestFakeTripGen {
   public void testExpPipe() {
     int amount = 2;
     int noOfParties = 2;
-    List<SpdzSInt[][]> expPipes = FakeTripGen.generateExpPipes(amount, noOfParties, modulus, alpha);
+    List<SpdzSInt[][]> expPipes = FakeTripGen
+        .generateExpPipes(amount, noOfParties, definition, alpha);
     for (SpdzSInt[][] pipe : expPipes) {
       SpdzSInt[] as = pipe[0];
       SpdzSInt[] bs = pipe[1];
@@ -130,7 +134,7 @@ public class TestFakeTripGen {
   public void testBitGen() {
     int amount = 100000;
     int noOfParties = 2;
-    List<SpdzSInt[]> bits = FakeTripGen.generateBits(amount, noOfParties, modulus, alpha);
+    List<SpdzSInt[]> bits = FakeTripGen.generateBits(amount, noOfParties, definition, alpha);
     for (SpdzSInt[] b : bits) {
       FieldElement val = b[0].getShare().add(b[1].getShare());
       FieldElement mac = b[0].getMac().add(b[1].getMac());
@@ -145,7 +149,7 @@ public class TestFakeTripGen {
   @Test
   public void testElementToBytes() {
     SpdzSInt element = new SpdzSInt(
-        new FieldElementMersennePrime(200, modulus), new FieldElementMersennePrime(1, modulus));
+        new FieldElementBigInteger(200, modulus), new FieldElementBigInteger(1, modulus));
     ByteBuffer buf = FakeTripGen.elementToBytes(element, 1);
     byte[] arr = buf.array();
     Assert.assertArrayEquals(new byte[]{(byte) 200, 1}, arr);
@@ -157,8 +161,8 @@ public class TestFakeTripGen {
 
     }
 
-    element = new SpdzSInt(new FieldElementMersennePrime(1, modulus),
-        new FieldElementMersennePrime(200, modulus));
+    element = new SpdzSInt(new FieldElementBigInteger(1, modulus),
+        new FieldElementBigInteger(200, modulus));
     buf = FakeTripGen.elementToBytes(element, 1);
     arr = buf.array();
     Assert.assertArrayEquals(new byte[]{1, (byte) 200}, arr);
@@ -172,7 +176,7 @@ public class TestFakeTripGen {
 
   @Test
   public void testBigIntToBytes() {
-    FieldElement b = new FieldElementMersennePrime(200, modulus);
+    FieldElement b = definition.createElement(200);
     int size = 1;
     ByteBuffer buf = FakeTripGen.bigIntToBytes(b, size);
     byte[] arr = buf.array();

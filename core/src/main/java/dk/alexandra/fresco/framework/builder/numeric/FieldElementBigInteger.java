@@ -6,22 +6,22 @@ import java.util.Objects;
 public class FieldElementBigInteger implements FieldElement {
 
   private final BigInteger value;
-  private final Modulus modulus;
+  private final ModulusBigInteger modulus;
 
-  public FieldElementBigInteger(BigInteger value, Modulus modulus) {
+  public FieldElementBigInteger(BigInteger value, ModulusBigInteger modulus) {
     this.value = value.mod(modulus.getBigInteger());
     this.modulus = modulus;
   }
 
-  public FieldElementBigInteger(byte[] bytes, Modulus modulus) {
+  public FieldElementBigInteger(byte[] bytes, ModulusBigInteger modulus) {
     this(new BigInteger(bytes), modulus);
   }
 
-  public FieldElementBigInteger(int value, Modulus modulus) {
+  public FieldElementBigInteger(int value, ModulusBigInteger modulus) {
     this(BigInteger.valueOf(value), modulus);
   }
 
-  public FieldElementBigInteger(String value, Modulus modulus) {
+  public FieldElementBigInteger(String value, ModulusBigInteger modulus) {
     this(new BigInteger(value), modulus);
   }
 
@@ -64,7 +64,7 @@ public class FieldElementBigInteger implements FieldElement {
   public String toString() {
     return "FieldElementBigInteger{" +
         "value=" + value +
-        ", modulus =" + modulus +
+        ", modulus=" + modulus +
         '}';
   }
 

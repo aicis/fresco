@@ -27,16 +27,16 @@ public final class FieldDefinitionBigInteger implements FieldDefinition {
 
   @Override
   public FieldElement createElement(int value) {
-    return new FieldElementBigInteger(value, getModulus());
+    return new FieldElementBigInteger(value, modulus);
   }
 
   @Override
   public FieldElement createElement(String value) {
-    return new FieldElementBigInteger(value, getModulus());
+    return new FieldElementBigInteger(value, modulus);
   }
 
   @Override
   public FieldElement createElement(BigInteger value) {
-    return new FieldElementBigInteger(value, getModulus());
+    return new FieldElementBigInteger(value, modulus);
   }
 }
