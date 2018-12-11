@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 public final class FieldDefinitionMersennePrime implements FieldDefinition {
 
-  private ModulusMersennePrime modulus;
+  private final ModulusMersennePrime modulus;
 
   public FieldDefinitionMersennePrime(ModulusMersennePrime modulus) {
     this.modulus = modulus;
