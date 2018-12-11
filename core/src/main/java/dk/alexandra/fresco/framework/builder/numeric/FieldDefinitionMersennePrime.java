@@ -16,6 +16,11 @@ public final class FieldDefinitionMersennePrime implements FieldDefinition {
   }
 
   @Override
+  public BigInteger getModulusHalved() {
+    return modulus.getBigIntegerHalved();
+  }
+
+  @Override
   public FieldElement deserialize(byte[] bytes, int offset, int length) {
     if (bytes.length > length) {
       byte[] dest = new byte[length];

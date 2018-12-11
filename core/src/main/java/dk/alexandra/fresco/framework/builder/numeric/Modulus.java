@@ -6,4 +6,6 @@ import java.math.BigInteger;
 public interface Modulus extends Serializable {
 
   BigInteger getBigInteger();
+
+  BigInteger getBigIntegerHalved();
 }

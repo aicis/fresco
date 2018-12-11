@@ -44,7 +44,7 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     BasicNumericContext basicNumericContext = builder.getBasicNumericContext();
     BigInteger modulus = basicNumericContext.getModulus();
-    BigInteger modulusHalf = modulus.divide(BigInteger.valueOf(2));
+    BigInteger modulusHalf = basicNumericContext.getFieldDefinition().getModulusHalved();
     /*
      * We use the fact that if 2^{N+l} \leq m * d \leq 2^{N+l} + 2^l, then floor(x/d) = floor(x * m
      * >> N+l) for all x of length <= N (see Thm 4.2 of

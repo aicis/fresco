@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 public final class FieldDefinitionBigInteger implements FieldDefinition {
 
-  private ModulusBigInteger modulus;
+  private final ModulusBigInteger modulus;
 
   public FieldDefinitionBigInteger(ModulusBigInteger modulus) {
     this.modulus = modulus;
@@ -13,6 +13,11 @@ public final class FieldDefinitionBigInteger implements FieldDefinition {
   @Override
   public BigInteger getModulus() {
     return modulus.getBigInteger();
+  }
+
+  @Override
+  public BigInteger getModulusHalved() {
+    return modulus.getBigIntegerHalved();
   }
 
   @Override

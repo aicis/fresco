@@ -5,23 +5,33 @@ import java.util.Objects;
 
 public final class ModulusMersennePrime implements Modulus {
 
-  private final BigInteger bigInteger;
-  private final MersennePrimeInteger value;
+  private final MersennePrimeInteger mersenne;
+  private final BigInteger value;
+  private BigInteger halved;
 
-  private ModulusMersennePrime(MersennePrimeInteger value) {
-    if (value == null) {
+  private ModulusMersennePrime(MersennePrimeInteger mersenne) {
+    if (mersenne == null) {
       throw new IllegalArgumentException("modulus cannot be null");
     }
-    this.value = value;
-    this.bigInteger = new BigInteger(value.toString());
+    this.mersenne = mersenne;
+    this.value = new BigInteger(mersenne.toString());
   }
 
   MersennePrimeInteger getMersennePrimeInteger() {
+    return mersenne;
+  }
+
+  @Override
+  public BigInteger getBigInteger() {
     return value;
   }
 
-  public BigInteger getBigInteger() {
-    return bigInteger;
+  @Override
+  public BigInteger getBigIntegerHalved() {
+    if (halved == null) {
+      halved = value.divide(BigInteger.valueOf(2));
+    }
+    return halved;
   }
 
   @Override

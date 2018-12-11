@@ -11,7 +11,6 @@ import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 
 public class MascotMockSupplier {
@@ -42,11 +41,6 @@ public class MascotMockSupplier {
       @Override
       public int getInstanceId() {
         return 0;
-      }
-
-      @Override
-      public BigInteger getModulus() {
-        return new BigInteger("251");
       }
 
       @Override

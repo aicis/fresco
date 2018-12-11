@@ -6,6 +6,8 @@ public interface FieldDefinition {
 
   BigInteger getModulus();
 
+  BigInteger getModulusHalved();
+
   FieldElement deserialize(byte[] bytes, int offset, int length);
 
   void serialize(FieldElement fieldElement, byte[] bytes, int offset, int length);

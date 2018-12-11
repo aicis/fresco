@@ -7,7 +7,6 @@ import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.value.SInt;
-import java.math.BigInteger;
 
 /**
  * Implements the resource pool needed for the Dummy Arithmetic suite.
@@ -33,18 +32,13 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
   }
 
   @Override
-  public BigInteger getModulus() {
-    return fieldDefinition.getModulus();
-  }
-
-  @Override
   public FieldDefinition getFieldDefinition() {
     return fieldDefinition;
   }
 
   @Override
   public ByteSerializer<FieldElement> getSerializer() {
-    return new BigIntegerWithFixedLengthSerializer(modulusSize, getFieldDefinition());
+    return new BigIntegerWithFixedLengthSerializer(modulusSize, fieldDefinition);
   }
 
   @Override

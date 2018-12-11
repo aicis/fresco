@@ -6,6 +6,7 @@ import java.util.Objects;
 public final class ModulusBigInteger implements Modulus {
 
   private final BigInteger value;
+  private BigInteger halved;
 
   public ModulusBigInteger(BigInteger value) {
     this.value = value;
@@ -22,6 +23,14 @@ public final class ModulusBigInteger implements Modulus {
   @Override
   public BigInteger getBigInteger() {
     return value;
+  }
+
+  @Override
+  public BigInteger getBigIntegerHalved() {
+    if (halved == null) {
+      halved = value.divide(BigInteger.valueOf(2));
+    }
+    return halved;
   }
 
   @Override

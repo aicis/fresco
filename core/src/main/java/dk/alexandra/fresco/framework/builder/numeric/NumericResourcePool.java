@@ -17,7 +17,18 @@ public interface NumericResourcePool extends ResourcePool {
    *
    * @return modulus
    */
-  BigInteger getModulus();
+  default BigInteger getModulus() {
+    return getFieldDefinition().getModulus();
+  }
+
+  /**
+   * Gets the modulus halved.
+   *
+   * @return modulus halved
+   */
+  default BigInteger getModulusHalved() {
+    return getFieldDefinition().getModulusHalved();
+  }
 
   /**
    * Gets the field definition.
@@ -35,7 +46,7 @@ public interface NumericResourcePool extends ResourcePool {
   default BigInteger convertRepresentation(FieldElement value) {
     BigInteger modulus = getModulus();
     BigInteger actual = value.convertToBigInteger().mod(modulus);
-    if (actual.compareTo(modulus.divide(BigInteger.valueOf(2))) > 0) {
+    if (actual.compareTo(getModulusHalved()) > 0) {
       return actual.subtract(modulus);
     } else {
       return actual;

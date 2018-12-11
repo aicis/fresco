@@ -112,11 +112,6 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
   }
 
   @Override
-  public BigInteger getModulus() {
-    return fieldDefinition.getModulus();
-  }
-
-  @Override
   public FieldDefinition getFieldDefinition() {
     return fieldDefinition;
   }
