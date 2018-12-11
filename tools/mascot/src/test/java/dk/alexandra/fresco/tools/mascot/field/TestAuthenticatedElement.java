@@ -16,8 +16,8 @@ public class TestAuthenticatedElement {
         new AuthenticatedElement(new MascotFieldElement(1, modulus),
             new MascotFieldElement(2, modulus), modulus);
     String expected =
-        "AuthenticatedElement [share=MascotFieldElement [value=1, modulus=ModulusBigInteger{value=251}, bitLength=8],"
-            + " mac=MascotFieldElement [value=2, modulus=ModulusBigInteger{value=251}, bitLength=8]]";
+        "AuthenticatedElement [share=MascotFieldElement [value=1, modulus=251, bitLength=8],"
+            + " mac=MascotFieldElement [value=2, modulus=251, bitLength=8]]";
     assertEquals(expected, element.toString());
   }
 

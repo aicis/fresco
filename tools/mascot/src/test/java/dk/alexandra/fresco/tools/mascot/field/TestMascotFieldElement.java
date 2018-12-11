@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import java.math.BigInteger;
@@ -132,14 +131,14 @@ public class TestMascotFieldElement {
   @Test
   public void testGetters() {
     MascotFieldElement el = new MascotFieldElement("777", "65521");
-    assertEquals(new ModulusBigInteger("65521"), el.getModulus());
+    assertEquals(new BigInteger("65521"), el.getModulus());
     assertEquals(16, el.getBitLength());
   }
 
   @Test
   public void testToString() {
     MascotFieldElement el = new MascotFieldElement("777", "65521");
-    assertEquals("MascotFieldElement [value=777, modulus=ModulusBigInteger{value=65521}, bitLength=16]", el.toString());
+    assertEquals("MascotFieldElement [value=777, modulus=65521, bitLength=16]", el.toString());
   }
 
   @Test
