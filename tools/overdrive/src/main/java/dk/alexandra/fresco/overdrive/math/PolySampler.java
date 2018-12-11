@@ -217,7 +217,7 @@ public class PolySampler {
    * @param val the value to translate
    */
   private int translate(int val) {
-    return (val & 0b00000001) == 0 ? val : val - 3;
+    return (val & 0b00000010) == 0 ? val : val - 3;
   }
 
   /**
