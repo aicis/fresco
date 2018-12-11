@@ -72,13 +72,4 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
     }
     return drbg;
   }
-
-  @Override
-  public BigInteger convertRepresentation(FieldElement value) {
-    BigInteger actual = value.convertToBigInteger().mod(modulus);
-    if (actual.compareTo(modulusHalf) > 0) {
-      actual = actual.subtract(modulus);
-    }
-    return actual;
-  }
 }
