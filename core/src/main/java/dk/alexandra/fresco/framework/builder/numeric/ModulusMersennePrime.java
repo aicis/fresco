@@ -7,7 +7,7 @@ public final class ModulusMersennePrime implements Modulus {
 
   private final MersennePrimeInteger mersenne;
   private final BigInteger value;
-  private BigInteger halved;
+  private final BigInteger halved;
 
   private ModulusMersennePrime(MersennePrimeInteger mersenne) {
     if (mersenne == null) {
@@ -15,6 +15,7 @@ public final class ModulusMersennePrime implements Modulus {
     }
     this.mersenne = mersenne;
     this.value = new BigInteger(mersenne.toString());
+    this.halved = this.value.divide(BigInteger.valueOf(2));
   }
 
   MersennePrimeInteger getMersennePrimeInteger() {
@@ -28,9 +29,6 @@ public final class ModulusMersennePrime implements Modulus {
 
   @Override
   public BigInteger getBigIntegerHalved() {
-    if (halved == null) {
-      halved = value.divide(BigInteger.valueOf(2));
-    }
     return halved;
   }
 
