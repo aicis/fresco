@@ -28,9 +28,6 @@ public interface FieldElement extends Serializable, Addable<FieldElement> {
   boolean getBit(int bitIndex);
 
   @Deprecated
-  FieldElement select(boolean bit);
-
-  @Deprecated
   boolean isZero();
 
   @Deprecated
