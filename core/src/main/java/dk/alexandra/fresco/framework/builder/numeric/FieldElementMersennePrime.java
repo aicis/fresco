@@ -9,7 +9,11 @@ public final class FieldElementMersennePrime implements FieldElement {
   private final ModulusMersennePrime modulus;
 
   private FieldElementMersennePrime(BigInteger value, ModulusMersennePrime modulus) {
-    this.value = modulus.mod(value);
+    if (value.signum() < 0) {
+      this.value = value.mod(modulus.getBigInteger());
+    } else {
+      this.value = modulus.mod(value);
+    }
     this.modulus = modulus;
   }
 
