@@ -35,6 +35,7 @@ public interface ByteSerializer<T> {
    */
   T deserialize(byte[] bytes);
 
+
   /**
    * Reads a list of elements of type T from a byte array.
    *
@@ -53,4 +54,5 @@ public interface ByteSerializer<T> {
     }
     return elements;
   }
+
 }
