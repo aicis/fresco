@@ -3,7 +3,6 @@ package dk.alexandra.fresco.tools.mascot.cope;
 import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
@@ -63,8 +62,7 @@ public class CopeInputter {
     // compute t0 - t1 + x for each input x for each mask pair
     List<FieldElement> diffs = helper.computeDiffs(maskPairs, inputElements);
     // send diffs
-    network.send(otherId,
-        ((ByteSerializer<FieldElement>) resourcePool.getFieldDefinition()).serialize(diffs));
+    network.send(otherId, resourcePool.getFieldDefinition().serialize(diffs));
     // get zero index masks
     List<FieldElement> feZeroSeeds =
         maskPairs.parallelStream().map(Pair::getFirst).collect(Collectors.toList());

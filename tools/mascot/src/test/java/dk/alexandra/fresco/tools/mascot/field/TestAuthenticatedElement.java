@@ -22,9 +22,7 @@ public class TestAuthenticatedElement {
             definition.createElement(1),
             definition.createElement(2)
         );
-    String expected =
-        "AuthenticatedElement [share=FieldElement [value=1, modulus=251, bitLength=8],"
-            + " mac=FieldElement [value=2, modulus=251, bitLength=8]]";
+    String expected = "AuthenticatedElement [share=FieldElementBigInteger{value=1, modulus=ModulusBigInteger{value=251}}, mac=FieldElementBigInteger{value=2, modulus=ModulusBigInteger{value=251}}]";
     assertEquals(expected, element.toString());
   }
 

@@ -2,7 +2,6 @@ package dk.alexandra.fresco.tools.mascot.cope;
 
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeftHelper;
@@ -67,8 +66,8 @@ public class CopeSigner {
     List<FieldElement> macKeyShares =
         IntStream.range(0, numInputs).mapToObj(idx -> macKeyShare).collect(Collectors.toList());
     // receive diffs from other party
-    List<FieldElement> diffs = ((ByteSerializer<FieldElement>) resourcePool.getFieldDefinition())
-        .deserializeList(network.receive(otherId));
+    List<FieldElement> diffs =
+        resourcePool.getFieldDefinition().deserializeList(network.receive(otherId));
     // compute product shares
     return multiplier.computeProductShares(macKeyShares, chosenMasks, diffs);
   }
@@ -92,5 +91,4 @@ public class CopeSigner {
       prgs.add(new FieldElementPrgImpl(seed, resourcePool.getFieldDefinition()));
     }
   }
-
 }

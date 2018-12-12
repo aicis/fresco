@@ -56,7 +56,7 @@ public final class FieldDefinitionBigInteger implements FieldDefinition {
     ArrayList<FieldElement> elements = new ArrayList<>();
     for (int i = 0; i < bytes.length; i += modulusLength) {
       byte[] copy = new byte[modulusLength];
-      System.arraycopy(bytes, i * modulusLength, copy, 0, modulusLength);
+      System.arraycopy(bytes, i, copy, 0, modulusLength);
       elements.add(new FieldElementBigInteger(copy, modulus));
     }
     return elements;
