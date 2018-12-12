@@ -272,13 +272,18 @@ public class TestSpdzDummyDataSupplier {
         .collect(Collectors.toList());
     FieldElement inverted = values.get(0);
     FieldElement first = values.get(1);
-    BigInteger bigInteger =
-        definition.convertRepresentation(first).modInverse(definition.getModulus());
-    assertEquals(definition.convertRepresentation(inverted), bigInteger);
+    BigInteger firstAsBigInteger =
+        definition.convertRepresentation(first).mod(definition.getModulus());
+    BigInteger bigInteger = firstAsBigInteger.modInverse(definition.getModulus());
+    assertEquals(
+        definition.convertRepresentation(inverted).mod(definition.getModulus()),
+        bigInteger);
     for (int i = 1; i < values.size(); i++) {
-      BigInteger expected = definition.convertRepresentation(first)
+      BigInteger expected = firstAsBigInteger
           .modPow(BigInteger.valueOf(i), definition.getModulus());
-      assertEquals(expected, definition.convertRepresentation(values.get(i)));
+      assertEquals(
+          expected,
+          definition.convertRepresentation(values.get(i)).mod(definition.getModulus()));
     }
   }
 }
