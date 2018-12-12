@@ -6,8 +6,8 @@ import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.builder.numeric.Addable;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.InputMask;
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,41 +17,41 @@ import org.junit.Test;
 
 public class TestMascot extends NetworkedTest {
 
-  private final MascotFieldElement macKeyShareOne = new MascotFieldElement(11231, getModulus());
-  private final MascotFieldElement macKeyShareTwo = new MascotFieldElement(7719, getModulus());
+  private final FieldElement macKeyShareOne = new FieldElement(11231, getModulus());
+  private final FieldElement macKeyShareTwo = new FieldElement(7719, getModulus());
 
-  private List<MultiplicationTriple> runTripleGen(MascotTestContext ctx, MascotFieldElement macKeyShare,
+  private List<MultiplicationTriple> runTripleGen(MascotTestContext ctx, FieldElement macKeyShare,
       int numTriples) {
     Mascot mascot = new Mascot(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare);
     return mascot.getTriples(numTriples);
   }
 
   private List<AuthenticatedElement> runRandomElementGeneration(MascotTestContext ctx,
-      MascotFieldElement macKeyShare, int numElements) {
+      FieldElement macKeyShare, int numElements) {
     Mascot mascot = new Mascot(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare);
     return mascot.getRandomElements(numElements);
   }
 
   private List<AuthenticatedElement> runRandomBitGeneration(MascotTestContext ctx,
-      MascotFieldElement macKeyShare, int numBits) {
+      FieldElement macKeyShare, int numBits) {
     Mascot mascot = new Mascot(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare);
     return mascot.getRandomBits(numBits);
   }
 
-  private List<AuthenticatedElement> runInputter(MascotTestContext ctx, MascotFieldElement macKeyShare,
-      List<MascotFieldElement> inputs) {
+  private List<AuthenticatedElement> runInputter(MascotTestContext ctx, FieldElement macKeyShare,
+      List<FieldElement> inputs) {
     Mascot mascot = new Mascot(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare);
     return mascot.input(inputs);
   }
 
-  private List<AuthenticatedElement> runNonInputter(MascotTestContext ctx, MascotFieldElement macKeyShare,
+  private List<AuthenticatedElement> runNonInputter(MascotTestContext ctx, FieldElement macKeyShare,
       Integer inputterId, int numInputs) {
     Mascot mascot = new Mascot(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare);
     return mascot.input(inputterId, numInputs);
   }
 
   private List<InputMask> runInputMask(MascotTestContext ctx, Integer inputterId, int numMasks,
-      MascotFieldElement macKeyShare) {
+      FieldElement macKeyShare) {
     Mascot mascot = new Mascot(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare);
     return mascot.getInputMasks(inputterId, numMasks);
   }
@@ -108,7 +108,7 @@ public class TestMascot extends NetworkedTest {
     assertEquals(results.get(1).size(), 1);
 
     AuthenticatedElement bit = results.get(0).get(0).add(results.get(1).get(0));
-    MascotFieldElement actualBit = bit.getShare();
+    FieldElement actualBit = bit.getShare();
     CustomAsserts.assertFieldElementIsBit(actualBit);
   }
 
@@ -129,7 +129,7 @@ public class TestMascot extends NetworkedTest {
     assertEquals(results.get(0).size(), numMasks);
     assertEquals(results.get(1).size(), numMasks);
 
-    MascotFieldElement macKey = macKeyShareOne.add(macKeyShareTwo);
+    FieldElement macKey = macKeyShareOne.add(macKeyShareTwo);
     for (int i = 0; i < leftMasks.size(); i++) {
       InputMask left = leftMasks.get(i);
       InputMask right = rightMasks.get(i);
@@ -147,7 +147,7 @@ public class TestMascot extends NetworkedTest {
     // set up runtime environment and get contexts
     initContexts(2);
 
-    MascotFieldElement input = new MascotFieldElement(12345, getModulus());
+    FieldElement input = new FieldElement(12345, getModulus());
 
     // define per party task with params
     List<Callable<List<AuthenticatedElement>>> tasks = new ArrayList<>();
@@ -159,10 +159,10 @@ public class TestMascot extends NetworkedTest {
     assertEquals(results.get(1).size(), 1);
     List<AuthenticatedElement> combined =
         Addable.sumRows(results);
-    MascotFieldElement actualRecombinedValue = combined.get(0).getShare();
-    MascotFieldElement actualRecombinedMac = combined.get(0).getMac();
+    FieldElement actualRecombinedValue = combined.get(0).getShare();
+    FieldElement actualRecombinedMac = combined.get(0).getMac();
     CustomAsserts.assertEquals(input, actualRecombinedValue);
-    MascotFieldElement expectedMac = input.multiply(macKeyShareOne.add(macKeyShareTwo));
+    FieldElement expectedMac = input.multiply(macKeyShareOne.add(macKeyShareTwo));
     CustomAsserts.assertEquals(expectedMac, actualRecombinedMac);
   }
 
@@ -171,8 +171,8 @@ public class TestMascot extends NetworkedTest {
     // set up runtime environment and get contexts
     initContexts(2, new MascotSecurityParameters(8, 8, 256, 3));
 
-    MascotFieldElement macKeyShareOne = new MascotFieldElement(111, getModulus());
-    MascotFieldElement macKeyShareTwo = new MascotFieldElement(212, getModulus());
+    FieldElement macKeyShareOne = new FieldElement(111, getModulus());
+    FieldElement macKeyShareTwo = new FieldElement(212, getModulus());
 
     // define per party task with params
     List<Callable<List<MultiplicationTriple>>> tasks = new ArrayList<>();

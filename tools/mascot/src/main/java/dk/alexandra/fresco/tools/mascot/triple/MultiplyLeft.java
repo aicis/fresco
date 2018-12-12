@@ -3,7 +3,7 @@ package dk.alexandra.fresco.tools.mascot.triple;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeftHelper;
 import java.math.BigInteger;
 import java.util.List;
@@ -58,13 +58,13 @@ class MultiplyLeft {
    * @return shares of the products <i>a<sub>0</sub>b<sub>0</sub>, a<sub>1</sub>b<sub>1</sub>
    * ...</i>
    */
-  public List<MascotFieldElement> multiply(List<MascotFieldElement> leftFactors) {
+  public List<FieldElement> multiply(List<FieldElement> leftFactors) {
     List<StrictBitVector> seeds = multiplyLeftHelper.generateSeeds(leftFactors,
         resourcePool.getModBitLength());
-    List<MascotFieldElement> feSeeds = seedsToFieldElements(seeds,
+    List<FieldElement> feSeeds = seedsToFieldElements(seeds,
         resourcePool.getModulus());
     // receive diffs from other party
-    List<MascotFieldElement> diffs =
+    List<FieldElement> diffs =
         resourcePool.getFieldElementSerializer()
             .deserializeList(network.receive(otherId));
     return multiplyLeftHelper.computeProductShares(leftFactors, feSeeds, diffs);
@@ -77,14 +77,14 @@ class MultiplyLeft {
    * @param modulus the modulus we are working in
    * @return seeds converted to field elements
    */
-  private List<MascotFieldElement> seedsToFieldElements(List<StrictBitVector> seeds,
+  private List<FieldElement> seedsToFieldElements(List<StrictBitVector> seeds,
       BigInteger modulus) {
     return seeds.parallelStream().map(seed -> fromBits(seed, modulus)).collect(Collectors.toList());
   }
 
-  private MascotFieldElement fromBits(StrictBitVector vector, BigInteger modulus) {
+  private FieldElement fromBits(StrictBitVector vector, BigInteger modulus) {
     // safe since the modulus is guaranteed to be close enough to 2^modBitLength
-    return new MascotFieldElement(new BigInteger(vector.toByteArray()).mod(modulus), modulus);
+    return new FieldElement(new BigInteger(vector.toByteArray()).mod(modulus), modulus);
   }
 
 }

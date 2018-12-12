@@ -3,7 +3,7 @@ package dk.alexandra.fresco.tools.mascot.online;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.mascot.triple.TripleGeneration;
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ public class OnlinePhase {
 
   private final TripleGeneration tripleGeneration;
   private final ElementGeneration elementGeneration;
-  private final MascotFieldElement macKeyShare;
+  private final FieldElement macKeyShare;
   private final OpenedValueStore openedValueStore;
   private final MascotResourcePool resourcePool;
 
@@ -28,7 +28,7 @@ public class OnlinePhase {
    */
   public OnlinePhase(MascotResourcePool resourcePool, TripleGeneration tripleGeneration,
       ElementGeneration elementGeneration,
-      MascotFieldElement macKeyShare) {
+      FieldElement macKeyShare) {
     this.resourcePool = resourcePool;
     this.tripleGeneration = tripleGeneration;
     this.elementGeneration = elementGeneration;
@@ -56,16 +56,16 @@ public class OnlinePhase {
       epsilons.add(left.subtract(triple.getLeft()));
       deltas.add(right.subtract(triple.getRight()));
     }
-    List<MascotFieldElement> openEpsilons = open(epsilons);
-    List<MascotFieldElement> openDeltas = open(deltas);
+    List<FieldElement> openEpsilons = open(epsilons);
+    List<FieldElement> openDeltas = open(deltas);
     List<AuthenticatedElement> products = new ArrayList<>(leftFactors.size());
     for (int i = 0; i < leftFactors.size(); i++) {
       MultiplicationTriple triple = triples.get(i);
       AuthenticatedElement left = triple.getLeft();
       AuthenticatedElement right = triple.getRight();
-      MascotFieldElement epsilon = openEpsilons.get(i);
-      MascotFieldElement delta = openDeltas.get(i);
-      MascotFieldElement epsilonDeltaProd = epsilon.multiply(delta);
+      FieldElement epsilon = openEpsilons.get(i);
+      FieldElement delta = openDeltas.get(i);
+      FieldElement epsilonDeltaProd = epsilon.multiply(delta);
       // [c] + epsilon * [b] + delta * [a] + epsilon * delta
       AuthenticatedElement product = triple.getProduct().add(right.multiply(epsilon))
           .add(left.multiply(delta))
@@ -78,8 +78,8 @@ public class OnlinePhase {
   /**
    * Runs open protocol and stores all opened values along with the macs for later validation.
    */
-  public List<MascotFieldElement> open(List<AuthenticatedElement> closed) {
-    List<MascotFieldElement> opened = elementGeneration.open(closed);
+  public List<FieldElement> open(List<AuthenticatedElement> closed) {
+    List<FieldElement> opened = elementGeneration.open(closed);
     openedValueStore.addValues(closed, opened);
     return opened;
   }
@@ -97,7 +97,7 @@ public class OnlinePhase {
   private class OpenedValueStore {
 
     private final List<AuthenticatedElement> sharesWithMacs;
-    private final List<MascotFieldElement> openedValues;
+    private final List<FieldElement> openedValues;
 
     OpenedValueStore() {
       this.sharesWithMacs = new ArrayList<>();
@@ -105,13 +105,13 @@ public class OnlinePhase {
     }
 
     void addValues(List<AuthenticatedElement> newSharesWithMacs,
-        List<MascotFieldElement> newOpenedValues) {
+        List<FieldElement> newOpenedValues) {
       this.sharesWithMacs.addAll(newSharesWithMacs);
       this.openedValues.addAll(newOpenedValues);
     }
 
     void checkAllAndClear(
-        BiConsumer<List<AuthenticatedElement>, List<MascotFieldElement>> checker) {
+        BiConsumer<List<AuthenticatedElement>, List<FieldElement>> checker) {
       checker.accept(this.sharesWithMacs, this.openedValues);
       this.sharesWithMacs.clear();
       this.openedValues.clear();

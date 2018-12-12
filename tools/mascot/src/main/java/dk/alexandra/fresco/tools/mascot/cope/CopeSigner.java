@@ -3,7 +3,7 @@ package dk.alexandra.fresco.tools.mascot.cope;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeftHelper;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
@@ -26,7 +26,7 @@ import java.util.stream.IntStream;
 public class CopeSigner {
 
   private final List<FieldElementPrg> prgs;
-  private final MascotFieldElement macKeyShare;
+  private final FieldElement macKeyShare;
   private final MultiplyLeftHelper multiplier;
   private final int otherId;
   private final MascotResourcePool resourcePool;
@@ -44,7 +44,7 @@ public class CopeSigner {
    * @param macKeyShare this party's share of the mac key
    */
   public CopeSigner(MascotResourcePool resourcePool, Network network, int otherId,
-      MascotFieldElement macKeyShare) {
+      FieldElement macKeyShare) {
     this.otherId = otherId;
     this.resourcePool = resourcePool;
     this.network = network;
@@ -60,27 +60,27 @@ public class CopeSigner {
    * @param numInputs number of other party's inputs
    * @return shares of product
    */
-  public List<MascotFieldElement> extend(int numInputs) {
+  public List<FieldElement> extend(int numInputs) {
     // compute chosen masks
-    List<MascotFieldElement> chosenMasks = generateMasks(numInputs,
+    List<FieldElement> chosenMasks = generateMasks(numInputs,
         resourcePool.getModulus());
     // use mac share for each input
-    List<MascotFieldElement> macKeyShares =
+    List<FieldElement> macKeyShares =
         IntStream.range(0, numInputs).mapToObj(idx -> macKeyShare).collect(Collectors.toList());
     // receive diffs from other party
-    List<MascotFieldElement> diffs = resourcePool.getFieldElementSerializer()
+    List<FieldElement> diffs = resourcePool.getFieldElementSerializer()
         .deserializeList(network.receive(otherId));
     // compute product shares
     return multiplier.computeProductShares(macKeyShares, chosenMasks, diffs);
   }
 
-  private List<MascotFieldElement> generateMasks(int numInputs, BigInteger modulus) {
+  private List<FieldElement> generateMasks(int numInputs, BigInteger modulus) {
     // for each input pair, we use our prgs to get the next set of masks
-    List<MascotFieldElement> masks = new ArrayList<>();
+    List<FieldElement> masks = new ArrayList<>();
     // generate mask for each input
     for (int i = 0; i < numInputs; i++) {
       // generate masks for single input
-      List<MascotFieldElement> singleInputMasks = prgs.parallelStream()
+      List<FieldElement> singleInputMasks = prgs.parallelStream()
           .map(prg -> prg.getNext(modulus))
           .collect(Collectors.toList());
       masks.addAll(singleInputMasks);

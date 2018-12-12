@@ -5,7 +5,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FieldElementSerializer implements ByteSerializer<MascotFieldElement> {
+public class FieldElementSerializer implements ByteSerializer<FieldElement> {
 
   private final BigInteger modulus;
   private final int modBitLength;
@@ -29,8 +29,8 @@ public class FieldElementSerializer implements ByteSerializer<MascotFieldElement
    * @return deserialized field element
    */
   @Override
-  public MascotFieldElement deserialize(byte[] data) {
-    return new MascotFieldElement(data, modulus);
+  public FieldElement deserialize(byte[] data) {
+    return new FieldElement(data, modulus);
   }
 
   /**
@@ -40,7 +40,7 @@ public class FieldElementSerializer implements ByteSerializer<MascotFieldElement
    * @return serialized field element
    */
   @Override
-  public byte[] serialize(MascotFieldElement obj) {
+  public byte[] serialize(FieldElement obj) {
     if (!obj.getModulus().equals(modulus)) {
       throw new IllegalArgumentException("All elements must have same modulus");
     }
@@ -54,13 +54,13 @@ public class FieldElementSerializer implements ByteSerializer<MascotFieldElement
    * @return serialized field elements
    */
   @Override
-  public byte[] serialize(List<MascotFieldElement> elements) {
+  public byte[] serialize(List<FieldElement> elements) {
     // nothing to do for empty list
     if (elements.isEmpty()) {
       return new byte[]{};
     }
     // ensure all field elements are in the same field and have same bit length
-    for (MascotFieldElement element : elements) {
+    for (FieldElement element : elements) {
       if (!element.getModulus().equals(modulus)) {
         throw new IllegalArgumentException("All elements must have same modulus");
       }
@@ -75,7 +75,7 @@ public class FieldElementSerializer implements ByteSerializer<MascotFieldElement
    * @return deserialized field elements
    */
   @Override
-  public List<MascotFieldElement> deserializeList(byte[] data) {
+  public List<FieldElement> deserializeList(byte[] data) {
     if (data.length == 0) {
       return new ArrayList<>();
     }

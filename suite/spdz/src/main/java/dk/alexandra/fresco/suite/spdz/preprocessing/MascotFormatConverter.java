@@ -7,7 +7,6 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.InputMask;
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import java.math.BigInteger;
 
@@ -51,7 +50,7 @@ public class MascotFormatConverter {
    * @return converted mask
    */
   public SpdzInputMask toSpdzInputMask(InputMask mask) {
-    MascotFieldElement openMask = mask.getOpenValue();
+    FieldElement openMask = mask.getOpenValue();
     if (openMask == null) {
       return new SpdzInputMask(toSpdzSInt(mask.getMaskShare()));
     } else {

@@ -1,13 +1,11 @@
 package dk.alexandra.fresco.tools.mascot;
 
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
-
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-
 import org.hamcrest.collection.IsCollectionWithSize;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
@@ -20,8 +18,8 @@ public class CustomAsserts {
    * @param expected expected matrix
    * @param actual actual matrix
    */
-  public static void assertMatrixEquals(List<List<MascotFieldElement>> expected,
-      List<List<MascotFieldElement>> actual) {
+  public static void assertMatrixEquals(List<List<FieldElement>> expected,
+      List<List<FieldElement>> actual) {
     Assert.assertThat(expected, IsCollectionWithSize.hasSize(actual.size()));
     for (int i = 0; i < expected.size(); i++) {
       assertEquals(expected.get(i), actual.get(i));
@@ -34,8 +32,8 @@ public class CustomAsserts {
    * @param expected expected list
    * @param actual actual list
    */
-  public static void assertEquals(List<MascotFieldElement> expected, List<MascotFieldElement> actual) {
-    Function<Integer, BiConsumer<MascotFieldElement, MascotFieldElement>> innerAssert =
+  public static void assertEquals(List<FieldElement> expected, List<FieldElement> actual) {
+    Function<Integer, BiConsumer<FieldElement, FieldElement>> innerAssert =
         (idx) -> (l, r) -> assertEqualsMessaged(" - at index " + idx, l, r);
     assertEquals(expected, actual, innerAssert);
   }
@@ -48,7 +46,7 @@ public class CustomAsserts {
     }
   }
 
-  public static void assertEquals(MascotFieldElement expected, MascotFieldElement actual) {
+  public static void assertEquals(FieldElement expected, FieldElement actual) {
     assertEqualsMessaged("", expected, actual);
   }
 
@@ -90,8 +88,8 @@ public class CustomAsserts {
    * @param expected expected field element
    * @param actual actual field element
    */
-  private static void assertEqualsMessaged(String message, MascotFieldElement expected,
-      MascotFieldElement actual) {
+  private static void assertEqualsMessaged(String message, FieldElement expected,
+      FieldElement actual) {
     Assert.assertThat("Modulus mismatch" + message + " in " + actual, expected.getModulus(),
         Is.is(actual.getModulus()));
     Assert.assertThat("Value mismatch" + message + " in " + actual, expected.getValue(),
@@ -104,29 +102,29 @@ public class CustomAsserts {
    * @param triple triple to check
    * @param macKey recombined mac key
    */
-  public static void assertTripleIsValid(MultiplicationTriple triple, MascotFieldElement macKey) {
+  public static void assertTripleIsValid(MultiplicationTriple triple, FieldElement macKey) {
     AuthenticatedElement left = triple.getLeft();
     AuthenticatedElement right = triple.getRight();
     AuthenticatedElement product = triple.getProduct();
 
-    MascotFieldElement leftValue = left.getShare();
-    MascotFieldElement rightValue = right.getShare();
-    MascotFieldElement productValue = product.getShare();
+    FieldElement leftValue = left.getShare();
+    FieldElement rightValue = right.getShare();
+    FieldElement productValue = product.getShare();
     assertEqualsMessaged("Shares of product do not equal product ", productValue,
         leftValue.multiply(rightValue));
 
-    MascotFieldElement leftMac = left.getMac();
-    MascotFieldElement rightMac = right.getMac();
-    MascotFieldElement productMac = product.getMac();
+    FieldElement leftMac = left.getMac();
+    FieldElement rightMac = right.getMac();
+    FieldElement productMac = product.getMac();
     assertEqualsMessaged("Mac check failed for left ", leftValue.multiply(macKey), leftMac);
     assertEqualsMessaged("Mac check failed for right ", rightValue.multiply(macKey), rightMac);
     assertEqualsMessaged("Mac check failed for product", productValue.multiply(macKey), productMac);
   }
 
-  public static void assertFieldElementIsBit(MascotFieldElement actualBit) {
+  public static void assertFieldElementIsBit(FieldElement actualBit) {
     // compute b * (1 - b), which is 0 iff b is a bit
-    MascotFieldElement bitCheck = actualBit
-        .multiply(new MascotFieldElement(1, actualBit.getModulus())
+    FieldElement bitCheck = actualBit
+        .multiply(new FieldElement(1, actualBit.getModulus())
             .subtract(actualBit));
     String message = "Not a bit " + actualBit;
     Assert.assertTrue(message, bitCheck.isZero());

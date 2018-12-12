@@ -2,7 +2,7 @@ package dk.alexandra.fresco.tools.mascot.bit;
 
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.online.OnlinePhase;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,14 +13,14 @@ import java.util.List;
 public class BitConverter {
 
   private final OnlinePhase onlinePhase;
-  private final MascotFieldElement macKeyShare;
+  private final FieldElement macKeyShare;
   private final MascotResourcePool resourcePool;
 
   /**
    * Creates new {@link BitConverter}.
    */
   public BitConverter(MascotResourcePool resourcePool, OnlinePhase onlinePhase,
-      MascotFieldElement macKeyShare) {
+      FieldElement macKeyShare) {
     this.resourcePool = resourcePool;
     this.onlinePhase = onlinePhase;
     this.macKeyShare = macKeyShare;
@@ -38,18 +38,18 @@ public class BitConverter {
    */
   public List<AuthenticatedElement> convertToBits(List<AuthenticatedElement> randomElements) {
     List<AuthenticatedElement> squares = onlinePhase.multiply(randomElements, randomElements);
-    List<MascotFieldElement> openSquares = onlinePhase.open(squares);
+    List<FieldElement> openSquares = onlinePhase.open(squares);
     onlinePhase.triggerMacCheck();
     List<AuthenticatedElement> bits = new ArrayList<>(randomElements.size());
     for (int b = 0; b < randomElements.size(); b++) {
-      MascotFieldElement square = openSquares.get(b);
-      MascotFieldElement root = square.sqrt();
+      FieldElement square = openSquares.get(b);
+      FieldElement root = square.sqrt();
       AuthenticatedElement randomElement = randomElements.get(b);
       AuthenticatedElement oneOrNegativeOne =
           randomElement.multiply(root.modInverse()); // division
-      MascotFieldElement two =
-          new MascotFieldElement(2, resourcePool.getModulus());
-      MascotFieldElement one = new MascotFieldElement(1,
+      FieldElement two =
+          new FieldElement(2, resourcePool.getModulus());
+      FieldElement one = new FieldElement(1,
           resourcePool.getModulus());
       AuthenticatedElement bit = oneOrNegativeOne.add(one, resourcePool.getMyId(), macKeyShare)
           .multiply(two.modInverse());

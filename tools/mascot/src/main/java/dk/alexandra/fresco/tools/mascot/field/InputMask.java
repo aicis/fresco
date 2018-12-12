@@ -6,7 +6,7 @@ package dk.alexandra.fresco.tools.mascot.field;
  */
 public class InputMask {
 
-  private final MascotFieldElement openValue;
+  private final FieldElement openValue;
   private final AuthenticatedElement maskShare;
 
   /**
@@ -15,7 +15,7 @@ public class InputMask {
    * @param openValue the actual value
    * @param maskShare the authenticated share of the value
    */
-  public InputMask(MascotFieldElement openValue, AuthenticatedElement maskShare) {
+  public InputMask(FieldElement openValue, AuthenticatedElement maskShare) {
     this.openValue = openValue;
     this.maskShare = maskShare;
   }
@@ -24,7 +24,7 @@ public class InputMask {
     this(null, maskShare);
   }
 
-  public MascotFieldElement getOpenValue() {
+  public FieldElement getOpenValue() {
     return openValue;
   }
 

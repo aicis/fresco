@@ -3,8 +3,8 @@ package dk.alexandra.fresco.tools.mascot.mult;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +34,7 @@ public class MultiplyLeftHelper {
    * @param seedLength the length of the seeds that the ROT produces
    * @return list of seeds to prgs
    */
-  public List<StrictBitVector> generateSeeds(List<MascotFieldElement> leftFactors,
+  public List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors,
       int seedLength) {
     StrictBitVector packedFactors = fieldElementUtils.pack(leftFactors,
         true);
@@ -44,7 +44,7 @@ public class MultiplyLeftHelper {
     return seeds;
   }
 
-  public List<StrictBitVector> generateSeeds(MascotFieldElement leftFactor, int seedLength) {
+  public List<StrictBitVector> generateSeeds(FieldElement leftFactor, int seedLength) {
     return generateSeeds(Collections.singletonList(leftFactor), seedLength);
   }
 
@@ -56,21 +56,21 @@ public class MultiplyLeftHelper {
    * @param diffs the diffs received from other party
    * @return product shares
    */
-  public List<MascotFieldElement> computeProductShares(List<MascotFieldElement> leftFactors,
-      List<MascotFieldElement> feSeeds, List<MascotFieldElement> diffs) {
-    List<MascotFieldElement> result = new ArrayList<>(leftFactors.size());
+  public List<FieldElement> computeProductShares(List<FieldElement> leftFactors,
+      List<FieldElement> feSeeds, List<FieldElement> diffs) {
+    List<FieldElement> result = new ArrayList<>(leftFactors.size());
     int diffIdx = 0;
-    for (MascotFieldElement leftFactor : leftFactors) {
-      List<MascotFieldElement> summands = new ArrayList<>(resourcePool.getModBitLength());
+    for (FieldElement leftFactor : leftFactors) {
+      List<FieldElement> summands = new ArrayList<>(resourcePool.getModBitLength());
       for (int b = 0; b < resourcePool.getModBitLength(); b++) {
-        MascotFieldElement feSeed = feSeeds.get(diffIdx);
-        MascotFieldElement diff = diffs.get(diffIdx);
+        FieldElement feSeed = feSeeds.get(diffIdx);
+        FieldElement diff = diffs.get(diffIdx);
         boolean bit = leftFactor.getBit(b);
-        MascotFieldElement summand = diff.select(bit).add(feSeed);
+        FieldElement summand = diff.select(bit).add(feSeed);
         summands.add(summand);
         diffIdx++;
       }
-      MascotFieldElement productShare = fieldElementUtils.recombine(summands);
+      FieldElement productShare = fieldElementUtils.recombine(summands);
       result.add(productShare);
     }
     return result;
