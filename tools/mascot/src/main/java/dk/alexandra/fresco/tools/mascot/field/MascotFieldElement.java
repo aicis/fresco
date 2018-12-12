@@ -153,11 +153,6 @@ public final class MascotFieldElement implements FieldElement, Addable<MascotFie
   }
 
   @Override
-  public int getBitLength() {
-    return bitLength;
-  }
-
-  @Override
   public String toString() {
     return "MascotFieldElement [value=" + value + ", modulus=" + modulus + ", bitLength="
         + bitLength

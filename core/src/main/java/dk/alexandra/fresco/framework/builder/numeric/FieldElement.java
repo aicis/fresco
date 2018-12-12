@@ -42,7 +42,4 @@ public interface FieldElement extends Serializable, Addable<FieldElement> {
 
   @Deprecated
   BigInteger getModulus();
-
-  @Deprecated
-  int getBitLength();
 }

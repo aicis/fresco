@@ -27,8 +27,6 @@ public class TestPaddingPrg {
     FieldElementPrg prg = new FieldElementPrgImpl(seed);
     MascotFieldElement el = prg.getNext(modulus);
     assertEquals(modulus, el.getModulus());
-    int modBitLength = 128;
-    assertEquals(modBitLength, el.getBitLength());
   }
 
   @Test
