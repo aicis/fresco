@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
+import dk.alexandra.fresco.framework.util.MathUtils;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.math.BigInteger;
 import java.util.Objects;
 
@@ -35,8 +37,43 @@ public class FieldElementBigInteger implements FieldElement {
   }
 
   @Override
+  public FieldElement negate() {
+    return create(value.negate());
+  }
+
+  @Override
   public FieldElementBigInteger multiply(FieldElement operand) {
     return create(value.multiply(extractValue(operand)));
+  }
+
+  @Override
+  public FieldElement pow(int exponent) {
+    return create(value.pow(exponent));
+  }
+
+  @Override
+  public FieldElement sqrt() {
+    return create(MathUtils.modularSqrt(value, getModulus()));
+  }
+
+  @Override
+  public FieldElement modInverse() {
+    return create(value.modInverse(getModulus()));
+  }
+
+  @Override
+  public boolean getBit(int bitIndex) {
+    return value.testBit(bitIndex);
+  }
+
+  @Override
+  public FieldElement select(boolean bit) {
+    return bit ? this : create(BigInteger.ZERO);
+  }
+
+  @Override
+  public boolean isZero() {
+    return value.equals(BigInteger.ZERO);
   }
 
   @Override
@@ -53,8 +90,18 @@ public class FieldElementBigInteger implements FieldElement {
     System.arraycopy(byteArray, 0, bytes, byteLength - byteArray.length + offset, byteArray.length);
   }
 
-  byte[] toByteArray() {
+  public byte[] toByteArray() {
     return value.toByteArray();
+  }
+
+  @Override
+  public StrictBitVector toBitVector() {
+    return new StrictBitVector(toByteArray());
+  }
+
+  @Override
+  public BigInteger getModulus() {
+    return modulus.getBigInteger();
   }
 
   @Override
