@@ -64,7 +64,7 @@ public final class ModulusMersennePrime implements Serializable {
     // q = z / b^n
     // r = z mod b^n
     BigInteger result = value.and(precomputedBitMask);
-    while (quotient.compareTo(BigInteger.ZERO) > 0) {
+    while (quotient.signum() > 0) {
       BigInteger product = quotient.multiply(constant);
       //r = r + (c * q mod b^n)
       result = result.add(product.and(precomputedBitMask));
