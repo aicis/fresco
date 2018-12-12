@@ -5,8 +5,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.builder.numeric.Addable;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.InputMask;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import java.util.ArrayList;

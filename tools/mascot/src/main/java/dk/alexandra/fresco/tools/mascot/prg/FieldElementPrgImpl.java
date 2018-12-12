@@ -1,11 +1,11 @@
 package dk.alexandra.fresco.tools.mascot.prg;
 
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drng;
 import dk.alexandra.fresco.framework.util.DrngImpl;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import java.math.BigInteger;
 
 public class FieldElementPrgImpl implements FieldElementPrg {

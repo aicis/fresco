@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import java.util.List;
 import java.util.function.BiConsumer;

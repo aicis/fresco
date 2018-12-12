@@ -1,13 +1,13 @@
 package dk.alexandra.fresco.tools.mascot;
 
 import dk.alexandra.fresco.framework.builder.numeric.Addable;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.bit.BitConverter;
 import dk.alexandra.fresco.tools.mascot.cointossing.CoinTossingMpc;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.InputMask;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.mascot.online.OnlinePhase;

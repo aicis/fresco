@@ -1,10 +1,10 @@
 package dk.alexandra.fresco.tools.mascot.mult;
 
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElementUtils;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import java.util.ArrayList;
 import java.util.Collections;

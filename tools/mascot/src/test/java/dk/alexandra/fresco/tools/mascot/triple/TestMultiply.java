@@ -3,13 +3,13 @@ package dk.alexandra.fresco.tools.mascot.triple;
 import static org.junit.Assert.assertEquals;
 
 import dk.alexandra.fresco.framework.builder.numeric.Addable;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElementUtils;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotSecurityParameters;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

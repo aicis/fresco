@@ -1,10 +1,10 @@
 package dk.alexandra.fresco.tools.mascot.cope;
 
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRightHelper;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;

@@ -1,11 +1,11 @@
 package dk.alexandra.fresco.tools.mascot.cope;
 
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotSecurityParameters;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;

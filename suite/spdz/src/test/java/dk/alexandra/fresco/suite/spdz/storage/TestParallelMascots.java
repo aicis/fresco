@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -9,7 +10,6 @@ import dk.alexandra.fresco.suite.spdz.NetManager;
 import dk.alexandra.fresco.tools.mascot.Mascot;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePoolImpl;
 import dk.alexandra.fresco.tools.mascot.MascotSecurityParameters;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;

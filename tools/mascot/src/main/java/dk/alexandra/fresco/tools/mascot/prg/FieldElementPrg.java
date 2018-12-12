@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.prg;
 
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;

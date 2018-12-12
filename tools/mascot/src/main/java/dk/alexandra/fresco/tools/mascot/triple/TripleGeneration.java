@@ -1,12 +1,12 @@
 package dk.alexandra.fresco.tools.mascot.triple;
 
 import dk.alexandra.fresco.framework.builder.numeric.Addable;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElementUtils;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import java.util.ArrayList;
