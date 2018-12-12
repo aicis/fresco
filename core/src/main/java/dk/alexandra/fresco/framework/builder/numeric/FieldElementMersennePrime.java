@@ -117,9 +117,9 @@ public final class FieldElementMersennePrime implements FieldElement {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    FieldElementMersennePrime fieldElementMersennePrime = (FieldElementMersennePrime) o;
-    return Objects.equals(modulus, fieldElementMersennePrime.modulus) &&
-        Objects.equals(value, fieldElementMersennePrime.value);
+    FieldElementMersennePrime that = (FieldElementMersennePrime) o;
+    return Objects.equals(modulus, that.modulus) &&
+        Objects.equals(value, that.value);
   }
 
   @Override

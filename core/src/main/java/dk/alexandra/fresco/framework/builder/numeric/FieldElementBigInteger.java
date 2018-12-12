@@ -121,11 +121,12 @@ public class FieldElementBigInteger implements FieldElement {
       return false;
     }
     FieldElementBigInteger that = (FieldElementBigInteger) o;
-    return Objects.equals(value, that.value);
+    return Objects.equals(modulus, that.modulus) &&
+        Objects.equals(value, that.value);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(value);
+    return Objects.hash(modulus, value);
   }
 }
