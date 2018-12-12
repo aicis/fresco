@@ -114,8 +114,8 @@ public class TestFakeTripGen {
       SpdzSInt[] as = pipe[0];
       SpdzSInt[] bs = pipe[1];
       FieldElement r = as[1].getShare().add(bs[1].getShare());
-      Assert.assertEquals(r.convertToBigInteger().modInverse(modulus.getBigInteger()),
-          as[0].getShare().add(bs[0].getShare()).convertToBigInteger());
+      Assert.assertEquals(definition.convertRepresentation(r).modInverse(modulus.getBigInteger()),
+          definition.convertRepresentation(as[0].getShare().add(bs[0].getShare())));
       FieldElement prevR = r;
       for (int i = 0; i < as.length; i++) {
         FieldElement share = as[i].getShare().add(bs[i].getShare());
@@ -139,9 +139,9 @@ public class TestFakeTripGen {
       FieldElement val = b[0].getShare().add(b[1].getShare());
       FieldElement mac = b[0].getMac().add(b[1].getMac());
 
+      BigInteger bigIntegerValue = definition.convertRepresentation(val);
       Assert.assertTrue(
-          val.convertToBigInteger().equals(BigInteger.ZERO)
-              || val.convertToBigInteger().equals(BigInteger.ONE));
+          bigIntegerValue.equals(BigInteger.ZERO) || bigIntegerValue.equals(BigInteger.ONE));
       Assert.assertEquals(zero, subtract(val, mac));
     }
   }

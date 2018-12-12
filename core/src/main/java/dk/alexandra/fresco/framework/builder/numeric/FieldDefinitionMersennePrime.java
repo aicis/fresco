@@ -18,7 +18,7 @@ public final class FieldDefinitionMersennePrime implements FieldDefinition {
 
   @Override
   public BigInteger convertRepresentation(FieldElement value) {
-    BigInteger actual = ((FieldElementMersennePrime) value).getValue();
+    BigInteger actual = FieldElementMersennePrime.extractValue(value);
     if (actual.compareTo(modulusHalf) > 0) {
       return actual.subtract(getModulus());
     } else {

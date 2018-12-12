@@ -31,22 +31,21 @@ public class FieldElementBigInteger implements FieldElement {
 
   @Override
   public FieldElementBigInteger subtract(FieldElement operand) {
-    return create(value.subtract(operand.convertToBigInteger()));
+    return create(value.subtract(extractValue(operand)));
   }
 
   @Override
   public FieldElementBigInteger multiply(FieldElement operand) {
-    return create(value.multiply(operand.convertToBigInteger()));
+    return create(value.multiply(extractValue(operand)));
   }
 
   @Override
   public FieldElementBigInteger add(FieldElement operand) {
-    return create(value.add(operand.convertToBigInteger()));
+    return create(value.add(extractValue(operand)));
   }
 
-  @Override
-  public BigInteger convertToBigInteger() {
-    return value;
+  static BigInteger extractValue(FieldElement element) {
+    return ((FieldElementBigInteger) element).value;
   }
 
   void toByteArray(byte[] bytes, int offset, int byteLength) {

@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
 import java.io.Serializable;
-import java.math.BigInteger;
 
 public interface FieldElement extends Serializable {
 
@@ -11,5 +10,4 @@ public interface FieldElement extends Serializable {
 
   FieldElement multiply(FieldElement operand);
 
-  BigInteger convertToBigInteger();
 }

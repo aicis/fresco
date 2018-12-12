@@ -18,7 +18,7 @@ public final class FieldDefinitionBigInteger implements FieldDefinition {
 
   @Override
   public BigInteger convertRepresentation(FieldElement value) {
-    BigInteger actual = value.convertToBigInteger();
+    BigInteger actual = FieldElementBigInteger.extractValue(value);
     if (actual.compareTo(modulusHalf) > 0) {
       return actual.subtract(getModulus());
     } else {
