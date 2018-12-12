@@ -60,6 +60,7 @@ public final class FieldDefinitionBigInteger implements FieldDefinition {
     return ((FieldElementBigInteger) fieldElement).toByteArray();
   }
 
+  @Override
   public byte[] serialize(List<FieldElement> fieldElements) {
     byte[] bytes = new byte[modulusLength * fieldElements.size()];
     for (int i = 0; i < fieldElements.size(); i++) {

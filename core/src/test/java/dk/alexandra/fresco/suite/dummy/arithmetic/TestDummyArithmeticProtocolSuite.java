@@ -5,6 +5,8 @@ import static org.junit.Assert.assertThat;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -369,19 +371,19 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_MiMC_EncDec() {
     runTest(new MiMCTests.TestMiMCEncDec<>(), new TestParameters()
-        .modulus(getModulus(512)));
+        .field(getModulus(512)));
   }
 
   @Test
   public void test_MiMC_EncDecFixedRounds() {
     runTest(new MiMCTests.TestMiMCEncDecFixedRounds<>(), new TestParameters()
-        .modulus(getModulus(512)));
+        .field(getModulus(512)));
   }
 
   @Test
   public void test_MiMC_Deterministically() {
     runTest(new MiMCTests.TestMiMCEncryptsDeterministically<>(), new TestParameters()
-        .modulus(getModulus(512)));
+        .field(getModulus(512)));
   }
 
   // lib.list
@@ -419,14 +421,15 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.DANZIG),
         new TestParameters()
             .numParties(2)
-            .modulus(getModulus(128))
+            .field(getModulus(128))
             .maxBitLength(30)
             .fixedPointPrecesion(8)
             .performanceLogging(false));
   }
 
-  private ModulusBigInteger getModulus(int i) {
-    return new ModulusBigInteger(ModulusFinder.findSuitableModulus(i));
+  private FieldDefinition getModulus(int i) {
+    return new FieldDefinitionBigInteger(
+        new ModulusBigInteger(ModulusFinder.findSuitableModulus(i)));
   }
 
   @Test

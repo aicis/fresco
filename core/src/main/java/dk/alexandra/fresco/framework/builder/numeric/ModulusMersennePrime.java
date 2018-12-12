@@ -6,26 +6,26 @@ import java.util.Objects;
 
 public final class ModulusMersennePrime implements Serializable {
 
-  private final MersennePrimeInteger mersenne;
-  private final BigInteger value;
+  private final int bitLength;
+  private final BigInteger constant;
+  private final BigInteger precomputedBitMask;
+  private final BigInteger prime;
   private final BigInteger halved;
 
-  private ModulusMersennePrime(MersennePrimeInteger mersenne) {
-    Objects.requireNonNull(mersenne);
-    this.mersenne = mersenne;
-    this.value = new BigInteger(mersenne.toString());
-    this.halved = this.value.divide(BigInteger.valueOf(2));
+  public ModulusMersennePrime(int bitLength, int constant) {
+    this.bitLength = bitLength;
+    this.constant = BigInteger.valueOf(constant);
+    BigInteger shifted = BigInteger.ONE.shiftLeft(bitLength);
+    this.precomputedBitMask = shifted.subtract(BigInteger.ONE);
+    this.prime = shifted.subtract(BigInteger.valueOf(constant));
+    this.halved = this.prime.divide(BigInteger.valueOf(2));
   }
 
-  MersennePrimeInteger getMersennePrimeInteger() {
-    return mersenne;
+  BigInteger getBigInteger() {
+    return prime;
   }
 
-  public BigInteger getBigInteger() {
-    return value;
-  }
-
-  public BigInteger getBigIntegerHalved() {
+  BigInteger getBigIntegerHalved() {
     return halved;
   }
 
@@ -38,18 +38,44 @@ public final class ModulusMersennePrime implements Serializable {
       return false;
     }
     ModulusMersennePrime that = (ModulusMersennePrime) o;
-    return Objects.equals(value, that.value);
+    return bitLength == that.bitLength && constant.equals(that.constant);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(value);
+    return Objects.hash(bitLength, constant);
   }
 
   @Override
   public String toString() {
     return "ModulusMersennePrime{" +
-        "value=" + value +
+        "value=" + prime +
         '}';
+  }
+
+  BigInteger mod(BigInteger value) {
+    int comparison = value.compareTo(prime);
+    if (comparison < 0) {
+      return value;
+    } else if (comparison == 0) {
+      return BigInteger.ZERO;
+    }
+    BigInteger quotient = value.shiftRight(bitLength);
+    // q = z / b^n
+    // r = z mod b^n
+    BigInteger result = value.and(precomputedBitMask);
+    while (quotient.signum() > 0) {
+      BigInteger product = quotient.multiply(constant);
+      //r = r + (c * q mod b^n)
+      result = result.add(product.and(precomputedBitMask));
+
+      //q = c*q / b^n
+      quotient = product.shiftRight(bitLength);
+    }
+
+    while (result.compareTo(prime) >= 0) {
+      result = result.subtract(prime);
+    }
+    return result;
   }
 }

@@ -2,83 +2,73 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import java.math.BigInteger;
 import java.util.Objects;
-import java.util.function.BiConsumer;
 
-public class FieldElementMersennePrime implements FieldElement {
+public final class FieldElementMersennePrime implements FieldElement {
 
-  private MersennePrimeInteger value;
-  private ModulusMersennePrime modulus;
+  private final BigInteger value;
+  private final ModulusMersennePrime modulus;
 
-  public FieldElementMersennePrime(MersennePrimeInteger value, ModulusMersennePrime modulus) {
-    this.value = value;
+  private FieldElementMersennePrime(BigInteger value, ModulusMersennePrime modulus) {
+    this.value = modulus.mod(value);
     this.modulus = modulus;
   }
 
-  public FieldElementMersennePrime(int i, ModulusMersennePrime modulus) {
-    this(new MersennePrimeInteger(i), modulus);
+  static FieldElementMersennePrime create(int value, ModulusMersennePrime modulus) {
+    return new FieldElementMersennePrime(BigInteger.valueOf(value), modulus);
   }
 
-  public FieldElementMersennePrime(String toString, ModulusMersennePrime modulus) {
-    this(new MersennePrimeInteger(toString), modulus);
+  static FieldElementMersennePrime create(byte[] bytes, ModulusMersennePrime modulus) {
+    return new FieldElementMersennePrime(new BigInteger(bytes), modulus);
   }
 
-  public FieldElementMersennePrime(byte[] bytes, ModulusMersennePrime modulus) {
-    this(MersennePrimeInteger.fromBytes(bytes), modulus);
-    this.value.mod(modulus.getMersennePrimeInteger());
+  static FieldElementMersennePrime create(String asString, ModulusMersennePrime modulus) {
+    return new FieldElementMersennePrime(new BigInteger(asString), modulus);
   }
 
-  public FieldElementMersennePrime(BigInteger value, ModulusMersennePrime modulus) {
-    this(value.toString(), modulus);
+  static FieldElementMersennePrime create(BigInteger value, ModulusMersennePrime modulus) {
+    return new FieldElementMersennePrime(value, modulus);
   }
 
-  @Override
-  public FieldElement add(FieldElement operand) {
-    return safe(this::add, operand);
-  }
-
-  private void add(MersennePrimeInteger left, MersennePrimeInteger right) {
-    left.add(right);
+  private FieldElementMersennePrime create(BigInteger newValue) {
+    return new FieldElementMersennePrime(newValue, modulus);
   }
 
   @Override
-  public FieldElement subtract(FieldElement operand) {
-    return safe(this::sub, operand);
-  }
-
-  private void sub(MersennePrimeInteger left, MersennePrimeInteger right) {
-    left.sub(right);
+  public FieldElementMersennePrime subtract(FieldElement operand) {
+    return create(value.subtract(getValue(operand)));
   }
 
   @Override
-  public FieldElement multiply(FieldElement operand) {
-    return safe(this::mul, operand);
+  public FieldElementMersennePrime multiply(FieldElement operand) {
+    return create(value.multiply(getValue(operand)));
   }
 
-  private void mul(MersennePrimeInteger left, MersennePrimeInteger right) {
-    left.mul(right);
+  @Override
+  public FieldElementMersennePrime add(FieldElement operand) {
+    return create(value.add(getValue(operand)));
   }
 
-  private FieldElementMersennePrime safe(
-      BiConsumer<MersennePrimeInteger, MersennePrimeInteger> operation,
-      FieldElement operand) {
-    MersennePrimeInteger copy = value.copy();
-    operation.accept(copy, ((FieldElementMersennePrime) operand).value);
-    copy.mod(modulus.getMersennePrimeInteger());
-    return new FieldElementMersennePrime(copy, modulus);
+  private BigInteger getValue(FieldElement operand) {
+    return ((FieldElementMersennePrime) operand).value;
   }
 
   @Override
   public BigInteger convertToBigInteger() {
-    return new BigInteger(value.toString());
+    return value;
   }
 
   void toByteArray(byte[] bytes, int offset, int byteLength) {
-    value.toByteArray(bytes, offset, byteLength);
+    byte[] byteArray = toByteArray();
+    System.arraycopy(byteArray, 0, bytes, byteLength - byteArray.length + offset, byteArray.length);
+  }
+
+  byte[] toByteArray() {
+    return value.toByteArray();
   }
 
   @Override
   public int compareTo(FieldElement o) {
-    return value.compareTo(((FieldElementMersennePrime) o).value);
+    return value.compareTo(o.convertToBigInteger());
   }
 
   @Override
