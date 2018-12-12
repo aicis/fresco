@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.lib.math.integer.min;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElementBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
@@ -12,6 +12,7 @@ import org.junit.Test;
 public class TestMin {
 
   private ModulusBigInteger modulus = new ModulusBigInteger(10);
+  private FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(modulus);
 
   @Test(expected = IllegalArgumentException.class)
   public void testMinimumProtocolTooShort() {
@@ -37,7 +38,7 @@ public class TestMin {
   }
 
   private DummyArithmeticSInt createSInt(int value) {
-    return new DummyArithmeticSInt(new FieldElementBigInteger(value, modulus));
+    return new DummyArithmeticSInt(definition.createElement(value));
   }
 
   @Test(expected = RuntimeException.class)

@@ -2,7 +2,6 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElementBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -18,6 +17,7 @@ import org.junit.Test;
 public class TestSpdzDatatypes {
 
   private ModulusBigInteger modulus = new ModulusBigInteger(100);
+  private FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(modulus);
   private SpdzSInt elm0 = new SpdzSInt(get(BigInteger.ZERO), get(BigInteger.ZERO));
   private SpdzSInt elm1 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE));
   private SpdzSInt elm2 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE));
@@ -45,8 +45,8 @@ public class TestSpdzDatatypes {
     Assert.assertNotEquals(shareNull1, elm1);
   }
 
-  private FieldElement get(BigInteger ten) {
-    return new FieldElementBigInteger(ten, modulus);
+  private FieldElement get(BigInteger value) {
+    return definition.createElement(value);
   }
 
   @Test

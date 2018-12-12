@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElementBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
@@ -14,6 +14,7 @@ import org.junit.Test;
 public class TestCreditRater {
 
   private ModulusBigInteger modulus = new ModulusBigInteger(10);
+  private FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(modulus);
 
   @Test
   public void testConsistency() {
@@ -21,7 +22,7 @@ public class TestCreditRater {
     List<List<DRes<SInt>>> intervals = new ArrayList<>();
     List<List<DRes<SInt>>> scores = new ArrayList<>();
 
-    values.add(new DummyArithmeticSInt(new FieldElementBigInteger(1, modulus)));
+    values.add(new DummyArithmeticSInt(definition.createElement(1)));
     intervals.add(new ArrayList<>());
     scores.add(new ArrayList<>());
 
@@ -40,7 +41,7 @@ public class TestCreditRater {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent data"));
     }
 
-    values.add(new DummyArithmeticSInt(new FieldElementBigInteger(1, modulus)));
+    values.add(new DummyArithmeticSInt(definition.createElement(1)));
     try {
       new CreditRater(values, intervals, scores);
       Assert.fail("Inconsistent data should not be accepted");

@@ -7,7 +7,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElementBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -21,6 +21,9 @@ import org.hamcrest.core.IsInstanceOf;
 import org.junit.Test;
 
 public class TestSpdzMacCheckTamperWithValues extends AbstractSpdzTest {
+
+  private static FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(
+      new ModulusBigInteger(10));
 
   @Test
   public void testModifyShare() {
@@ -60,8 +63,7 @@ public class TestSpdzMacCheckTamperWithValues extends AbstractSpdzTest {
             return producer.seq(seq -> {
               SInt value = input.out();
               if (seq.getBasicNumericContext().getMyId() == cheatingPartyId) {
-                value = ((SpdzSInt) value)
-                    .multiply(new FieldElementBigInteger(2, new ModulusBigInteger(10)));
+                value = ((SpdzSInt) value).multiply(definition.createElement(2));
               }
               final SInt finalSInt = value;
               return seq.numeric().open(() -> finalSInt);

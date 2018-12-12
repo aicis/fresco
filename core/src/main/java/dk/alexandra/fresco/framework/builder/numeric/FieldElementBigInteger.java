@@ -10,7 +10,7 @@ public class FieldElementBigInteger implements FieldElement {
   private final BigInteger value;
   private final ModulusBigInteger modulus;
 
-  public FieldElementBigInteger(BigInteger value, ModulusBigInteger modulus) {
+  private FieldElementBigInteger(BigInteger value, ModulusBigInteger modulus) {
     this.value = value.mod(modulus.getBigInteger());
     this.modulus = modulus;
   }

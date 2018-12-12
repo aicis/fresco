@@ -3,7 +3,6 @@ package dk.alexandra.fresco.suite.spdz.storage;
 import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElementBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
@@ -101,7 +100,7 @@ public class InitializeStorage {
 
     FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(p);
     List<FieldElement> alphaShares = FakeTripGen.generateAlphaShares(noOfPlayers, definition);
-    FieldElement alpha = new FieldElementBigInteger(0, p);
+    FieldElement alpha = definition.createElement(0);
     for (FieldElement share : alphaShares) {
       alpha.add(share);
     }

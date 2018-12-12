@@ -1,9 +1,8 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldElementBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
-import java.math.BigInteger;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsNot;
 import org.hamcrest.core.StringContains;
@@ -13,26 +12,23 @@ import org.junit.Test;
 public class DummyArithmeticSIntTest {
 
   private ModulusBigInteger modulus = new ModulusBigInteger(ModulusFinder.findSuitableModulus(128));
+  private FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(modulus);
 
   @Test
   public void testToString() {
-    DummyArithmeticSInt value = new DummyArithmeticSInt(
-        create(BigInteger.valueOf(42)));
+    FieldDefinitionBigInteger fd500 = new FieldDefinitionBigInteger(new ModulusBigInteger(500));
+    DummyArithmeticSInt value = new DummyArithmeticSInt(fd500.createElement(42));
     String toString = value.toString();
     Assert.assertThat(toString, StringContains.containsString("42"));
     Assert.assertThat(value.toString(), Is.is(toString));
   }
 
-  private FieldElementBigInteger create(BigInteger value) {
-    return new FieldElementBigInteger(value, new ModulusBigInteger(500));
-  }
-
   @Test
   public void testEquals() {
-    DummyArithmeticSInt value1 = new DummyArithmeticSInt(create(BigInteger.valueOf(42)));
-    DummyArithmeticSInt value2 = new DummyArithmeticSInt(create(BigInteger.valueOf(42)));
-    DummyArithmeticSInt value3 = new DummyArithmeticSInt(
-        new FieldElementBigInteger(41, modulus));
+    FieldDefinitionBigInteger fd500 = new FieldDefinitionBigInteger(new ModulusBigInteger(500));
+    DummyArithmeticSInt value1 = new DummyArithmeticSInt(fd500.createElement(42));
+    DummyArithmeticSInt value2 = new DummyArithmeticSInt(fd500.createElement(42));
+    DummyArithmeticSInt value3 = new DummyArithmeticSInt(definition.createElement(41));
     Assert.assertThat(value1, Is.is(value2));
     Assert.assertThat(value1, IsNot.not(value3));
     Assert.assertThat(value1, Is.is(value1));
@@ -43,12 +39,9 @@ public class DummyArithmeticSIntTest {
 
   @Test
   public void testHashCode() {
-    DummyArithmeticSInt value1 = new DummyArithmeticSInt(
-        new FieldElementBigInteger(42, modulus));
-    DummyArithmeticSInt value2 = new DummyArithmeticSInt(
-        new FieldElementBigInteger(42, modulus));
-    DummyArithmeticSInt value3 = new DummyArithmeticSInt(
-        new FieldElementBigInteger(41, modulus));
+    DummyArithmeticSInt value1 = new DummyArithmeticSInt(definition.createElement(42));
+    DummyArithmeticSInt value2 = new DummyArithmeticSInt(definition.createElement(42));
+    DummyArithmeticSInt value3 = new DummyArithmeticSInt(definition.createElement(41));
     Assert.assertThat(value1.hashCode(), Is.is(value2.hashCode()));
     Assert.assertThat(value1.hashCode(), IsNot.not(value3.hashCode()));
     Assert.assertThat(value1.hashCode(), Is.is(value1.hashCode()));
