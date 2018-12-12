@@ -3,7 +3,7 @@ package dk.alexandra.fresco.framework.builder.numeric;
 import java.io.Serializable;
 import java.math.BigInteger;
 
-public interface FieldElement extends Comparable<FieldElement>, Serializable {
+public interface FieldElement extends Serializable {
 
   FieldElement add(FieldElement operand);
 
