@@ -45,7 +45,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
       final BigInteger modulus,
       final Drbg jointDrbg,
       final FieldElement alpha,
-      FieldElement zero) {
+      final FieldElement zero) {
     this.rand = rand;
     this.digest = digest;
     this.closedValues = toCheck.getFirst();

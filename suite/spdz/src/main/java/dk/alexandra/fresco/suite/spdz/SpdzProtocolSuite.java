@@ -12,7 +12,6 @@ public class SpdzProtocolSuite implements ProtocolSuiteNumeric<SpdzResourcePool>
   private final int fixedPointPrecision;
 
   public SpdzProtocolSuite(int maxBitLength, int fixedPointPrecision) {
-    // TODO EOA Include FieldDefinition
     this.maxBitLength = maxBitLength;
     this.fixedPointPrecision = fixedPointPrecision;
   }
