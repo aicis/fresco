@@ -49,7 +49,7 @@ public class MaliciousSpdzCommitProtocol extends SpdzNativeProtocol<Boolean> {
         return EvaluationStatus.IS_DONE;
       } else {
         broadcastDigest = sendMaliciousBroadcastValidation(spdzResourcePool.getMessageDigest(),
-            network, comms.values());
+            network, comms.values(), spdzResourcePool.getFieldDefinition());
         return EvaluationStatus.HAS_MORE_ROUNDS;
       }
     } else {
@@ -64,9 +64,10 @@ public class MaliciousSpdzCommitProtocol extends SpdzNativeProtocol<Boolean> {
   }
 
   private byte[] sendMaliciousBroadcastValidation(MessageDigest dig, Network network,
-      Collection<FieldElement> bs) {
+      Collection<FieldElement> bs,
+      FieldDefinition fieldDefinition) {
     for (FieldElement b : bs) {
-      dig.update(b.convertToBigInteger().toByteArray());
+      dig.update(fieldDefinition.serialize(b));
     }
     return sendAndReset(dig, network);
   }

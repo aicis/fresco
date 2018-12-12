@@ -39,30 +39,21 @@ public final class FieldElementMersennePrime implements FieldElement {
 
   @Override
   public FieldElementMersennePrime subtract(FieldElement operand) {
-    return create(value.subtract(getValue(operand)));
+    return create(value.subtract(extractValue(operand)));
   }
 
   @Override
   public FieldElementMersennePrime multiply(FieldElement operand) {
-    return create(value.multiply(getValue(operand)));
+    return create(value.multiply(extractValue(operand)));
   }
 
   @Override
   public FieldElementMersennePrime add(FieldElement operand) {
-    return create(value.add(getValue(operand)));
+    return create(value.add(extractValue(operand)));
   }
 
-  private BigInteger getValue(FieldElement operand) {
-    return ((FieldElementMersennePrime) operand).value;
-  }
-
-  @Override
-  public BigInteger convertToBigInteger() {
-    return getValue();
-  }
-
-  BigInteger getValue() {
-    return value;
+  static BigInteger extractValue(FieldElement element) {
+    return ((FieldElementMersennePrime) element).value;
   }
 
   void toByteArray(byte[] bytes, int offset, int byteLength) {
