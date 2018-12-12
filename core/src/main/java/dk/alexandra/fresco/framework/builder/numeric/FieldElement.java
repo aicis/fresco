@@ -2,7 +2,6 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.io.Serializable;
-import java.math.BigInteger;
 
 //todo maybe remove Addable interface from FieldElement
 public interface FieldElement extends Serializable, Addable<FieldElement> {
@@ -33,7 +32,4 @@ public interface FieldElement extends Serializable, Addable<FieldElement> {
   //todo maybe move to field definition
   @Deprecated
   StrictBitVector toBitVector();
-
-  @Deprecated
-  BigInteger getModulus();
 }

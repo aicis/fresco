@@ -97,8 +97,7 @@ public final class FieldElementMersennePrime implements FieldElement {
     return new StrictBitVector(toByteArray());
   }
 
-  @Override
-  public BigInteger getModulus() {
+  private BigInteger getModulus() {
     return modulus.getBigInteger();
   }
 

@@ -96,8 +96,7 @@ public class FieldElementBigInteger implements FieldElement {
     return new StrictBitVector(res);
   }
 
-  @Override
-  public BigInteger getModulus() {
+  private BigInteger getModulus() {
     return modulus.getBigInteger();
   }
 
