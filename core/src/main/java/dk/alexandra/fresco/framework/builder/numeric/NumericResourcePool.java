@@ -22,15 +22,6 @@ public interface NumericResourcePool extends ResourcePool {
   }
 
   /**
-   * Gets the modulus halved.
-   *
-   * @return modulus halved
-   */
-  default BigInteger getModulusHalved() {
-    return getFieldDefinition().getModulusHalved();
-  }
-
-  /**
    * Gets the field definition.
    *
    * @return field definition

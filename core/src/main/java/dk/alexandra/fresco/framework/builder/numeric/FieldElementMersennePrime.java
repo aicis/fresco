@@ -54,6 +54,10 @@ public final class FieldElementMersennePrime implements FieldElement {
 
   @Override
   public BigInteger convertToBigInteger() {
+    return getValue();
+  }
+
+  BigInteger getValue() {
     return value;
   }
 

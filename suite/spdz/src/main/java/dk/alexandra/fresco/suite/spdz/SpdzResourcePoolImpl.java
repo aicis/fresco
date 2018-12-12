@@ -8,18 +8,14 @@ import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.OpenedValueStore;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 
 public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResourcePool {
 
   private final MessageDigest messageDigest;
-  private final int modulusSize;
-  private final BigInteger modulus;
-  private final BigInteger modulusHalf;
   private final OpenedValueStore<SpdzSInt, FieldElement> openedValueStore;
   private final SpdzDataSupplier dataSupplier;
-  private Drbg drbg;
+  private final Drbg drbg;
 
   /**
    * Construct a ResourcePool implementation suitable for the spdz protocol suite.
@@ -39,9 +35,6 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
         () -> MessageDigest.getInstance("SHA-256"),
         "Configuration error, SHA-256 is needed for Spdz");
     // Initialize various fields global to the computation.
-    this.modulus = dataSupplier.getModulus();
-    this.modulusHalf = dataSupplier.getFieldDefinition().getModulusHalved();
-    this.modulusSize = this.modulus.toByteArray().length;
     this.drbg = drbg;
   }
 

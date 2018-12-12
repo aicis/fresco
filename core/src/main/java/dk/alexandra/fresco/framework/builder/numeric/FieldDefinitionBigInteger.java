@@ -8,20 +8,27 @@ public final class FieldDefinitionBigInteger implements FieldDefinition {
 
   private final ModulusBigInteger modulus;
   private final int modulusLength;
+  private final BigInteger modulusHalf;
 
   public FieldDefinitionBigInteger(ModulusBigInteger modulus) {
     this.modulus = modulus;
+    this.modulusHalf = modulus.getBigInteger().shiftRight(1);
     this.modulusLength = modulus.getBigInteger().toByteArray().length;
+  }
+
+  @Override
+  public BigInteger convertRepresentation(FieldElement value) {
+    BigInteger actual = value.convertToBigInteger();
+    if (actual.compareTo(modulusHalf) > 0) {
+      return actual.subtract(getModulus());
+    } else {
+      return actual;
+    }
   }
 
   @Override
   public BigInteger getModulus() {
     return modulus.getBigInteger();
-  }
-
-  @Override
-  public BigInteger getModulusHalved() {
-    return modulus.getBigIntegerHalved();
   }
 
   @Override
