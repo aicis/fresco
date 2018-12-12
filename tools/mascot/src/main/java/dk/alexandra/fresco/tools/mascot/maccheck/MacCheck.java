@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.commit.CommitmentBasedInput;
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -41,8 +42,9 @@ public class MacCheck extends CommitmentBasedInput<FieldElement> {
     // add up all sigmas
     FieldElement sigmaSum = Addable.sum(sigmas);
 
+    BigInteger outputSum = getResourcePool().getFieldDefinition().convertRepresentation(sigmaSum);
     // sum of sigmas must be 0
-    if (!sigmaSum.isZero()) {
+    if (outputSum.signum() != 0) {
       throw new MaliciousException("Malicious mac forging detected");
     }
   }

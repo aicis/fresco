@@ -71,7 +71,7 @@ public class TestBitConverter extends NetworkedTest {
 
     // outputs should be bits
     for (FieldElement actualBit : partyOneOutput) {
-      CustomAsserts.assertFieldElementIsBit(actualBit);
+      CustomAsserts.assertFieldElementIsBit(getFieldDefinition(), actualBit);
     }
   }
 

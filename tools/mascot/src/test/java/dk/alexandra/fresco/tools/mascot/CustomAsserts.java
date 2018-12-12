@@ -1,10 +1,10 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElementBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -119,13 +119,10 @@ public class CustomAsserts {
     assertEqualsMessaged("Mac check failed for product", productValue.multiply(macKey), productMac);
   }
 
-  public static void assertFieldElementIsBit(FieldElement actualBit) {
-    // compute b * (1 - b), which is 0 iff b is a bit
-    FieldElement bitCheck = actualBit
-        .multiply(new FieldElementBigInteger(1, new ModulusBigInteger(actualBit.getModulus()))
-            .subtract(actualBit));
+  public static void assertFieldElementIsBit(
+      FieldDefinition fieldDefinition, FieldElement actualBit) {
+    BigInteger output = fieldDefinition.convertRepresentation(actualBit);
     String message = "Not a bit " + actualBit;
-    Assert.assertTrue(message, bitCheck.isZero());
+    Assert.assertTrue(message, output.equals(BigInteger.ZERO) || output.equals(BigInteger.ONE));
   }
-
 }

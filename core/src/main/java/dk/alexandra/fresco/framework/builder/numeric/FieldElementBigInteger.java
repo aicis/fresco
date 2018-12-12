@@ -71,11 +71,6 @@ public class FieldElementBigInteger implements FieldElement {
     return value.testBit(bitIndex);
   }
 
-  @Override
-  public boolean isZero() {
-    return value.equals(BigInteger.ZERO);
-  }
-
   static BigInteger extractValue(FieldElement element) {
     return ((FieldElementBigInteger) element).value;
   }

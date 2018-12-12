@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.utils;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -40,7 +39,8 @@ public class TestPaddingPrg {
     StrictBitVector seed = new StrictBitVector(seedBytes);
     FieldElementPrg prg = new FieldElementPrgImpl(seed, definition);
     FieldElement el = prg.getNext();
-    assertFalse(el.isZero());
+    BigInteger open = definition.convertRepresentation(el);
+    assertNotEquals(BigInteger.ZERO, open);
   }
 
   @Test
@@ -51,8 +51,7 @@ public class TestPaddingPrg {
     FieldElementPrg prg = new FieldElementPrgImpl(seed, definition);
     FieldElement elOne = prg.getNext();
     FieldElement elTwo = prg.getNext();
-    // not equals, without actually using equals
-    assertFalse(elOne.subtract(elTwo).isZero());
+    assertNotEquals(elOne, elTwo);
   }
 
   @Test

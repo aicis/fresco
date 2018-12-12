@@ -1,8 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
@@ -58,14 +56,6 @@ public class TestMascotFieldElement {
     FieldElement elOne = definition.createElement(22);
     FieldElement expected = definition.createElement(229);
     CustomAsserts.assertEquals(expected, elOne.negate());
-  }
-
-  @Test
-  public void testIsZero() {
-    FieldElement zero = definition.createElement(0);
-    FieldElement notZero = definition.createElement(1);
-    assertTrue(zero.isZero());
-    assertFalse(notZero.isZero());
   }
 
   @Test
