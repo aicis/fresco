@@ -32,6 +32,11 @@ public class FieldElementBigInteger implements FieldElement {
   }
 
   @Override
+  public FieldElementBigInteger add(FieldElement operand) {
+    return create(value.add(extractValue(operand)));
+  }
+
+  @Override
   public FieldElementBigInteger subtract(FieldElement operand) {
     return create(value.subtract(extractValue(operand)));
   }
@@ -74,11 +79,6 @@ public class FieldElementBigInteger implements FieldElement {
   @Override
   public boolean isZero() {
     return value.equals(BigInteger.ZERO);
-  }
-
-  @Override
-  public FieldElementBigInteger add(FieldElement operand) {
-    return create(value.add(extractValue(operand)));
   }
 
   static BigInteger extractValue(FieldElement element) {
