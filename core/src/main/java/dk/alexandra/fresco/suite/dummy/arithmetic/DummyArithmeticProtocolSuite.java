@@ -18,7 +18,7 @@ import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 public class DummyArithmeticProtocolSuite
     implements ProtocolSuiteNumeric<DummyArithmeticResourcePool> {
 
-  private FieldDefinition fieldDefinition;
+  private final FieldDefinition fieldDefinition;
   private final int maxBitLength;
   private final int precision;
 
