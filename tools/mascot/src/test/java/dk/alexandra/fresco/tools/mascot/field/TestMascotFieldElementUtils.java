@@ -2,6 +2,9 @@ package dk.alexandra.fresco.tools.mascot.field;
 
 import static org.junit.Assert.assertEquals;
 
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
@@ -9,23 +12,24 @@ import java.math.BigInteger;
 import java.util.List;
 import org.junit.Test;
 
-public class TestFieldElementUtils {
+public class TestMascotFieldElementUtils {
 
   private final BigInteger modulus = new BigInteger("65521");
-  private final int modBitLength = 16;
-  private final FieldElementUtils fieldElementUtils = new FieldElementUtils(modulus);
+  private final FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(
+      new ModulusBigInteger(modulus));
+  private final FieldElementUtils fieldElementUtils = new FieldElementUtils(definition);
   private final int[] leftArr = {1, 2, 3, 4};
   private final List<FieldElement> left =
-      MascotTestUtils.generateSingleRow(leftArr, modulus);
+      MascotTestUtils.generateSingleRow(leftArr, definition);
   private final int[] rightArr = {5, 6, 7, 8};
   private final List<FieldElement> right =
-      MascotTestUtils.generateSingleRow(rightArr, modulus);
+      MascotTestUtils.generateSingleRow(rightArr, definition);
 
   @Test
   public void testPairWiseMultiply() {
     int[] expectedArr = {5, 12, 21, 32};
     List<FieldElement> expected =
-        MascotTestUtils.generateSingleRow(expectedArr, modulus);
+        MascotTestUtils.generateSingleRow(expectedArr, definition);
 
     List<FieldElement> actual = fieldElementUtils.pairWiseMultiply(left, right);
     CustomAsserts.assertEquals(expected, actual);
@@ -35,15 +39,15 @@ public class TestFieldElementUtils {
   public void testScalarMultiply() {
     int[] expectedArr = {2, 4, 6, 8};
     List<FieldElement> expected =
-        MascotTestUtils.generateSingleRow(expectedArr, modulus);
+        MascotTestUtils.generateSingleRow(expectedArr, definition);
     List<FieldElement> actual =
-        fieldElementUtils.scalarMultiply(left, new FieldElement(2, modulus));
+        fieldElementUtils.scalarMultiply(left, definition.createElement(2));
     CustomAsserts.assertEquals(expected, actual);
   }
 
   @Test
   public void testInnerProduct() {
-    FieldElement expected = new FieldElement(70, modulus);
+    FieldElement expected = definition.createElement(70);
     FieldElement actual = fieldElementUtils.innerProduct(left, right);
     CustomAsserts.assertEquals(expected, actual);
   }
@@ -51,14 +55,14 @@ public class TestFieldElementUtils {
   @Test
   public void testRecombine() {
     FieldElement actual = fieldElementUtils.recombine(left);
-    CustomAsserts.assertEquals(new FieldElement(49, modulus), actual);
+    CustomAsserts.assertEquals(definition.createElement(49), actual);
   }
 
   @Test
   public void testStretch() {
     int[] expectedArr = {1, 1, 2, 2, 3, 3, 4, 4};
     List<FieldElement> expected =
-        MascotTestUtils.generateSingleRow(expectedArr, modulus);
+        MascotTestUtils.generateSingleRow(expectedArr, definition);
     List<FieldElement> actual = fieldElementUtils.stretch(left, 2);
     CustomAsserts.assertEquals(expected, actual);
   }
@@ -67,8 +71,8 @@ public class TestFieldElementUtils {
   public void testPadWith() {
     int[] expectedArr = {1, 2, 3, 4, 0, 0};
     List<FieldElement> expected =
-        MascotTestUtils.generateSingleRow(expectedArr, modulus);
-    FieldElement pad = new FieldElement(0, modulus);
+        MascotTestUtils.generateSingleRow(expectedArr, definition);
+    FieldElement pad = definition.createElement(0);
     List<FieldElement> actual = fieldElementUtils.padWith(left, pad, 2);
     CustomAsserts.assertEquals(expected, actual);
   }
@@ -84,31 +88,23 @@ public class TestFieldElementUtils {
   // negative tests
 
   @Test(expected = IllegalArgumentException.class)
-  public void testRecombineWrongModulus() {
-    BigInteger missingMod = new BigInteger("251");
-    int[] leftArr = {1, 2, 3, 4};
-    List<FieldElement> left = MascotTestUtils.generateSingleRow(leftArr, missingMod);
-    fieldElementUtils.recombine(left);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
   public void testInnerProductDifferentSizes() {
     int[] rightArr = {5, 6, 7};
-    List<FieldElement> right = MascotTestUtils.generateSingleRow(rightArr, modulus);
+    List<FieldElement> right = MascotTestUtils.generateSingleRow(rightArr, definition);
     fieldElementUtils.innerProduct(left, right);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testRecombineIncorrectSize() {
     int[] leftArr = new int[17];
-    List<FieldElement> left = MascotTestUtils.generateSingleRow(leftArr, modulus);
+    List<FieldElement> left = MascotTestUtils.generateSingleRow(leftArr, definition);
     fieldElementUtils.recombine(left);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testPairwiseMultiplyIncorrectSize() {
     int[] leftArr = new int[17];
-    List<FieldElement> left = MascotTestUtils.generateSingleRow(leftArr, modulus);
+    List<FieldElement> left = MascotTestUtils.generateSingleRow(leftArr, definition);
     fieldElementUtils.pairWiseMultiply(left, right);
   }
 

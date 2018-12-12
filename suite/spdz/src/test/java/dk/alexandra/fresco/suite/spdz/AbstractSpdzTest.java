@@ -245,11 +245,11 @@ public abstract class AbstractSpdzTest {
           IntStream.range(1, numberOfParties + 1).boxed().collect(Collectors.toList());
       Drbg drbg = getDrbg(myId, PRG_SEED_LENGTH);
       BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
-      Map<Integer, RotList> seedOts =
-          getSeedOts(myId, partyIds, PRG_SEED_LENGTH, drbg, otGenerator.createExtraNetwork(myId));
-      FieldElement ssk = SpdzMascotDataSupplier.createRandomSsk(modulus, PRG_SEED_LENGTH);
       final FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(
           new ModulusBigInteger(modulus));
+      Map<Integer, RotList> seedOts =
+          getSeedOts(myId, partyIds, PRG_SEED_LENGTH, drbg, otGenerator.createExtraNetwork(myId));
+      FieldElement ssk = SpdzMascotDataSupplier.createRandomSsk(definition, PRG_SEED_LENGTH);
       supplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, numberOfParties,
           () -> tripleGenerator.createExtraNetwork(myId), modBitLength,
           definition,

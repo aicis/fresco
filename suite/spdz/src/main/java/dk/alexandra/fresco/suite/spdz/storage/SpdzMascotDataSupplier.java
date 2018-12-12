@@ -109,12 +109,12 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   /**
    * Creates random field element that can be used as the mac key share by the calling party.
    */
-  public static FieldElement createRandomSsk(BigInteger modulus, int prgSeedLength) {
+  public static FieldElement createRandomSsk(FieldDefinition definition, int prgSeedLength) {
     byte[] seedBytes = new byte[prgSeedLength / 8];
     new SecureRandom().nextBytes(seedBytes);
     StrictBitVector seed = new StrictBitVector(seedBytes);
-    FieldElementPrg localSampler = new FieldElementPrgImpl(seed);
-    return localSampler.getNext(modulus);
+    FieldElementPrg localSampler = new FieldElementPrgImpl(seed, definition);
+    return localSampler.getNext();
   }
 
   @Override
@@ -126,7 +126,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       logger.trace("Got another triple batch");
     }
     MultiplicationTriple triple = triples.pop();
-    return new MascotFormatConverter(fieldDefinition).toSpdzTriple(triple);
+    return new MascotFormatConverter().toSpdzTriple(triple);
   }
 
   @Override
@@ -137,7 +137,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       randomElements.addAll(mascot.getRandomElements(batchSize));
       logger.trace("Got another random element batch");
     }
-    return new MascotFormatConverter(fieldDefinition).toSpdzSInt(randomElements.pop());
+    return new MascotFormatConverter().toSpdzSInt(randomElements.pop());
   }
 
   @Override
@@ -157,7 +157,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       inputMasks.addAll(mascot.getInputMasks(towardPlayerID, batchSize));
       logger.trace("Got another mask batch");
     }
-    return new MascotFormatConverter(fieldDefinition)
+    return new MascotFormatConverter()
         .toSpdzInputMask(inputMasks.pop());
   }
 
@@ -169,7 +169,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       randomBits.addAll(mascot.getRandomBits(batchSize));
       logger.trace("Got another bit batch");
     }
-    return new MascotFormatConverter(fieldDefinition).toSpdzSInt(randomBits.pop());
+    return new MascotFormatConverter().toSpdzSInt(randomBits.pop());
   }
 
   @Override
@@ -184,7 +184,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
 
   @Override
   public FieldElement getSecretSharedKey() {
-    return fieldDefinition.createElement(ssk.getValue());
+    return ssk;
   }
 
   private void ensureInitialized() {

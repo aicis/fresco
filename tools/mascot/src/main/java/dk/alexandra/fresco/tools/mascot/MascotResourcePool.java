@@ -3,8 +3,6 @@ package dk.alexandra.fresco.tools.mascot;
 import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.commitment.HashBasedCommitmentSerializer;
 import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElementSerializer;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
@@ -58,15 +56,6 @@ public interface MascotResourcePool extends NumericResourcePool {
    * @return PRG
    */
   FieldElementPrg getLocalSampler();
-
-  /**
-   * Gets serializer for {@link FieldElement}.
-   *
-   * @return serializer
-   */
-  default ByteSerializer<FieldElement> getFieldElementSerializer() {
-    return new FieldElementSerializer(getModulus());
-  }
 
   /**
    * Gets serializer for {@link StrictBitVector}.

@@ -11,7 +11,6 @@ import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
 import dk.alexandra.fresco.tools.mascot.triple.TripleGeneration;
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -20,7 +19,7 @@ import org.junit.Test;
 public class TestOnlinePhase extends NetworkedTest {
 
   private FieldElementPrg getJointPrg(int prgSeedLength) {
-    return new FieldElementPrgImpl(new StrictBitVector(prgSeedLength));
+    return new FieldElementPrgImpl(new StrictBitVector(prgSeedLength), getFieldDefinition());
   }
 
   private List<FieldElement> runMultiply(MascotTestContext ctx, FieldElement macKeyShare,
@@ -53,17 +52,17 @@ public class TestOnlinePhase extends NetworkedTest {
     initContexts(2);
 
     // left party mac key share
-    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), getModulus());
+    FieldElement macKeyShareOne = getFieldDefinition().createElement("11231");
 
     // right party mac key share
-    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), getModulus());
+    FieldElement macKeyShareTwo = getFieldDefinition().createElement("7719");
 
     // party one inputs
     List<FieldElement> partyOneInputs =
-        MascotTestUtils.generateSingleRow(new int[]{12, 11, 1, 2}, getModulus());
+        MascotTestUtils.generateSingleRow(new int[]{12, 11, 1, 2}, getFieldDefinition());
     // party two inputs
     List<FieldElement> partyTwoInputs =
-        MascotTestUtils.generateSingleRow(new int[]{0, 3, 221, 65518}, getModulus());
+        MascotTestUtils.generateSingleRow(new int[]{0, 3, 221, 65518}, getFieldDefinition());
 
     // define task each party will run
     Callable<List<FieldElement>> partyOneTask =
@@ -81,7 +80,7 @@ public class TestOnlinePhase extends NetworkedTest {
 
     // outputs should be correct products
     List<FieldElement> expected = MascotTestUtils
-        .generateSingleRow(new int[]{0, 33, 221, 65517}, getModulus());
+        .generateSingleRow(new int[]{0, 33, 221, 65517}, getFieldDefinition());
     CustomAsserts.assertEquals(expected, partyOneOutput);
   }
 

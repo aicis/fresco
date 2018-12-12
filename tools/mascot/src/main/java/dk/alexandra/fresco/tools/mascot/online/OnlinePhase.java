@@ -69,7 +69,8 @@ public class OnlinePhase {
       // [c] + epsilon * [b] + delta * [a] + epsilon * delta
       AuthenticatedElement product = triple.getProduct().add(right.multiply(epsilon))
           .add(left.multiply(delta))
-          .add(epsilonDeltaProd, resourcePool.getMyId(), macKeyShare);
+          .add(resourcePool.getFieldDefinition(), epsilonDeltaProd, resourcePool.getMyId(),
+              macKeyShare);
       products.add(product);
     }
     return products;

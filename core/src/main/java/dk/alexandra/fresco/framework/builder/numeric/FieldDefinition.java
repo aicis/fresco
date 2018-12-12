@@ -1,9 +1,11 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import java.math.BigInteger;
 import java.util.List;
 
-public interface FieldDefinition {
+//todo maybe remove ByteSerializer interface
+public interface FieldDefinition extends ByteSerializer<FieldElement> {
 
   BigInteger convertRepresentation(FieldElement value);
 

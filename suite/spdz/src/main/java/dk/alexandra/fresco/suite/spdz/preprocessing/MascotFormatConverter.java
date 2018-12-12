@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.spdz.preprocessing;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -8,15 +7,8 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.InputMask;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
-import java.math.BigInteger;
 
 public class MascotFormatConverter {
-
-  private FieldDefinition fieldDefinition;
-
-  public MascotFormatConverter(FieldDefinition fieldDefinition) {
-    this.fieldDefinition = fieldDefinition;
-  }
 
   /**
    * Converts single {@link AuthenticatedElement} to {@link SpdzSInt}.
@@ -25,9 +17,7 @@ public class MascotFormatConverter {
    * @return spdz element
    */
   public SpdzSInt toSpdzSInt(AuthenticatedElement element) {
-    BigInteger share = element.getShare().getValue();
-    BigInteger mac = element.getMac().getValue();
-    return new SpdzSInt(convert(share), convert(mac));
+    return new SpdzSInt(element.getShare(), element.getMac());
   }
 
   /**
@@ -54,11 +44,7 @@ public class MascotFormatConverter {
     if (openMask == null) {
       return new SpdzInputMask(toSpdzSInt(mask.getMaskShare()));
     } else {
-      return new SpdzInputMask(toSpdzSInt(mask.getMaskShare()), convert(openMask.getValue()));
+      return new SpdzInputMask(toSpdzSInt(mask.getMaskShare()), openMask);
     }
-  }
-
-  private FieldElement convert(BigInteger bigInteger) {
-    return fieldDefinition.createElement(bigInteger);
   }
 }

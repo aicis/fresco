@@ -19,7 +19,7 @@ public class MacCheck extends CommitmentBasedInput<FieldElement> {
    * Constructs new mac checker.
    */
   public MacCheck(MascotResourcePool resourcePool, Network network) {
-    super(resourcePool, network, resourcePool.getFieldElementSerializer());
+    super(resourcePool, network, resourcePool.getFieldDefinition());
   }
 
   /**

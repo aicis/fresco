@@ -1,8 +1,11 @@
 package dk.alexandra.fresco.tools.mascot.elgen;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.util.SecretSharer;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
@@ -15,12 +18,15 @@ import org.junit.Test;
 public class TestShareUtils {
 
   private final BigInteger modulus = new BigInteger("251");
-  private final FieldElementPrg sampler = new FieldElementPrgImpl(new StrictBitVector(256));
-  private final SecretSharer<FieldElement> shareUtils = new AdditiveSecretSharer(sampler, modulus);
+  private final FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(
+      new ModulusBigInteger(modulus));
+  private final FieldElementPrg sampler = new FieldElementPrgImpl(new StrictBitVector(256),
+      definition);
+  private final SecretSharer<FieldElement> shareUtils = new AdditiveSecretSharer(sampler);
   
   @Test
   public void testAdditiveShare() {
-    FieldElement input = new FieldElement(BigInteger.ONE, modulus);
+    FieldElement input = definition.createElement(1);
     List<FieldElement> shares = shareUtils.share(input, 2);
     assertEquals(2, shares.size());
     assertNotEquals(shares.get(0), shares.get(1));
@@ -28,7 +34,7 @@ public class TestShareUtils {
   
   @Test
   public void testRecombineReversesShare() {
-    FieldElement input = new FieldElement(BigInteger.ONE, modulus);
+    FieldElement input = definition.createElement(1);
     List<FieldElement> shares = shareUtils.share(input, 3);
     FieldElement actual = shareUtils.recombine(shares);
     CustomAsserts.assertEquals(input, actual);

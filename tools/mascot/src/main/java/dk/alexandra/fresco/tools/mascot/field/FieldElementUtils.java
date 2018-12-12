@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
 import dk.alexandra.fresco.framework.builder.numeric.Addable;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -11,31 +13,31 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class FieldElementUtils {
+public final class FieldElementUtils {
 
-  private final BigInteger modulus;
+  private final FieldDefinition definition;
   private final int modBitLength;
   private final List<FieldElement> generators;
 
   /**
    * Creates new {@link FieldElementUtils}.
    *
-   * @param modulus modulus for underlying field element operations
+   * @param definition field definition for underlying field element operations
    */
-  public FieldElementUtils(BigInteger modulus) {
+  public FieldElementUtils(FieldDefinition definition) {
     super();
-    this.modulus = modulus;
-    this.modBitLength = modulus.bitLength();
+    this.definition = definition;
+    //todo maybe bitLength on field definition?
+    this.modBitLength = definition.getModulus().bitLength();
     this.generators = precomputeGenerators();
   }
 
   private List<FieldElement> precomputeGenerators() {
     List<FieldElement> generators = new ArrayList<>(modBitLength);
-    BigInteger two = new BigInteger("2");
     BigInteger current = BigInteger.ONE;
     for (int i = 0; i < modBitLength; i++) {
-      generators.add(new FieldElement(current, modulus));
-      current = current.multiply(two).mod(modulus);
+      generators.add(definition.createElement(current));
+      current = current.shiftLeft(1);
     }
     return generators;
   }
@@ -107,10 +109,6 @@ public class FieldElementUtils {
     if (elements.size() > modBitLength) {
       throw new IllegalArgumentException("Number of elements cannot exceed bit-length");
     }
-    BigInteger elementModulus = elements.get(0).getModulus();
-    if (!elementModulus.equals(modulus)) {
-      throw new IllegalArgumentException("Wrong modulus " + elementModulus);
-    }
     return innerProduct(elements, generators.subList(0, elements.size()));
   }
 
@@ -126,7 +124,7 @@ public class FieldElementUtils {
     List<FieldElement> stretched = new ArrayList<>(elements.size() * stretchBy);
     for (FieldElement element : elements) {
       for (int c = 0; c < stretchBy; c++) {
-        stretched.add(new FieldElement(element));
+        stretched.add(element);
       }
     }
     return stretched;
@@ -169,6 +167,7 @@ public class FieldElementUtils {
    * @param packed concatenated bits representing field elements
    * @return field elements
    */
+  //todo maybe deserializeList?
   public List<FieldElement> unpack(byte[] packed) {
     int packedBitLength = packed.length * 8;
     if ((packedBitLength % modBitLength) != 0) {
@@ -180,7 +179,7 @@ public class FieldElementUtils {
     List<FieldElement> unpacked = new ArrayList<>(numElements);
     for (int i = 0; i < numElements; i++) {
       byte[] b = Arrays.copyOfRange(packed, i * byteLength, (i + 1) * byteLength);
-      FieldElement el = new FieldElement(b, modulus);
+      FieldElement el = definition.deserialize(b);
       unpacked.add(el);
     }
     return unpacked;

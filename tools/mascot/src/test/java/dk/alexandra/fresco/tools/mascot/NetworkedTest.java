@@ -1,5 +1,8 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import java.math.BigInteger;
 import java.util.Map;
@@ -43,6 +46,10 @@ public abstract class NetworkedTest {
 
   protected BigInteger getModulus() {
     return modulus;
+  }
+
+  protected FieldDefinition getFieldDefinition() {
+    return new FieldDefinitionBigInteger(new ModulusBigInteger(modulus));
   }
 
   protected MascotSecurityParameters getDefaultParameters() {

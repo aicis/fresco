@@ -54,7 +54,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
         ModulusFinder.findSuitableModulus(mascotSecurityParameters.getModBitLength())));
     this.mascotSecurityParameters = mascotSecurityParameters;
     this.localSampler = new FieldElementPrgImpl(
-        new StrictBitVector(mascotSecurityParameters.getPrgSeedLength(), drbg));
+        new StrictBitVector(mascotSecurityParameters.getPrgSeedLength(), drbg), fieldDefinition);
     this.messageDigest = ExceptionConverter.safe(() -> MessageDigest.getInstance("SHA-256"),
         "Configuration error, SHA-256 is needed for Mascot");
   }

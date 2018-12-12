@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.tools.mascot;
 
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElementBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import java.util.List;
@@ -77,8 +79,6 @@ public class CustomAsserts {
       AuthenticatedElement actual) {
     assertEqualsMessaged(" share mismatch " + message, expected.getShare(), actual.getShare());
     assertEqualsMessaged(" mac mismatch " + message, expected.getMac(), actual.getMac());
-    Assert.assertEquals(" modulus mismatch " + message + " in " + actual, expected.getModulus(),
-        actual.getModulus());
   }
 
   /**
@@ -90,10 +90,8 @@ public class CustomAsserts {
    */
   private static void assertEqualsMessaged(String message, FieldElement expected,
       FieldElement actual) {
-    Assert.assertThat("Modulus mismatch" + message + " in " + actual, expected.getModulus(),
-        Is.is(actual.getModulus()));
-    Assert.assertThat("Value mismatch" + message + " in " + actual, expected.getValue(),
-        Is.is(actual.getValue()));
+    Assert.assertThat("Value mismatch" + message + " in " + actual, expected,
+        Is.is(actual));
   }
 
   /**
@@ -124,7 +122,7 @@ public class CustomAsserts {
   public static void assertFieldElementIsBit(FieldElement actualBit) {
     // compute b * (1 - b), which is 0 iff b is a bit
     FieldElement bitCheck = actualBit
-        .multiply(new FieldElement(1, actualBit.getModulus())
+        .multiply(new FieldElementBigInteger(1, new ModulusBigInteger(actualBit.getModulus()))
             .subtract(actualBit));
     String message = "Not a bit " + actualBit;
     Assert.assertTrue(message, bitCheck.isZero());

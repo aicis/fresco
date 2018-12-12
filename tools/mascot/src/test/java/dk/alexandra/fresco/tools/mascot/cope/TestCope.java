@@ -6,7 +6,6 @@ import dk.alexandra.fresco.tools.mascot.MascotSecurityParameters;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -35,10 +34,10 @@ public class TestCope extends NetworkedTest {
     initContexts(2);
 
     // left parties input (can be multiple)
-    FieldElement macKeyShare = new FieldElement(new BigInteger("11231"), getModulus());
+    FieldElement macKeyShare = getFieldDefinition().createElement("11231");
 
     // single right party input element
-    FieldElement input = new FieldElement(7, getModulus());
+    FieldElement input = getFieldDefinition().createElement(7);
     List<FieldElement> inputs = Collections.singletonList(input);
 
     // define task each party will run
@@ -64,11 +63,11 @@ public class TestCope extends NetworkedTest {
             getDefaultParameters().getPrgSeedLength(), getDefaultParameters().getNumCandidatesPerTriple()));
 
     // left parties input (can be multiple)
-    FieldElement macKeyShare = new FieldElement(new BigInteger("11231"), getModulus());
+    FieldElement macKeyShare = getFieldDefinition().createElement("11231");
 
     // multiple input elements
     int[] inputArr = {7, 444, 112, 11};
-    List<FieldElement> inputs = MascotTestUtils.generateSingleRow(inputArr, getModulus());
+    List<FieldElement> inputs = MascotTestUtils.generateSingleRow(inputArr, getFieldDefinition());
 
     // define task each party will run
     Callable<List<FieldElement>> partyOneTask =
@@ -87,7 +86,7 @@ public class TestCope extends NetworkedTest {
     int[] expectedArr = {7 * 11231 % modulusInt, 444 * 11231 % modulusInt,
         112 * 11231 % modulusInt, 11 * 11231 % modulusInt};
     List<FieldElement> expected =
-        MascotTestUtils.generateSingleRow(expectedArr, getModulus());
+        MascotTestUtils.generateSingleRow(expectedArr, getFieldDefinition());
 
     List<FieldElement> actual = IntStream.range(0, expected.size())
         .mapToObj(idx -> leftResults.get(idx).add(rightResults.get(idx)))

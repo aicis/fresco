@@ -2,10 +2,10 @@ package dk.alexandra.fresco.tools.mascot.triple;
 
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeftHelper;
-import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,11 +61,10 @@ class MultiplyLeft {
   public List<FieldElement> multiply(List<FieldElement> leftFactors) {
     List<StrictBitVector> seeds = multiplyLeftHelper.generateSeeds(leftFactors,
         resourcePool.getModBitLength());
-    List<FieldElement> feSeeds = seedsToFieldElements(seeds,
-        resourcePool.getModulus());
+    List<FieldElement> feSeeds = seedsToFieldElements(seeds);
     // receive diffs from other party
     List<FieldElement> diffs =
-        resourcePool.getFieldElementSerializer()
+        ((ByteSerializer<FieldElement>) resourcePool.getFieldDefinition())
             .deserializeList(network.receive(otherId));
     return multiplyLeftHelper.computeProductShares(leftFactors, feSeeds, diffs);
   }
@@ -74,17 +73,15 @@ class MultiplyLeft {
    * Converts each seed to field element.
    *
    * @param seeds the seeds represented as bit vectors
-   * @param modulus the modulus we are working in
    * @return seeds converted to field elements
    */
-  private List<FieldElement> seedsToFieldElements(List<StrictBitVector> seeds,
-      BigInteger modulus) {
-    return seeds.parallelStream().map(seed -> fromBits(seed, modulus)).collect(Collectors.toList());
+  private List<FieldElement> seedsToFieldElements(List<StrictBitVector> seeds) {
+    return seeds.parallelStream().map(seed -> fromBits(seed)).collect(Collectors.toList());
   }
 
-  private FieldElement fromBits(StrictBitVector vector, BigInteger modulus) {
+  private FieldElement fromBits(StrictBitVector vector) {
     // safe since the modulus is guaranteed to be close enough to 2^modBitLength
-    return new FieldElement(new BigInteger(vector.toByteArray()).mod(modulus), modulus);
+    return resourcePool.getFieldDefinition().deserialize(vector.toByteArray());
   }
 
 }

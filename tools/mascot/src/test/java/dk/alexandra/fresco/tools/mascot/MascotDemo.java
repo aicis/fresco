@@ -33,8 +33,7 @@ public class MascotDemo {
         new SocketNetwork(defaultNetworkConfiguration(myId, noOfParties));
     MascotResourcePool resourcePool = defaultResourcePool(myId, noOfParties,
         network);
-    FieldElement macKeyShare = resourcePool.getLocalSampler().getNext(
-        resourcePool.getModulus());
+    FieldElement macKeyShare = resourcePool.getLocalSampler().getNext();
     toClose = (Closeable) network;
     mascot = new Mascot(resourcePool, network, macKeyShare);
   }

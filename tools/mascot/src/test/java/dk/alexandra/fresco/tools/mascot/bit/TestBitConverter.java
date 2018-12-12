@@ -12,7 +12,6 @@ import dk.alexandra.fresco.tools.mascot.online.OnlinePhase;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
 import dk.alexandra.fresco.tools.mascot.triple.TripleGeneration;
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -21,7 +20,7 @@ import org.junit.Test;
 public class TestBitConverter extends NetworkedTest {
 
   private FieldElementPrg getJointPrg(int prgSeedLength) {
-    return new FieldElementPrgImpl(new StrictBitVector(prgSeedLength));
+    return new FieldElementPrgImpl(new StrictBitVector(prgSeedLength), getFieldDefinition());
   }
 
   private List<FieldElement> runConvertToBits(MascotTestContext ctx, FieldElement macKeyShare,
@@ -47,14 +46,14 @@ public class TestBitConverter extends NetworkedTest {
     initContexts(2);
 
     // left party mac key share
-    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), getModulus());
+    FieldElement macKeyShareOne = getFieldDefinition().createElement("11231");
 
     // right party mac key share
-    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), getModulus());
+    FieldElement macKeyShareTwo = getFieldDefinition().createElement("7719");
 
     // party one inputs
     List<FieldElement> randomValues =
-        MascotTestUtils.generateSingleRow(new int[]{12, 11, 1, 2}, getModulus());
+        MascotTestUtils.generateSingleRow(new int[]{12, 11, 1, 2}, getFieldDefinition());
 
     // define task each party will run
     Callable<List<FieldElement>> partyOneTask =

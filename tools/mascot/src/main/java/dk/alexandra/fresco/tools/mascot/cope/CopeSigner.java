@@ -2,12 +2,12 @@ package dk.alexandra.fresco.tools.mascot.cope;
 
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeftHelper;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,26 +62,25 @@ public class CopeSigner {
    */
   public List<FieldElement> extend(int numInputs) {
     // compute chosen masks
-    List<FieldElement> chosenMasks = generateMasks(numInputs,
-        resourcePool.getModulus());
+    List<FieldElement> chosenMasks = generateMasks(numInputs);
     // use mac share for each input
     List<FieldElement> macKeyShares =
         IntStream.range(0, numInputs).mapToObj(idx -> macKeyShare).collect(Collectors.toList());
     // receive diffs from other party
-    List<FieldElement> diffs = resourcePool.getFieldElementSerializer()
+    List<FieldElement> diffs = ((ByteSerializer<FieldElement>) resourcePool.getFieldDefinition())
         .deserializeList(network.receive(otherId));
     // compute product shares
     return multiplier.computeProductShares(macKeyShares, chosenMasks, diffs);
   }
 
-  private List<FieldElement> generateMasks(int numInputs, BigInteger modulus) {
+  private List<FieldElement> generateMasks(int numInputs) {
     // for each input pair, we use our prgs to get the next set of masks
     List<FieldElement> masks = new ArrayList<>();
     // generate mask for each input
     for (int i = 0; i < numInputs; i++) {
       // generate masks for single input
       List<FieldElement> singleInputMasks = prgs.parallelStream()
-          .map(prg -> prg.getNext(modulus))
+          .map(FieldElementPrg::getNext)
           .collect(Collectors.toList());
       masks.addAll(singleInputMasks);
     }
@@ -90,7 +89,7 @@ public class CopeSigner {
 
   private void seedPrgs(List<StrictBitVector> seeds) {
     for (StrictBitVector seed : seeds) {
-      prgs.add(new FieldElementPrgImpl(seed));
+      prgs.add(new FieldElementPrgImpl(seed, resourcePool.getFieldDefinition()));
     }
   }
 

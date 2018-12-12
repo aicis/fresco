@@ -2,14 +2,15 @@ package dk.alexandra.fresco.tools.mascot.elgen;
 
 import dk.alexandra.fresco.framework.builder.numeric.Addable;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElementUtils;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.SecretSharer;
 import dk.alexandra.fresco.framework.util.TransposeUtils;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.cope.CopeInputter;
 import dk.alexandra.fresco.tools.mascot.cope.CopeSigner;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
 import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import java.util.ArrayList;
@@ -46,13 +47,12 @@ public class ElementGeneration {
       FieldElement macKeyShare, FieldElementPrg jointSampler) {
     this.resourcePool = resourcePool;
     this.network = network;
-    this.fieldElementUtils = new FieldElementUtils(resourcePool.getModulus());
+    this.fieldElementUtils = new FieldElementUtils(resourcePool.getFieldDefinition());
     this.macChecker = new MacCheck(resourcePool, network);
     this.macKeyShare = macKeyShare;
     this.localSampler = resourcePool.getLocalSampler();
     this.jointSampler = jointSampler;
-    this.sharer = new AdditiveSecretSharer(localSampler,
-        resourcePool.getModulus());
+    this.sharer = new AdditiveSecretSharer(localSampler);
     this.copeSigners = new HashMap<>();
     this.copeInputters = new HashMap<>();
     initializeCope(resourcePool, network);
@@ -70,8 +70,7 @@ public class ElementGeneration {
     values = new ArrayList<>(values);
 
     // add extra random element which will later be used to mask inputs (step 1)
-    FieldElement extraElement = localSampler
-        .getNext(resourcePool.getModulus());
+    FieldElement extraElement = localSampler.getNext();
     values.add(extraElement);
 
     // inputter secret-shares input values (step 2)
@@ -81,13 +80,13 @@ public class ElementGeneration {
     List<FieldElement> macs = macValues(values);
 
     // generate coefficients for values and macs (step 6)
-    List<FieldElement> coefficients = jointSampler
-        .getNext(resourcePool.getModulus(), values.size());
+    List<FieldElement> coefficients = jointSampler.getNext(values.size());
 
     // mask and combine values (step 7)
     FieldElement maskedValue = fieldElementUtils.innerProduct(values, coefficients);
     // send masked value to all other parties
-    network.sendToAll(resourcePool.getFieldElementSerializer().serialize(maskedValue));
+    network.sendToAll(
+        ((ByteSerializer<FieldElement>) resourcePool.getFieldDefinition()).serialize(maskedValue));
     // so that we can use receiveFromAll correctly later
     network.receive(resourcePool.getMyId());
 
@@ -111,19 +110,20 @@ public class ElementGeneration {
   public List<AuthenticatedElement> input(Integer inputterId, int numInputs) {
     // receive shares from inputter (step 2)
     List<FieldElement> shares =
-        resourcePool.getFieldElementSerializer().deserializeList(network.receive(inputterId));
+        ((ByteSerializer<FieldElement>) resourcePool.getFieldDefinition())
+            .deserializeList(network.receive(inputterId));
 
     // receive per-element mac shares (steps 3 through 5)
     CopeSigner copeSigner = copeSigners.get(inputterId);
     List<FieldElement> macs = copeSigner.extend(numInputs + 1);
 
     // generate coefficients for macs (step 6)
-    List<FieldElement> coefficients = jointSampler
-        .getNext(resourcePool.getModulus(), numInputs + 1);
+    List<FieldElement> coefficients = jointSampler.getNext(numInputs + 1);
 
     // receive masked value we will use in mac-check (step 7)
     FieldElement maskedValue =
-        resourcePool.getFieldElementSerializer().deserialize(network.receive(inputterId));
+        ((ByteSerializer<FieldElement>) resourcePool.getFieldDefinition())
+            .deserialize(network.receive(inputterId));
 
     // perform mac-check on opened value (steps 8 through 9)
     runMacCheck(maskedValue, coefficients, macs);
@@ -143,8 +143,7 @@ public class ElementGeneration {
   public void check(List<AuthenticatedElement> sharesWithMacs,
       List<FieldElement> openValues) {
     // will use this to mask macs
-    List<FieldElement> masks = jointSampler
-        .getNext(resourcePool.getModulus(), sharesWithMacs.size());
+    List<FieldElement> masks = jointSampler.getNext(sharesWithMacs.size());
     // only need macs
     List<FieldElement> macs =
         sharesWithMacs.stream().map(AuthenticatedElement::getMac).collect(Collectors.toList());
@@ -165,12 +164,13 @@ public class ElementGeneration {
     List<FieldElement> ownShares =
         closed.stream().map(AuthenticatedElement::getShare).collect(Collectors.toList());
     // send own shares to others
-    network.sendToAll(resourcePool.getFieldElementSerializer().serialize(ownShares));
+    network.sendToAll(
+        ((ByteSerializer<FieldElement>) resourcePool.getFieldDefinition()).serialize(ownShares));
     // receive others' shares
     List<byte[]> rawShares = network.receiveFromAll();
     // parse
     List<List<FieldElement>> shares = rawShares.stream()
-        .map(resourcePool.getFieldElementSerializer()::deserializeList)
+        .map(((ByteSerializer<FieldElement>) resourcePool.getFieldDefinition())::deserializeList)
         .collect(Collectors.toList());
     // recombine (step 2)
     return Addable.sumRows(shares);
@@ -220,7 +220,8 @@ public class ElementGeneration {
       // send shares to everyone but self
       if (partyId != resourcePool.getMyId()) {
         List<FieldElement> shares = byParty.get(partyId - 1);
-        network.send(partyId, resourcePool.getFieldElementSerializer().serialize(shares));
+        network.send(partyId,
+            ((ByteSerializer<FieldElement>) resourcePool.getFieldDefinition()).serialize(shares));
       }
     }
     // return own shares
@@ -236,8 +237,7 @@ public class ElementGeneration {
         .mapToObj(idx -> {
           FieldElement share = shares.get(idx);
           FieldElement mac = macs.get(idx);
-          return new AuthenticatedElement(share, mac,
-              resourcePool.getModulus());
+          return new AuthenticatedElement(share, mac);
         })
         .collect(Collectors.toList());
   }
