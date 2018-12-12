@@ -25,7 +25,7 @@ public class TestMultiplicationTriple {
         definition.createElement(5),
         definition.createElement(6));
     MultiplicationTriple triple = new MultiplicationTriple(left, right, product);
-    String expected = "MultiplicationTriple [left=AuthenticatedElement [share=FieldElement [value=1, modulus=251, bitLength=8], mac=FieldElement [value=2, modulus=251, bitLength=8]], right=AuthenticatedElement [share=FieldElement [value=3, modulus=251, bitLength=8], mac=FieldElement [value=4, modulus=251, bitLength=8]], product=AuthenticatedElement [share=FieldElement [value=5, modulus=251, bitLength=8], mac=FieldElement [value=6, modulus=251, bitLength=8]]]";
+    String expected = "MultiplicationTriple [left=AuthenticatedElement [share=FieldElementBigInteger{value=1, modulus=ModulusBigInteger{value=251}}, mac=FieldElementBigInteger{value=2, modulus=ModulusBigInteger{value=251}}], right=AuthenticatedElement [share=FieldElementBigInteger{value=3, modulus=ModulusBigInteger{value=251}}, mac=FieldElementBigInteger{value=4, modulus=ModulusBigInteger{value=251}}], product=AuthenticatedElement [share=FieldElementBigInteger{value=5, modulus=ModulusBigInteger{value=251}}, mac=FieldElementBigInteger{value=6, modulus=ModulusBigInteger{value=251}}]]";
     assertEquals(expected, triple.toString());
   }
 }
