@@ -49,10 +49,13 @@ public class FieldElementBigInteger implements FieldElement {
     return value;
   }
 
-  @Override
-  public void toByteArray(byte[] bytes, int offset, int byteLength) {
-    byte[] byteArray = value.toByteArray();
+  void toByteArray(byte[] bytes, int offset, int byteLength) {
+    byte[] byteArray = toByteArray();
     System.arraycopy(byteArray, 0, bytes, byteLength - byteArray.length + offset, byteArray.length);
+  }
+
+  byte[] toByteArray() {
+    return value.toByteArray();
   }
 
   @Override

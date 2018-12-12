@@ -19,7 +19,7 @@ public class TestNumericResourcePool {
 
   private BigInteger convertRepresentation(NumericResourcePool pool, BigInteger bigInteger) {
     FieldElement value = fieldDefinition.createElement(bigInteger);
-    return pool.convertRepresentation(value);
+    return pool.getFieldDefinition().convertRepresentation(value);
   }
 
   @Test

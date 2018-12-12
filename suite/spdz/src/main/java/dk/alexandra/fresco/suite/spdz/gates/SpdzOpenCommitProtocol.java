@@ -1,9 +1,9 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import java.security.MessageDigest;
@@ -41,13 +41,13 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, Fiel
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       Network network) {
     int players = spdzResourcePool.getNoOfParties();
-    ByteSerializer<FieldElement> serializer = spdzResourcePool.getSerializer();
+    FieldDefinition definition = spdzResourcePool.getFieldDefinition();
     if (round == 0) {
       // Send your opening to all players
       FieldElement value = this.commitment.getValue();
-      network.sendToAll(serializer.serialize(value));
+      network.sendToAll(definition.serialize(value));
       FieldElement randomness = this.commitment.getRandomness();
-      network.sendToAll(serializer.serialize(randomness));
+      network.sendToAll(definition.serialize(randomness));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
       // Receive openings from all parties and check they are valid
@@ -58,8 +58,8 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, Fiel
       FieldElement[] broadcastMessages = new FieldElement[2 * players];
       for (int i = 0; i < players; i++) {
         FieldElement commitment = commitments.get(i + 1);
-        FieldElement open0 = serializer.deserialize(values.get(i));
-        FieldElement open1 = serializer.deserialize(randomnesses.get(i));
+        FieldElement open0 = definition.deserialize(values.get(i));
+        FieldElement open1 = definition.deserialize(randomnesses.get(i));
         boolean validate = checkCommitment(
             spdzResourcePool, commitment, open0, open1);
         openingValidated = openingValidated && validate;
@@ -71,7 +71,7 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, Fiel
         checkValidation(openingValidated);
         return EvaluationStatus.IS_DONE;
       } else {
-        digest = sendBroadcastValidation(serializer,
+        digest = sendBroadcastValidation(definition,
             spdzResourcePool.getMessageDigest(), network, Arrays.asList(broadcastMessages));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
@@ -91,11 +91,11 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, Fiel
 
   private boolean checkCommitment(SpdzResourcePool resourcePool, FieldElement commitment,
       FieldElement value, FieldElement randomness) {
-    ByteSerializer<FieldElement> serializer = resourcePool.getSerializer();
+    FieldDefinition definition = resourcePool.getFieldDefinition();
     MessageDigest messageDigest = resourcePool.getMessageDigest();
-    messageDigest.update(serializer.serialize(value));
-    messageDigest.update(serializer.serialize(randomness));
-    FieldElement testSubject = serializer.deserialize(messageDigest.digest());
+    messageDigest.update(definition.serialize(value));
+    messageDigest.update(definition.serialize(randomness));
+    FieldElement testSubject = definition.deserialize(messageDigest.digest());
     return commitment.equals(testSubject);
   }
 }

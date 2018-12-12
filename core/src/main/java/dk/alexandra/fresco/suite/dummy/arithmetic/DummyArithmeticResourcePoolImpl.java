@@ -2,8 +2,6 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -14,7 +12,6 @@ import dk.alexandra.fresco.framework.value.SInt;
 public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
     implements DummyArithmeticResourcePool {
 
-  private final int modulusSize;
   private final FieldDefinition fieldDefinition;
 
   /**
@@ -28,17 +25,11 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
       FieldDefinition fieldDefinition) {
     super(myId, noOfPlayers);
     this.fieldDefinition = fieldDefinition;
-    this.modulusSize = fieldDefinition.getModulus().toByteArray().length;
   }
 
   @Override
   public FieldDefinition getFieldDefinition() {
     return fieldDefinition;
-  }
-
-  @Override
-  public ByteSerializer<FieldElement> getSerializer() {
-    return new BigIntegerWithFixedLengthSerializer(modulusSize, fieldDefinition);
   }
 
   @Override

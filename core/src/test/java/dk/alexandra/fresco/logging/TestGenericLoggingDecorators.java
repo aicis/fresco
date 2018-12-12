@@ -7,8 +7,6 @@ import static org.junit.Assert.assertTrue;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
@@ -66,11 +64,9 @@ public class TestGenericLoggingDecorators {
       decoratedLoggers.add(decoratedEvaluator);
 
       Drbg drbg = new HmacDrbg();
-      TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
-          new TestThreadRunner.TestThreadConfiguration<>(sce,
-              () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  netConf.keySet().size(), fieldDefinition),
-              () -> new SocketNetwork(partyNetConf));
+      TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc = new TestThreadRunner.TestThreadConfiguration<>(
+          sce, () -> new DummyArithmeticResourcePoolImpl(playerId, netConf.keySet().size(),
+          fieldDefinition), () -> new SocketNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
@@ -125,15 +121,14 @@ public class TestGenericLoggingDecorators {
     PerformanceLogger performanceLogger = decoratedLoggers.get(0);
 
     Map<String, Long> loggedValues = performanceLogger.getLoggedValues();
-    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is((long) 132));
-    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), is((long) 2));
-    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_PARTY_BYTES + "_1"),
-        is((long) 132));
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is(4L));
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), is(2L));
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_PARTY_BYTES + "_1"), is(4L));
     performanceLogger.reset();
 
     loggedValues = performanceLogger.getLoggedValues();
-    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is((long) 0));
-    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), is((long) 0));
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is(0L));
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), is(0L));
     assertThat(loggedValues.size(), is(2));
   }
 

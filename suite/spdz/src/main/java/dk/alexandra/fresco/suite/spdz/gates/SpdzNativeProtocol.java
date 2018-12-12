@@ -1,9 +1,9 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import java.security.MessageDigest;
 import java.util.Arrays;
@@ -14,18 +14,18 @@ public abstract class SpdzNativeProtocol<OutputT> implements
     NativeProtocol<OutputT, SpdzResourcePool> {
 
   byte[] sendBroadcastValidation(
-      ByteSerializer<FieldElement> serializer,
+      FieldDefinition definition,
       MessageDigest dig, Network network, FieldElement b) {
-    dig.update(serializer.serialize(b));
+    dig.update(definition.serialize(b));
     return sendAndReset(dig, network);
   }
 
   byte[] sendBroadcastValidation(
-      ByteSerializer<FieldElement> serializer,
+      FieldDefinition definition,
       MessageDigest dig, Network network,
       Collection<FieldElement> bs) {
     for (FieldElement b : bs) {
-      dig.update(serializer.serialize(b));
+      dig.update(definition.serialize(b));
     }
     return sendAndReset(dig, network);
   }
