@@ -26,9 +26,6 @@ public interface FieldElement extends Serializable, Addable<FieldElement> {
   @Deprecated
   boolean getBit(int bitIndex);
 
-  @Deprecated
-  byte[] toByteArray();
-
   //todo maybe move to field definition
   @Deprecated
   StrictBitVector toBitVector();

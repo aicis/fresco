@@ -80,7 +80,7 @@ public class FieldElementBigInteger implements FieldElement {
     System.arraycopy(byteArray, 0, bytes, byteLength - byteArray.length + offset, byteArray.length);
   }
 
-  public byte[] toByteArray() {
+  byte[] toByteArray() {
     return value.toByteArray();
   }
 
