@@ -15,29 +15,33 @@ public class FieldElementBigInteger implements FieldElement {
     this.modulus = modulus;
   }
 
-  public FieldElementBigInteger(byte[] bytes, ModulusBigInteger modulus) {
-    this(new BigInteger(bytes), modulus);
-  }
-
-  public FieldElementBigInteger(int value, ModulusBigInteger modulus) {
-    this(BigInteger.valueOf(value), modulus);
-  }
-
-  public FieldElementBigInteger(String value, ModulusBigInteger modulus) {
-    this(new BigInteger(value), modulus);
-  }
-
-  private FieldElementBigInteger create(BigInteger divide) {
+  private FieldElement create(BigInteger divide, ModulusBigInteger modulus) {
     return new FieldElementBigInteger(divide, modulus);
   }
 
+  private FieldElement create(BigInteger divide) {
+    return new FieldElementBigInteger(divide, modulus);
+  }
+
+  public FieldElement create(int value, ModulusBigInteger modulus) {
+    return create(BigInteger.valueOf(value), modulus);
+  }
+
+  public FieldElement create(byte[] bytes, ModulusBigInteger modulus) {
+    return create(new BigInteger(bytes), modulus);
+  }
+
+  public FieldElement create(String string, ModulusBigInteger modulus) {
+    return create(new BigInteger(string), modulus);
+  }
+
   @Override
-  public FieldElementBigInteger add(FieldElement operand) {
+  public FieldElement add(FieldElement operand) {
     return create(value.add(extractValue(operand)));
   }
 
   @Override
-  public FieldElementBigInteger subtract(FieldElement operand) {
+  public FieldElement subtract(FieldElement operand) {
     return create(value.subtract(extractValue(operand)));
   }
 
@@ -47,7 +51,7 @@ public class FieldElementBigInteger implements FieldElement {
   }
 
   @Override
-  public FieldElementBigInteger multiply(FieldElement operand) {
+  public FieldElement multiply(FieldElement operand) {
     return create(value.multiply(extractValue(operand)));
   }
 
