@@ -59,11 +59,6 @@ public class FieldElementBigInteger implements FieldElement {
   }
 
   @Override
-  public int compareTo(FieldElement o) {
-    return value.compareTo(o.convertToBigInteger());
-  }
-
-  @Override
   public String toString() {
     return "FieldElementBigInteger{" +
         "value=" + value +

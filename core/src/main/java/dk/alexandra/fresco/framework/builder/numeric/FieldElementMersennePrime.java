@@ -67,11 +67,6 @@ public final class FieldElementMersennePrime implements FieldElement {
   }
 
   @Override
-  public int compareTo(FieldElement o) {
-    return value.compareTo(o.convertToBigInteger());
-  }
-
-  @Override
   public String toString() {
     return "FieldElementMersennePrime{" +
         "value=" + value +
