@@ -80,11 +80,6 @@ public final class FieldElementMersennePrime implements FieldElement {
   }
 
   @Override
-  public FieldElement select(boolean bit) {
-    return bit ? this : create(BigInteger.ZERO);
-  }
-
-  @Override
   public boolean isZero() {
     return value.equals(BigInteger.ZERO);
   }

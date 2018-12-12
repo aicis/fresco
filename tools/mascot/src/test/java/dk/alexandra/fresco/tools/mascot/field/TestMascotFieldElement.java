@@ -75,14 +75,6 @@ public class TestMascotFieldElement {
   }
 
   @Test
-  public void testSelect() {
-    FieldElement el = definition.createElement(22);
-    CustomAsserts.assertEquals(el, el.select(true));
-    CustomAsserts.assertEquals(definition.createElement(BigInteger.ZERO),
-        el.select(false));
-  }
-
-  @Test
   public void testConvertToBitVectorSingleByte() {
     FieldElement el = new FieldElementBigInteger("11", new ModulusBigInteger("251"));
     StrictBitVector actual = el.toBitVector();

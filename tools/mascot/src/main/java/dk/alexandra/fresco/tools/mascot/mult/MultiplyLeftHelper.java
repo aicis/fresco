@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -58,6 +59,8 @@ public class MultiplyLeftHelper {
    */
   public List<FieldElement> computeProductShares(List<FieldElement> leftFactors,
       List<FieldElement> feSeeds, List<FieldElement> diffs) {
+    final FieldElement zeroElement =
+        resourcePool.getFieldDefinition().createElement(BigInteger.ZERO);
     List<FieldElement> result = new ArrayList<>(leftFactors.size());
     int diffIdx = 0;
     for (FieldElement leftFactor : leftFactors) {
@@ -66,7 +69,8 @@ public class MultiplyLeftHelper {
         FieldElement feSeed = feSeeds.get(diffIdx);
         FieldElement diff = diffs.get(diffIdx);
         boolean bit = leftFactor.getBit(b);
-        FieldElement summand = diff.select(bit).add(feSeed);
+        FieldElement select = bit ? diff : zeroElement;
+        FieldElement summand = select.add(feSeed);
         summands.add(summand);
         diffIdx++;
       }
