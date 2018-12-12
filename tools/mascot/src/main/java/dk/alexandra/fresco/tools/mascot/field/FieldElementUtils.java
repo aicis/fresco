@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
+import dk.alexandra.fresco.framework.builder.numeric.Addable;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;

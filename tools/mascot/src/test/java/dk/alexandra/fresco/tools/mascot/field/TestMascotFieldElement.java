@@ -75,7 +75,7 @@ public class TestMascotFieldElement {
 
   @Test
   public void testToBigInteger() {
-    assertEquals(new BigInteger("22"), new MascotFieldElement(22, modulus).toBigInteger());
+    assertEquals(new BigInteger("22"), new MascotFieldElement(22, modulus).getValue());
   }
 
   @Test

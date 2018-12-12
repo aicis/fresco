@@ -185,7 +185,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
 
   @Override
   public FieldElement getSecretSharedKey() {
-    return fieldDefinition.createElement(ssk.toBigInteger());
+    return fieldDefinition.createElement(ssk.getValue());
   }
 
   private void ensureInitialized() {

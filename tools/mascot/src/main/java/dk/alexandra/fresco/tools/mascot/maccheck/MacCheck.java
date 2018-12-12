@@ -1,9 +1,9 @@
 package dk.alexandra.fresco.tools.mascot.maccheck;
 
 import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.builder.numeric.Addable;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import dk.alexandra.fresco.tools.mascot.commit.CommitmentBasedInput;
 import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import java.util.List;

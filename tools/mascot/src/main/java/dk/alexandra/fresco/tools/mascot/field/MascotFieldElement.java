@@ -1,13 +1,14 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
+import dk.alexandra.fresco.framework.builder.numeric.Addable;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.util.MathUtils;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import java.math.BigInteger;
 import java.util.Objects;
 import java.util.function.BinaryOperator;
 
-public final class MascotFieldElement implements Addable<MascotFieldElement> {
+public final class MascotFieldElement implements FieldElement, Addable<MascotFieldElement> {
 
   private final BigInteger value;
   private final BigInteger modulus;
@@ -42,14 +43,35 @@ public final class MascotFieldElement implements Addable<MascotFieldElement> {
     this(new BigInteger(1, value), modulus);
   }
 
-  private MascotFieldElement binaryOp(BinaryOperator<BigInteger> op, MascotFieldElement left,
-      MascotFieldElement right) {
-    return new MascotFieldElement(op.apply(left.toBigInteger(), right.toBigInteger()).mod(modulus),
-        this.modulus);
+  @Override
+  public MascotFieldElement create(BigInteger value) {
+    return new MascotFieldElement(value.mod(modulus), modulus);
   }
 
+  @Override
+  public BigInteger getValue(FieldElement element) {
+    return ((MascotFieldElement) element).value;
+  }
+
+  @Override
+  public BigInteger getValue() {
+    return value;
+  }
+
+  @Override
+  public MascotFieldElement binaryOp(BinaryOperator<BigInteger> op, FieldElement left,
+      FieldElement right) {
+    return create(op.apply(getValue(left), getValue(right)));
+  }
+
+  @Override
   public MascotFieldElement pow(int exponent) {
-    return new MascotFieldElement(this.value.pow(exponent).mod(modulus), modulus);
+    return create(this.value.pow(exponent));
+  }
+
+  @Override
+  public MascotFieldElement add(FieldElement other) {
+    return add((MascotFieldElement) other);
   }
 
   @Override
@@ -57,39 +79,47 @@ public final class MascotFieldElement implements Addable<MascotFieldElement> {
     return binaryOp(BigInteger::add, this, other);
   }
 
-  public MascotFieldElement subtract(MascotFieldElement other) {
+  @Override
+  public MascotFieldElement subtract(FieldElement other) {
     return binaryOp(BigInteger::subtract, this, other);
   }
 
-  public MascotFieldElement multiply(MascotFieldElement other) {
+  @Override
+  public MascotFieldElement multiply(FieldElement other) {
     return binaryOp(BigInteger::multiply, this, other);
   }
 
+  @Override
   public MascotFieldElement negate() {
-    return new MascotFieldElement(value.multiply(BigInteger.valueOf(-1)).mod(modulus), modulus);
+    return create(value.multiply(BigInteger.valueOf(-1)));
   }
 
+  @Override
   public MascotFieldElement modInverse() {
-    return new MascotFieldElement(value.modInverse(modulus), modulus);
+    return create(value.modInverse(modulus));
   }
 
+  @Override
   public MascotFieldElement sqrt() {
-    BigInteger rawSqrt = MathUtils.modularSqrt(value, modulus);
-    return new MascotFieldElement(rawSqrt, modulus);
+    return create(MathUtils.modularSqrt(value, modulus));
   }
 
-  public BigInteger toBigInteger() {
-    return this.value;
+  @Override
+  public BigInteger convertToBigInteger() {
+    return value;
   }
 
+  @Override
   public boolean getBit(int bitIndex) {
     return value.testBit(bitIndex);
   }
 
+  @Override
   public MascotFieldElement select(boolean bit) {
     return bit ? this : new MascotFieldElement(BigInteger.ZERO, modulus);
   }
 
+  @Override
   public boolean isZero() {
     return value.equals(BigInteger.ZERO);
   }
@@ -100,6 +130,7 @@ public final class MascotFieldElement implements Addable<MascotFieldElement> {
    *
    * @return byte representation of value
    */
+  @Override
   public byte[] toByteArray() {
     int byteLength = bitLength / 8;
     byte[] res = new byte[byteLength];
@@ -111,25 +142,25 @@ public final class MascotFieldElement implements Addable<MascotFieldElement> {
     return res;
   }
 
+  @Override
   public StrictBitVector toBitVector() {
     return new StrictBitVector(toByteArray());
   }
 
+  @Override
   public BigInteger getModulus() {
     return this.modulus;
   }
 
+  @Override
   public int getBitLength() {
     return bitLength;
   }
 
-  public BigInteger getValue() {
-    return value;
-  }
-
   @Override
   public String toString() {
-    return "MascotFieldElement [value=" + value + ", modulus=" + modulus + ", bitLength=" + bitLength
+    return "MascotFieldElement [value=" + value + ", modulus=" + modulus + ", bitLength="
+        + bitLength
         + "]";
   }
 
@@ -144,5 +175,4 @@ public final class MascotFieldElement implements Addable<MascotFieldElement> {
       throw new IllegalArgumentException("Value must be smaller than modulus");
     }
   }
-
 }

@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
-import dk.alexandra.fresco.tools.mascot.arithm.Addable;
+import dk.alexandra.fresco.framework.builder.numeric.Addable;
 import java.math.BigInteger;
 
 public class AuthenticatedElement implements Addable<AuthenticatedElement> {
