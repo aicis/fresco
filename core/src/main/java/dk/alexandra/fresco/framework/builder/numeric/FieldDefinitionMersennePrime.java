@@ -1,13 +1,17 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class FieldDefinitionMersennePrime implements FieldDefinition {
 
   private final ModulusMersennePrime modulus;
+  private final int modulusLength;
 
   public FieldDefinitionMersennePrime(ModulusMersennePrime modulus) {
     this.modulus = modulus;
+    this.modulusLength = this.modulus.getBigInteger().toByteArray().length;
   }
 
   @Override
@@ -21,19 +25,34 @@ public final class FieldDefinitionMersennePrime implements FieldDefinition {
   }
 
   @Override
-  public FieldElement deserialize(byte[] bytes, int offset, int length) {
-    if (bytes.length > length) {
-      byte[] dest = new byte[length];
-      System.arraycopy(bytes, offset, dest, 0, length);
-      return FieldElementMersennePrime.create(dest, modulus);
-    } else {
-      return FieldElementMersennePrime.create(bytes, modulus);
-    }
+  public FieldElement deserialize(byte[] bytes) {
+    return FieldElementMersennePrime.create(bytes, modulus);
   }
 
   @Override
-  public void serialize(FieldElement fieldElement, byte[] bytes, int offset, int length) {
-    fieldElement.toByteArray(bytes, offset, length);
+  public List<FieldElement> deserializeList(byte[] bytes) {
+    ArrayList<FieldElement> elements = new ArrayList<>();
+    for (int i = 0; i < bytes.length; i += modulusLength) {
+      byte[] copy = new byte[modulusLength];
+      System.arraycopy(bytes, i * modulusLength, copy, 0, modulusLength);
+      elements.add(FieldElementMersennePrime.create(copy, modulus));
+    }
+    return elements;
+  }
+
+  @Override
+  public byte[] serialize(FieldElement fieldElement) {
+    return ((FieldElementMersennePrime) fieldElement).toByteArray();
+  }
+
+  @Override
+  public byte[] serialize(List<FieldElement> fieldElements) {
+    byte[] bytes = new byte[modulusLength * fieldElements.size()];
+    for (int i = 0; i < fieldElements.size(); i++) {
+      FieldElementMersennePrime fieldElement = (FieldElementMersennePrime) fieldElements.get(i);
+      fieldElement.toByteArray(bytes, i * modulusLength, modulusLength);
+    }
+    return bytes;
   }
 
   @Override
