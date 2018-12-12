@@ -19,33 +19,33 @@ public final class FieldElementMersennePrime implements FieldElement {
     this.modulus = modulus;
   }
 
-  static FieldElementMersennePrime create(int value, ModulusMersennePrime modulus) {
-    return new FieldElementMersennePrime(BigInteger.valueOf(value), modulus);
-  }
-
-  static FieldElementMersennePrime create(byte[] bytes, ModulusMersennePrime modulus) {
-    return new FieldElementMersennePrime(new BigInteger(bytes), modulus);
-  }
-
-  static FieldElementMersennePrime create(String asString, ModulusMersennePrime modulus) {
-    return new FieldElementMersennePrime(new BigInteger(asString), modulus);
-  }
-
-  static FieldElementMersennePrime create(BigInteger value, ModulusMersennePrime modulus) {
-    return new FieldElementMersennePrime(value, modulus);
-  }
-
-  private FieldElementMersennePrime create(BigInteger newValue) {
+  private FieldElement create(BigInteger newValue) {
     return new FieldElementMersennePrime(newValue, modulus);
   }
 
+  static FieldElement create(BigInteger value, ModulusMersennePrime modulus) {
+    return new FieldElementMersennePrime(value, modulus);
+  }
+
+  static FieldElement create(int value, ModulusMersennePrime modulus) {
+    return create(BigInteger.valueOf(value), modulus);
+  }
+
+  static FieldElement create(byte[] bytes, ModulusMersennePrime modulus) {
+    return create(new BigInteger(bytes), modulus);
+  }
+
+  static FieldElement create(String string, ModulusMersennePrime modulus) {
+    return create(new BigInteger(string), modulus);
+  }
+
   @Override
-  public FieldElementMersennePrime add(FieldElement operand) {
+  public FieldElement add(FieldElement operand) {
     return create(value.add(extractValue(operand)));
   }
 
   @Override
-  public FieldElementMersennePrime subtract(FieldElement operand) {
+  public FieldElement subtract(FieldElement operand) {
     return create(value.subtract(extractValue(operand)));
   }
 
@@ -55,7 +55,7 @@ public final class FieldElementMersennePrime implements FieldElement {
   }
 
   @Override
-  public FieldElementMersennePrime multiply(FieldElement operand) {
+  public FieldElement multiply(FieldElement operand) {
     return create(value.multiply(extractValue(operand)));
   }
 
