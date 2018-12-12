@@ -15,23 +15,23 @@ public class FieldElementBigInteger implements FieldElement {
     this.modulus = modulus;
   }
 
-  private FieldElement create(BigInteger divide, ModulusBigInteger modulus) {
-    return new FieldElementBigInteger(divide, modulus);
+  private FieldElement create(BigInteger value) {
+    return new FieldElementBigInteger(value, modulus);
   }
 
-  private FieldElement create(BigInteger divide) {
-    return new FieldElementBigInteger(divide, modulus);
+  static FieldElement create(BigInteger value, ModulusBigInteger modulus) {
+    return new FieldElementBigInteger(value, modulus);
   }
 
-  public FieldElement create(int value, ModulusBigInteger modulus) {
+  static FieldElement create(int value, ModulusBigInteger modulus) {
     return create(BigInteger.valueOf(value), modulus);
   }
 
-  public FieldElement create(byte[] bytes, ModulusBigInteger modulus) {
+  static FieldElement create(byte[] bytes, ModulusBigInteger modulus) {
     return create(new BigInteger(bytes), modulus);
   }
 
-  public FieldElement create(String string, ModulusBigInteger modulus) {
+  static FieldElement create(String string, ModulusBigInteger modulus) {
     return create(new BigInteger(string), modulus);
   }
 

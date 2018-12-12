@@ -19,8 +19,8 @@ public final class FieldElementMersennePrime implements FieldElement {
     this.modulus = modulus;
   }
 
-  private FieldElement create(BigInteger newValue) {
-    return new FieldElementMersennePrime(newValue, modulus);
+  private FieldElement create(BigInteger value) {
+    return new FieldElementMersennePrime(value, modulus);
   }
 
   static FieldElement create(BigInteger value, ModulusMersennePrime modulus) {

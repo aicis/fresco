@@ -33,22 +33,22 @@ public final class FieldDefinitionBigInteger implements FieldDefinition {
 
   @Override
   public FieldElement createElement(int value) {
-    return new FieldElementBigInteger(value, modulus);
+    return FieldElementBigInteger.create(value, modulus);
   }
 
   @Override
   public FieldElement createElement(String value) {
-    return new FieldElementBigInteger(value, modulus);
+    return FieldElementBigInteger.create(value, modulus);
   }
 
   @Override
   public FieldElement createElement(BigInteger value) {
-    return new FieldElementBigInteger(value, modulus);
+    return FieldElementBigInteger.create(value, modulus);
   }
 
   @Override
   public FieldElement deserialize(byte[] bytes) {
-    return new FieldElementBigInteger(bytes, modulus);
+    return FieldElementBigInteger.create(bytes, modulus);
   }
 
   @Override
@@ -57,7 +57,7 @@ public final class FieldDefinitionBigInteger implements FieldDefinition {
     for (int i = 0; i < bytes.length; i += modulusLength) {
       byte[] copy = new byte[modulusLength];
       System.arraycopy(bytes, i, copy, 0, modulusLength);
-      elements.add(new FieldElementBigInteger(copy, modulus));
+      elements.add(FieldElementBigInteger.create(copy, modulus));
     }
     return elements;
   }
