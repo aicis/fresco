@@ -110,6 +110,8 @@ public class MiscBigIntegerGenerators {
 
   /**
    * Generates a list of [2^0, 2^1, ..., 2^length]
+   * @param length
+   * @return
    */
   public List<BigInteger> getTwoPowersList(int length) {
     int currentLength = twoPowersList.size();
