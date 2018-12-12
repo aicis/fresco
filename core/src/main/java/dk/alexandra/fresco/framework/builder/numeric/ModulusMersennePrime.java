@@ -10,7 +10,6 @@ public final class ModulusMersennePrime implements Serializable {
   private final BigInteger constant;
   private final BigInteger precomputedBitMask;
   private final BigInteger prime;
-  private final BigInteger halved;
 
   public ModulusMersennePrime(int bitLength, int constant) {
     this.bitLength = bitLength;
@@ -18,15 +17,10 @@ public final class ModulusMersennePrime implements Serializable {
     BigInteger shifted = BigInteger.ONE.shiftLeft(bitLength);
     this.precomputedBitMask = shifted.subtract(BigInteger.ONE);
     this.prime = shifted.subtract(BigInteger.valueOf(constant));
-    this.halved = this.prime.divide(BigInteger.valueOf(2));
   }
 
   BigInteger getBigInteger() {
     return prime;
-  }
-
-  BigInteger getBigIntegerHalved() {
-    return halved;
   }
 
   @Override

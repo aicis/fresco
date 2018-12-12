@@ -32,9 +32,10 @@ public class TestNumericResourcePool {
 
   @Test
   public void testConvertRepresentationEqualsHalf() {
+    BigInteger modulusHalf = fieldDefinition.getModulus().shiftRight(1);
     NumericResourcePool pool = new MockNumericResourcePool(fieldDefinition);
-    BigInteger actual = convertRepresentation(pool, fieldDefinition.getModulusHalved());
-    assertEquals(fieldDefinition.getModulusHalved(), actual);
+    BigInteger actual = convertRepresentation(pool, modulusHalf);
+    assertEquals(modulusHalf, actual);
   }
 
   private class MockNumericResourcePool implements NumericResourcePool {

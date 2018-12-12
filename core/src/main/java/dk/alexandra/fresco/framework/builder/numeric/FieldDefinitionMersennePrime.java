@@ -8,20 +8,27 @@ public final class FieldDefinitionMersennePrime implements FieldDefinition {
 
   private final ModulusMersennePrime modulus;
   private final int modulusLength;
+  private final BigInteger modulusHalf;
 
   public FieldDefinitionMersennePrime(ModulusMersennePrime modulus) {
     this.modulus = modulus;
+    this.modulusHalf = modulus.getBigInteger().shiftRight(1);
     this.modulusLength = this.modulus.getBigInteger().toByteArray().length;
+  }
+
+  @Override
+  public BigInteger convertRepresentation(FieldElement value) {
+    BigInteger actual = ((FieldElementMersennePrime) value).getValue();
+    if (actual.compareTo(modulusHalf) > 0) {
+      return actual.subtract(getModulus());
+    } else {
+      return actual;
+    }
   }
 
   @Override
   public BigInteger getModulus() {
     return modulus.getBigInteger();
-  }
-
-  @Override
-  public BigInteger getModulusHalved() {
-    return modulus.getBigIntegerHalved();
   }
 
   @Override

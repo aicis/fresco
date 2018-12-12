@@ -2,6 +2,7 @@ package dk.alexandra.fresco.lib.math.integer.division;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -50,8 +51,9 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
      * TODO: This should be handled differently because it will not necessarily work with another
      * arithmetic protocol suite.
      */
-    BigInteger signedDivisor = basicNumericContext.getFieldDefinition()
-        .convertRepresentation(divisor);
+    FieldDefinition fieldDefinition = basicNumericContext.getFieldDefinition();
+    BigInteger signedDivisor =
+        fieldDefinition.convertRepresentation(fieldDefinition.createElement(divisor));
     int divisorSign = signedDivisor.signum();
     BigInteger divisorAbs = signedDivisor.abs();
     int maxDivisorBitLength = basicNumericContext.getMaxBitLength() - 3;

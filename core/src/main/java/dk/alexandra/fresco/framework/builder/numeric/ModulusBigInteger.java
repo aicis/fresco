@@ -7,12 +7,9 @@ import java.util.Objects;
 public final class ModulusBigInteger implements Serializable {
 
   private final BigInteger value;
-  private final BigInteger halved;
 
   public ModulusBigInteger(BigInteger value) {
-    Objects.requireNonNull(value);
-    this.value = value;
-    this.halved = value.divide(BigInteger.valueOf(2));
+    this.value = Objects.requireNonNull(value);
   }
 
   public ModulusBigInteger(int value) {
@@ -25,10 +22,6 @@ public final class ModulusBigInteger implements Serializable {
 
   public BigInteger getBigInteger() {
     return value;
-  }
-
-  public BigInteger getBigIntegerHalved() {
-    return halved;
   }
 
   @Override
