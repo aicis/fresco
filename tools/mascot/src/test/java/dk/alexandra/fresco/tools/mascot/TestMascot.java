@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.tools.mascot;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.builder.numeric.Addable;
@@ -91,7 +92,7 @@ public class TestMascot extends NetworkedTest {
     AuthenticatedElement recombined = Addable.sumRows(results).get(0);
     // sanity check
     BigInteger opened = getFieldDefinition().convertRepresentation(recombined.getShare());
-    assertEquals(BigInteger.ZERO, opened);
+    assertNotEquals(BigInteger.ZERO, opened);
   }
 
   @Test
