@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.tools.mascot;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.builder.numeric.Addable;
@@ -9,6 +8,7 @@ import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.InputMask;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -90,7 +90,8 @@ public class TestMascot extends NetworkedTest {
     assertEquals(results.get(1).size(), 1);
     AuthenticatedElement recombined = Addable.sumRows(results).get(0);
     // sanity check
-    assertFalse(recombined.getShare().isZero());
+    BigInteger opened = getFieldDefinition().convertRepresentation(recombined.getShare());
+    assertEquals(BigInteger.ZERO, opened);
   }
 
   @Test
@@ -109,7 +110,7 @@ public class TestMascot extends NetworkedTest {
 
     AuthenticatedElement bit = results.get(0).get(0).add(results.get(1).get(0));
     FieldElement actualBit = bit.getShare();
-    CustomAsserts.assertFieldElementIsBit(actualBit);
+    CustomAsserts.assertFieldElementIsBit(getFieldDefinition(), actualBit);
   }
 
   @Test

@@ -79,11 +79,6 @@ public final class FieldElementMersennePrime implements FieldElement {
     return value.testBit(bitIndex);
   }
 
-  @Override
-  public boolean isZero() {
-    return value.equals(BigInteger.ZERO);
-  }
-
   static BigInteger extractValue(FieldElement element) {
     return ((FieldElementMersennePrime) element).value;
   }
@@ -102,8 +97,7 @@ public final class FieldElementMersennePrime implements FieldElement {
     return new StrictBitVector(toByteArray());
   }
 
-  @Override
-  public BigInteger getModulus() {
+  private BigInteger getModulus() {
     return modulus.getBigInteger();
   }
 

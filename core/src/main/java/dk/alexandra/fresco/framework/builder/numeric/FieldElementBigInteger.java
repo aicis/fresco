@@ -75,11 +75,6 @@ public class FieldElementBigInteger implements FieldElement {
     return value.testBit(bitIndex);
   }
 
-  @Override
-  public boolean isZero() {
-    return value.equals(BigInteger.ZERO);
-  }
-
   static BigInteger extractValue(FieldElement element) {
     return ((FieldElementBigInteger) element).value;
   }
@@ -105,8 +100,7 @@ public class FieldElementBigInteger implements FieldElement {
     return new StrictBitVector(res);
   }
 
-  @Override
-  public BigInteger getModulus() {
+  private BigInteger getModulus() {
     return modulus.getBigInteger();
   }
 
