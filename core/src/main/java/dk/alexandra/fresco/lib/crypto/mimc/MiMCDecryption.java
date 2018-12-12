@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 /**
  * MPC Decryption of an already MIMC encrypted number. See {@link MiMCEncryption} for more
  * information.
+ *
  */
 public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric> {
 
@@ -103,8 +104,8 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
     ).seq((seq, state) -> {
       /*
        * We're in the last round so we just need to compute
-       * c^{-3} - K
-       */
+			 * c^{-3} - K
+			 */
       AdvancedNumeric advancedNumericBuilder = seq.advancedNumeric();
       DRes<SInt> inverted = advancedNumericBuilder.exp(state.value, threeInverse);
 
