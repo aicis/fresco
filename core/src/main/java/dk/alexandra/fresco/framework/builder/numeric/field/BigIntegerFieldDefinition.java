@@ -18,8 +18,8 @@ public final class BigIntegerFieldDefinition implements FieldDefinition {
 
   @Override
   public BigInteger convertRepresentation(FieldElement value) {
-    return FieldUtils.convertRepresentation(value, getModulus(), modulusHalf,
-        BigIntegerFieldElement::extractValue);
+    return FieldUtils.convertRepresentation(
+        BigIntegerFieldElement.extractValue(value), getModulus(), modulusHalf);
   }
 
   @Override

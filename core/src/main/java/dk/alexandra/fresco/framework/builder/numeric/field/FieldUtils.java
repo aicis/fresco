@@ -8,6 +8,9 @@ import java.util.function.Function;
 
 final class FieldUtils {
 
+  private FieldUtils() {
+  }
+
   static StrictBitVector convertToBitVector(BigInteger modulus, byte[] bytes) {
     int byteLength = modulus.bitLength() / 8;
     byte[] res = new byte[byteLength];
@@ -18,7 +21,7 @@ final class FieldUtils {
     return new StrictBitVector(res);
   }
 
-  public static byte[] serialize(int modulusLength, List<FieldElement> fieldElements,
+  static byte[] serialize(int modulusLength, List<FieldElement> fieldElements,
       Function<FieldElement, byte[]> serializer) {
     byte[] bytes = new byte[modulusLength * fieldElements.size()];
     for (int i = 0; i < fieldElements.size(); i++) {
@@ -29,7 +32,7 @@ final class FieldUtils {
     return bytes;
   }
 
-  public static List<FieldElement> deserializeList(byte[] bytes, int modulusLength,
+  static List<FieldElement> deserializeList(byte[] bytes, int modulusLength,
       Function<byte[], FieldElement> creator) {
     ArrayList<FieldElement> elements = new ArrayList<>();
     for (int i = 0; i < bytes.length; i += modulusLength) {
@@ -40,13 +43,12 @@ final class FieldUtils {
     return elements;
   }
 
-  public static BigInteger convertRepresentation(FieldElement value, BigInteger modulus,
-      BigInteger modulusHalf, Function<FieldElement, BigInteger> extractor) {
-    BigInteger actual = extractor.apply(value);
-    if (actual.compareTo(modulusHalf) > 0) {
-      return actual.subtract(modulus);
+  static BigInteger convertRepresentation(BigInteger value, BigInteger modulus,
+      BigInteger modulusHalf) {
+    if (value.compareTo(modulusHalf) > 0) {
+      return value.subtract(modulus);
     } else {
-      return actual;
+      return value;
     }
   }
 }

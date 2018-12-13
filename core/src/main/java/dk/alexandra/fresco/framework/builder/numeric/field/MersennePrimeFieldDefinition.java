@@ -18,8 +18,8 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
 
   @Override
   public BigInteger convertRepresentation(FieldElement value) {
-    return FieldUtils.convertRepresentation(value, getModulus(), modulusHalf,
-        MersennePrimeFieldElement::extractValue);
+    return FieldUtils.convertRepresentation(
+        MersennePrimeFieldElement.extractValue(value), getModulus(), modulusHalf);
   }
 
   @Override
