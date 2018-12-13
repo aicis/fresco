@@ -10,7 +10,6 @@ public interface FieldElement extends Serializable, Addable<FieldElement> {
 
   FieldElement subtract(FieldElement other);
 
-  @Deprecated
   FieldElement negate();
 
   FieldElement multiply(FieldElement other);

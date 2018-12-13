@@ -103,5 +103,4 @@ public class MultiplyRightHelper {
     FieldElement right = feSeedPair.getSecond();
     return left.subtract(right).add(factor);
   }
-
 }

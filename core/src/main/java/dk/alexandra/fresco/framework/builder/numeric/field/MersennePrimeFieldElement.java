@@ -50,7 +50,7 @@ public final class MersennePrimeFieldElement implements FieldElement {
 
   @Override
   public FieldElement negate() {
-    return create(value.negate());
+    return create(getModulus().subtract(value));
   }
 
   @Override
