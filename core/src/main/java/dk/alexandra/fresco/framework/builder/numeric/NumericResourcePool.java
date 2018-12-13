@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import java.math.BigInteger;

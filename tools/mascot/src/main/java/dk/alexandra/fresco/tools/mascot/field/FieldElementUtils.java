@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
 import dk.alexandra.fresco.framework.builder.numeric.Addable;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -154,7 +154,7 @@ public final class FieldElementUtils {
    */
   public StrictBitVector pack(List<FieldElement> elements, boolean reverse) {
     StrictBitVector[] bitVecs =
-        elements.stream().map(FieldElement::toBitVector).toArray(StrictBitVector[]::new);
+        elements.stream().map(definition::convertToBitVector).toArray(StrictBitVector[]::new);
     if (reverse) {
       Collections.reverse(Arrays.asList(bitVecs));
     }
@@ -167,22 +167,7 @@ public final class FieldElementUtils {
    * @param packed concatenated bits representing field elements
    * @return field elements
    */
-  //todo maybe deserializeList?
   public List<FieldElement> unpack(byte[] packed) {
-    int packedBitLength = packed.length * 8;
-    if ((packedBitLength % modBitLength) != 0) {
-      throw new IllegalArgumentException(
-          "Packed bit length must be multiple of single element bit length");
-    }
-    int numElements = packedBitLength / modBitLength;
-    int byteLength = modBitLength / 8;
-    List<FieldElement> unpacked = new ArrayList<>(numElements);
-    for (int i = 0; i < numElements; i++) {
-      byte[] b = Arrays.copyOfRange(packed, i * byteLength, (i + 1) * byteLength);
-      FieldElement el = definition.deserialize(b);
-      unpacked.add(el);
-    }
-    return unpacked;
+    return definition.deserializeList(packed);
   }
-
 }

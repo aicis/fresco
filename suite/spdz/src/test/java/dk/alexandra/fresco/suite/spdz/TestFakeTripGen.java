@@ -1,8 +1,9 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -16,11 +17,11 @@ import org.junit.Test;
 
 public class TestFakeTripGen {
 
-  private static final ModulusBigInteger modulus = new ModulusBigInteger(
+  private static final BigIntegerModulus modulus = new BigIntegerModulus(
       "670390396497129854978701249912381411527384857"
           + "747113652742596601302650153670646435425544544324427938945505888949343122395116528647057599"
           + "4074291745908195329");
-  private static final FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(
+  private static final BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(
       modulus);
   private static final FieldElement alpha = definition.createElement(
       "50815870414411794389326350986203198"
@@ -201,21 +202,23 @@ public class TestFakeTripGen {
     FakeTripGen.main(new String[]{"-y=true"});
   }
 
+  private String modulusArg = "-m=" + ModulusFinder.findSuitableModulus(8).toString();
+
   @Test
   public void testMainMissingArgs() throws IOException {
     FakeTripGen.main(new String[]{"-t=10", "-i=10", "-b=100", "-e=1", "-p=2", "-d=."});
-    FakeTripGen.main(new String[]{"-m=187263", "-i=10", "-b=100", "-e=1", "-p=2", "-d=."});
-    FakeTripGen.main(new String[]{"-m=187263", "-t=10", "-b=100", "-e=1", "-p=2", "-d=."});
-    FakeTripGen.main(new String[]{"-m=187263", "-t=10", "-i=10", "-e=1", "-p=2", "-d=."});
-    FakeTripGen.main(new String[]{"-m=187263", "-t=10", "-i=10", "-b=100", "-p=2", "-d=."});
-    FakeTripGen.main(new String[]{"-m=187263", "-t=10", "-i=10", "-b=100", "-e=1", "-d=."});
-    FakeTripGen.main(new String[]{"-m=187263", "-t=10", "-i=10", "-b=100", "-e=1", "-p=2"});
+    FakeTripGen.main(new String[]{modulusArg, "-i=10", "-b=100", "-e=1", "-p=2", "-d=."});
+    FakeTripGen.main(new String[]{modulusArg, "-t=10", "-b=100", "-e=1", "-p=2", "-d=."});
+    FakeTripGen.main(new String[]{modulusArg, "-t=10", "-i=10", "-e=1", "-p=2", "-d=."});
+    FakeTripGen.main(new String[]{modulusArg, "-t=10", "-i=10", "-b=100", "-p=2", "-d=."});
+    FakeTripGen.main(new String[]{modulusArg, "-t=10", "-i=10", "-b=100", "-e=1", "-d=."});
+    FakeTripGen.main(new String[]{modulusArg, "-t=10", "-i=10", "-b=100", "-e=1", "-p=2"});
   }
 
   @Test
   public void testMain() throws IOException {
     FakeTripGen
-        .main(new String[]{"-m=187263", "-t=10", "-i=10", "-b=100", "-e=1", "-p=2", "-d=."});
+        .main(new String[]{modulusArg, "-t=10", "-i=10", "-b=100", "-e=1", "-p=2", "-d=."});
     try {
       FakeTripGen.cleanup();
     } catch (IOException e) {
@@ -227,7 +230,7 @@ public class TestFakeTripGen {
   public void testMainSpecialMod() throws Exception {
     //This test is for a valid modulus where the byte representation contains all 0 in the first byte. 
     FakeTripGen.main(
-        new String[]{"-m=131", "-t=10", "-i=10", "-b=100", "-e=1", "-p=2", "-d=.", "-r=true"});
+        new String[]{modulusArg, "-t=10", "-i=10", "-b=100", "-e=1", "-p=2", "-d=.", "-r=true"});
     try {
       FakeTripGen.cleanup();
     } catch (IOException e) {
@@ -238,7 +241,7 @@ public class TestFakeTripGen {
   @Test
   public void testMainInsecureRandom() throws IOException {
     FakeTripGen.main(
-        new String[]{"-m=187263", "-t=10", "-i=10", "-b=100", "-e=1", "-p=2", "-d=.", "-r=true"});
+        new String[]{modulusArg, "-t=10", "-i=10", "-b=100", "-e=1", "-p=2", "-d=.", "-r=true"});
     try {
       FakeTripGen.cleanup();
     } catch (IOException e) {

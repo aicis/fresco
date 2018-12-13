@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 
 /**
  * An input mask for player_i is random value r shared among parties so that only player_i knows the

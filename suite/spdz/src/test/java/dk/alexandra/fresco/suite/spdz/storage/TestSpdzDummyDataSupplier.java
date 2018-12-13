@@ -4,10 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.TransposeUtils;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -23,12 +24,9 @@ import org.junit.Test;
 public class TestSpdzDummyDataSupplier {
 
   private final List<FieldDefinition> fields = Arrays.asList(
-      new FieldDefinitionBigInteger(new ModulusBigInteger(new BigInteger("251"))),
-      new FieldDefinitionBigInteger(
-          new ModulusBigInteger(new BigInteger("340282366920938463463374607431768211283"))),
-      new FieldDefinitionBigInteger(new ModulusBigInteger(new BigInteger(
-          "2582249878086908589655919172003011874329705792829223512830659356540647622016841"
-              + "194629645353280137831435903171972747493557")))
+      new BigIntegerFieldDefinition(new BigIntegerModulus(new BigInteger("251"))),
+      new BigIntegerFieldDefinition(new BigIntegerModulus(ModulusFinder.findSuitableModulus(8))),
+      new BigIntegerFieldDefinition(new BigIntegerModulus(ModulusFinder.findSuitableModulus(16)))
   );
 
   private List<SpdzDummyDataSupplier> setupSuppliers(int noOfParties,

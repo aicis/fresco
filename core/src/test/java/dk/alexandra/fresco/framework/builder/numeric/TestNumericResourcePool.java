@@ -2,13 +2,17 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import static org.junit.Assert.assertEquals;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import java.math.BigInteger;
 import org.junit.Test;
 
 public class TestNumericResourcePool {
 
-  private final FieldDefinitionBigInteger fieldDefinition = new FieldDefinitionBigInteger(
-      new ModulusBigInteger("251"));
+  private final BigIntegerFieldDefinition fieldDefinition = new BigIntegerFieldDefinition(
+      new BigIntegerModulus("251"));
 
   @Test
   public void testConvertRepresentationLessThanHalf() {

@@ -2,9 +2,9 @@ package dk.alexandra.fresco.tools.mascot.field;
 
 import static org.junit.Assert.assertEquals;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
@@ -15,8 +15,8 @@ import org.junit.Test;
 public class TestMascotFieldElementUtils {
 
   private final BigInteger modulus = new BigInteger("65521");
-  private final FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(
-      new ModulusBigInteger(modulus));
+  private final BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(
+      new BigIntegerModulus(modulus));
   private final FieldElementUtils fieldElementUtils = new FieldElementUtils(definition);
   private final int[] leftArr = {1, 2, 3, 4};
   private final List<FieldElement> left =
@@ -83,34 +83,5 @@ public class TestMascotFieldElementUtils {
     byte[] expectedBytes = {0x00, 0x04, 0x00, 0x03, 0x00, 0x02, 0x00, 0x01};
     StrictBitVector expected = new StrictBitVector(expectedBytes);
     assertEquals(expected, actual);
-  }
-
-  // negative tests
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testInnerProductDifferentSizes() {
-    int[] rightArr = {5, 6, 7};
-    List<FieldElement> right = MascotTestUtils.generateSingleRow(rightArr, definition);
-    fieldElementUtils.innerProduct(left, right);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testRecombineIncorrectSize() {
-    int[] leftArr = new int[17];
-    List<FieldElement> left = MascotTestUtils.generateSingleRow(leftArr, definition);
-    fieldElementUtils.recombine(left);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testPairwiseMultiplyIncorrectSize() {
-    int[] leftArr = new int[17];
-    List<FieldElement> left = MascotTestUtils.generateSingleRow(leftArr, definition);
-    fieldElementUtils.pairWiseMultiply(left, right);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testUnpackIncorrectSize() {
-    byte[] packed = new byte[17];
-    fieldElementUtils.unpack(packed);
   }
 }

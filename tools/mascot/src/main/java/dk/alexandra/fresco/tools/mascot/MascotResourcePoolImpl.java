@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.tools.mascot;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -50,7 +50,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
     this.drbg = drbg;
     this.instanceId = instanceId;
     this.seedOts = seedOts;
-    this.fieldDefinition = new FieldDefinitionBigInteger(new ModulusBigInteger(
+    this.fieldDefinition = new BigIntegerFieldDefinition(new BigIntegerModulus(
         ModulusFinder.findSuitableModulus(mascotSecurityParameters.getModBitLength())));
     this.mascotSecurityParameters = mascotSecurityParameters;
     this.localSampler = new FieldElementPrgImpl(

@@ -4,9 +4,9 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.network.Network;
@@ -47,9 +47,9 @@ public class TestInputSumExample {
 
       Supplier<ResourcePoolT> resourcePool;
       if (dummy) {
-        ModulusBigInteger mod = new ModulusBigInteger(
+        BigIntegerModulus mod = new BigIntegerModulus(
             "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
-        FieldDefinitionBigInteger fieldDefinition = new FieldDefinitionBigInteger(mod);
+        BigIntegerFieldDefinition fieldDefinition = new BigIntegerFieldDefinition(mod);
         suite =
             (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new DummyArithmeticProtocolSuite(
                 fieldDefinition, 150, 16);
@@ -62,7 +62,7 @@ public class TestInputSumExample {
             BigInteger modulus = ModulusFinder.findSuitableModulus(512);
             return (ResourcePoolT) new SpdzResourcePoolImpl(i, n, new SpdzOpenedValueStoreImpl(),
                 new SpdzDummyDataSupplier(i, n,
-                    new FieldDefinitionBigInteger(new ModulusBigInteger(modulus)), modulus),
+                    new BigIntegerFieldDefinition(new BigIntegerModulus(modulus)), modulus),
                 new AesCtrDrbg(new byte[32]));
           } catch (Exception e) {
             throw new RuntimeException("Your system does not support the necessary hash function.",

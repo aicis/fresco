@@ -2,10 +2,10 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionMersennePrime;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusMersennePrime;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.MersennePrimeFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.MersennePrimeModulus;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.network.Network;
@@ -38,7 +38,7 @@ public abstract class AbstractDummyArithmeticTest {
 
   protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
   protected static final FieldDefinition DEFAULT_FIELD =
-      new FieldDefinitionMersennePrime(new ModulusMersennePrime(512, 569));
+      new MersennePrimeFieldDefinition(new MersennePrimeModulus(512, 569));
   protected static final int DEFAULT_MAX_BIT_LENGTH = 200;
   protected static final int DEFAULT_FIXED_POINT_PRECISION = BasicFixedPointTests.DEFAULT_PRECISION;
   protected static final int DEFAULT_PARTIES = 1;

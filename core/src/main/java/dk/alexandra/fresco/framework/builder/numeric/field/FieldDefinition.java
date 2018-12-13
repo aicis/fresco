@@ -1,6 +1,7 @@
-package dk.alexandra.fresco.framework.builder.numeric;
+package dk.alexandra.fresco.framework.builder.numeric.field;
 
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -24,5 +25,7 @@ public interface FieldDefinition extends ByteSerializer<FieldElement> {
   byte[] serialize(FieldElement fieldElement);
 
   byte[] serialize(List<FieldElement> fieldElements);
+
+  StrictBitVector convertToBitVector(FieldElement fieldElement);
 }
 

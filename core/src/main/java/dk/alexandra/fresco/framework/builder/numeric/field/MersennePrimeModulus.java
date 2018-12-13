@@ -1,17 +1,18 @@
-package dk.alexandra.fresco.framework.builder.numeric;
+package dk.alexandra.fresco.framework.builder.numeric.field;
 
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Objects;
 
-public final class ModulusMersennePrime implements Serializable {
+public final class MersennePrimeModulus implements Serializable {
 
   private final int bitLength;
   private final BigInteger constant;
   private final BigInteger precomputedBitMask;
   private final BigInteger prime;
 
-  public ModulusMersennePrime(int bitLength, int constant) {
+  public MersennePrimeModulus(int bitLength, int constant) {
+    FieldUtils.ensureDivisible(bitLength);
     this.bitLength = bitLength;
     this.constant = BigInteger.valueOf(constant);
     BigInteger shifted = BigInteger.ONE.shiftLeft(bitLength);
@@ -31,7 +32,7 @@ public final class ModulusMersennePrime implements Serializable {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ModulusMersennePrime that = (ModulusMersennePrime) o;
+    MersennePrimeModulus that = (MersennePrimeModulus) o;
     return bitLength == that.bitLength && constant.equals(that.constant);
   }
 
@@ -42,7 +43,7 @@ public final class ModulusMersennePrime implements Serializable {
 
   @Override
   public String toString() {
-    return "ModulusMersennePrime{" +
+    return "MersennePrimeModulus{" +
         "value=" + prime +
         '}';
   }

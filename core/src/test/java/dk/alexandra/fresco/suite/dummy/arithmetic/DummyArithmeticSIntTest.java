@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsNot;
@@ -11,12 +11,13 @@ import org.junit.Test;
 
 public class DummyArithmeticSIntTest {
 
-  private ModulusBigInteger modulus = new ModulusBigInteger(ModulusFinder.findSuitableModulus(128));
-  private FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(modulus);
+  private BigIntegerModulus modulus = new BigIntegerModulus(ModulusFinder.findSuitableModulus(128));
+  private BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(modulus);
 
   @Test
   public void testToString() {
-    FieldDefinitionBigInteger fd500 = new FieldDefinitionBigInteger(new ModulusBigInteger(500));
+    BigIntegerFieldDefinition fd500 = new BigIntegerFieldDefinition(
+        new BigIntegerModulus(ModulusFinder.findSuitableModulus(8)));
     DummyArithmeticSInt value = new DummyArithmeticSInt(fd500.createElement(42));
     String toString = value.toString();
     Assert.assertThat(toString, StringContains.containsString("42"));
@@ -25,7 +26,8 @@ public class DummyArithmeticSIntTest {
 
   @Test
   public void testEquals() {
-    FieldDefinitionBigInteger fd500 = new FieldDefinitionBigInteger(new ModulusBigInteger(500));
+    BigIntegerFieldDefinition fd500 = new BigIntegerFieldDefinition(
+        new BigIntegerModulus(ModulusFinder.findSuitableModulus(8)));
     DummyArithmeticSInt value1 = new DummyArithmeticSInt(fd500.createElement(42));
     DummyArithmeticSInt value2 = new DummyArithmeticSInt(fd500.createElement(42));
     DummyArithmeticSInt value3 = new DummyArithmeticSInt(definition.createElement(41));

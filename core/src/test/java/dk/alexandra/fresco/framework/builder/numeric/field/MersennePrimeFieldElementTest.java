@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.framework.builder.numeric;
+package dk.alexandra.fresco.framework.builder.numeric.field;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -8,21 +8,21 @@ import java.math.BigInteger;
 import org.hamcrest.core.StringContains;
 import org.junit.Test;
 
-public class FieldElementMersennePrimeTest {
+public class MersennePrimeFieldElementTest {
 
   @Test
   public void equals() {
-    ModulusMersennePrime firstPrime = new ModulusMersennePrime(160, 47);
-    ModulusMersennePrime secondPrime = new ModulusMersennePrime(160, 57);
+    MersennePrimeModulus firstPrime = new MersennePrimeModulus(160, 47);
+    MersennePrimeModulus secondPrime = new MersennePrimeModulus(160, 57);
     FieldElement firstElement =
-        FieldElementMersennePrime.create(BigInteger.valueOf(27), firstPrime);
+        MersennePrimeFieldElement.create(BigInteger.valueOf(27), firstPrime);
     FieldElement firstElementAgain =
-        FieldElementMersennePrime.create(
+        MersennePrimeFieldElement.create(
             firstPrime.getBigInteger().add(BigInteger.valueOf(27)), firstPrime);
     FieldElement differentValue =
-        FieldElementMersennePrime.create(BigInteger.valueOf(28), firstPrime);
+        MersennePrimeFieldElement.create(BigInteger.valueOf(28), firstPrime);
     FieldElement differentPrime =
-        FieldElementMersennePrime.create(BigInteger.valueOf(27), secondPrime);
+        MersennePrimeFieldElement.create(BigInteger.valueOf(27), secondPrime);
 
     assertTrue(firstElement.equals(firstElementAgain));
     assertFalse(firstElement.equals(differentValue));
@@ -35,8 +35,8 @@ public class FieldElementMersennePrimeTest {
 
   @Test
   public void toStringTest() {
-    ModulusMersennePrime firstPrime = new ModulusMersennePrime(160, 47);
-    FieldElement element = FieldElementMersennePrime.create(BigInteger.valueOf(7854), firstPrime);
+    MersennePrimeModulus firstPrime = new MersennePrimeModulus(160, 47);
+    FieldElement element = MersennePrimeFieldElement.create(BigInteger.valueOf(7854), firstPrime);
 
     assertThat(element.toString(), StringContains.containsString("7854"));
   }
