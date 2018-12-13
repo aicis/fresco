@@ -18,6 +18,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.OpenedValueStore;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.spdz2k.Spdz2kBuilder;
@@ -27,7 +28,6 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.CoinTossingComputation;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDataSupplier;
 import java.io.Closeable;
-import java.math.BigInteger;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -61,9 +61,8 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     Objects.requireNonNull(supplier);
     Objects.requireNonNull(factory);
     this.effectiveBitLength = factory.getLowBitLength();
-    this.fieldDefinition = new BigIntegerFieldDefinition(
-        new BigIntegerModulus(
-            BigInteger.ONE.shiftLeft(effectiveBitLength - 1))); //todo EOA is this correct ?
+    this.fieldDefinition = new BigIntegerFieldDefinition(new BigIntegerModulus(
+        ModulusFinder.findSuitableModulus(effectiveBitLength))); //todo EOA is this correct ?
     this.storage = storage;
     this.supplier = supplier;
     this.factory = factory;
