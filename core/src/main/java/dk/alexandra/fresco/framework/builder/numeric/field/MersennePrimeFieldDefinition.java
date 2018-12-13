@@ -11,6 +11,7 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
   private final BigInteger modulusHalf;
 
   public MersennePrimeFieldDefinition(MersennePrimeModulus modulus) {
+    FieldUtils.ensureDivisible(modulus.getBigInteger());
     this.modulus = modulus;
     this.modulusHalf = modulus.getBigInteger().shiftRight(1);
     this.modulusLength = this.modulus.getBigInteger().toByteArray().length;

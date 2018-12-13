@@ -167,22 +167,7 @@ public final class FieldElementUtils {
    * @param packed concatenated bits representing field elements
    * @return field elements
    */
-  //todo maybe deserializeList?
   public List<FieldElement> unpack(byte[] packed) {
-    int packedBitLength = packed.length * 8;
-    if ((packedBitLength % modBitLength) != 0) {
-      throw new IllegalArgumentException(
-          "Packed bit length must be multiple of single element bit length");
-    }
-    int numElements = packedBitLength / modBitLength;
-    int byteLength = modBitLength / 8;
-    List<FieldElement> unpacked = new ArrayList<>(numElements);
-    for (int i = 0; i < numElements; i++) {
-      byte[] b = Arrays.copyOfRange(packed, i * byteLength, (i + 1) * byteLength);
-      FieldElement el = definition.deserialize(b);
-      unpacked.add(el);
-    }
-    return unpacked;
+    return definition.deserializeList(packed);
   }
-
 }

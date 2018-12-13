@@ -84,33 +84,4 @@ public class TestMascotFieldElementUtils {
     StrictBitVector expected = new StrictBitVector(expectedBytes);
     assertEquals(expected, actual);
   }
-
-  // negative tests
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testInnerProductDifferentSizes() {
-    int[] rightArr = {5, 6, 7};
-    List<FieldElement> right = MascotTestUtils.generateSingleRow(rightArr, definition);
-    fieldElementUtils.innerProduct(left, right);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testRecombineIncorrectSize() {
-    int[] leftArr = new int[17];
-    List<FieldElement> left = MascotTestUtils.generateSingleRow(leftArr, definition);
-    fieldElementUtils.recombine(left);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testPairwiseMultiplyIncorrectSize() {
-    int[] leftArr = new int[17];
-    List<FieldElement> left = MascotTestUtils.generateSingleRow(leftArr, definition);
-    fieldElementUtils.pairWiseMultiply(left, right);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testUnpackIncorrectSize() {
-    byte[] packed = new byte[17];
-    fieldElementUtils.unpack(packed);
-  }
 }

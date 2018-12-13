@@ -11,6 +11,12 @@ final class FieldUtils {
   private FieldUtils() {
   }
 
+  static void ensureDivisible(BigInteger modulus) {
+    if (!modulus.remainder(BigInteger.valueOf(8)).equals(BigInteger.ZERO)) {
+      throw new IllegalArgumentException("modulus must be divisible by 8");
+    }
+  }
+
   static StrictBitVector convertToBitVector(BigInteger modulus, byte[] bytes) {
     int byteLength = modulus.bitLength() / 8;
     byte[] res = new byte[byteLength];
