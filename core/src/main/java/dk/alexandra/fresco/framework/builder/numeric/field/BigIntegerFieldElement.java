@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.framework.builder.numeric.field;
 
 import dk.alexandra.fresco.framework.util.MathUtils;
-import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.math.BigInteger;
 import java.util.Objects;
 
@@ -86,18 +85,6 @@ public class BigIntegerFieldElement implements FieldElement {
 
   byte[] toByteArray() {
     return value.toByteArray();
-  }
-
-  @Override
-  public StrictBitVector toBitVector() {
-    int byteLength = getModulus().bitLength() / 8;
-    byte[] res = new byte[byteLength];
-    byte[] array = value.toByteArray();
-    int arrayStart = array.length > byteLength ? array.length - byteLength : 0;
-    int resStart = array.length > byteLength ? 0 : byteLength - array.length;
-    int len = Math.min(byteLength, array.length);
-    System.arraycopy(array, arrayStart, res, resStart, len);
-    return new StrictBitVector(res);
   }
 
   private BigInteger getModulus() {

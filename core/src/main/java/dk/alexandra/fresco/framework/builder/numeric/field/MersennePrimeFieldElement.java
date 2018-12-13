@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.framework.builder.numeric.field;
 
 import dk.alexandra.fresco.framework.util.MathUtils;
-import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.math.BigInteger;
 import java.util.Objects;
 
@@ -83,18 +82,8 @@ public final class MersennePrimeFieldElement implements FieldElement {
     return ((MersennePrimeFieldElement) element).value;
   }
 
-  void toByteArray(byte[] bytes, int offset, int byteLength) {
-    byte[] byteArray = toByteArray();
-    System.arraycopy(byteArray, 0, bytes, byteLength - byteArray.length + offset, byteArray.length);
-  }
-
   byte[] toByteArray() {
     return value.toByteArray();
-  }
-
-  @Override
-  public StrictBitVector toBitVector() {
-    return new StrictBitVector(toByteArray());
   }
 
   private BigInteger getModulus() {

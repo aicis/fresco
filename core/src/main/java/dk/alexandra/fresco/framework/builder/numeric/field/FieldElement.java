@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.framework.builder.numeric.field;
 
 import dk.alexandra.fresco.framework.builder.numeric.Addable;
-import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.io.Serializable;
 
 //todo maybe remove Addable interface from FieldElement
@@ -26,8 +25,4 @@ public interface FieldElement extends Serializable, Addable<FieldElement> {
 
   @Deprecated
   boolean getBit(int bitIndex);
-
-  //todo maybe move to field definition
-  @Deprecated
-  StrictBitVector toBitVector();
 }

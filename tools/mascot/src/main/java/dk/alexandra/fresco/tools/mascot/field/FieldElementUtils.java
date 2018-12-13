@@ -154,7 +154,7 @@ public final class FieldElementUtils {
    */
   public StrictBitVector pack(List<FieldElement> elements, boolean reverse) {
     StrictBitVector[] bitVecs =
-        elements.stream().map(FieldElement::toBitVector).toArray(StrictBitVector[]::new);
+        elements.stream().map(definition::convertToBitVector).toArray(StrictBitVector[]::new);
     if (reverse) {
       Collections.reverse(Arrays.asList(bitVecs));
     }
