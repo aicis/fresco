@@ -64,11 +64,13 @@ public class MultiplyLeftHelper {
     List<FieldElement> result = new ArrayList<>(leftFactors.size());
     int diffIdx = 0;
     for (FieldElement leftFactor : leftFactors) {
+      StrictBitVector currentBits = resourcePool.getFieldDefinition()
+          .convertToBitVector(leftFactor);
       List<FieldElement> summands = new ArrayList<>(resourcePool.getModBitLength());
       for (int b = 0; b < resourcePool.getModBitLength(); b++) {
         FieldElement feSeed = feSeeds.get(diffIdx);
         FieldElement diff = diffs.get(diffIdx);
-        boolean bit = leftFactor.getBit(b);
+        boolean bit = currentBits.getBit(b, true);
         FieldElement select = bit ? diff : zeroElement;
         FieldElement summand = select.add(feSeed);
         summands.add(summand);

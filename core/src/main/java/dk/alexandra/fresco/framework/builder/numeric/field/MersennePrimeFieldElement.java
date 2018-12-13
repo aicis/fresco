@@ -73,11 +73,6 @@ public final class MersennePrimeFieldElement implements FieldElement {
     return create(value.modInverse(getModulus()));
   }
 
-  @Override
-  public boolean getBit(int bitIndex) {
-    return value.testBit(bitIndex);
-  }
-
   static BigInteger extractValue(FieldElement element) {
     return ((MersennePrimeFieldElement) element).value;
   }

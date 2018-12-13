@@ -21,8 +21,4 @@ public interface FieldElement extends Serializable, Addable<FieldElement> {
 
   FieldElement modInverse();
 
-  // todo remove all methods under this
-
-  @Deprecated
-  boolean getBit(int bitIndex);
 }
