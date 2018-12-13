@@ -62,7 +62,8 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     Objects.requireNonNull(factory);
     this.effectiveBitLength = factory.getLowBitLength();
     this.fieldDefinition = new BigIntegerFieldDefinition(
-        new BigIntegerModulus(BigInteger.ONE.shiftLeft(effectiveBitLength)));
+        new BigIntegerModulus(
+            BigInteger.ONE.shiftLeft(effectiveBitLength - 1))); //todo EOA is this correct ?
     this.storage = storage;
     this.supplier = supplier;
     this.factory = factory;
