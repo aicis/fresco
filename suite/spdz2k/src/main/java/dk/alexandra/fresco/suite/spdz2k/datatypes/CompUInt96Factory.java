@@ -1,6 +1,10 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.suite.spdz2k.util.UIntSerializer;
 import java.security.SecureRandom;
 
@@ -31,8 +35,13 @@ public class CompUInt96Factory implements CompUIntFactory<CompUInt96> {
   }
 
   @Override
+  public FieldDefinition getFieldDefinition() {
+    return new BigIntegerFieldDefinition(
+        new BigIntegerModulus(ModulusFinder.findSuitableModulus(getLowBitLength())));
+  }
+
+  @Override
   public int getHighBitLength() {
     return 64;
   }
-
 }
