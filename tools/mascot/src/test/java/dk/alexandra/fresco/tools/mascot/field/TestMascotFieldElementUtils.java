@@ -2,9 +2,9 @@ package dk.alexandra.fresco.tools.mascot.field;
 
 import static org.junit.Assert.assertEquals;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
@@ -15,8 +15,8 @@ import org.junit.Test;
 public class TestMascotFieldElementUtils {
 
   private final BigInteger modulus = new BigInteger("65521");
-  private final FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(
-      new ModulusBigInteger(modulus));
+  private final BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(
+      new BigIntegerModulus(modulus));
   private final FieldElementUtils fieldElementUtils = new FieldElementUtils(definition);
   private final int[] leftArr = {1, 2, 3, 4};
   private final List<FieldElement> left =

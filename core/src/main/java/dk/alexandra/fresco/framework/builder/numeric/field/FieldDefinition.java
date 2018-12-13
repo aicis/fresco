@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.framework.builder.numeric;
+package dk.alexandra.fresco.framework.builder.numeric.field;
 
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import java.math.BigInteger;

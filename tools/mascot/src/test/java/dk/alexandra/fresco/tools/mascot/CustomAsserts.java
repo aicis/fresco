@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.tools.mascot;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import java.math.BigInteger;

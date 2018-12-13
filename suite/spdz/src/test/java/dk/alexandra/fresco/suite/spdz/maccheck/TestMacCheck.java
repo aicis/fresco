@@ -4,11 +4,11 @@ import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
@@ -41,8 +41,8 @@ import org.junit.Test;
 
 public class TestMacCheck {
 
-  private FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(
-      new ModulusBigInteger(
+  private BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(
+      new BigIntegerModulus(
           "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557"));
 
   @Test
@@ -106,10 +106,10 @@ public class TestMacCheck {
     SpdzDataSupplier supplier;
     if (myId == 1 && corruptMac) {
       supplier = new DummyMaliciousDataSupplier(myId, size,
-          new FieldDefinitionBigInteger(new ModulusBigInteger(modulus.toString())), modulus);
+          new BigIntegerFieldDefinition(new BigIntegerModulus(modulus.toString())), modulus);
     } else {
       supplier = new SpdzDummyDataSupplier(myId, size,
-          new FieldDefinitionBigInteger(new ModulusBigInteger(modulus)), modulus);
+          new BigIntegerFieldDefinition(new BigIntegerModulus(modulus)), modulus);
     }
     return new SpdzResourcePoolImpl(myId, size, new SpdzOpenedValueStoreImpl(), supplier,
         new AesCtrDrbg(new byte[32]));

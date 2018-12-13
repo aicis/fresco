@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.datatypes;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import java.security.MessageDigest;
 import java.util.Random;
 

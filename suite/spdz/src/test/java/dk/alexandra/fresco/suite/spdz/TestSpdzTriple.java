@@ -3,9 +3,9 @@ package dk.alexandra.fresco.suite.spdz;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.math.BigInteger;
@@ -13,8 +13,8 @@ import org.junit.Test;
 
 public class TestSpdzTriple {
 
-  private FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(
-      new ModulusBigInteger(10));
+  private BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(
+      new BigIntegerModulus(10));
 
   @Test
   public void testEquals() {

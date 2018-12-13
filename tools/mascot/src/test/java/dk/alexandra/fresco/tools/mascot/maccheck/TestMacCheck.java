@@ -3,7 +3,7 @@ package dk.alexandra.fresco.tools.mascot.maccheck;
 import static org.junit.Assert.assertEquals;
 
 import dk.alexandra.fresco.framework.MaliciousException;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;

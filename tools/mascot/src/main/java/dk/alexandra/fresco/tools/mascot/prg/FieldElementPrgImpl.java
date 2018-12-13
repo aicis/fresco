@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.tools.mascot.prg;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drng;

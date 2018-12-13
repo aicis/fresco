@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.lib.field.integer;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import java.math.BigInteger;
 
 /**

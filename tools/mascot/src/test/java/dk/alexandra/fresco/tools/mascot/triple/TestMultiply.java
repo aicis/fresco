@@ -3,7 +3,7 @@ package dk.alexandra.fresco.tools.mascot.triple;
 import static org.junit.Assert.assertEquals;
 
 import dk.alexandra.fresco.framework.builder.numeric.Addable;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotSecurityParameters;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;

@@ -1,5 +1,6 @@
-package dk.alexandra.fresco.framework.builder.numeric;
+package dk.alexandra.fresco.framework.builder.numeric.field;
 
+import dk.alexandra.fresco.framework.builder.numeric.Addable;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.io.Serializable;
 

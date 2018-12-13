@@ -3,9 +3,9 @@ package dk.alexandra.fresco.tools.mascot.utils;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
@@ -19,8 +19,8 @@ public class TestPaddingPrg {
 
   private final BigInteger modulus = new BigInteger(
       "340282366920938463463374607431768211297");
-  private FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(
-      new ModulusBigInteger(modulus));
+  private BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(
+      new BigIntegerModulus(modulus));
 
   @Test
   public void testGetNextProducesFieldElement() {

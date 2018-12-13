@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -43,7 +43,7 @@ public class TestParallelMascots {
   private int noOfParties;
   private int iterations;
   private Logger logger = LoggerFactory.getLogger(TestParallelMascots.class);
-  private FieldDefinitionBigInteger definition;
+  private BigIntegerFieldDefinition definition;
 
   @Before
   public void setUp() {
@@ -55,7 +55,7 @@ public class TestParallelMascots {
     executorService = Executors.newCachedThreadPool();
     mascotSecurityParameters = new MascotSecurityParameters();
     iterations = 3;
-    definition = new FieldDefinitionBigInteger(new ModulusBigInteger(
+    definition = new BigIntegerFieldDefinition(new BigIntegerModulus(
         ModulusFinder.findSuitableModulus(mascotSecurityParameters.getModBitLength())));
   }
 

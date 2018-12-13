@@ -1,16 +1,16 @@
-package dk.alexandra.fresco.framework.builder.numeric;
+package dk.alexandra.fresco.framework.builder.numeric.field;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class FieldDefinitionMersennePrime implements FieldDefinition {
+public final class MersennePrimeFieldDefinition implements FieldDefinition {
 
-  private final ModulusMersennePrime modulus;
+  private final MersennePrimeModulus modulus;
   private final int modulusLength;
   private final BigInteger modulusHalf;
 
-  public FieldDefinitionMersennePrime(ModulusMersennePrime modulus) {
+  public MersennePrimeFieldDefinition(MersennePrimeModulus modulus) {
     this.modulus = modulus;
     this.modulusHalf = modulus.getBigInteger().shiftRight(1);
     this.modulusLength = this.modulus.getBigInteger().toByteArray().length;
@@ -18,7 +18,7 @@ public final class FieldDefinitionMersennePrime implements FieldDefinition {
 
   @Override
   public BigInteger convertRepresentation(FieldElement value) {
-    BigInteger actual = FieldElementMersennePrime.extractValue(value);
+    BigInteger actual = MersennePrimeFieldElement.extractValue(value);
     if (actual.compareTo(modulusHalf) > 0) {
       return actual.subtract(getModulus());
     } else {
@@ -33,7 +33,7 @@ public final class FieldDefinitionMersennePrime implements FieldDefinition {
 
   @Override
   public FieldElement deserialize(byte[] bytes) {
-    return FieldElementMersennePrime.create(bytes, modulus);
+    return MersennePrimeFieldElement.create(bytes, modulus);
   }
 
   @Override
@@ -42,21 +42,21 @@ public final class FieldDefinitionMersennePrime implements FieldDefinition {
     for (int i = 0; i < bytes.length; i += modulusLength) {
       byte[] copy = new byte[modulusLength];
       System.arraycopy(bytes, i * modulusLength, copy, 0, modulusLength);
-      elements.add(FieldElementMersennePrime.create(copy, modulus));
+      elements.add(MersennePrimeFieldElement.create(copy, modulus));
     }
     return elements;
   }
 
   @Override
   public byte[] serialize(FieldElement fieldElement) {
-    return ((FieldElementMersennePrime) fieldElement).toByteArray();
+    return ((MersennePrimeFieldElement) fieldElement).toByteArray();
   }
 
   @Override
   public byte[] serialize(List<FieldElement> fieldElements) {
     byte[] bytes = new byte[modulusLength * fieldElements.size()];
     for (int i = 0; i < fieldElements.size(); i++) {
-      FieldElementMersennePrime fieldElement = (FieldElementMersennePrime) fieldElements.get(i);
+      MersennePrimeFieldElement fieldElement = (MersennePrimeFieldElement) fieldElements.get(i);
       fieldElement.toByteArray(bytes, i * modulusLength, modulusLength);
     }
     return bytes;
@@ -64,16 +64,16 @@ public final class FieldDefinitionMersennePrime implements FieldDefinition {
 
   @Override
   public FieldElement createElement(int value) {
-    return FieldElementMersennePrime.create(value, modulus);
+    return MersennePrimeFieldElement.create(value, modulus);
   }
 
   @Override
   public FieldElement createElement(String value) {
-    return FieldElementMersennePrime.create(value, modulus);
+    return MersennePrimeFieldElement.create(value, modulus);
   }
 
   @Override
   public FieldElement createElement(BigInteger value) {
-    return FieldElementMersennePrime.create(value, modulus);
+    return MersennePrimeFieldElement.create(value, modulus);
   }
 }

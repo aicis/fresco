@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -16,11 +16,11 @@ import org.junit.Test;
 
 public class TestFakeTripGen {
 
-  private static final ModulusBigInteger modulus = new ModulusBigInteger(
+  private static final BigIntegerModulus modulus = new BigIntegerModulus(
       "670390396497129854978701249912381411527384857"
           + "747113652742596601302650153670646435425544544324427938945505888949343122395116528647057599"
           + "4074291745908195329");
-  private static final FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(
+  private static final BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(
       modulus);
   private static final FieldElement alpha = definition.createElement(
       "50815870414411794389326350986203198"

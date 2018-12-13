@@ -1,37 +1,37 @@
-package dk.alexandra.fresco.framework.builder.numeric;
+package dk.alexandra.fresco.framework.builder.numeric.field;
 
 import dk.alexandra.fresco.framework.util.MathUtils;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.math.BigInteger;
 import java.util.Objects;
 
-public class FieldElementBigInteger implements FieldElement {
+public class BigIntegerFieldElement implements FieldElement {
 
   private final BigInteger value;
-  private final ModulusBigInteger modulus;
+  private final BigIntegerModulus modulus;
 
-  private FieldElementBigInteger(BigInteger value, ModulusBigInteger modulus) {
+  private BigIntegerFieldElement(BigInteger value, BigIntegerModulus modulus) {
     this.value = value.mod(modulus.getBigInteger());
     this.modulus = modulus;
   }
 
   private FieldElement create(BigInteger value) {
-    return new FieldElementBigInteger(value, modulus);
+    return new BigIntegerFieldElement(value, modulus);
   }
 
-  static FieldElement create(BigInteger value, ModulusBigInteger modulus) {
-    return new FieldElementBigInteger(value, modulus);
+  static FieldElement create(BigInteger value, BigIntegerModulus modulus) {
+    return new BigIntegerFieldElement(value, modulus);
   }
 
-  static FieldElement create(int value, ModulusBigInteger modulus) {
+  static FieldElement create(int value, BigIntegerModulus modulus) {
     return create(BigInteger.valueOf(value), modulus);
   }
 
-  static FieldElement create(byte[] bytes, ModulusBigInteger modulus) {
+  static FieldElement create(byte[] bytes, BigIntegerModulus modulus) {
     return create(new BigInteger(bytes), modulus);
   }
 
-  static FieldElement create(String string, ModulusBigInteger modulus) {
+  static FieldElement create(String string, BigIntegerModulus modulus) {
     return create(new BigInteger(string), modulus);
   }
 
@@ -76,7 +76,7 @@ public class FieldElementBigInteger implements FieldElement {
   }
 
   static BigInteger extractValue(FieldElement element) {
-    return ((FieldElementBigInteger) element).value;
+    return ((BigIntegerFieldElement) element).value;
   }
 
   void toByteArray(byte[] bytes, int offset, int byteLength) {
@@ -106,7 +106,7 @@ public class FieldElementBigInteger implements FieldElement {
 
   @Override
   public String toString() {
-    return "FieldElementBigInteger{" +
+    return "BigIntegerFieldElement{" +
         "value=" + value +
         ", modulus=" + modulus +
         '}';
@@ -120,7 +120,7 @@ public class FieldElementBigInteger implements FieldElement {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    FieldElementBigInteger that = (FieldElementBigInteger) o;
+    BigIntegerFieldElement that = (BigIntegerFieldElement) o;
     return Objects.equals(modulus, that.modulus) &&
         Objects.equals(value, that.value);
   }

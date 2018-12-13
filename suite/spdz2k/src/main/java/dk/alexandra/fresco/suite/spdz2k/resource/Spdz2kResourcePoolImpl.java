@@ -5,10 +5,10 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
@@ -61,8 +61,8 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     Objects.requireNonNull(supplier);
     Objects.requireNonNull(factory);
     this.effectiveBitLength = factory.getLowBitLength();
-    this.fieldDefinition = new FieldDefinitionBigInteger(
-        new ModulusBigInteger(BigInteger.ONE.shiftLeft(effectiveBitLength)));
+    this.fieldDefinition = new BigIntegerFieldDefinition(
+        new BigIntegerModulus(BigInteger.ONE.shiftLeft(effectiveBitLength)));
     this.storage = storage;
     this.supplier = supplier;
     this.factory = factory;

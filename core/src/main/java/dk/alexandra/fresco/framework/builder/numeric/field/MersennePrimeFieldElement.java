@@ -1,16 +1,16 @@
-package dk.alexandra.fresco.framework.builder.numeric;
+package dk.alexandra.fresco.framework.builder.numeric.field;
 
 import dk.alexandra.fresco.framework.util.MathUtils;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.math.BigInteger;
 import java.util.Objects;
 
-public final class FieldElementMersennePrime implements FieldElement {
+public final class MersennePrimeFieldElement implements FieldElement {
 
   private final BigInteger value;
-  private final ModulusMersennePrime modulus;
+  private final MersennePrimeModulus modulus;
 
-  private FieldElementMersennePrime(BigInteger value, ModulusMersennePrime modulus) {
+  private MersennePrimeFieldElement(BigInteger value, MersennePrimeModulus modulus) {
     if (value.signum() < 0) {
       this.value = value.mod(modulus.getBigInteger());
     } else {
@@ -20,22 +20,22 @@ public final class FieldElementMersennePrime implements FieldElement {
   }
 
   private FieldElement create(BigInteger value) {
-    return new FieldElementMersennePrime(value, modulus);
+    return new MersennePrimeFieldElement(value, modulus);
   }
 
-  static FieldElement create(BigInteger value, ModulusMersennePrime modulus) {
-    return new FieldElementMersennePrime(value, modulus);
+  static FieldElement create(BigInteger value, MersennePrimeModulus modulus) {
+    return new MersennePrimeFieldElement(value, modulus);
   }
 
-  static FieldElement create(int value, ModulusMersennePrime modulus) {
+  static FieldElement create(int value, MersennePrimeModulus modulus) {
     return create(BigInteger.valueOf(value), modulus);
   }
 
-  static FieldElement create(byte[] bytes, ModulusMersennePrime modulus) {
+  static FieldElement create(byte[] bytes, MersennePrimeModulus modulus) {
     return create(new BigInteger(bytes), modulus);
   }
 
-  static FieldElement create(String string, ModulusMersennePrime modulus) {
+  static FieldElement create(String string, MersennePrimeModulus modulus) {
     return create(new BigInteger(string), modulus);
   }
 
@@ -80,7 +80,7 @@ public final class FieldElementMersennePrime implements FieldElement {
   }
 
   static BigInteger extractValue(FieldElement element) {
-    return ((FieldElementMersennePrime) element).value;
+    return ((MersennePrimeFieldElement) element).value;
   }
 
   void toByteArray(byte[] bytes, int offset, int byteLength) {
@@ -103,7 +103,7 @@ public final class FieldElementMersennePrime implements FieldElement {
 
   @Override
   public String toString() {
-    return "FieldElementMersennePrime{" +
+    return "MersennePrimeFieldElement{" +
         "value=" + value +
         ", modulus =" + modulus +
         '}';
@@ -117,7 +117,7 @@ public final class FieldElementMersennePrime implements FieldElement {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    FieldElementMersennePrime that = (FieldElementMersennePrime) o;
+    MersennePrimeFieldElement that = (MersennePrimeFieldElement) o;
     return Objects.equals(modulus, that.modulus) &&
         Objects.equals(value, that.value);
   }

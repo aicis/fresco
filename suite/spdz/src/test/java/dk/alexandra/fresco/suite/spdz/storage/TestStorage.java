@@ -3,7 +3,7 @@ package dk.alexandra.fresco.suite.spdz.storage;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;

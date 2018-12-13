@@ -4,16 +4,16 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import org.junit.Test;
 
 public class TestSpdzSInt {
 
-  private FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(
-      new ModulusBigInteger(123456));
+  private BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(
+      new BigIntegerModulus(123456));
 
   @Test
   public void testEquals() {
