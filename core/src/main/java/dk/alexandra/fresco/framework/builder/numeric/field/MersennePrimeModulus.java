@@ -12,6 +12,7 @@ public final class MersennePrimeModulus implements Serializable {
   private final BigInteger prime;
 
   public MersennePrimeModulus(int bitLength, int constant) {
+    FieldUtils.ensureDivisible(bitLength);
     this.bitLength = bitLength;
     this.constant = BigInteger.valueOf(constant);
     BigInteger shifted = BigInteger.ONE.shiftLeft(bitLength);

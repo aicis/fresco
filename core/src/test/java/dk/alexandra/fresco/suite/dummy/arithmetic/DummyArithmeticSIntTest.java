@@ -16,7 +16,8 @@ public class DummyArithmeticSIntTest {
 
   @Test
   public void testToString() {
-    BigIntegerFieldDefinition fd500 = new BigIntegerFieldDefinition(new BigIntegerModulus(500));
+    BigIntegerFieldDefinition fd500 = new BigIntegerFieldDefinition(
+        new BigIntegerModulus(ModulusFinder.findSuitableModulus(8)));
     DummyArithmeticSInt value = new DummyArithmeticSInt(fd500.createElement(42));
     String toString = value.toString();
     Assert.assertThat(toString, StringContains.containsString("42"));
@@ -25,7 +26,8 @@ public class DummyArithmeticSIntTest {
 
   @Test
   public void testEquals() {
-    BigIntegerFieldDefinition fd500 = new BigIntegerFieldDefinition(new BigIntegerModulus(500));
+    BigIntegerFieldDefinition fd500 = new BigIntegerFieldDefinition(
+        new BigIntegerModulus(ModulusFinder.findSuitableModulus(8)));
     DummyArithmeticSInt value1 = new DummyArithmeticSInt(fd500.createElement(42));
     DummyArithmeticSInt value2 = new DummyArithmeticSInt(fd500.createElement(42));
     DummyArithmeticSInt value3 = new DummyArithmeticSInt(definition.createElement(41));

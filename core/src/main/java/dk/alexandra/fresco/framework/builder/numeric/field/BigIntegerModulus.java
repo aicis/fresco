@@ -10,6 +10,7 @@ public final class BigIntegerModulus implements Serializable {
 
   public BigIntegerModulus(BigInteger value) {
     this.value = Objects.requireNonNull(value);
+    FieldUtils.ensureDivisible(value.bitLength());
   }
 
   public BigIntegerModulus(int value) {

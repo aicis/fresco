@@ -11,7 +11,6 @@ public final class BigIntegerFieldDefinition implements FieldDefinition {
   private final BigInteger modulusHalf;
 
   public BigIntegerFieldDefinition(BigIntegerModulus modulus) {
-    FieldUtils.ensureDivisible(modulus.getBigInteger());
     this.modulus = modulus;
     this.modulusHalf = modulus.getBigInteger().shiftRight(1);
     this.modulusLength = modulus.getBigInteger().toByteArray().length;

@@ -11,8 +11,8 @@ final class FieldUtils {
   private FieldUtils() {
   }
 
-  static void ensureDivisible(BigInteger modulus) {
-    if (!modulus.remainder(BigInteger.valueOf(8)).equals(BigInteger.ZERO)) {
+  static void ensureDivisible(int bitLength) {
+    if ((bitLength & 0b111) != 0) {
       throw new IllegalArgumentException("modulus must be divisible by 8");
     }
   }

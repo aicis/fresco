@@ -3,6 +3,7 @@ package dk.alexandra.fresco.lib.statistics;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import org.junit.Test;
 
 public class TestCreditRater {
 
-  private BigIntegerModulus modulus = new BigIntegerModulus(10);
+  private BigIntegerModulus modulus = new BigIntegerModulus(ModulusFinder.findSuitableModulus(8));
   private BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(modulus);
 
   @Test
