@@ -8,6 +8,7 @@ import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefini
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.TransposeUtils;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -24,11 +25,8 @@ public class TestSpdzDummyDataSupplier {
 
   private final List<FieldDefinition> fields = Arrays.asList(
       new BigIntegerFieldDefinition(new BigIntegerModulus(new BigInteger("251"))),
-      new BigIntegerFieldDefinition(
-          new BigIntegerModulus(new BigInteger("340282366920938463463374607431768211283"))),
-      new BigIntegerFieldDefinition(new BigIntegerModulus(new BigInteger(
-          "2582249878086908589655919172003011874329705792829223512830659356540647622016841"
-              + "194629645353280137831435903171972747493557")))
+      new BigIntegerFieldDefinition(new BigIntegerModulus(ModulusFinder.findSuitableModulus(8))),
+      new BigIntegerFieldDefinition(new BigIntegerModulus(ModulusFinder.findSuitableModulus(16)))
   );
 
   private List<SpdzDummyDataSupplier> setupSuppliers(int noOfParties,
