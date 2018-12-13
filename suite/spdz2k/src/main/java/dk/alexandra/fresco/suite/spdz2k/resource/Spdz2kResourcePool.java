@@ -3,7 +3,6 @@ package dk.alexandra.fresco.suite.spdz2k.resource;
 import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.commitment.HashBasedCommitmentSerializer;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
-import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -88,8 +87,13 @@ public interface Spdz2kResourcePool<PlainT extends CompUInt<?, ?, PlainT>>
    * value to a negative value depending on the semantics of the plain text type.</p>
    */
   default BigInteger convertRepresentation(PlainT value) {
-    FieldElement actual = getFieldDefinition().createElement(value.toBigInteger());
-    return getFieldDefinition().convertRepresentation(actual);
+    BigInteger modulus = getModulus();
+    BigInteger actual = value.getLeastSignificant().toBigInteger();
+    if (actual.compareTo(modulus.divide(BigInteger.valueOf(2))) > 0) {
+      return actual.subtract(modulus);
+    } else {
+      return actual;
+    }
   }
 
   /**

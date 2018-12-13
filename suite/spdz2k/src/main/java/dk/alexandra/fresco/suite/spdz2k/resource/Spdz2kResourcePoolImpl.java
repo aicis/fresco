@@ -25,6 +25,7 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.CoinTossingComputation;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDataSupplier;
 import java.io.Closeable;
+import java.math.BigInteger;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -39,7 +40,6 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     implements Spdz2kResourcePool<PlainT> {
 
   private final int effectiveBitLength;
-  private final FieldDefinition fieldDefinition;
   private final OpenedValueStore<Spdz2kSInt<PlainT>, PlainT> storage;
   private final Spdz2kDataSupplier<PlainT> supplier;
   private final CompUIntFactory<PlainT> factory;
@@ -58,7 +58,6 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     Objects.requireNonNull(supplier);
     Objects.requireNonNull(factory);
     this.effectiveBitLength = factory.getLowBitLength();
-    this.fieldDefinition = factory.getFieldDefinition();
     this.storage = storage;
     this.supplier = supplier;
     this.factory = factory;
@@ -109,7 +108,12 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
 
   @Override
   public FieldDefinition getFieldDefinition() {
-    return fieldDefinition;
+    return null;
+  }
+
+  @Override
+  public BigInteger getModulus() {
+    return BigInteger.ONE.shiftLeft(effectiveBitLength);
   }
 
   @Override
@@ -135,7 +139,7 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
             this.getNoOfParties(),
             network);
     BuilderFactoryNumeric builderFactory = new Spdz2kBuilder<>(factory,
-        new BasicNumericContext(effectiveBitLength, getMyId(), getNoOfParties(), fieldDefinition));
+        new BasicNumericContext(effectiveBitLength, getMyId(), getNoOfParties(), null));
     ProtocolBuilderNumeric root = builderFactory.createSequential();
     DRes<byte[]> jointSeed = coinTossing
         .buildComputation(root);
