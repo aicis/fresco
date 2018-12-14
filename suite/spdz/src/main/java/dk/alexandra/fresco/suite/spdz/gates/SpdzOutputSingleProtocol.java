@@ -53,7 +53,7 @@ public class SpdzOutputSingleProtocol extends SpdzNativeProtocol<BigInteger>
       spdzResourcePool.getOpenedValueStore().pushOpenedValue(inMinusMask, openedVal);
       if (targetPlayer == myId) {
         openedVal = openedVal.add(this.mask.getRealValue());
-        this.out = spdzResourcePool.getFieldDefinition().convertRepresentation(openedVal);
+        this.out = definition.convertToUnsigned(openedVal);
       }
       return EvaluationStatus.IS_DONE;
     }

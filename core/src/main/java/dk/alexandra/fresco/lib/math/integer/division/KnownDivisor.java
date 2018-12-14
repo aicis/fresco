@@ -52,8 +52,7 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
      * arithmetic protocol suite.
      */
     FieldDefinition fieldDefinition = basicNumericContext.getFieldDefinition();
-    BigInteger signedDivisor =
-        fieldDefinition.convertRepresentation(fieldDefinition.createElement(divisor));
+    BigInteger signedDivisor = fieldDefinition.convertToSigned(divisor);
     int divisorSign = signedDivisor.signum();
     BigInteger divisorAbs = signedDivisor.abs();
     int maxDivisorBitLength = basicNumericContext.getMaxBitLength() - 3;

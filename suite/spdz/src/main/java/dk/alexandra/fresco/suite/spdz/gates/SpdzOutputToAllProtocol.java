@@ -37,7 +37,7 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger>
         openedVal = openedVal.add(definition.deserialize(buffer));
       }
       spdzResourcePool.getOpenedValueStore().pushOpenedValue(((SpdzSInt) in.out()), openedVal);
-      this.out = spdzResourcePool.getFieldDefinition().convertRepresentation(openedVal);
+      this.out = definition.convertToUnsigned(openedVal);
       return EvaluationStatus.IS_DONE;
     }
   }
