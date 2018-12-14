@@ -2,7 +2,6 @@ package dk.alexandra.fresco.tools.mascot.triple;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
@@ -70,8 +69,7 @@ class MultiplyRight {
     // compute q0 - q1 + b for each seed pair
     List<FieldElement> diffs = multiplyRightHelper.computeDiffs(feSeedPairs, rightFactors);
     // send diffs over to other party
-    network.send(otherId,
-        ((ByteSerializer<FieldElement>) resourcePool.getFieldDefinition()).serialize(diffs));
+    network.send(otherId, resourcePool.getFieldDefinition().serialize(diffs));
     // get zero index seeds
     List<FieldElement> feZeroSeeds =
         feSeedPairs.parallelStream().map(Pair::getFirst).collect(Collectors.toList());

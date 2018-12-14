@@ -2,7 +2,6 @@ package dk.alexandra.fresco.tools.mascot.triple;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeftHelper;
@@ -56,7 +55,7 @@ class MultiplyLeft {
    *
    * @param leftFactors this party's vector <i>a<sub>0</sub>, a<sub>1</sub> ...</i>
    * @return shares of the products <i>a<sub>0</sub>b<sub>0</sub>, a<sub>1</sub>b<sub>1</sub>
-   * ...</i>
+   *     ...</i>
    */
   public List<FieldElement> multiply(List<FieldElement> leftFactors) {
     List<StrictBitVector> seeds = multiplyLeftHelper.generateSeeds(leftFactors,
@@ -64,8 +63,7 @@ class MultiplyLeft {
     List<FieldElement> feSeeds = seedsToFieldElements(seeds);
     // receive diffs from other party
     List<FieldElement> diffs =
-        ((ByteSerializer<FieldElement>) resourcePool.getFieldDefinition())
-            .deserializeList(network.receive(otherId));
+        resourcePool.getFieldDefinition().deserializeList(network.receive(otherId));
     return multiplyLeftHelper.computeProductShares(leftFactors, feSeeds, diffs);
   }
 
@@ -83,5 +81,4 @@ class MultiplyLeft {
     // safe since the modulus is guaranteed to be close enough to 2^modBitLength
     return resourcePool.getFieldDefinition().deserialize(vector.toByteArray());
   }
-
 }
