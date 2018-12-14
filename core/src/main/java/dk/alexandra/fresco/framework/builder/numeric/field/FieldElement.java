@@ -6,8 +6,6 @@ import java.io.Serializable;
 //todo maybe remove Addable interface from FieldElement to avoid sum functions
 public interface FieldElement extends Serializable, Addable<FieldElement> {
 
-  FieldElement add(FieldElement other);
-
   FieldElement subtract(FieldElement other);
 
   FieldElement negate();
