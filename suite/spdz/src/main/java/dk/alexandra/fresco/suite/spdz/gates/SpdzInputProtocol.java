@@ -14,7 +14,7 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
 
   private SpdzInputMask inputMask; // is opened by this gate.
   protected FieldElement input;
-  private byte[] receivedMaskedValue;
+  private FieldElement valueMasked;
   protected SpdzSInt out;
   private int inputter;
   private byte[] digest;
@@ -38,19 +38,18 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
-      this.receivedMaskedValue = network.receive(inputter);
-      this.digest = sendBroadcastValidation(
-          spdzResourcePool.getMessageDigest(), network,
-          receivedMaskedValue);
+      byte[] receivedBytes = network.receive(inputter);
+      this.valueMasked = definition.deserialize(receivedBytes);
+      this.digest =
+          sendBroadcastValidation(spdzResourcePool.getMessageDigest(), network, receivedBytes);
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       boolean validated = receiveBroadcastValidation(network, digest);
       if (!validated) {
         throw new MaliciousException("Broadcast digests did not match");
       }
-      FieldElement multiply = definition.deserialize(receivedMaskedValue);
-      FieldElement maskedValue = dataSupplier.getSecretSharedKey().multiply(multiply);
-      SpdzSInt valueMaskedElement = new SpdzSInt(maskedValue, maskedValue);
+      FieldElement maskedValue = dataSupplier.getSecretSharedKey().multiply(valueMasked);
+      SpdzSInt valueMaskedElement = new SpdzSInt(valueMasked, maskedValue);
       this.out = this.inputMask.getMask().add(valueMaskedElement, myId);
       return EvaluationStatus.IS_DONE;
     }
