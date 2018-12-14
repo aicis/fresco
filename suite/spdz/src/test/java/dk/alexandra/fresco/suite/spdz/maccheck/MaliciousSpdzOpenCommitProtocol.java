@@ -52,11 +52,11 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
       // Send your opening to all players
       FieldElement value = this.commitment.getValue();
       network.sendToAll(definition.serialize(value));
-      FieldElement randomness = this.commitment.getRandomness();
+      byte[] randomness = this.commitment.getRandomness();
       if (corruptNow) {
-        randomness = randomness.add(definition.createElement(1));
+        randomness[0] = (byte) (randomness[0] ^ 0b1);
       }
-      network.sendToAll(definition.serialize(randomness));
+      network.sendToAll(randomness);
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
       // Receive openings from all parties and check they are valid

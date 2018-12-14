@@ -46,8 +46,8 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, Fiel
       // Send your opening to all players
       FieldElement value = this.commitment.getValue();
       network.sendToAll(definition.serialize(value));
-      FieldElement randomness = this.commitment.getRandomness();
-      network.sendToAll(definition.serialize(randomness));
+      byte[] randomness = this.commitment.getRandomness();
+      network.sendToAll(randomness);
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
       // Receive openings from all parties and check they are valid
