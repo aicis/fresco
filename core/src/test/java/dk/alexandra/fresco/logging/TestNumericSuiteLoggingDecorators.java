@@ -7,7 +7,6 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
@@ -51,8 +50,8 @@ public class TestNumericSuiteLoggingDecorators {
         NetworkUtil.getNetworkConfigurations(ports);
     Map<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
-    BigIntegerModulus mod = new BigIntegerModulus(
-        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+    String mod =
+        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329";
 
     Map<Integer, NumericSuiteLogging<DummyArithmeticResourcePool>> performanceLoggers
         = new HashMap<>();
@@ -117,8 +116,8 @@ public class TestNumericSuiteLoggingDecorators {
         NetworkUtil.getNetworkConfigurations(ports);
     Map<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
-    BigIntegerModulus mod = new BigIntegerModulus(
-        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+    String mod =
+        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329";
 
     Map<Integer, NumericSuiteLogging<DummyArithmeticResourcePool>> performanceLoggers
         = new HashMap<>();

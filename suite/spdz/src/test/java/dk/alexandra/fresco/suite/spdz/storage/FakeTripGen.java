@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -530,7 +529,7 @@ public class FakeTripGen {
       String key = arg.substring(0, 3);
       String value = arg.substring(3);
       if (key.equals(primeKey)) {
-        definition = new BigIntegerFieldDefinition(new BigIntegerModulus(value));
+        definition = new BigIntegerFieldDefinition(value);
         primePresent = true;
       } else if (key.equals(tripKey)) {
         numberOfTriples = Integer.parseInt(value);

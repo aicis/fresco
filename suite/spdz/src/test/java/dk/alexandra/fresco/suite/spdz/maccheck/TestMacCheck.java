@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
@@ -42,7 +41,7 @@ import org.junit.Test;
 public class TestMacCheck {
 
   private BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(
-      new BigIntegerModulus(ModulusFinder.findSuitableModulus(512)));
+      ModulusFinder.findSuitableModulus(512));
 
   @Test
   public void testMacCorrupt() throws Exception {
@@ -105,10 +104,10 @@ public class TestMacCheck {
     SpdzDataSupplier supplier;
     if (myId == 1 && corruptMac) {
       supplier = new DummyMaliciousDataSupplier(myId, size,
-          new BigIntegerFieldDefinition(new BigIntegerModulus(modulus.toString())), modulus);
+          new BigIntegerFieldDefinition(modulus.toString()), modulus);
     } else {
       supplier = new SpdzDummyDataSupplier(myId, size,
-          new BigIntegerFieldDefinition(new BigIntegerModulus(modulus)), modulus);
+          new BigIntegerFieldDefinition(modulus), modulus);
     }
     return new SpdzResourcePoolImpl(myId, size, new SpdzOpenedValueStoreImpl(), supplier,
         new AesCtrDrbg(new byte[32]));

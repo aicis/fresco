@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
@@ -17,8 +16,8 @@ import org.junit.Test;
 
 public class TestSpdzDatatypes {
 
-  private BigIntegerModulus modulus = new BigIntegerModulus(ModulusFinder.findSuitableModulus(8));
-  private BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(modulus);
+  private BigIntegerFieldDefinition definition =
+      new BigIntegerFieldDefinition(ModulusFinder.findSuitableModulus(8));
   private SpdzSInt elm0 = new SpdzSInt(get(BigInteger.ZERO), get(BigInteger.ZERO));
   private SpdzSInt elm1 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE));
   private SpdzSInt elm2 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE));
@@ -32,10 +31,11 @@ public class TestSpdzDatatypes {
     Assert.assertNotEquals(elm0, elm2);
     Assert.assertNotEquals(elm0.hashCode(), elm2.hashCode());
     Assert.assertEquals(
-        "spdz(BigIntegerFieldElement{value=1, modulus=BigIntegerModulus{value=" + modulus
-            .getBigInteger()
-            + "}}, BigIntegerFieldElement{value=1, modulus=BigIntegerModulus{value=" + modulus
-            .getBigInteger() + "}})",
+        "spdz(BigIntegerFieldElement{value=1, modulus=BigIntegerModulus{value="
+            + definition.getModulus()
+            + "}}, BigIntegerFieldElement{value=1, modulus=BigIntegerModulus{value="
+            + definition.getModulus()
+            + "}})",
         elm1.toString());
     SpdzSInt elm3 = new SpdzSInt(get(BigInteger.TEN), get(BigInteger.TEN));
     Assert.assertNotEquals(elm2, elm3);
@@ -75,17 +75,18 @@ public class TestSpdzDatatypes {
     Assert
         .assertEquals(
             "SpdzTriple [elementA=spdz(BigIntegerFieldElement{value=1, modulus=BigIntegerModulus{value="
-                + modulus.getBigInteger()
-                + "}}, BigIntegerFieldElement{value=1, modulus=BigIntegerModulus{value=" + modulus
-                .getBigInteger()
+                + definition.getModulus()
+                + "}}, BigIntegerFieldElement{value=1, modulus=BigIntegerModulus{value="
+                + definition.getModulus()
                 + "}}), elementB=spdz(BigIntegerFieldElement{value=1, modulus=BigIntegerModulus{value="
-                + modulus.getBigInteger()
-                + "}}, BigIntegerFieldElement{value=1, modulus=BigIntegerModulus{value=" + modulus
-                .getBigInteger()
+                + definition.getModulus()
+                + "}}, BigIntegerFieldElement{value=1, modulus=BigIntegerModulus{value="
+                + definition.getModulus()
                 + "}}), elementC=spdz(BigIntegerFieldElement{value=1, modulus=BigIntegerModulus{value="
-                + modulus.getBigInteger()
-                + "}}, BigIntegerFieldElement{value=1, modulus=BigIntegerModulus{value=" + modulus
-                .getBigInteger() + "}})]",
+                + definition.getModulus()
+                + "}}, BigIntegerFieldElement{value=1, modulus=BigIntegerModulus{value="
+                + definition.getModulus()
+                + "}})]",
             trip1.toString());
   }
 
@@ -100,10 +101,10 @@ public class TestSpdzDatatypes {
     Assert.assertNotEquals(i1, "");
     Assert.assertNotEquals(i1, i3);
     Assert.assertEquals(
-        "spdz(BigIntegerFieldElement{value=1, modulus=BigIntegerModulus{value=" + modulus
-            .getBigInteger()
-            + "}}, BigIntegerFieldElement{value=1, modulus=BigIntegerModulus{value=" + modulus
-            .getBigInteger() + "}})",
+        "spdz(BigIntegerFieldElement{value=1, modulus=BigIntegerModulus{value="
+            + definition.getModulus()
+            + "}}, BigIntegerFieldElement{value=1, modulus=BigIntegerModulus{value="
+            + definition.getModulus() + "}})",
         i1.toString());
   }
 
@@ -116,12 +117,11 @@ public class TestSpdzDatatypes {
   @Test
   public void testCommitment() throws NoSuchAlgorithmException {
     SpdzCommitment comm = new SpdzCommitment(null, null, new Random(1),
-        modulus.getBigInteger().bitLength());
+        definition.getModulus().bitLength());
     Assert.assertEquals("SpdzCommitment[v:null, r:null, commitment:null]", comm.toString());
     MessageDigest H = MessageDigest.getInstance("SHA-256");
     SpdzCommitment c = new SpdzCommitment(H, get(BigInteger.ONE), new Random(0),
-        modulus.getBigInteger().bitLength());
-    BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(modulus);
+        definition.getModulus().bitLength());
     FieldElement c1 = c.computeCommitment(definition);
     FieldElement c2 = c.computeCommitment(definition);
     Assert.assertEquals(c1, c2);

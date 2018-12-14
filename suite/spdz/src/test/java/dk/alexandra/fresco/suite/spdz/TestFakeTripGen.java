@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -17,10 +16,10 @@ import org.junit.Test;
 
 public class TestFakeTripGen {
 
-  private static final BigIntegerModulus modulus = new BigIntegerModulus(
+  private static final String modulus =
       "670390396497129854978701249912381411527384857"
           + "747113652742596601302650153670646435425544544324427938945505888949343122395116528647057599"
-          + "4074291745908195329");
+          + "4074291745908195329";
   private static final BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(
       modulus);
   private static final FieldElement alpha = definition.createElement(
@@ -115,7 +114,7 @@ public class TestFakeTripGen {
       SpdzSInt[] as = pipe[0];
       SpdzSInt[] bs = pipe[1];
       FieldElement r = as[1].getShare().add(bs[1].getShare());
-      Assert.assertEquals(getBigInteger(r).modInverse(modulus.getBigInteger()),
+      Assert.assertEquals(getBigInteger(r).modInverse(definition.getModulus()),
           getBigInteger(as[0].getShare().add(bs[0].getShare())));
       FieldElement prevR = r;
       for (int i = 0; i < as.length; i++) {

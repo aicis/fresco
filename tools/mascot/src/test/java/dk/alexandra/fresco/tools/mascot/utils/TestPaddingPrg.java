@@ -4,7 +4,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
@@ -19,8 +18,7 @@ public class TestPaddingPrg {
 
   private final BigInteger modulus = new BigInteger(
       "340282366920938463463374607431768211297");
-  private BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(
-      new BigIntegerModulus(modulus));
+  private BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(modulus);
 
   @Test
   public void testGetNextProducesFieldElement() {

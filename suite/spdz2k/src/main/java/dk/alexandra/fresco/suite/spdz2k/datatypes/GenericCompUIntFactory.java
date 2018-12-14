@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
@@ -44,8 +43,7 @@ public class GenericCompUIntFactory implements
 
   @Override
   public FieldDefinition getFieldDefinition() {
-    return new BigIntegerFieldDefinition(
-        new BigIntegerModulus(ModulusFinder.findSuitableModulus(getLowBitLength())));
+    return new BigIntegerFieldDefinition(ModulusFinder.findSuitableModulus(getLowBitLength()));
   }
 
   @Override

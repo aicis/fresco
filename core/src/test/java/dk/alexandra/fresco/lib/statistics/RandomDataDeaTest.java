@@ -2,7 +2,6 @@ package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
@@ -20,8 +19,8 @@ public class RandomDataDeaTest {
   private List<List<DRes<SInt>>> outputValues = new ArrayList<>();
   private List<List<DRes<SInt>>> inputBasis = new ArrayList<>();
   private List<List<DRes<SInt>>> outputBasis = new ArrayList<>();
-  private BigIntegerModulus modulus = new BigIntegerModulus(ModulusFinder.findSuitableModulus(8));
-  private BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(modulus);
+  private BigIntegerFieldDefinition definition =
+      new BigIntegerFieldDefinition(ModulusFinder.findSuitableModulus(8));
 
   @Before
   public void setup() {

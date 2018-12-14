@@ -4,24 +4,15 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Objects;
 
-public final class BigIntegerModulus implements Serializable {
+final class BigIntegerModulus implements Serializable {
 
   private final BigInteger value;
 
-  public BigIntegerModulus(BigInteger value) {
+  BigIntegerModulus(BigInteger value) {
     this.value = Objects.requireNonNull(value);
-    FieldUtils.ensureDivisible(value.bitLength());
   }
 
-  public BigIntegerModulus(int value) {
-    this(BigInteger.valueOf(value));
-  }
-
-  public BigIntegerModulus(String value) {
-    this(new BigInteger(value));
-  }
-
-  public BigInteger getBigInteger() {
+  BigInteger getBigInteger() {
     return value;
   }
 

@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -14,7 +13,7 @@ import org.junit.Test;
 public class TestSpdzSInt {
 
   private BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(
-      new BigIntegerModulus(ModulusFinder.findSuitableModulus(8)));
+      ModulusFinder.findSuitableModulus(8));
 
   @Test
   public void testEquals() {

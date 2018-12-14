@@ -2,7 +2,6 @@ package dk.alexandra.fresco.tools.mascot;
 
 import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
@@ -44,7 +43,7 @@ public class MascotMockSupplier {
 
       @Override
       public FieldDefinition getFieldDefinition() {
-        return new BigIntegerFieldDefinition(new BigIntegerModulus("251"));
+        return new BigIntegerFieldDefinition("251");
       }
 
       @Override

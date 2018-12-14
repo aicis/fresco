@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultPreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
@@ -238,15 +237,14 @@ public abstract class AbstractSpdzTest {
     if (preProStrat == DUMMY) {
       BigInteger suitableModulus = ModulusFinder.findSuitableModulus(modBitLength);
       supplier = new SpdzDummyDataSupplier(myId, numberOfParties,
-          new BigIntegerFieldDefinition(new BigIntegerModulus(suitableModulus)),
+          new BigIntegerFieldDefinition(suitableModulus),
           new BigInteger(suitableModulus.bitLength(), new Random(0)).mod(suitableModulus));
     } else if (preProStrat == MASCOT) {
       List<Integer> partyIds =
           IntStream.range(1, numberOfParties + 1).boxed().collect(Collectors.toList());
       Drbg drbg = getDrbg(myId, PRG_SEED_LENGTH);
       BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
-      final BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(
-          new BigIntegerModulus(modulus));
+      final BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(modulus);
       Map<Integer, RotList> seedOts =
           getSeedOts(myId, partyIds, PRG_SEED_LENGTH, drbg, otGenerator.createExtraNetwork(myId));
       FieldElement ssk = SpdzMascotDataSupplier.createRandomSsk(definition, PRG_SEED_LENGTH);

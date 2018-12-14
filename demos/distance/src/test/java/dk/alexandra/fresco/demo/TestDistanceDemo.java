@@ -8,7 +8,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
@@ -60,7 +59,7 @@ public class TestDistanceDemo {
     BigInteger modulus = ModulusFinder.findSuitableModulus(512);
     return new SpdzResourcePoolImpl(myId, size, new SpdzOpenedValueStoreImpl(),
         new SpdzDummyDataSupplier(myId, size,
-            new BigIntegerFieldDefinition(new BigIntegerModulus(modulus)), modulus),
+            new BigIntegerFieldDefinition(modulus), modulus),
         new AesCtrDrbg(new byte[32]));
   }
 

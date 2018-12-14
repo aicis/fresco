@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.network.Network;
@@ -47,8 +46,8 @@ public class TestInputSumExample {
 
       Supplier<ResourcePoolT> resourcePool;
       if (dummy) {
-        BigIntegerModulus mod = new BigIntegerModulus(
-            "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+        String mod =
+            "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329";
         BigIntegerFieldDefinition fieldDefinition = new BigIntegerFieldDefinition(mod);
         suite =
             (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new DummyArithmeticProtocolSuite(
@@ -62,7 +61,7 @@ public class TestInputSumExample {
             BigInteger modulus = ModulusFinder.findSuitableModulus(512);
             return (ResourcePoolT) new SpdzResourcePoolImpl(i, n, new SpdzOpenedValueStoreImpl(),
                 new SpdzDummyDataSupplier(i, n,
-                    new BigIntegerFieldDefinition(new BigIntegerModulus(modulus)), modulus),
+                    new BigIntegerFieldDefinition(modulus), modulus),
                 new AesCtrDrbg(new byte[32]));
           } catch (Exception e) {
             throw new RuntimeException("Your system does not support the necessary hash function.",

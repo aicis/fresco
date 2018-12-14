@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
@@ -23,7 +22,7 @@ public class TestPolynomial {
   @Test(expected = IndexOutOfBoundsException.class)
   public void testPolynomial() {
     BasicNumericContext dummyFact = new BasicNumericContext(8, 1, 1,
-        new BigIntegerFieldDefinition(new BigIntegerModulus(ModulusFinder.findSuitableModulus(8))));
+        new BigIntegerFieldDefinition(ModulusFinder.findSuitableModulus(8)));
     RealNumericContext realNumericContext = new RealNumericContext(2);
     BuilderFactoryNumeric builderFactory =
         new DummyArithmeticBuilderFactory(dummyFact, realNumericContext);

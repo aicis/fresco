@@ -5,7 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
@@ -24,9 +23,9 @@ import org.junit.Test;
 public class TestSpdzDummyDataSupplier {
 
   private final List<FieldDefinition> fields = Arrays.asList(
-      new BigIntegerFieldDefinition(new BigIntegerModulus(new BigInteger("251"))),
-      new BigIntegerFieldDefinition(new BigIntegerModulus(ModulusFinder.findSuitableModulus(8))),
-      new BigIntegerFieldDefinition(new BigIntegerModulus(ModulusFinder.findSuitableModulus(16)))
+      new BigIntegerFieldDefinition(new BigInteger("251")),
+      new BigIntegerFieldDefinition(ModulusFinder.findSuitableModulus(8)),
+      new BigIntegerFieldDefinition(ModulusFinder.findSuitableModulus(16))
   );
 
   private List<SpdzDummyDataSupplier> setupSuppliers(int noOfParties,

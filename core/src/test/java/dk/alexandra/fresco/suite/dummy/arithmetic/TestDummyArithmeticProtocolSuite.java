@@ -6,7 +6,6 @@ import static org.junit.Assert.assertThat;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests;
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -428,8 +427,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   private FieldDefinition getModulus(int i) {
-    return new BigIntegerFieldDefinition(
-        new BigIntegerModulus(ModulusFinder.findSuitableModulus(i)));
+    return new BigIntegerFieldDefinition(ModulusFinder.findSuitableModulus(i));
   }
 
   @Test

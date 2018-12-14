@@ -7,7 +7,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.network.Network;
@@ -134,7 +133,7 @@ public class TestMaliciousBehaviour {
     BigInteger modulus = ModulusFinder.findSuitableModulus(512);
     return new SpdzResourcePoolImpl(myId, size, new SpdzOpenedValueStoreImpl(),
         new SpdzDummyDataSupplier(myId, size,
-            new BigIntegerFieldDefinition(new BigIntegerModulus(modulus)), modulus),
+            new BigIntegerFieldDefinition(modulus), modulus),
         new AesCtrDrbg(new byte[32]));
   }
 

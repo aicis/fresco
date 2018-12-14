@@ -10,7 +10,6 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialStrategy;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
@@ -27,7 +26,7 @@ import org.junit.Test;
 public class TestSecureComputationEngineImpl {
 
   private final BigIntegerFieldDefinition fieldDefinition = new BigIntegerFieldDefinition(
-      new BigIntegerModulus(ModulusFinder.findSuitableModulus(8)));
+      ModulusFinder.findSuitableModulus(8));
   private SecureComputationEngineImpl<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce;
 
   /**

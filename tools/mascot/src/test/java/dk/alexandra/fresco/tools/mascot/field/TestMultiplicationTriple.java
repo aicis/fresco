@@ -3,15 +3,13 @@ package dk.alexandra.fresco.tools.mascot.field;
 import static org.junit.Assert.assertEquals;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import java.math.BigInteger;
 import org.junit.Test;
 
 public class TestMultiplicationTriple {
 
   private final BigInteger modulus = new BigInteger("251");
-  private final BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(
-      new BigIntegerModulus(modulus));
+  private final BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(modulus);
 
   @Test
   public void testToString() {

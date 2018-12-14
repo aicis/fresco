@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.demo.cli;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerModulus;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
@@ -59,9 +58,9 @@ public class CmdLineProtocolSuite {
           new ResourcePoolImpl(myId, noOfPlayers);
     } else if (protocolSuiteName.equals("dummyarithmetic")) {
       this.protocolSuite = dummyArithmeticFromCmdLine(properties);
-      BigIntegerModulus mod = new BigIntegerModulus(properties.getProperty("modulus",
+      String mod = properties.getProperty("modulus",
           "67039039649712985497870124991238141152738485774711365274259660130265015367064643"
-              + "54255445443244279389455058889493431223951165286470575994074291745908195329"));
+              + "54255445443244279389455058889493431223951165286470575994074291745908195329");
       this.resourcePool =
           new DummyArithmeticResourcePoolImpl(myId, noOfPlayers,
               new BigIntegerFieldDefinition(mod));
@@ -96,9 +95,9 @@ public class CmdLineProtocolSuite {
   }
 
   private ProtocolSuite<?, ?> dummyArithmeticFromCmdLine(Properties properties) {
-    BigIntegerModulus mod = new BigIntegerModulus(properties.getProperty("modulus",
+    String mod = properties.getProperty("modulus",
         "67039039649712985497870124991238141152738485774711365274259660130265015367064643"
-            + "54255445443244279389455058889493431223951165286470575994074291745908195329"));
+            + "54255445443244279389455058889493431223951165286470575994074291745908195329");
     int maxBitLength = Integer.parseInt(properties.getProperty("maxbitlength", "150"));
     int fixedPointPrecision = Integer.parseInt(properties.getProperty("fixedPointPrecision", "16"));
     return new DummyArithmeticProtocolSuite(new BigIntegerFieldDefinition(mod), maxBitLength,
@@ -126,7 +125,7 @@ public class CmdLineProtocolSuite {
     if (strategy == PreprocessingStrategy.DUMMY) {
       BigInteger modulus = ModulusFinder.findSuitableModulus(512);
       supplier = new SpdzDummyDataSupplier(myId, noOfPlayers,
-          new BigIntegerFieldDefinition(new BigIntegerModulus(modulus)), modulus);
+          new BigIntegerFieldDefinition(modulus), modulus);
     }
     if (strategy == PreprocessingStrategy.STATIC) {
       int noOfThreadsUsed = 1;
