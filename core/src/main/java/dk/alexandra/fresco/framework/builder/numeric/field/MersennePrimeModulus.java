@@ -72,8 +72,4 @@ final class MersennePrimeModulus implements Serializable {
     }
     return result;
   }
-
-  int getBitLength() {
-    return bitLength;
-  }
 }
