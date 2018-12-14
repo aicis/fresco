@@ -46,7 +46,7 @@ public class BigIntegerFieldElement implements FieldElement {
 
   @Override
   public FieldElement negate() {
-    return create(value.negate());
+    return create(getModulus().subtract(value));
   }
 
   @Override
@@ -67,11 +67,6 @@ public class BigIntegerFieldElement implements FieldElement {
   @Override
   public FieldElement modInverse() {
     return create(value.modInverse(getModulus()));
-  }
-
-  @Override
-  public boolean getBit(int bitIndex) {
-    return value.testBit(bitIndex);
   }
 
   static BigInteger extractValue(FieldElement element) {
