@@ -4,13 +4,14 @@ import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.Random;
 
 public class SpdzCommitment {
 
   private final FieldElement value;
   private FieldElement randomness;
-  private FieldElement commitment;
+  private byte[] commitment;
   private final MessageDigest hash;
   private final Random rand;
   private final byte[] randomBytes;
@@ -37,7 +38,7 @@ public class SpdzCommitment {
    *
    * @return If a commitment has already been computed, the existing commitment is returned.
    */
-  public FieldElement computeCommitment(FieldDefinition definition) {
+  public byte[] computeCommitment(FieldDefinition definition) {
     if (commitment != null) {
       return commitment;
     }
@@ -46,8 +47,7 @@ public class SpdzCommitment {
     randomness = definition.createElement(new BigInteger(randomBytes));
 
     hash.update(definition.serialize(this.randomness));
-    commitment = definition.createElement(new BigInteger(hash.digest()));
-
+    commitment = hash.digest();
     return this.commitment;
   }
 
@@ -64,6 +64,6 @@ public class SpdzCommitment {
     return "SpdzCommitment["
         + "v:" + this.value + ", "
         + "r:" + this.randomness + ", "
-        + "commitment:" + this.commitment + "]";
+        + "commitment:" + Arrays.toString(this.commitment) + "]";
   }
 }

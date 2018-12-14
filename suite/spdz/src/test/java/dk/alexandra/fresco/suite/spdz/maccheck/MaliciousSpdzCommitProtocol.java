@@ -35,8 +35,7 @@ public class MaliciousSpdzCommitProtocol extends SpdzNativeProtocol<Boolean> {
     int players = spdzResourcePool.getNoOfParties();
     FieldDefinition definition = spdzResourcePool.getFieldDefinition();
     if (round == 0) {
-      network.sendToAll(
-          definition.serialize(commitment.computeCommitment(definition)));
+      network.sendToAll(commitment.computeCommitment(definition));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
 

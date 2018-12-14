@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,7 +16,7 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, Fiel
 
   private SpdzCommitment commitment;
   private Map<Integer, FieldElement> ss;
-  private Map<Integer, FieldElement> commitments;
+  private Map<Integer, byte[]> commitments;
   private byte[] digest;
 
   /**
@@ -27,7 +26,7 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, Fiel
    * @param commitments Other parties commitments.
    */
   public SpdzOpenCommitProtocol(SpdzCommitment commitment,
-      Map<Integer, FieldElement> commitments) {
+      Map<Integer, byte[]> commitments) {
     this.commitment = commitment;
     this.commitments = commitments;
     this.ss = new HashMap<>();
@@ -56,15 +55,15 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, Fiel
       List<byte[]> randomnesses = network.receiveFromAll();
 
       boolean openingValidated = true;
-      FieldElement[] broadcastMessages = new FieldElement[2 * players];
+      byte[][] broadcastMessages = new byte[2 * players][];
       for (int i = 0; i < players; i++) {
-        FieldElement commitment = commitments.get(i + 1);
-        FieldElement open0 = definition.deserialize(values.get(i));
-        FieldElement open1 = definition.deserialize(randomnesses.get(i));
+        byte[] commitment = commitments.get(i + 1);
+        byte[] open0 = values.get(i);
+        byte[] open1 = randomnesses.get(i);
         boolean validate = checkCommitment(
             spdzResourcePool, commitment, open0, open1);
         openingValidated = openingValidated && validate;
-        ss.put(i, open0);
+        ss.put(i, spdzResourcePool.getFieldDefinition().deserialize(open0));
         broadcastMessages[i * 2] = open0;
         broadcastMessages[i * 2 + 1] = open1;
       }
@@ -72,7 +71,7 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, Fiel
         checkValidation(openingValidated);
         return EvaluationStatus.IS_DONE;
       } else {
-        digest = sendBroadcastValidation(definition,
+        digest = sendBroadcastValidation(
             spdzResourcePool.getMessageDigest(), network, Arrays.asList(broadcastMessages));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
@@ -90,13 +89,12 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, Fiel
     }
   }
 
-  private boolean checkCommitment(SpdzResourcePool resourcePool, FieldElement commitment,
-      FieldElement value, FieldElement randomness) {
-    FieldDefinition definition = resourcePool.getFieldDefinition();
+  private boolean checkCommitment(SpdzResourcePool resourcePool, byte[] commitment,
+      byte[] value, byte[] randomness) {
     MessageDigest messageDigest = resourcePool.getMessageDigest();
-    messageDigest.update(definition.serialize(value));
-    messageDigest.update(definition.serialize(randomness));
-    FieldElement testSubject = definition.createElement(new BigInteger(messageDigest.digest()));
-    return commitment.equals(testSubject);
+    messageDigest.update(value);
+    messageDigest.update(randomness);
+    byte[] testSubject = messageDigest.digest();
+    return Arrays.equals(commitment, testSubject);
   }
 }

@@ -122,8 +122,8 @@ public class TestSpdzDatatypes {
     MessageDigest H = MessageDigest.getInstance("SHA-256");
     SpdzCommitment c = new SpdzCommitment(H, get(BigInteger.ONE), new Random(0),
         definition.getModulus().bitLength());
-    FieldElement c1 = c.computeCommitment(definition);
-    FieldElement c2 = c.computeCommitment(definition);
+    byte[] c1 = c.computeCommitment(definition);
+    byte[] c2 = c.computeCommitment(definition);
     Assert.assertEquals(c1, c2);
   }
 }
