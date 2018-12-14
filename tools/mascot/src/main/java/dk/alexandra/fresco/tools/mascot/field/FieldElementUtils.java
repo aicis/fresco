@@ -16,7 +16,6 @@ import java.util.stream.Stream;
 public final class FieldElementUtils {
 
   private final FieldDefinition definition;
-  private final int modBitLength;
   private final List<FieldElement> generators;
 
   /**
@@ -27,15 +26,13 @@ public final class FieldElementUtils {
   public FieldElementUtils(FieldDefinition definition) {
     super();
     this.definition = definition;
-    //todo maybe bitLength on field definition?
-    this.modBitLength = definition.getModulus().bitLength();
     this.generators = precomputeGenerators();
   }
 
   private List<FieldElement> precomputeGenerators() {
-    List<FieldElement> generators = new ArrayList<>(modBitLength);
+    List<FieldElement> generators = new ArrayList<>(definition.getBitLength());
     BigInteger current = BigInteger.ONE;
-    for (int i = 0; i < modBitLength; i++) {
+    for (int i = 0; i < definition.getBitLength(); i++) {
       generators.add(definition.createElement(current));
       current = current.shiftLeft(1);
     }
@@ -106,7 +103,7 @@ public final class FieldElementUtils {
    * @return recombined elements
    */
   public FieldElement recombine(List<FieldElement> elements) {
-    if (elements.size() > modBitLength) {
+    if (elements.size() > definition.getBitLength()) {
       throw new IllegalArgumentException("Number of elements cannot exceed bit-length");
     }
     return innerProduct(elements, generators.subList(0, elements.size()));

@@ -7,13 +7,15 @@ import java.util.List;
 public final class MersennePrimeFieldDefinition implements FieldDefinition {
 
   private final MersennePrimeModulus modulus;
-  private final int modulusLength;
   private final BigInteger modulusHalf;
+  private final int modulusLength;
+  private int modulusBitLength;
 
   public MersennePrimeFieldDefinition(MersennePrimeModulus modulus) {
     this.modulus = modulus;
     this.modulusHalf = modulus.getBigInteger().shiftRight(1);
     this.modulusLength = this.modulus.getBigInteger().toByteArray().length;
+    this.modulusBitLength = modulus.getBigInteger().bitLength();
   }
 
   @Override
@@ -29,6 +31,11 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
   @Override
   public BigInteger getModulus() {
     return modulus.getBigInteger();
+  }
+
+  @Override
+  public int getBitLength() {
+    return modulusBitLength;
   }
 
   @Override
@@ -68,6 +75,6 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
 
   @Override
   public StrictBitVector convertToBitVector(FieldElement fieldElement) {
-    return FieldUtils.convertToBitVector(getModulus(), serialize(fieldElement));
+    return FieldUtils.convertToBitVector(getBitLength(), serialize(fieldElement));
   }
 }

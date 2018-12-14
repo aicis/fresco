@@ -17,8 +17,8 @@ final class FieldUtils {
     }
   }
 
-  static StrictBitVector convertToBitVector(BigInteger modulus, byte[] bytes) {
-    int byteLength = modulus.bitLength() / 8;
+  static StrictBitVector convertToBitVector(int bitLength, byte[] bytes) {
+    int byteLength = bitLength / 8;
     byte[] res = new byte[byteLength];
     int arrayStart = bytes.length > byteLength ? bytes.length - byteLength : 0;
     int resStart = bytes.length > byteLength ? 0 : byteLength - bytes.length;

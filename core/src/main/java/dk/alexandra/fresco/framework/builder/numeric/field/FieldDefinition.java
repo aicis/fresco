@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.math.BigInteger;
 import java.util.List;
 
-//todo maybe remove ByteSerializer interface
 public interface FieldDefinition extends ByteSerializer<FieldElement> {
 
   BigInteger convertToUnsigned(FieldElement value);
@@ -13,6 +12,8 @@ public interface FieldDefinition extends ByteSerializer<FieldElement> {
   BigInteger convertToSigned(BigInteger signed);
 
   BigInteger getModulus();
+
+  int getBitLength();
 
   FieldElement createElement(int value);
 
