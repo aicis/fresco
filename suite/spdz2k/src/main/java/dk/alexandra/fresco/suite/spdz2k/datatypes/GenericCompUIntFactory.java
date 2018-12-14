@@ -1,9 +1,6 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
-import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.suite.spdz2k.util.UIntSerializer;
 import java.security.SecureRandom;
 
@@ -39,11 +36,6 @@ public class GenericCompUIntFactory implements
   @Override
   public int getLowBitLength() {
     return lowBitLength;
-  }
-
-  @Override
-  public FieldDefinition getFieldDefinition() {
-    return new BigIntegerFieldDefinition(ModulusFinder.findSuitableModulus(getLowBitLength()));
   }
 
   @Override

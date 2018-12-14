@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
-import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import java.math.BigInteger;
 
@@ -33,11 +32,6 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> {
    * Get length of least significant bits which represent the data portion.
    */
   int getLowBitLength();
-
-  /**
-   * Get field definition.
-   */
-  FieldDefinition getFieldDefinition();
 
   /**
    * Get total bit length.
