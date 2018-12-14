@@ -26,10 +26,6 @@ final class BigIntegerFieldElement implements FieldElement {
     return create(BigInteger.valueOf(value), modulus);
   }
 
-  static FieldElement create(byte[] bytes, BigIntegerModulus modulus) {
-    return create(new BigInteger(bytes), modulus);
-  }
-
   static FieldElement create(String string, BigIntegerModulus modulus) {
     return create(new BigInteger(string), modulus);
   }
@@ -71,10 +67,6 @@ final class BigIntegerFieldElement implements FieldElement {
 
   static BigInteger extractValue(FieldElement element) {
     return ((BigIntegerFieldElement) element).value;
-  }
-
-  byte[] toByteArray() {
-    return value.toByteArray();
   }
 
   private BigInteger getModulus() {

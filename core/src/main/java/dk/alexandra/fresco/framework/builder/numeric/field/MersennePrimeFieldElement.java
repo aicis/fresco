@@ -31,10 +31,6 @@ final class MersennePrimeFieldElement implements FieldElement {
     return create(BigInteger.valueOf(value), modulus);
   }
 
-  static FieldElement create(byte[] bytes, MersennePrimeModulus modulus) {
-    return create(new BigInteger(bytes), modulus);
-  }
-
   static FieldElement create(String string, MersennePrimeModulus modulus) {
     return create(new BigInteger(string), modulus);
   }
@@ -76,10 +72,6 @@ final class MersennePrimeFieldElement implements FieldElement {
 
   static BigInteger extractValue(FieldElement element) {
     return ((MersennePrimeFieldElement) element).value;
-  }
-
-  byte[] toByteArray() {
-    return value.toByteArray();
   }
 
   private BigInteger getModulus() {
