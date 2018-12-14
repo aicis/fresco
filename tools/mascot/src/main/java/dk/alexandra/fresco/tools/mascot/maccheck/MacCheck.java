@@ -42,7 +42,7 @@ public class MacCheck extends CommitmentBasedInput<FieldElement> {
     // add up all sigmas
     FieldElement sigmaSum = Addable.sum(sigmas);
 
-    BigInteger outputSum = getResourcePool().getFieldDefinition().convertRepresentation(sigmaSum);
+    BigInteger outputSum = getResourcePool().getFieldDefinition().convertToUnsigned(sigmaSum);
     // sum of sigmas must be 0
     if (outputSum.signum() != 0) {
       throw new MaliciousException("Malicious mac forging detected");

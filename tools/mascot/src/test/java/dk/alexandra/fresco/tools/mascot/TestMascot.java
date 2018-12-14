@@ -91,7 +91,7 @@ public class TestMascot extends NetworkedTest {
     assertEquals(results.get(1).size(), 1);
     AuthenticatedElement recombined = Addable.sumRows(results).get(0);
     // sanity check
-    BigInteger opened = getFieldDefinition().convertRepresentation(recombined.getShare());
+    BigInteger opened = getFieldDefinition().convertToUnsigned(recombined.getShare());
     assertNotEquals(BigInteger.ZERO, opened);
   }
 

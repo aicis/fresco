@@ -23,7 +23,7 @@ import org.junit.Assert;
 /**
  * Basic tests of computation with fixed point numbers.
  * <p>
- * NOTE: these tests all assume a precision of {@link BasicFixedPointTests.DEFAULT_PRECISION}.
+ * NOTE: these tests all assume a precision of {@link BasicFixedPointTests#DEFAULT_PRECISION}.
  * </p>
  */
 public class BasicFixedPointTests {
@@ -52,7 +52,7 @@ public class BasicFixedPointTests {
             return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
           };
           List<BigDecimal> output = runApplication(app);
-          RealTestUtils.assertEqual(value, output, DEFAULT_PRECISION + 1);
+          RealTestUtils.assertEqual(getFieldDefinition(), value, output, DEFAULT_PRECISION + 1);
         }
       };
     }
@@ -82,6 +82,7 @@ public class BasicFixedPointTests {
           };
           List<BigDecimal> output = runApplication(app);
           RealTestUtils.assertEqual(
+              getFieldDefinition(),
               value.stream().map(BigDecimal::new).collect(Collectors.toList()), output,
               DEFAULT_PRECISION + 1);
         }
@@ -107,7 +108,7 @@ public class BasicFixedPointTests {
           BigDecimal output = runApplication(app);
 
           if (conf.getMyId() == 1) {
-            RealTestUtils.assertEqual(value, output, DEFAULT_PRECISION + 1);
+            RealTestUtils.assertEqual(getFieldDefinition(), value, output, DEFAULT_PRECISION + 1);
           } else {
             Assert.assertNull(output);
           }
@@ -139,7 +140,7 @@ public class BasicFixedPointTests {
             return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
           };
           List<BigDecimal> output = runApplication(app);
-          RealTestUtils.assertEqual(value, output, DEFAULT_PRECISION + 1);
+          RealTestUtils.assertEqual(getFieldDefinition(), value, output, DEFAULT_PRECISION + 1);
         }
       };
     }
@@ -184,7 +185,8 @@ public class BasicFixedPointTests {
 
             BigDecimal a = openInputs.get(idx);
             BigDecimal b = openInputs2.get(idx);
-            RealTestUtils.assertEqual(a.add(b), openOutput, DEFAULT_PRECISION);
+            RealTestUtils
+                .assertEqual(getFieldDefinition(), a.add(b), openOutput, DEFAULT_PRECISION);
           }
         }
       };
@@ -231,7 +233,8 @@ public class BasicFixedPointTests {
 
             BigDecimal a = openInputs.get(idx);
             BigDecimal b = openInputs2.get(idx);
-            RealTestUtils.assertEqual(a.subtract(b), openOutput, DEFAULT_PRECISION);
+            RealTestUtils
+                .assertEqual(getFieldDefinition(), a.subtract(b), openOutput, DEFAULT_PRECISION);
           }
         }
       };
@@ -275,7 +278,8 @@ public class BasicFixedPointTests {
                   idx -> {
                     BigDecimal a = openInputs.get(idx);
                     BigDecimal b = openInputs2.get(idx);
-                    RealTestUtils.assertEqual(a.subtract(b), output.get(idx), DEFAULT_PRECISION);
+                    RealTestUtils.assertEqual(getFieldDefinition(), a.subtract(b), output.get(idx),
+                        DEFAULT_PRECISION);
                   });
 
           IntStream.range(openInputs.size(), output.size())
@@ -283,7 +287,8 @@ public class BasicFixedPointTests {
                   idx -> {
                     BigDecimal a = openInputs.get(idx - openInputs.size());
                     BigDecimal b = openInputs2.get(idx - openInputs.size());
-                    RealTestUtils.assertEqual(b.subtract(a), output.get(idx), DEFAULT_PRECISION);
+                    RealTestUtils.assertEqual(getFieldDefinition(), b.subtract(a), output.get(idx),
+                        DEFAULT_PRECISION);
                   });
           }
       };
@@ -325,7 +330,7 @@ public class BasicFixedPointTests {
             BigDecimal a = openInputs.get(idx);
             BigDecimal b = openInputs2.get(idx);
             // There should be no truncation after just one multiplication
-            RealTestUtils.assertEqual(a.multiply(b), openOutput,
+            RealTestUtils.assertEqual(getFieldDefinition(), a.multiply(b), openOutput,
                 DEFAULT_PRECISION
                 - Math.max(RealTestUtils.floorLog2(a), RealTestUtils.floorLog2(b)));
           }
@@ -365,7 +370,7 @@ public class BasicFixedPointTests {
             expected = expected.multiply(openOutput);
           }
           // We lose precision for each multiplication.
-          RealTestUtils.assertEqual(output, expected, DEFAULT_PRECISION - 8);
+          RealTestUtils.assertEqual(getFieldDefinition(), output, expected, DEFAULT_PRECISION - 8);
         }
       };
     }
@@ -391,7 +396,8 @@ public class BasicFixedPointTests {
             return producer.realNumeric().open(product);
           };
           BigDecimal output = runApplication(app);
-          RealTestUtils.assertEqual(value.divide(value2), output, DEFAULT_PRECISION - 2
+          RealTestUtils
+              .assertEqual(getFieldDefinition(), value.divide(value2), output, DEFAULT_PRECISION - 2
               - Math.max(0, RealTestUtils.floorLog2(value) - RealTestUtils.floorLog2(value2)));
         }
       };
@@ -418,7 +424,8 @@ public class BasicFixedPointTests {
             return producer.realNumeric().open(product);
           };
           BigDecimal output = runApplication(app);
-          RealTestUtils.assertEqual(value.divide(value2), output, DEFAULT_PRECISION - 2
+          RealTestUtils
+              .assertEqual(getFieldDefinition(), value.divide(value2), output, DEFAULT_PRECISION - 2
               - Math.max(0, RealTestUtils.floorLog2(value) - RealTestUtils.floorLog2(value2)));
         }
       };
@@ -464,7 +471,7 @@ public class BasicFixedPointTests {
             BigDecimal a = openInputs.get(idx);
             BigDecimal b = openInputs2.get(idx);
 
-            RealTestUtils.assertEqual(a.multiply(b), openOutput,
+            RealTestUtils.assertEqual(getFieldDefinition(), a.multiply(b), openOutput,
                 DEFAULT_PRECISION - 1 - Math.max(RealTestUtils.floorLog2(a), RealTestUtils.floorLog2(b)));
           }
         }
@@ -512,7 +519,8 @@ public class BasicFixedPointTests {
 
             BigDecimal a = openInputs.get(idx);
             BigDecimal b = openInputs2.get(idx);
-            RealTestUtils.assertEqual(a.add(b), openOutput, DEFAULT_PRECISION);
+            RealTestUtils
+                .assertEqual(getFieldDefinition(), a.add(b), openOutput, DEFAULT_PRECISION);
           }
         }
       };
@@ -556,7 +564,7 @@ public class BasicFixedPointTests {
             BigDecimal expected = a.divide(b, RoundingMode.HALF_UP);
             // It's hard to approximate error after division since it depends on the input sizes. We
             // use 4 for now.
-            RealTestUtils.assertEqual(expected, openOutput, 4);
+            RealTestUtils.assertEqual(getFieldDefinition(), expected, openOutput, 4);
           }
         }
       };

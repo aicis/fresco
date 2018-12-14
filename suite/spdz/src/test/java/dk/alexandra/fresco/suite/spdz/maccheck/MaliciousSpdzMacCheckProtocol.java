@@ -64,7 +64,7 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         BigInteger a = BigInteger.ZERO;
         int index = 0;
         for (FieldElement openedValue : openedValues) {
-          a = a.add(rs[index++].multiply(definition.convertRepresentation(openedValue)))
+          a = a.add(rs[index++].multiply(definition.convertToUnsigned(openedValue)))
               .mod(modulusBigInteger);
         }
 
@@ -72,12 +72,12 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         BigInteger gamma = BigInteger.ZERO;
         index = 0;
         for (SpdzSInt c : closedValues) {
-          gamma = gamma.add(rs[index++].multiply(definition.convertRepresentation(c.getMac())))
+          gamma = gamma.add(rs[index++].multiply(definition.convertToUnsigned(c.getMac())))
               .mod(modulusBigInteger);
         }
 
         // compute delta_i as: gamma_i - alpha_i*a
-        BigInteger delta = gamma.subtract(definition.convertRepresentation(alpha).multiply(a))
+        BigInteger delta = gamma.subtract(definition.convertToUnsigned(alpha).multiply(a))
             .mod(modulusBigInteger);
         // Commit to delta and open it afterwards
         SpdzCommitment commitment = new SpdzCommitment(digest,
@@ -102,7 +102,7 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         }
         BigInteger deltaSum = BigInteger.ZERO;
         for (FieldElement d : commitments.values()) {
-          deltaSum = deltaSum.add(definition.convertRepresentation(d));
+          deltaSum = deltaSum.add(definition.convertToUnsigned(d));
         }
         deltaSum = deltaSum.mod(modulusBigInteger);
         if (!deltaSum.equals(BigInteger.ZERO)) {

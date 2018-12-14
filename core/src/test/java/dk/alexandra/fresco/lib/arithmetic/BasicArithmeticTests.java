@@ -447,8 +447,7 @@ public class BasicArithmeticTests {
             Numeric numeric = producer.numeric();
             DRes<SInt> closed = numeric.input(input, 1);
             DRes<BigInteger> opened = numeric.open(closed);
-            BigInteger expected = input.subtract(modulus);
-            return () -> new Pair<>(opened.out(), expected);
+            return () -> new Pair<>(opened.out(), input);
           };
           Pair<BigInteger, BigInteger> actualAndExpected = runApplication(app);
           Assert.assertEquals(actualAndExpected.getSecond(), actualAndExpected.getFirst());

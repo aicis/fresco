@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.lp.LPSolver.PivotRule;
@@ -183,7 +184,7 @@ public class DeaSolverTests {
                 List<DRes<OpenDeaResult>> result =
                     new ArrayList<>();
                 for (DeaResult deaResult : deaResults) {
-                  result.add(OpenDeaResult.createOpenDeaResult(numeric, deaResult));
+                  result.add(OpenDeaResult.createOpenDeaResult(producer, numeric, deaResult));
                 }
                 return () -> result.stream().map(DRes::out).collect(Collectors.toList());
               };
@@ -308,7 +309,9 @@ public class DeaSolverTests {
         this.peerValues = peerValues;
       }
 
-      static DRes<OpenDeaResult> createOpenDeaResult(Numeric numeric, DeaResult deaResult) {
+      static DRes<OpenDeaResult> createOpenDeaResult(
+          ProtocolBuilderNumeric producer,
+          Numeric numeric, DeaResult deaResult) {
         DRes<BigInteger> optimal = numeric.open(deaResult.optimal);
         DRes<BigInteger> numerator = numeric.open(deaResult.numerator);
         DRes<BigInteger> denominator = numeric.open(deaResult.denominator);
@@ -316,12 +319,15 @@ public class DeaSolverTests {
             deaResult.peers.stream().map(numeric::open).collect(Collectors.toList());
         List<DRes<BigInteger>> peerValues =
             deaResult.peerValues.stream().map(numeric::open).collect(Collectors.toList());
+        FieldDefinition fieldDefinition = producer.getBasicNumericContext().getFieldDefinition();
         return () -> new OpenDeaResult(
-            optimal.out(),
-            numerator.out(),
-            denominator.out(),
-            peers.stream().map(DRes::out).collect(Collectors.toList()),
-            peerValues.stream().map(DRes::out).collect(Collectors.toList())
+            fieldDefinition.convertToSigned(optimal.out()),
+            fieldDefinition.convertToSigned(numerator.out()),
+            fieldDefinition.convertToSigned(denominator.out()),
+            peers.stream().map(DRes::out).map(fieldDefinition::convertToSigned)
+                .collect(Collectors.toList()),
+            peerValues.stream().map(DRes::out).map(fieldDefinition::convertToSigned)
+                .collect(Collectors.toList())
         );
       }
     }

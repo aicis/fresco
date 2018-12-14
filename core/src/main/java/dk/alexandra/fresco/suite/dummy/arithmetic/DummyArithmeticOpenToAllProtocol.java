@@ -29,7 +29,7 @@ public class DummyArithmeticOpenToAllProtocol extends DummyArithmeticNativeProto
   public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
       Network network) {
     FieldElement value = ((DummyArithmeticSInt) closed.out()).getValue();
-    opened = resourcePool.getFieldDefinition().convertRepresentation(value);
+    opened = resourcePool.getFieldDefinition().convertToUnsigned(value);
     return EvaluationStatus.IS_DONE;
   }
 

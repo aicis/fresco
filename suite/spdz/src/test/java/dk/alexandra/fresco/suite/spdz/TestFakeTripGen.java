@@ -132,7 +132,7 @@ public class TestFakeTripGen {
   }
 
   private BigInteger getBigInteger(FieldElement r) {
-    return definition.convertRepresentation(r).mod(definition.getModulus());
+    return definition.convertToUnsigned(r).mod(definition.getModulus());
   }
 
   @Test

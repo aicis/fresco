@@ -39,7 +39,7 @@ public class TestPaddingPrg {
     StrictBitVector seed = new StrictBitVector(seedBytes);
     FieldElementPrg prg = new FieldElementPrgImpl(seed, definition);
     FieldElement el = prg.getNext();
-    BigInteger open = definition.convertRepresentation(el);
+    BigInteger open = definition.convertToUnsigned(el);
     assertNotEquals(BigInteger.ZERO, open);
   }
 

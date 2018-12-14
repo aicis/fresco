@@ -7,7 +7,9 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.MatrixUtils;
@@ -45,7 +47,7 @@ public class LinearAlgebraTests {
     }
   }
 
-  public static class TestCloseAndOpenMatrix<ResourcePoolT extends ResourcePool>
+  public static class TestCloseAndOpenMatrix<ResourcePoolT extends NumericResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
@@ -76,9 +78,10 @@ public class LinearAlgebraTests {
             DRes<Matrix<DRes<BigDecimal>>> opened = root.realLinAlg().openMatrix(closed);
             return () -> new MatrixUtils().unwrapMatrix(opened);
           };
+          FieldDefinition fieldDefinition = conf.getResourcePool().getFieldDefinition();
           Matrix<BigDecimal> output = runApplication(testApplication);
           for (int i = 0; i < input.getHeight(); i++) {
-            RealTestUtils.assertEqual(output.getRow(i), input.getRow(i), 15);
+            RealTestUtils.assertEqual(fieldDefinition, output.getRow(i), input.getRow(i), 15);
           }
         }
       };
@@ -127,7 +130,9 @@ public class LinearAlgebraTests {
           List<Matrix<BigDecimal>> output = runApplication(testApplication);
           for (int i = 0; i < a.getHeight(); i++) {
             for (int j = 0; j < output.size(); j++) {
-              RealTestUtils.assertEqual(expected.getRow(i), output.get(j).getRow(i), 15);
+              RealTestUtils
+                  .assertEqual(getFieldDefinition(), expected.getRow(i), output.get(j).getRow(i),
+                      15);
             }
           }
         }
@@ -177,7 +182,9 @@ public class LinearAlgebraTests {
           List<Matrix<BigDecimal>> output = runApplication(testApplication);
           for (int i = 0; i < a.getHeight(); i++) {
             for (int j = 0; j < output.size(); j++) {
-              RealTestUtils.assertEqual(expected.getRow(i), output.get(j).getRow(i), 15);
+              RealTestUtils
+                  .assertEqual(getFieldDefinition(), expected.getRow(i), output.get(j).getRow(i),
+                      15);
             }
           }
         }
@@ -221,7 +228,9 @@ public class LinearAlgebraTests {
           List<Matrix<BigDecimal>> output = runApplication(testApplication);
           for (int i = 0; i < matrix.getHeight(); i++) {
             for (int j = 0; j < output.size(); j++) {
-              RealTestUtils.assertEqual(expected.getRow(i), output.get(j).getRow(i), 15);
+              RealTestUtils
+                  .assertEqual(getFieldDefinition(), expected.getRow(i), output.get(j).getRow(i),
+                      15);
             }
           }
         }
@@ -265,7 +274,9 @@ public class LinearAlgebraTests {
           List<Matrix<BigDecimal>> output = runApplication(testApplication);
           for (int i = 0; i < matrix.getHeight(); i++) {
             for (int j = 0; j < output.size(); j++) {
-              RealTestUtils.assertEqual(expected.getRow(i), output.get(j).getRow(i), 15);
+              RealTestUtils
+                  .assertEqual(getFieldDefinition(), expected.getRow(i), output.get(j).getRow(i),
+                      15);
             }
           }
         }
@@ -312,7 +323,8 @@ public class LinearAlgebraTests {
           List<Vector<BigDecimal>> output = runApplication(testApplication);
           for (int i = 0; i < matrix.getHeight(); i++) {
             for (int j = 0; j < output.size(); j++) {
-              RealTestUtils.assertEqual(expected.get(i), output.get(j).get(i), 15);
+              RealTestUtils
+                  .assertEqual(getFieldDefinition(), expected.get(i), output.get(j).get(i), 15);
             }
           }
         }
@@ -468,13 +480,13 @@ public class LinearAlgebraTests {
           Matrix<BigDecimal> output = runApplication(testApplication);
           System.out.println(output);
           for (int i = 0; i < input.getHeight(); i++) {
-            RealTestUtils.assertEqual(output.getColumn(i), input.getRow(i), 15);
+            RealTestUtils
+                .assertEqual(getFieldDefinition(), output.getColumn(i), input.getRow(i), 15);
           }
         }
       };
     }
   }
-
 
   private static Vector<BigDecimal> allOneVector(int dimension, int precision) {
     Vector<BigDecimal> vector = new Vector<>(dimension);
@@ -483,7 +495,6 @@ public class LinearAlgebraTests {
     }
     return vector;
   }
-
 
   private static Matrix<BigDecimal> allOneMatrix(int height, int width, int precision) {
     ArrayList<ArrayList<BigDecimal>> a = new ArrayList<>(height);
@@ -497,5 +508,4 @@ public class LinearAlgebraTests {
     Matrix<BigDecimal> matrix = new Matrix<>(height, width, a);
     return matrix;
   }
-
 }

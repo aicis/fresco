@@ -17,9 +17,13 @@ public final class BigIntegerFieldDefinition implements FieldDefinition {
   }
 
   @Override
-  public BigInteger convertRepresentation(FieldElement value) {
-    return FieldUtils.convertRepresentation(
-        BigIntegerFieldElement.extractValue(value), getModulus(), modulusHalf);
+  public BigInteger convertToUnsigned(FieldElement value) {
+    return BigIntegerFieldElement.extractValue(value);
+  }
+
+  @Override
+  public BigInteger convertToSigned(BigInteger signed) {
+    return FieldUtils.convertRepresentation(signed, getModulus(), modulusHalf);
   }
 
   @Override

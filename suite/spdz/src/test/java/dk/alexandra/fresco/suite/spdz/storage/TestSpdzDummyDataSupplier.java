@@ -117,7 +117,7 @@ public class TestSpdzDummyDataSupplier {
     SpdzSInt recombined = recombine(bitShares);
     assertMacCorrect(recombined, macKey);
     FieldElement value = recombined.getShare();
-    BigInteger actualResult = definition.convertRepresentation(value);
+    BigInteger actualResult = definition.convertToUnsigned(value);
     assertTrue("Value not a bit " + actualResult,
         actualResult.equals(BigInteger.ZERO) || actualResult.equals(BigInteger.ONE));
   }
@@ -140,7 +140,7 @@ public class TestSpdzDummyDataSupplier {
     // sanity check not zero (with 251, that is actually not unlikely enough)
     if (!definition.getModulus().equals(new BigInteger("251"))) {
       FieldElement value = recombined.getShare();
-      BigInteger bigIntegerValue = definition.convertRepresentation(value);
+      BigInteger bigIntegerValue = definition.convertToUnsigned(value);
       assertFalse("Random value was 0 ", bigIntegerValue.equals(BigInteger.ZERO));
     }
   }
@@ -220,7 +220,7 @@ public class TestSpdzDummyDataSupplier {
         new SpdzDummyDataSupplier(1, 2, fieldDefinition, BigInteger.ONE);
     assertEquals(fields.get(0).getModulus(), supplier.getModulus());
     assertEquals(BigInteger.ONE,
-        fieldDefinition.convertRepresentation(supplier.getSecretSharedKey()));
+        fieldDefinition.convertToUnsigned(supplier.getSecretSharedKey()));
   }
 
   private SpdzSInt recombine(List<SpdzSInt> shares) {
@@ -271,17 +271,17 @@ public class TestSpdzDummyDataSupplier {
     FieldElement inverted = values.get(0);
     FieldElement first = values.get(1);
     BigInteger firstAsBigInteger =
-        definition.convertRepresentation(first).mod(definition.getModulus());
+        definition.convertToUnsigned(first).mod(definition.getModulus());
     BigInteger bigInteger = firstAsBigInteger.modInverse(definition.getModulus());
     assertEquals(
-        definition.convertRepresentation(inverted).mod(definition.getModulus()),
+        definition.convertToUnsigned(inverted).mod(definition.getModulus()),
         bigInteger);
     for (int i = 1; i < values.size(); i++) {
       BigInteger expected = firstAsBigInteger
           .modPow(BigInteger.valueOf(i), definition.getModulus());
       assertEquals(
           expected,
-          definition.convertRepresentation(values.get(i)).mod(definition.getModulus()));
+          definition.convertToUnsigned(values.get(i)).mod(definition.getModulus()));
     }
   }
 }

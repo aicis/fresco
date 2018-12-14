@@ -8,7 +8,9 @@ import java.util.List;
 //todo maybe remove ByteSerializer interface
 public interface FieldDefinition extends ByteSerializer<FieldElement> {
 
-  BigInteger convertRepresentation(FieldElement value);
+  BigInteger convertToUnsigned(FieldElement value);
+
+  BigInteger convertToSigned(BigInteger signed);
 
   BigInteger getModulus();
 

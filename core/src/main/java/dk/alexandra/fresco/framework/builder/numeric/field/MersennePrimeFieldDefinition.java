@@ -17,9 +17,13 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
   }
 
   @Override
-  public BigInteger convertRepresentation(FieldElement value) {
-    return FieldUtils.convertRepresentation(
-        MersennePrimeFieldElement.extractValue(value), getModulus(), modulusHalf);
+  public BigInteger convertToUnsigned(FieldElement value) {
+    return MersennePrimeFieldElement.extractValue(value);
+  }
+
+  @Override
+  public BigInteger convertToSigned(BigInteger signed) {
+    return FieldUtils.convertRepresentation(signed, getModulus(), modulusHalf);
   }
 
   @Override

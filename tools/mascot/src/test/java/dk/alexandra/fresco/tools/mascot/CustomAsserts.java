@@ -121,7 +121,7 @@ public class CustomAsserts {
 
   public static void assertFieldElementIsBit(
       FieldDefinition fieldDefinition, FieldElement actualBit) {
-    BigInteger output = fieldDefinition.convertRepresentation(actualBit);
+    BigInteger output = fieldDefinition.convertToUnsigned(actualBit);
     String message = "Not a bit " + actualBit;
     Assert.assertTrue(message, output.equals(BigInteger.ZERO) || output.equals(BigInteger.ONE));
   }
