@@ -18,7 +18,7 @@ public class MersennePrimeFieldElementTest {
         MersennePrimeFieldElement.create(BigInteger.valueOf(27), firstPrime);
     FieldElement firstElementAgain =
         MersennePrimeFieldElement.create(
-            firstPrime.getBigInteger().add(BigInteger.valueOf(27)), firstPrime);
+            firstPrime.getPrime().add(BigInteger.valueOf(27)), firstPrime);
     FieldElement differentValue =
         MersennePrimeFieldElement.create(BigInteger.valueOf(28), firstPrime);
     FieldElement differentPrime =

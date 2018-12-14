@@ -12,7 +12,7 @@ public final class MersennePrimeFieldElement implements FieldElement {
   private MersennePrimeFieldElement(BigInteger value, MersennePrimeModulus modulus) {
     if (value.signum() < 0) {
       BigInteger positiveValue = modulus.mod(value.abs());
-      this.value = modulus.getBigInteger().subtract(positiveValue);
+      this.value = modulus.getPrime().subtract(positiveValue);
     } else {
       this.value = modulus.mod(value);
     }
@@ -83,7 +83,7 @@ public final class MersennePrimeFieldElement implements FieldElement {
   }
 
   private BigInteger getModulus() {
-    return modulus.getBigInteger();
+    return modulus.getPrime();
   }
 
   @Override

@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -150,21 +149,10 @@ public final class FieldElementUtils {
    * @return concatenated field elements in bit representation
    */
   public StrictBitVector pack(List<FieldElement> elements, boolean reverse) {
-    StrictBitVector[] bitVecs =
-        elements.stream().map(definition::convertToBitVector).toArray(StrictBitVector[]::new);
     if (reverse) {
-      Collections.reverse(Arrays.asList(bitVecs));
+      elements = new ArrayList<>(elements);
+      Collections.reverse(elements);
     }
-    return StrictBitVector.concat(bitVecs);
-  }
-
-  /**
-   * Unpacks a bit string into a list of field elements.
-   *
-   * @param packed concatenated bits representing field elements
-   * @return field elements
-   */
-  public List<FieldElement> unpack(byte[] packed) {
-    return definition.deserializeList(packed);
+    return new StrictBitVector(definition.serialize(elements));
   }
 }

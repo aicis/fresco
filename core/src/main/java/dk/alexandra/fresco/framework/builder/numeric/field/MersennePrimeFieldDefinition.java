@@ -13,9 +13,9 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
 
   public MersennePrimeFieldDefinition(MersennePrimeModulus modulus) {
     this.modulus = modulus;
-    this.modulusHalf = modulus.getBigInteger().shiftRight(1);
-    this.modulusLength = this.modulus.getBigInteger().toByteArray().length;
-    this.modulusBitLength = modulus.getBigInteger().bitLength();
+    this.modulusHalf = modulus.getPrime().shiftRight(1);
+    this.modulusBitLength = modulus.getBitLength();
+    this.modulusLength = this.modulusBitLength / 8;
   }
 
   @Override
@@ -30,7 +30,7 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
 
   @Override
   public BigInteger getModulus() {
-    return modulus.getBigInteger();
+    return modulus.getPrime();
   }
 
   @Override
@@ -40,22 +40,24 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
 
   @Override
   public FieldElement deserialize(byte[] bytes) {
-    return MersennePrimeFieldElement.create(bytes, modulus);
+    return FieldUtils.deserialize(bytes, modulusLength, this::createElement);
   }
 
   @Override
   public List<FieldElement> deserializeList(byte[] bytes) {
-    return FieldUtils.deserializeList(bytes, modulusLength, this::deserialize);
+    return FieldUtils.deserializeList(bytes, modulusLength, this::createElement);
   }
 
   @Override
   public byte[] serialize(FieldElement fieldElement) {
-    return ((MersennePrimeFieldElement) fieldElement).toByteArray();
+    return FieldUtils.serialize(
+        modulusLength, MersennePrimeFieldElement.extractValue(fieldElement));
   }
 
   @Override
   public byte[] serialize(List<FieldElement> fieldElements) {
-    return FieldUtils.serialize(modulusLength, fieldElements, this::serialize);
+    return FieldUtils.serializeList(
+        modulusLength, fieldElements, MersennePrimeFieldElement::extractValue);
   }
 
   @Override
@@ -75,6 +77,7 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
 
   @Override
   public StrictBitVector convertToBitVector(FieldElement fieldElement) {
-    return FieldUtils.convertToBitVector(getBitLength(), serialize(fieldElement));
+    return FieldUtils.convertToBitVector(
+        modulusLength, MersennePrimeFieldElement.extractValue(fieldElement));
   }
 }

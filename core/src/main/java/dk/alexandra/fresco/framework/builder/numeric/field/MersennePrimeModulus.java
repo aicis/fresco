@@ -20,7 +20,7 @@ public final class MersennePrimeModulus implements Serializable {
     this.prime = shifted.subtract(BigInteger.valueOf(constant));
   }
 
-  BigInteger getBigInteger() {
+  BigInteger getPrime() {
     return prime;
   }
 
@@ -72,5 +72,9 @@ public final class MersennePrimeModulus implements Serializable {
       result = result.subtract(prime);
     }
     return result;
+  }
+
+  int getBitLength() {
+    return bitLength;
   }
 }

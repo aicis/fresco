@@ -112,7 +112,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
     for (int i = 0; i < numCoefficients; i++) {
       byte[] bytes = new byte[modulus.bitLength() / Byte.SIZE];
       jointDrbg.nextBytes(bytes);
-      coefficients[i] = fieldDefinition.deserialize(bytes);
+      coefficients[i] = fieldDefinition.createElement(new BigInteger(bytes));
     }
     return coefficients;
   }

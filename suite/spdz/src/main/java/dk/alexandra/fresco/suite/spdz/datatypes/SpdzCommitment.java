@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.spdz.datatypes;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Random;
 
@@ -42,10 +43,10 @@ public class SpdzCommitment {
     }
     hash.update(definition.serialize(value));
     rand.nextBytes(randomBytes);
-    randomness = definition.deserialize(randomBytes);
+    randomness = definition.createElement(new BigInteger(randomBytes));
 
     hash.update(definition.serialize(this.randomness));
-    commitment = definition.deserialize(hash.digest());
+    commitment = definition.createElement(new BigInteger(hash.digest()));
 
     return this.commitment;
   }

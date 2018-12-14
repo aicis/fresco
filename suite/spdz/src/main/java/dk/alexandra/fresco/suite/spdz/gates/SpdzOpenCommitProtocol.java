@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -95,7 +96,7 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, Fiel
     MessageDigest messageDigest = resourcePool.getMessageDigest();
     messageDigest.update(definition.serialize(value));
     messageDigest.update(definition.serialize(randomness));
-    FieldElement testSubject = definition.deserialize(messageDigest.digest());
+    FieldElement testSubject = definition.createElement(new BigInteger(messageDigest.digest()));
     return commitment.equals(testSubject);
   }
 }

@@ -43,7 +43,7 @@ public class MersennePrimeModulusTest {
     for (int i = 0; i < 50; i++) {
       BigInteger value = new BigInteger(180 + random.nextInt(50), random);
       BigInteger mod = modulus.mod(value);
-      assertThat(mod, Is.is(value.mod(modulus.getBigInteger())));
+      assertThat(mod, Is.is(value.mod(modulus.getPrime())));
     }
   }
 }

@@ -76,7 +76,7 @@ class MultiplyLeft {
    * @return seeds converted to field elements
    */
   private List<FieldElement> seedsToFieldElements(List<StrictBitVector> seeds) {
-    return seeds.parallelStream().map(seed -> fromBits(seed)).collect(Collectors.toList());
+    return seeds.parallelStream().map(this::fromBits).collect(Collectors.toList());
   }
 
   private FieldElement fromBits(StrictBitVector vector) {

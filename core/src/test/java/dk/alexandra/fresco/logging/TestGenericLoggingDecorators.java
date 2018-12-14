@@ -121,9 +121,9 @@ public class TestGenericLoggingDecorators {
     PerformanceLogger performanceLogger = decoratedLoggers.get(0);
 
     Map<String, Long> loggedValues = performanceLogger.getLoggedValues();
-    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is(4L));
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is(130L));
     assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), is(2L));
-    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_PARTY_BYTES + "_1"), is(4L));
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_PARTY_BYTES + "_1"), is(130L));
     performanceLogger.reset();
 
     loggedValues = performanceLogger.getLoggedValues();

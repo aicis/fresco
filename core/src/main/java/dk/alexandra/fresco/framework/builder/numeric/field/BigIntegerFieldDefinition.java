@@ -14,8 +14,8 @@ public final class BigIntegerFieldDefinition implements FieldDefinition {
   public BigIntegerFieldDefinition(BigIntegerModulus modulus) {
     this.modulus = modulus;
     this.modulusHalf = modulus.getBigInteger().shiftRight(1);
-    this.modulusLength = modulus.getBigInteger().toByteArray().length;
     this.modulusBitLength = modulus.getBigInteger().bitLength();
+    this.modulusLength = modulusBitLength / 8;
   }
 
   @Override
@@ -55,26 +55,28 @@ public final class BigIntegerFieldDefinition implements FieldDefinition {
 
   @Override
   public FieldElement deserialize(byte[] bytes) {
-    return BigIntegerFieldElement.create(bytes, modulus);
+    return FieldUtils.deserialize(bytes, modulusLength, this::createElement);
   }
 
   @Override
   public List<FieldElement> deserializeList(byte[] bytes) {
-    return FieldUtils.deserializeList(bytes, modulusLength, this::deserialize);
+    return FieldUtils.deserializeList(bytes, modulusLength, this::createElement);
   }
 
   @Override
   public byte[] serialize(FieldElement fieldElement) {
-    return ((BigIntegerFieldElement) fieldElement).toByteArray();
+    return FieldUtils.serialize(modulusLength, BigIntegerFieldElement.extractValue(fieldElement));
   }
 
   @Override
   public byte[] serialize(List<FieldElement> fieldElements) {
-    return FieldUtils.serialize(modulusLength, fieldElements, this::serialize);
+    return FieldUtils
+        .serializeList(modulusLength, fieldElements, BigIntegerFieldElement::extractValue);
   }
 
   @Override
   public StrictBitVector convertToBitVector(FieldElement fieldElement) {
-    return FieldUtils.convertToBitVector(getBitLength(), serialize(fieldElement));
+    return FieldUtils.convertToBitVector(
+        getBitLength(), BigIntegerFieldElement.extractValue(fieldElement));
   }
 }
