@@ -11,10 +11,8 @@ final class FieldUtils {
   private FieldUtils() {
   }
 
-  static void ensureDivisible(int bitLength) {
-    if ((bitLength & 0b111) != 0) {
-      throw new IllegalArgumentException("modulus must be divisible by 8");
-    }
+  static int bytesNeededForBits(int bits) {
+    return 1 + ((bits - 1) / 8);
   }
 
   static StrictBitVector convertToBitVector(int byteLength, BigInteger value) {

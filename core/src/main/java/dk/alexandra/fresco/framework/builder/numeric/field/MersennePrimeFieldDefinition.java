@@ -12,11 +12,10 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
   private final int modulusBitLength;
 
   public MersennePrimeFieldDefinition(int bitLength, int constant) {
-    FieldUtils.ensureDivisible(bitLength);
     this.modulus = new MersennePrimeModulus(bitLength, constant);
     this.modulusHalf = modulus.getPrime().shiftRight(1);
     this.modulusBitLength = bitLength;
-    this.modulusLength = bitLength / 8;
+    this.modulusLength = FieldUtils.bytesNeededForBits(modulusBitLength);
   }
 
   @Override

@@ -12,11 +12,10 @@ public final class BigIntegerFieldDefinition implements FieldDefinition {
   private final int modulusBitLength;
 
   public BigIntegerFieldDefinition(BigInteger value) {
-    FieldUtils.ensureDivisible(value.bitLength());
     this.modulus = new BigIntegerModulus(value);
     this.modulusHalf = modulus.getBigInteger().shiftRight(1);
     this.modulusBitLength = modulus.getBigInteger().bitLength();
-    this.modulusLength = modulusBitLength / 8;
+    this.modulusLength = FieldUtils.bytesNeededForBits(modulusBitLength);
   }
 
   public BigIntegerFieldDefinition(int value) {
