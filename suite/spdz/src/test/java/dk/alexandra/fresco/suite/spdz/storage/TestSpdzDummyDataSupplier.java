@@ -4,10 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.TransposeUtils;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -23,12 +23,9 @@ import org.junit.Test;
 public class TestSpdzDummyDataSupplier {
 
   private final List<FieldDefinition> fields = Arrays.asList(
-      new FieldDefinitionBigInteger(new ModulusBigInteger(new BigInteger("251"))),
-      new FieldDefinitionBigInteger(
-          new ModulusBigInteger(new BigInteger("340282366920938463463374607431768211283"))),
-      new FieldDefinitionBigInteger(new ModulusBigInteger(new BigInteger(
-          "2582249878086908589655919172003011874329705792829223512830659356540647622016841"
-              + "194629645353280137831435903171972747493557")))
+      new BigIntegerFieldDefinition(new BigInteger("251")),
+      new BigIntegerFieldDefinition(ModulusFinder.findSuitableModulus(8)),
+      new BigIntegerFieldDefinition(ModulusFinder.findSuitableModulus(16))
   );
 
   private List<SpdzDummyDataSupplier> setupSuppliers(int noOfParties,
@@ -119,7 +116,7 @@ public class TestSpdzDummyDataSupplier {
     SpdzSInt recombined = recombine(bitShares);
     assertMacCorrect(recombined, macKey);
     FieldElement value = recombined.getShare();
-    BigInteger actualResult = definition.convertRepresentation(value);
+    BigInteger actualResult = definition.convertToUnsigned(value);
     assertTrue("Value not a bit " + actualResult,
         actualResult.equals(BigInteger.ZERO) || actualResult.equals(BigInteger.ONE));
   }
@@ -142,7 +139,7 @@ public class TestSpdzDummyDataSupplier {
     // sanity check not zero (with 251, that is actually not unlikely enough)
     if (!definition.getModulus().equals(new BigInteger("251"))) {
       FieldElement value = recombined.getShare();
-      BigInteger bigIntegerValue = definition.convertRepresentation(value);
+      BigInteger bigIntegerValue = definition.convertToUnsigned(value);
       assertFalse("Random value was 0 ", bigIntegerValue.equals(BigInteger.ZERO));
     }
   }
@@ -222,7 +219,7 @@ public class TestSpdzDummyDataSupplier {
         new SpdzDummyDataSupplier(1, 2, fieldDefinition, BigInteger.ONE);
     assertEquals(fields.get(0).getModulus(), supplier.getModulus());
     assertEquals(BigInteger.ONE,
-        fieldDefinition.convertRepresentation(supplier.getSecretSharedKey()));
+        fieldDefinition.convertToUnsigned(supplier.getSecretSharedKey()));
   }
 
   private SpdzSInt recombine(List<SpdzSInt> shares) {
@@ -273,17 +270,17 @@ public class TestSpdzDummyDataSupplier {
     FieldElement inverted = values.get(0);
     FieldElement first = values.get(1);
     BigInteger firstAsBigInteger =
-        definition.convertRepresentation(first).mod(definition.getModulus());
+        definition.convertToUnsigned(first).mod(definition.getModulus());
     BigInteger bigInteger = firstAsBigInteger.modInverse(definition.getModulus());
     assertEquals(
-        definition.convertRepresentation(inverted).mod(definition.getModulus()),
+        definition.convertToUnsigned(inverted).mod(definition.getModulus()),
         bigInteger);
     for (int i = 1; i < values.size(); i++) {
       BigInteger expected = firstAsBigInteger
           .modPow(BigInteger.valueOf(i), definition.getModulus());
       assertEquals(
           expected,
-          definition.convertRepresentation(values.get(i)).mod(definition.getModulus()));
+          definition.convertToUnsigned(values.get(i)).mod(definition.getModulus()));
     }
   }
 }

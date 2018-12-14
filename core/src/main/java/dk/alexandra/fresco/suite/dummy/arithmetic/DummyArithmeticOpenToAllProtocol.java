@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -29,7 +29,7 @@ public class DummyArithmeticOpenToAllProtocol extends DummyArithmeticNativeProto
   public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
       Network network) {
     FieldElement value = ((DummyArithmeticSInt) closed.out()).getValue();
-    opened = resourcePool.getFieldDefinition().convertRepresentation(value);
+    opened = resourcePool.getFieldDefinition().convertToUnsigned(value);
     return EvaluationStatus.IS_DONE;
   }
 

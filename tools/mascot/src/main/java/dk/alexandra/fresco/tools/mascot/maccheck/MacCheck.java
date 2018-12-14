@@ -1,11 +1,12 @@
 package dk.alexandra.fresco.tools.mascot.maccheck;
 
 import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.builder.numeric.Addable;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import dk.alexandra.fresco.tools.mascot.commit.CommitmentBasedInput;
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -13,13 +14,13 @@ import java.util.List;
  * Each party p_i holds a share of the MAC m_i and a share of the MAC key alpha_i. <br>
  * This protocol validates that e * (alpha_1 + ... + alpha_n) = m_1 + ... + m_n.
  */
-public class MacCheck extends CommitmentBasedInput<MascotFieldElement> {
+public class MacCheck extends CommitmentBasedInput<FieldElement> {
 
   /**
    * Constructs new mac checker.
    */
   public MacCheck(MascotResourcePool resourcePool, Network network) {
-    super(resourcePool, network, resourcePool.getFieldElementSerializer());
+    super(resourcePool, network, resourcePool.getFieldDefinition());
   }
 
   /**
@@ -32,17 +33,18 @@ public class MacCheck extends CommitmentBasedInput<MascotFieldElement> {
    * @throws MaliciousException if mac-check fails
    */
   public void check(
-      MascotFieldElement opened, MascotFieldElement macKeyShare, MascotFieldElement macShare) {
+      FieldElement opened, FieldElement macKeyShare, FieldElement macShare) {
     // we will check that all sigmas together add up to 0
-    MascotFieldElement sigma = macShare.subtract(opened.multiply(macKeyShare));
+    FieldElement sigma = macShare.subtract(opened.multiply(macKeyShare));
 
     // commit to own value
-    List<MascotFieldElement> sigmas = allCommit(sigma);
+    List<FieldElement> sigmas = allCommit(sigma);
     // add up all sigmas
-    MascotFieldElement sigmaSum = Addable.sum(sigmas);
+    FieldElement sigmaSum = Addable.sum(sigmas);
 
+    BigInteger outputSum = getResourcePool().getFieldDefinition().convertToUnsigned(sigmaSum);
     // sum of sigmas must be 0
-    if (!sigmaSum.isZero()) {
+    if (outputSum.signum() != 0) {
       throw new MaliciousException("Malicious mac forging detected");
     }
   }

@@ -34,5 +34,4 @@ public class CompUInt96Factory implements CompUIntFactory<CompUInt96> {
   public int getHighBitLength() {
     return 64;
   }
-
 }

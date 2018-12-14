@@ -29,3 +29,9 @@ suite/spdz/spdz/
 
 # PMD
 *.pmd
+
+
+# generated
+core/bar
+core/foo
+core/test-obj

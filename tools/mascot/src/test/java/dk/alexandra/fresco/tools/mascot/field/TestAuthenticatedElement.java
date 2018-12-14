@@ -2,6 +2,8 @@ package dk.alexandra.fresco.tools.mascot.field;
 
 import static org.junit.Assert.assertEquals;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import java.math.BigInteger;
 import org.junit.Test;
@@ -9,36 +11,36 @@ import org.junit.Test;
 public class TestAuthenticatedElement {
 
   private final BigInteger modulus = new BigInteger("251");
+  private final BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(modulus);
 
   @Test
   public void testToString() {
     AuthenticatedElement element =
-        new AuthenticatedElement(new MascotFieldElement(1, modulus),
-            new MascotFieldElement(2, modulus), modulus);
-    String expected =
-        "AuthenticatedElement [share=MascotFieldElement [value=1, modulus=251, bitLength=8],"
-            + " mac=MascotFieldElement [value=2, modulus=251, bitLength=8]]";
+        new AuthenticatedElement(
+            definition.createElement(1),
+            definition.createElement(2)
+        );
+    String expected = "AuthenticatedElement [share=BigIntegerFieldElement{value=1, modulus=BigIntegerModulus{value=251}}, mac=BigIntegerFieldElement{value=2, modulus=BigIntegerModulus{value=251}}]";
     assertEquals(expected, element.toString());
   }
 
   @Test
   public void testAddPublicFieldElement() {
-    MascotFieldElement macKeyShare = new MascotFieldElement(111, modulus);
+    FieldElement macKeyShare = definition.createElement(111);
     AuthenticatedElement element = new AuthenticatedElement(
-        new MascotFieldElement(2, modulus),
-        new MascotFieldElement(222, modulus),
-        modulus);
-    MascotFieldElement publicElement = new MascotFieldElement(44, modulus);
-    AuthenticatedElement actualPartyOne = element.add(publicElement, 1, macKeyShare);
+        definition.createElement(2),
+        definition.createElement(222));
+    FieldElement publicElement = definition.createElement(44);
+    AuthenticatedElement actualPartyOne = element.add(definition,
+        publicElement, 1, macKeyShare);
     AuthenticatedElement expectedPartyOne = new AuthenticatedElement(
-        new MascotFieldElement(46, modulus),
-        new MascotFieldElement(86, modulus),
-        modulus);
-    AuthenticatedElement actualPartyTwo = element.add(publicElement, 2, macKeyShare);
+        definition.createElement(46),
+        definition.createElement(86));
+    AuthenticatedElement actualPartyTwo = element.add(definition,
+        publicElement, 2, macKeyShare);
     AuthenticatedElement expectedPartyTwo = new AuthenticatedElement(
-        new MascotFieldElement(2, modulus),
-        new MascotFieldElement(86, modulus),
-        modulus);
+        definition.createElement(2),
+        definition.createElement(86));
     CustomAsserts.assertEquals(actualPartyOne, expectedPartyOne);
     CustomAsserts.assertEquals(actualPartyTwo, expectedPartyTwo);
   }

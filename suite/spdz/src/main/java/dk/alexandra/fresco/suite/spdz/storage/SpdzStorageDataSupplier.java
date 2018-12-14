@@ -1,9 +1,8 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -143,8 +142,8 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
       return this.definition;
     }
     try {
-      this.definition = new FieldDefinitionBigInteger(
-          new ModulusBigInteger(this.storage.<BigInteger>getNext(storageName + MODULUS_KEY)));
+      this.definition = new BigIntegerFieldDefinition(
+          this.storage.<BigInteger>getNext(storageName + MODULUS_KEY));
     } catch (NoMoreElementsException e) {
       throw new IllegalArgumentException("Modulus was not present in the storage "
           + storageName + MODULUS_KEY);

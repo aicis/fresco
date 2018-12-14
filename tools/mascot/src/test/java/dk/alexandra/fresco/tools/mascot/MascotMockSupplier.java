@@ -1,14 +1,12 @@
 package dk.alexandra.fresco.tools.mascot;
 
 import dk.alexandra.fresco.commitment.HashBasedCommitment;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import java.security.MessageDigest;
@@ -45,7 +43,7 @@ public class MascotMockSupplier {
 
       @Override
       public FieldDefinition getFieldDefinition() {
-        return new FieldDefinitionBigInteger(new ModulusBigInteger("251"));
+        return new BigIntegerFieldDefinition("251");
       }
 
       @Override
@@ -81,11 +79,6 @@ public class MascotMockSupplier {
       @Override
       public int getLambdaSecurityParam() {
         return 0;
-      }
-
-      @Override
-      public FieldElementSerializer getFieldElementSerializer() {
-        return null;
       }
 
       @Override

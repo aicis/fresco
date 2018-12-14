@@ -2,63 +2,30 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import static org.junit.Assert.assertEquals;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
 import java.math.BigInteger;
 import org.junit.Test;
 
 public class TestNumericResourcePool {
 
-  private final FieldDefinitionBigInteger fieldDefinition = new FieldDefinitionBigInteger(
-      new ModulusBigInteger("251"));
+  private final BigIntegerFieldDefinition fieldDefinition = new BigIntegerFieldDefinition("251");
 
   @Test
   public void testConvertRepresentationLessThanHalf() {
-    NumericResourcePool pool = new MockNumericResourcePool(fieldDefinition);
-    BigInteger actual = convertRepresentation(pool, BigInteger.TEN);
+    BigInteger actual = fieldDefinition.convertToSigned(BigInteger.TEN);
     assertEquals(BigInteger.TEN, actual);
-  }
-
-  private BigInteger convertRepresentation(NumericResourcePool pool, BigInteger bigInteger) {
-    FieldElement value = fieldDefinition.createElement(bigInteger);
-    return pool.getFieldDefinition().convertRepresentation(value);
   }
 
   @Test
   public void testConvertRepresentationGreaterThanHalf() {
-    NumericResourcePool pool = new MockNumericResourcePool(fieldDefinition);
-    BigInteger actual = convertRepresentation(pool, new BigInteger("200"));
-    assertEquals(new BigInteger("200").subtract(fieldDefinition.getModulus()),
-        actual);
+    BigInteger actual = fieldDefinition.convertToSigned(new BigInteger("200"));
+    assertEquals(new BigInteger("200").subtract(fieldDefinition.getModulus()), actual);
   }
 
   @Test
   public void testConvertRepresentationEqualsHalf() {
     BigInteger modulusHalf = fieldDefinition.getModulus().shiftRight(1);
-    NumericResourcePool pool = new MockNumericResourcePool(fieldDefinition);
-    BigInteger actual = convertRepresentation(pool, modulusHalf);
+    BigInteger actual = fieldDefinition.convertToSigned(modulusHalf);
     assertEquals(modulusHalf, actual);
-  }
-
-  private class MockNumericResourcePool implements NumericResourcePool {
-
-    private final FieldDefinition fieldDefinition;
-
-    MockNumericResourcePool(FieldDefinition fieldDefinition) {
-      this.fieldDefinition = fieldDefinition;
-    }
-
-    @Override
-    public int getMyId() {
-      return 0;
-    }
-
-    @Override
-    public int getNoOfParties() {
-      return 0;
-    }
-
-    @Override
-    public FieldDefinition getFieldDefinition() {
-      return fieldDefinition;
-    }
   }
 }

@@ -3,8 +3,8 @@ package dk.alexandra.fresco.suite.spdz.maccheck;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -60,11 +60,12 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
     if (pp == null) {
       BigInteger modulusBigInteger = definition.getModulus();
       if (round == 0) {
-        BigInteger[] rs = sampleRandomCoefficients(openedValues.size(), jointDrbg, modulusBigInteger);
+        BigInteger[] rs = sampleRandomCoefficients(openedValues.size(), jointDrbg,
+            modulusBigInteger);
         BigInteger a = BigInteger.ZERO;
         int index = 0;
         for (FieldElement openedValue : openedValues) {
-          a = a.add(rs[index++].multiply(definition.convertRepresentation(openedValue)))
+          a = a.add(rs[index++].multiply(definition.convertToUnsigned(openedValue)))
               .mod(modulusBigInteger);
         }
 
@@ -72,18 +73,18 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         BigInteger gamma = BigInteger.ZERO;
         index = 0;
         for (SpdzSInt c : closedValues) {
-          gamma = gamma.add(rs[index++].multiply(definition.convertRepresentation(c.getMac())))
+          gamma = gamma.add(rs[index++].multiply(definition.convertToUnsigned(c.getMac())))
               .mod(modulusBigInteger);
         }
 
         // compute delta_i as: gamma_i - alpha_i*a
-        BigInteger delta = gamma.subtract(definition.convertRepresentation(alpha).multiply(a))
+        BigInteger delta = gamma.subtract(definition.convertToUnsigned(alpha).multiply(a))
             .mod(modulusBigInteger);
         // Commit to delta and open it afterwards
         SpdzCommitment commitment = new SpdzCommitment(digest,
             definition.createElement(delta),
             rand, modulusBigInteger.bitLength());
-        Map<Integer, FieldElement> comms = new HashMap<>();
+        Map<Integer, byte[]> comms = new HashMap<>();
         comm = new MaliciousSpdzCommitProtocol(commitment, comms, corruptCommitRound);
         commitments = new HashMap<>();
         openComm = new MaliciousSpdzOpenCommitProtocol(commitment, comms, commitments,
@@ -102,7 +103,7 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         }
         BigInteger deltaSum = BigInteger.ZERO;
         for (FieldElement d : commitments.values()) {
-          deltaSum = deltaSum.add(definition.convertRepresentation(d));
+          deltaSum = deltaSum.add(definition.convertToUnsigned(d));
         }
         deltaSum = deltaSum.mod(modulusBigInteger);
         if (!deltaSum.equals(BigInteger.ZERO)) {

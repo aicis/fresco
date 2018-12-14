@@ -1,11 +1,11 @@
 package dk.alexandra.fresco.tools.mascot.mult;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,7 +24,7 @@ public class MultiplyRightHelper {
 
   public MultiplyRightHelper(MascotResourcePool resourcePool, Network network, int otherId) {
     this.resourcePool = resourcePool;
-    this.fieldElementUtils = new FieldElementUtils(resourcePool.getModulus());
+    this.fieldElementUtils = new FieldElementUtils(resourcePool.getFieldDefinition());
     this.rot = resourcePool.createRot(otherId, network);
   }
 
@@ -61,14 +61,14 @@ public class MultiplyRightHelper {
    * @param rightFactors this party's factors
    * @return masked shares of this party's factor's bits.
    */
-  public List<MascotFieldElement> computeDiffs(List<Pair<MascotFieldElement, MascotFieldElement>> feSeedPairs,
-      List<MascotFieldElement> rightFactors) {
-    List<MascotFieldElement> diffs = new ArrayList<>(feSeedPairs.size());
+  public List<FieldElement> computeDiffs(List<Pair<FieldElement, FieldElement>> feSeedPairs,
+      List<FieldElement> rightFactors) {
+    List<FieldElement> diffs = new ArrayList<>(feSeedPairs.size());
     int rightFactorIdx = 0;
     int seedPairIdx = 0;
-    for (Pair<MascotFieldElement, MascotFieldElement> feSeedPair : feSeedPairs) {
-      MascotFieldElement rightFactor = rightFactors.get(rightFactorIdx);
-      MascotFieldElement diff = computeDiff(feSeedPair, rightFactor);
+    for (Pair<FieldElement, FieldElement> feSeedPair : feSeedPairs) {
+      FieldElement rightFactor = rightFactors.get(rightFactorIdx);
+      FieldElement diff = computeDiff(feSeedPair, rightFactor);
       diffs.add(diff);
       seedPairIdx++;
       rightFactorIdx = seedPairIdx / (resourcePool.getModBitLength());
@@ -84,24 +84,23 @@ public class MultiplyRightHelper {
    * @param numRightFactors number of total right factors
    * @return shares of products
    */
-  public List<MascotFieldElement> computeProductShares(List<MascotFieldElement> feZeroSeeds,
+  public List<FieldElement> computeProductShares(List<FieldElement> feZeroSeeds,
       int numRightFactors) {
-    List<MascotFieldElement> productShares = new ArrayList<>(numRightFactors);
+    List<FieldElement> productShares = new ArrayList<>(numRightFactors);
     for (int rightFactIdx = 0; rightFactIdx < numRightFactors; rightFactIdx++) {
       int from = rightFactIdx * resourcePool.getModBitLength();
       int to = (rightFactIdx + 1) * resourcePool.getModBitLength();
-      List<MascotFieldElement> subFactors = feZeroSeeds.subList(from, to);
-      MascotFieldElement recombined = fieldElementUtils.recombine(subFactors);
+      List<FieldElement> subFactors = feZeroSeeds.subList(from, to);
+      FieldElement recombined = fieldElementUtils.recombine(subFactors);
       productShares.add(recombined.negate());
     }
     return productShares;
   }
 
-  private MascotFieldElement computeDiff(Pair<MascotFieldElement, MascotFieldElement> feSeedPair,
-      MascotFieldElement factor) {
-    MascotFieldElement left = feSeedPair.getFirst();
-    MascotFieldElement right = feSeedPair.getSecond();
+  private FieldElement computeDiff(Pair<FieldElement, FieldElement> feSeedPair,
+      FieldElement factor) {
+    FieldElement left = feSeedPair.getFirst();
+    FieldElement right = feSeedPair.getSecond();
     return left.subtract(right).add(factor);
   }
-
 }

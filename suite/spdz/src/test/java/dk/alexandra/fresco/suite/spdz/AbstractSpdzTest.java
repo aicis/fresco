@@ -7,9 +7,9 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultPreprocessedValues;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.network.CloseableNetwork;
@@ -46,7 +46,6 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzMascotDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDataSupplier;
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
@@ -238,18 +237,17 @@ public abstract class AbstractSpdzTest {
     if (preProStrat == DUMMY) {
       BigInteger suitableModulus = ModulusFinder.findSuitableModulus(modBitLength);
       supplier = new SpdzDummyDataSupplier(myId, numberOfParties,
-          new FieldDefinitionBigInteger(new ModulusBigInteger(suitableModulus)),
+          new BigIntegerFieldDefinition(suitableModulus),
           new BigInteger(suitableModulus.bitLength(), new Random(0)).mod(suitableModulus));
     } else if (preProStrat == MASCOT) {
       List<Integer> partyIds =
           IntStream.range(1, numberOfParties + 1).boxed().collect(Collectors.toList());
       Drbg drbg = getDrbg(myId, PRG_SEED_LENGTH);
       BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
+      final BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(modulus);
       Map<Integer, RotList> seedOts =
           getSeedOts(myId, partyIds, PRG_SEED_LENGTH, drbg, otGenerator.createExtraNetwork(myId));
-      MascotFieldElement ssk = SpdzMascotDataSupplier.createRandomSsk(modulus, PRG_SEED_LENGTH);
-      final FieldDefinitionBigInteger definition = new FieldDefinitionBigInteger(
-          new ModulusBigInteger(modulus));
+      FieldElement ssk = SpdzMascotDataSupplier.createRandomSsk(definition, PRG_SEED_LENGTH);
       supplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, numberOfParties,
           () -> tripleGenerator.createExtraNetwork(myId), modBitLength,
           definition,

@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -9,12 +11,10 @@ import dk.alexandra.fresco.suite.spdz.NetManager;
 import dk.alexandra.fresco.tools.mascot.Mascot;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePoolImpl;
 import dk.alexandra.fresco.tools.mascot.MascotSecurityParameters;
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
-import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,9 +40,9 @@ public class TestParallelMascots {
   private MascotSecurityParameters mascotSecurityParameters;
   private List<Integer> ports;
   private int noOfParties;
-  private BigInteger modulus;
   private int iterations;
   private Logger logger = LoggerFactory.getLogger(TestParallelMascots.class);
+  private BigIntegerFieldDefinition definition;
 
   @Before
   public void setUp() {
@@ -53,8 +53,9 @@ public class TestParallelMascots {
     }
     executorService = Executors.newCachedThreadPool();
     mascotSecurityParameters = new MascotSecurityParameters();
-    modulus = ModulusFinder.findSuitableModulus(mascotSecurityParameters.getModBitLength());
     iterations = 3;
+    definition = new BigIntegerFieldDefinition(
+        ModulusFinder.findSuitableModulus(mascotSecurityParameters.getModBitLength()));
   }
 
   @After
@@ -99,11 +100,11 @@ public class TestParallelMascots {
     return invokeAndReturn(seedOtTasks);
   }
 
-  private Map<Integer, MascotFieldElement> setupMacKeyShares() {
-    Map<Integer, MascotFieldElement> macKeyShares = new HashMap<>();
+  private Map<Integer, FieldElement> setupMacKeyShares() {
+    Map<Integer, FieldElement> macKeyShares = new HashMap<>();
     for (int myId = 1; myId <= noOfParties; myId++) {
-      MascotFieldElement ssk = SpdzMascotDataSupplier
-          .createRandomSsk(modulus, mascotSecurityParameters.getPrgSeedLength());
+      FieldElement ssk = SpdzMascotDataSupplier
+          .createRandomSsk(definition, mascotSecurityParameters.getPrgSeedLength());
       macKeyShares.put(myId, ssk);
     }
     return macKeyShares;
@@ -118,13 +119,13 @@ public class TestParallelMascots {
 
   private void constructMascot() throws Exception {
     List<Map<Integer, RotList>> seedOts = setupOts();
-    Map<Integer, MascotFieldElement> perPartyMacKeyShares = setupMacKeyShares();
+    Map<Integer, FieldElement> perPartyMacKeyShares = setupMacKeyShares();
     List<Callable<Mascot>> mascotCreators = new ArrayList<>();
     for (int i = 0; i < iterations; i++) {
       @SuppressWarnings("resource")
       NetManager normalManager = new NetManager(ports);
       for (int myId = 1; myId <= noOfParties; myId++) {
-        MascotFieldElement randomSsk = perPartyMacKeyShares.get(myId);
+        FieldElement randomSsk = perPartyMacKeyShares.get(myId);
         int finalMyId = myId;
         int finalInstanceId = i;
         Map<Integer, RotList> seedOt = seedOts.get(finalMyId - 1);
@@ -141,7 +142,7 @@ public class TestParallelMascots {
   @Test
   public void testFirstTriples() throws Exception {
     List<Map<Integer, RotList>> seedOts = setupOts();
-    Map<Integer, MascotFieldElement> perPartyMacKeyShares = setupMacKeyShares();
+    Map<Integer, FieldElement> perPartyMacKeyShares = setupMacKeyShares();
     List<Callable<List<MultiplicationTriple>>> mascotCreators = new ArrayList<>();
     for (int i = 0; i < iterations; i++) {
       @SuppressWarnings("resource")
@@ -149,7 +150,7 @@ public class TestParallelMascots {
       for (int myId = 1; myId <= noOfParties; myId++) {
         int finalMyId = myId;
         int finalInstanceId = i;
-        MascotFieldElement randomSsk = perPartyMacKeyShares.get(finalMyId);
+        FieldElement randomSsk = perPartyMacKeyShares.get(finalMyId);
         Map<Integer, RotList> seedOt = seedOts.get(finalMyId - 1);
         mascotCreators.add(() -> {
           Mascot mascot = new Mascot(

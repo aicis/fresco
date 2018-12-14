@@ -1,26 +1,18 @@
-package dk.alexandra.fresco.framework.builder.numeric;
+package dk.alexandra.fresco.framework.builder.numeric.field;
 
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Objects;
 
-public final class ModulusBigInteger implements Serializable {
+final class BigIntegerModulus implements Serializable {
 
   private final BigInteger value;
 
-  public ModulusBigInteger(BigInteger value) {
+  BigIntegerModulus(BigInteger value) {
     this.value = Objects.requireNonNull(value);
   }
 
-  public ModulusBigInteger(int value) {
-    this(BigInteger.valueOf(value));
-  }
-
-  public ModulusBigInteger(String value) {
-    this(new BigInteger(value));
-  }
-
-  public BigInteger getBigInteger() {
+  BigInteger getBigInteger() {
     return value;
   }
 
@@ -32,7 +24,7 @@ public final class ModulusBigInteger implements Serializable {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ModulusBigInteger that = (ModulusBigInteger) o;
+    BigIntegerModulus that = (BigIntegerModulus) o;
     return Objects.equals(value, that.value);
   }
 
@@ -43,7 +35,7 @@ public final class ModulusBigInteger implements Serializable {
 
   @Override
   public String toString() {
-    return "ModulusBigInteger{" +
+    return "BigIntegerModulus{" +
         "value=" + value +
         '}';
   }

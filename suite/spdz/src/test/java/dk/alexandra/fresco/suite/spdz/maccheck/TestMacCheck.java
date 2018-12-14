@@ -4,12 +4,10 @@ import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElementBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
@@ -41,6 +39,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class TestMacCheck {
+
+  private BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(
+      ModulusFinder.findSuitableModulus(512));
 
   @Test
   public void testMacCorrupt() throws Exception {
@@ -103,10 +104,10 @@ public class TestMacCheck {
     SpdzDataSupplier supplier;
     if (myId == 1 && corruptMac) {
       supplier = new DummyMaliciousDataSupplier(myId, size,
-          new FieldDefinitionBigInteger(new ModulusBigInteger(modulus.toString())), modulus);
+          new BigIntegerFieldDefinition(modulus.toString()), modulus);
     } else {
       supplier = new SpdzDummyDataSupplier(myId, size,
-          new FieldDefinitionBigInteger(new ModulusBigInteger(modulus)), modulus);
+          new BigIntegerFieldDefinition(modulus), modulus);
     }
     return new SpdzResourcePoolImpl(myId, size, new SpdzOpenedValueStoreImpl(), supplier,
         new AesCtrDrbg(new byte[32]));
@@ -127,8 +128,7 @@ public class TestMacCheck {
       SpdzTriple trip = super.getNextTriple();
       if (maliciousCountdown == 0) {
         FieldElement share = trip.getA().getShare();
-        share.add(new FieldElementBigInteger(1, new ModulusBigInteger(
-            "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557")));
+        share.add(definition.createElement(1));
         SpdzSInt newA = new SpdzSInt(share, trip.getA().getMac());
         trip = new SpdzTriple(newA, trip.getB(), trip.getC());
       }

@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
-import dk.alexandra.fresco.tools.mascot.arithm.Addable;
+import dk.alexandra.fresco.framework.builder.numeric.Addable;
 
 /**
  * An secret-shared authenticated multiplication triple. <p>Holds three elements [a],[b],[c] such

@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.tools.mascot;
 
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
-import java.math.BigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,28 +9,26 @@ import java.util.stream.Collectors;
 
 public class MascotTestUtils {
 
-  public static List<MascotFieldElement> generateSingleRow(int[] factors, BigInteger modulus) {
-    return Arrays.stream(factors).mapToObj(val -> new MascotFieldElement(val, modulus))
-        .collect(Collectors.toList());
+  public static List<FieldElement> generateSingleRow(int[] factors, FieldDefinition definition) {
+    return Arrays.stream(factors).mapToObj(definition::createElement).collect(Collectors.toList());
   }
 
   /**
    * Converts integer matrix into field-element matrix.
-   * 
+   *
    * @param rows integer matrix
-   * @param modulus field modulus
+   * @param definition field definition
    * @return field element matrix
    */
-  public static List<List<MascotFieldElement>> generateMatrix(int[][] rows, BigInteger modulus) {
+  public static List<List<FieldElement>> generateMatrix(int[][] rows, FieldDefinition definition) {
     int numMults = rows.length;
-    List<List<MascotFieldElement>> input = new ArrayList<>(numMults);
+    List<List<FieldElement>> input = new ArrayList<>(numMults);
     for (int[] leftFactorRow : rows) {
-      List<MascotFieldElement> row =
-          Arrays.stream(leftFactorRow).mapToObj(val -> new MascotFieldElement(val, modulus))
+      List<FieldElement> row =
+          Arrays.stream(leftFactorRow).mapToObj(definition::createElement)
               .collect(Collectors.toList());
       input.add(row);
     }
     return input;
   }
-
 }

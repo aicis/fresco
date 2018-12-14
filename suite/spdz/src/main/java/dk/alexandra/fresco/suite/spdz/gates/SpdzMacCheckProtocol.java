@@ -3,9 +3,9 @@ package dk.alexandra.fresco.suite.spdz.gates;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.builder.Computation;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
@@ -85,7 +85,8 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
               modulus.bitLength());
           return seq.seq((subSeq) -> subSeq.append(new SpdzCommitProtocol(deltaCommitment)))
               .seq((subSeq, commitProtocol) ->
-                  subSeq.append(new SpdzOpenCommitProtocol(deltaCommitment, commitProtocol)));
+                  subSeq.append(new SpdzOpenCommitProtocol(deltaCommitment.getValue(),
+                      deltaCommitment.getRandomness(), commitProtocol)));
         }).seq((seq, commitments) -> {
           FieldElement deltaSum =
               commitments.values()
@@ -112,7 +113,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
     for (int i = 0; i < numCoefficients; i++) {
       byte[] bytes = new byte[modulus.bitLength() / Byte.SIZE];
       jointDrbg.nextBytes(bytes);
-      coefficients[i] = fieldDefinition.deserialize(bytes);
+      coefficients[i] = fieldDefinition.createElement(new BigInteger(bytes));
     }
     return coefficients;
   }
