@@ -26,11 +26,9 @@ public class FixedNumeric implements RealNumeric {
   /**
    * Creates a new fixed point based RealNumeric ComputationDirectory
    *
-   * @param builder a ProtocolBuilder for the numeric computations which will be used to
-   *     implement
+   * @param builder a ProtocolBuilder for the numeric computations which will be used to implement
    *     the fixed point operations.
-   * @param precision the precision used for the fixed point numbers. The precision must be in
-   *     the
+   * @param precision the precision used for the fixed point numbers. The precision must be in the
    *     range <i>0 ... <code>builder.getMaxBitLength</code> / 4</i>.
    */
   public FixedNumeric(ProtocolBuilderNumeric builder, int precision) {
