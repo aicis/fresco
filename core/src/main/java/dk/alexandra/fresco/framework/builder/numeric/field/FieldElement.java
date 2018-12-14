@@ -14,8 +14,6 @@ public interface FieldElement extends Serializable, Addable<FieldElement> {
 
   FieldElement multiply(FieldElement other);
 
-  FieldElement pow(int exponent);
-
   FieldElement sqrt();
 
   FieldElement modInverse();

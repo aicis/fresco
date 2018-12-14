@@ -56,11 +56,6 @@ final class MersennePrimeFieldElement implements FieldElement {
   }
 
   @Override
-  public FieldElement pow(int exponent) {
-    return create(value.pow(exponent));
-  }
-
-  @Override
   public FieldElement sqrt() {
     return create(MathUtils.modularSqrt(value, getModulus()));
   }
