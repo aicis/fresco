@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzNativeProtocol;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Collection;
@@ -96,7 +97,7 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
     MessageDigest messageDigest = spdzResourcePool.getMessageDigest();
     messageDigest.update(definition.serialize(value));
     messageDigest.update(definition.serialize(randomness));
-    FieldElement testSubject = definition.deserialize(messageDigest.digest());
+    FieldElement testSubject = definition.createElement(new BigInteger(messageDigest.digest()));
     return commitment.equals(testSubject);
   }
 
