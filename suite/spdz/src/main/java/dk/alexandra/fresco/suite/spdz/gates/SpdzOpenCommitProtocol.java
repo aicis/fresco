@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,20 +13,25 @@ import java.util.Map;
 
 public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, FieldElement>> {
 
-  private SpdzCommitment commitment;
-  private Map<Integer, FieldElement> ss;
-  private Map<Integer, byte[]> commitments;
+  private final FieldElement value;
+  private final byte[] randomness;
+  private final Map<Integer, FieldElement> ss;
+  private final Map<Integer, byte[]> commitments;
   private byte[] digest;
 
   /**
    * Protocol which opens a number of commitments and checks the validity of those.
    *
-   * @param commitment My own commitment.
+   * @param value My own value commitment.
+   * @param randomness My own commitment randomness.
    * @param commitments Other parties commitments.
    */
-  public SpdzOpenCommitProtocol(SpdzCommitment commitment,
+  public SpdzOpenCommitProtocol(
+      FieldElement value,
+      byte[] randomness,
       Map<Integer, byte[]> commitments) {
-    this.commitment = commitment;
+    this.value = value;
+    this.randomness = randomness;
     this.commitments = commitments;
     this.ss = new HashMap<>();
   }
@@ -44,9 +48,7 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, Fiel
     FieldDefinition definition = spdzResourcePool.getFieldDefinition();
     if (round == 0) {
       // Send your opening to all players
-      FieldElement value = this.commitment.getValue();
       network.sendToAll(definition.serialize(value));
-      byte[] randomness = this.commitment.getRandomness();
       network.sendToAll(randomness);
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
