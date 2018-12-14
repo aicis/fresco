@@ -3,7 +3,6 @@ package dk.alexandra.fresco.tools.mascot.elgen;
 import dk.alexandra.fresco.framework.builder.numeric.Addable;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.SecretSharer;
 import dk.alexandra.fresco.framework.util.TransposeUtils;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
@@ -85,8 +84,7 @@ public class ElementGeneration {
     // mask and combine values (step 7)
     FieldElement maskedValue = fieldElementUtils.innerProduct(values, coefficients);
     // send masked value to all other parties
-    network.sendToAll(
-        ((ByteSerializer<FieldElement>) resourcePool.getFieldDefinition()).serialize(maskedValue));
+    network.sendToAll(resourcePool.getFieldDefinition().serialize(maskedValue));
     // so that we can use receiveFromAll correctly later
     network.receive(resourcePool.getMyId());
 
@@ -110,8 +108,7 @@ public class ElementGeneration {
   public List<AuthenticatedElement> input(Integer inputterId, int numInputs) {
     // receive shares from inputter (step 2)
     List<FieldElement> shares =
-        ((ByteSerializer<FieldElement>) resourcePool.getFieldDefinition())
-            .deserializeList(network.receive(inputterId));
+        resourcePool.getFieldDefinition().deserializeList(network.receive(inputterId));
 
     // receive per-element mac shares (steps 3 through 5)
     CopeSigner copeSigner = copeSigners.get(inputterId);
@@ -122,8 +119,7 @@ public class ElementGeneration {
 
     // receive masked value we will use in mac-check (step 7)
     FieldElement maskedValue =
-        ((ByteSerializer<FieldElement>) resourcePool.getFieldDefinition())
-            .deserialize(network.receive(inputterId));
+        resourcePool.getFieldDefinition().deserialize(network.receive(inputterId));
 
     // perform mac-check on opened value (steps 8 through 9)
     runMacCheck(maskedValue, coefficients, macs);
@@ -164,13 +160,12 @@ public class ElementGeneration {
     List<FieldElement> ownShares =
         closed.stream().map(AuthenticatedElement::getShare).collect(Collectors.toList());
     // send own shares to others
-    network.sendToAll(
-        ((ByteSerializer<FieldElement>) resourcePool.getFieldDefinition()).serialize(ownShares));
+    network.sendToAll(resourcePool.getFieldDefinition().serialize(ownShares));
     // receive others' shares
     List<byte[]> rawShares = network.receiveFromAll();
     // parse
     List<List<FieldElement>> shares = rawShares.stream()
-        .map(((ByteSerializer<FieldElement>) resourcePool.getFieldDefinition())::deserializeList)
+        .map(resourcePool.getFieldDefinition()::deserializeList)
         .collect(Collectors.toList());
     // recombine (step 2)
     return Addable.sumRows(shares);
@@ -220,8 +215,7 @@ public class ElementGeneration {
       // send shares to everyone but self
       if (partyId != resourcePool.getMyId()) {
         List<FieldElement> shares = byParty.get(partyId - 1);
-        network.send(partyId,
-            ((ByteSerializer<FieldElement>) resourcePool.getFieldDefinition()).serialize(shares));
+        network.send(partyId, resourcePool.getFieldDefinition().serialize(shares));
       }
     }
     // return own shares
