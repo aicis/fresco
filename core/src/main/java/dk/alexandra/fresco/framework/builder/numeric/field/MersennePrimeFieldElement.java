@@ -11,7 +11,8 @@ public final class MersennePrimeFieldElement implements FieldElement {
 
   private MersennePrimeFieldElement(BigInteger value, MersennePrimeModulus modulus) {
     if (value.signum() < 0) {
-      this.value = value.mod(modulus.getBigInteger());
+      BigInteger positiveValue = modulus.mod(value.abs());
+      this.value = modulus.getBigInteger().subtract(positiveValue);
     } else {
       this.value = modulus.mod(value);
     }
@@ -50,7 +51,7 @@ public final class MersennePrimeFieldElement implements FieldElement {
 
   @Override
   public FieldElement negate() {
-    return create(value.negate());
+    return create(getModulus().subtract(value));
   }
 
   @Override
@@ -71,11 +72,6 @@ public final class MersennePrimeFieldElement implements FieldElement {
   @Override
   public FieldElement modInverse() {
     return create(value.modInverse(getModulus()));
-  }
-
-  @Override
-  public boolean getBit(int bitIndex) {
-    return value.testBit(bitIndex);
   }
 
   static BigInteger extractValue(FieldElement element) {
