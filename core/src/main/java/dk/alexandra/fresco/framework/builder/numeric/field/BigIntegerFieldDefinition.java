@@ -9,7 +9,7 @@ public final class BigIntegerFieldDefinition implements FieldDefinition {
   private final BigIntegerModulus modulus;
   private final BigInteger modulusHalf;
   private final int modulusLength;
-  private int modulusBitLength;
+  private final int modulusBitLength;
 
   public BigIntegerFieldDefinition(BigIntegerModulus modulus) {
     this.modulus = modulus;

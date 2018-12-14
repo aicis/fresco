@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.util.MathUtils;
 import java.math.BigInteger;
 import java.util.Objects;
 
-public final class MersennePrimeFieldElement implements FieldElement {
+final class MersennePrimeFieldElement implements FieldElement {
 
   private final BigInteger value;
   private final MersennePrimeModulus modulus;

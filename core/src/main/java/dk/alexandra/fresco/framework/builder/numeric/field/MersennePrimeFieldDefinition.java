@@ -9,13 +9,14 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
   private final MersennePrimeModulus modulus;
   private final BigInteger modulusHalf;
   private final int modulusLength;
-  private int modulusBitLength;
+  private final int modulusBitLength;
 
-  public MersennePrimeFieldDefinition(MersennePrimeModulus modulus) {
-    this.modulus = modulus;
+  public MersennePrimeFieldDefinition(int bitLength, int constant) {
+    FieldUtils.ensureDivisible(bitLength);
+    this.modulus = new MersennePrimeModulus(bitLength, constant);
     this.modulusHalf = modulus.getPrime().shiftRight(1);
-    this.modulusBitLength = modulus.getBitLength();
-    this.modulusLength = this.modulusBitLength / 8;
+    this.modulusBitLength = bitLength;
+    this.modulusLength = bitLength / 8;
   }
 
   @Override

@@ -4,15 +4,14 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Objects;
 
-public final class MersennePrimeModulus implements Serializable {
+final class MersennePrimeModulus implements Serializable {
 
   private final int bitLength;
   private final BigInteger constant;
   private final BigInteger precomputedBitMask;
   private final BigInteger prime;
 
-  public MersennePrimeModulus(int bitLength, int constant) {
-    FieldUtils.ensureDivisible(bitLength);
+  MersennePrimeModulus(int bitLength, int constant) {
     this.bitLength = bitLength;
     this.constant = BigInteger.valueOf(constant);
     BigInteger shifted = BigInteger.ONE.shiftLeft(bitLength);
