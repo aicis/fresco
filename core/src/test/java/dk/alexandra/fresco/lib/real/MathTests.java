@@ -41,7 +41,7 @@ public class MathTests {
           };
           BigDecimal output = runApplication(testApplication);
           int expectedPrecision = DEFAULT_PRECISION - 1; //
-          RealTestUtils.assertEqual(getFieldDefinition(), expected, output, expectedPrecision);
+          RealTestUtils.assertEqual(expected, output, expectedPrecision);
         }
       };
     }
@@ -120,7 +120,7 @@ public class MathTests {
             // For large inputs, the result is quite imprecise. How imprecise is hard to estimate,
             // but for now we use 8 bits precision as bound.
             RealTestUtils
-                .assertEqual(getFieldDefinition(), new BigDecimal(Math.log(a.doubleValue())),
+                .assertEqual(new BigDecimal(Math.log(a.doubleValue())),
                     openOutput, 8);
           }
         }
@@ -160,7 +160,7 @@ public class MathTests {
 
             BigDecimal expected = new BigDecimal(Math.sqrt(openInputs.get(idx).doubleValue()));
             RealTestUtils
-                .assertEqual(getFieldDefinition(), expected, openOutput, DEFAULT_PRECISION / 2);
+                .assertEqual(expected, openOutput, DEFAULT_PRECISION / 2);
           }
         }
       };
@@ -187,7 +187,7 @@ public class MathTests {
           };
           BigDecimal output = runApplication(app);
           RealTestUtils
-              .assertEqual(getFieldDefinition(), expectedOutput, output, DEFAULT_PRECISION);
+              .assertEqual(expectedOutput, output, DEFAULT_PRECISION);
         }
       };
     }
@@ -226,7 +226,7 @@ public class MathTests {
           };
           BigDecimal output = runApplication(app);
           RealTestUtils
-              .assertEqual(getFieldDefinition(), expectedOutput, output, DEFAULT_PRECISION);
+              .assertEqual(expectedOutput, output, DEFAULT_PRECISION);
         }
       };
     }
@@ -301,7 +301,7 @@ public class MathTests {
           };
           BigDecimal output = runApplication(app);
           RealTestUtils
-              .assertEqual(getFieldDefinition(), expectedOutput, output, DEFAULT_PRECISION);
+              .assertEqual(expectedOutput, output, DEFAULT_PRECISION);
         }
       };
     }
