@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.maccheck;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
@@ -15,7 +14,7 @@ import java.util.Map;
 public class MaliciousSpdzCommitProtocol extends SpdzNativeProtocol<Boolean> {
 
   private SpdzCommitment commitment;
-  private Map<Integer, FieldElement> comms;
+  private Map<Integer, byte[]> comms;
   private byte[] broadcastDigest;
   private Boolean result;
   private final boolean corruptNow;
@@ -23,7 +22,7 @@ public class MaliciousSpdzCommitProtocol extends SpdzNativeProtocol<Boolean> {
   /**
    * Malicious commitment protocol.
    */
-  public MaliciousSpdzCommitProtocol(SpdzCommitment commitment, Map<Integer, FieldElement> comms,
+  public MaliciousSpdzCommitProtocol(SpdzCommitment commitment, Map<Integer, byte[]> comms,
       boolean corruptNow) {
     this.commitment = commitment;
     this.comms = comms;
@@ -41,14 +40,14 @@ public class MaliciousSpdzCommitProtocol extends SpdzNativeProtocol<Boolean> {
 
       List<byte[]> commitments = network.receiveFromAll();
       for (int i = 0; i < commitments.size(); i++) {
-        comms.put(i + 1, definition.deserialize(commitments.get(i)));
+        comms.put(i + 1, commitments.get(i));
       }
       if (players < 3) {
         this.result = true;
         return EvaluationStatus.IS_DONE;
       } else {
         broadcastDigest = sendMaliciousBroadcastValidation(spdzResourcePool.getMessageDigest(),
-            network, comms.values(), spdzResourcePool.getFieldDefinition());
+            network, comms.values());
         return EvaluationStatus.HAS_MORE_ROUNDS;
       }
     } else {
@@ -63,10 +62,9 @@ public class MaliciousSpdzCommitProtocol extends SpdzNativeProtocol<Boolean> {
   }
 
   private byte[] sendMaliciousBroadcastValidation(MessageDigest dig, Network network,
-      Collection<FieldElement> bs,
-      FieldDefinition fieldDefinition) {
-    for (FieldElement b : bs) {
-      dig.update(fieldDefinition.serialize(b));
+      Collection<byte[]> bs) {
+    for (byte[] b : bs) {
+      dig.update(b);
     }
     return sendAndReset(dig, network);
   }

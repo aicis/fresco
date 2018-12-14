@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzNativeProtocol;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Collection;
@@ -17,7 +16,7 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
 
   private SpdzCommitment commitment;
   private Map<Integer, FieldElement> ss;
-  private Map<Integer, FieldElement> commitments;
+  private Map<Integer, byte[]> commitments;
   private boolean openingValidated;
   private byte[] digest;
   private Boolean result;
@@ -32,7 +31,7 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
    * @param ss The resulting opened values from the commitments.
    */
   public MaliciousSpdzOpenCommitProtocol(SpdzCommitment commitment,
-      Map<Integer, FieldElement> commitments, Map<Integer, FieldElement> ss, boolean corruptNow) {
+      Map<Integer, byte[]> commitments, Map<Integer, FieldElement> ss, boolean corruptNow) {
     this.commitment = commitment;
     this.commitments = commitments;
     this.ss = ss;
@@ -66,7 +65,7 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
       openingValidated = true;
       FieldElement[] broadcastMessages = new FieldElement[2 * players];
       for (int i = 0; i < players; i++) {
-        FieldElement com = commitments.get(i + 1);
+        byte[] com = commitments.get(i + 1);
         FieldElement open0 = definition.deserialize(values.get(i));
         FieldElement open1 = definition.deserialize(randomnesses.get(i));
         boolean validate = checkCommitment(spdzResourcePool, com, open0, open1);
@@ -91,14 +90,14 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
     }
   }
 
-  private boolean checkCommitment(SpdzResourcePool spdzResourcePool, FieldElement commitment,
+  private boolean checkCommitment(SpdzResourcePool spdzResourcePool, byte[] commitment,
       FieldElement value, FieldElement randomness) {
     FieldDefinition definition = spdzResourcePool.getFieldDefinition();
     MessageDigest messageDigest = spdzResourcePool.getMessageDigest();
     messageDigest.update(definition.serialize(value));
     messageDigest.update(definition.serialize(randomness));
-    FieldElement testSubject = definition.createElement(new BigInteger(messageDigest.digest()));
-    return commitment.equals(testSubject);
+    byte[] testSubject = messageDigest.digest();
+    return Arrays.equals(commitment, testSubject);
   }
 
   private byte[] sendMaliciousBroadcastValidation(MessageDigest dig, Network network,
