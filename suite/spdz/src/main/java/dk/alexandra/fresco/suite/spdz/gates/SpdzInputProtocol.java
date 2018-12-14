@@ -1,9 +1,9 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.MaliciousException;
-import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -29,7 +29,7 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
       Network network) {
     int myId = spdzResourcePool.getMyId();
     SpdzDataSupplier dataSupplier = spdzResourcePool.getDataSupplier();
-    FieldDefinition definition = spdzResourcePool.getFieldDefinition();
+    ByteSerializer<FieldElement> definition = spdzResourcePool.getFieldDefinition();
     if (round == 0) {
       this.inputMask = dataSupplier.getNextInputMask(this.inputter);
       if (myId == this.inputter) {

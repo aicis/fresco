@@ -1,8 +1,9 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.MaliciousException;
-import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import java.util.HashMap;
@@ -29,7 +30,7 @@ public class SpdzCommitProtocol extends SpdzNativeProtocol<Map<Integer, byte[]>>
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       Network network) {
     int players = spdzResourcePool.getNoOfParties();
-    FieldDefinition definition = spdzResourcePool.getFieldDefinition();
+    ByteSerializer<FieldElement> definition = spdzResourcePool.getFieldDefinition();
     if (round == 0) {
       network.sendToAll(commitment.computeCommitment(definition));
       return EvaluationStatus.HAS_MORE_ROUNDS;

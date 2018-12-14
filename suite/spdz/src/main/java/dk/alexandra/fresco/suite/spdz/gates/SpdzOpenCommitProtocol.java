@@ -1,9 +1,9 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.MaliciousException;
-import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import java.security.MessageDigest;
 import java.util.Arrays;
@@ -45,7 +45,7 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, Fiel
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       Network network) {
     int players = spdzResourcePool.getNoOfParties();
-    FieldDefinition definition = spdzResourcePool.getFieldDefinition();
+    ByteSerializer<FieldElement> definition = spdzResourcePool.getFieldDefinition();
     if (round == 0) {
       // Send your opening to all players
       network.sendToAll(definition.serialize(value));
