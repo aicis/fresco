@@ -65,7 +65,7 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, Fiel
         boolean validate = checkCommitment(
             spdzResourcePool, commitment, open0, open1);
         openingValidated = openingValidated && validate;
-        ss.put(i, spdzResourcePool.getFieldDefinition().deserialize(open0));
+        ss.put(i, definition.deserialize(open0));
         broadcastMessages[i * 2] = open0;
         broadcastMessages[i * 2 + 1] = open1;
       }
