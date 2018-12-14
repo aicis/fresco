@@ -45,7 +45,7 @@ final class FieldUtils {
       actual = bytes;
     } else {
       actual = new byte[byteLength];
-      System.arraycopy(bytes, offset, actual, 0, actual.length);
+      System.arraycopy(bytes, offset, actual, 0, byteLength);
     }
     return creator.apply(new BigInteger(1, actual));
   }

@@ -1,9 +1,9 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -29,7 +29,7 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
       Network network) {
     SpdzDataSupplier dataSupplier = spdzResourcePool.getDataSupplier();
     int noOfPlayers = spdzResourcePool.getNoOfParties();
-    FieldDefinition definition = spdzResourcePool.getFieldDefinition();
+    ByteSerializer<FieldElement> definition = spdzResourcePool.getFieldDefinition();
     if (round == 0) {
       this.triple = dataSupplier.getNextTriple();
 

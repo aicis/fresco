@@ -85,7 +85,8 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
               modulus.bitLength());
           return seq.seq((subSeq) -> subSeq.append(new SpdzCommitProtocol(deltaCommitment)))
               .seq((subSeq, commitProtocol) ->
-                  subSeq.append(new SpdzOpenCommitProtocol(deltaCommitment, commitProtocol)));
+                  subSeq.append(new SpdzOpenCommitProtocol(deltaCommitment.getValue(),
+                      deltaCommitment.getRandomness(), commitProtocol)));
         }).seq((seq, commitments) -> {
           FieldElement deltaSum =
               commitments.values()

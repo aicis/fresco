@@ -60,7 +60,8 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
     if (pp == null) {
       BigInteger modulusBigInteger = definition.getModulus();
       if (round == 0) {
-        BigInteger[] rs = sampleRandomCoefficients(openedValues.size(), jointDrbg, modulusBigInteger);
+        BigInteger[] rs = sampleRandomCoefficients(openedValues.size(), jointDrbg,
+            modulusBigInteger);
         BigInteger a = BigInteger.ZERO;
         int index = 0;
         for (FieldElement openedValue : openedValues) {
@@ -83,7 +84,7 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         SpdzCommitment commitment = new SpdzCommitment(digest,
             definition.createElement(delta),
             rand, modulusBigInteger.bitLength());
-        Map<Integer, FieldElement> comms = new HashMap<>();
+        Map<Integer, byte[]> comms = new HashMap<>();
         comm = new MaliciousSpdzCommitProtocol(commitment, comms, corruptCommitRound);
         commitments = new HashMap<>();
         openComm = new MaliciousSpdzOpenCommitProtocol(commitment, comms, commitments,
