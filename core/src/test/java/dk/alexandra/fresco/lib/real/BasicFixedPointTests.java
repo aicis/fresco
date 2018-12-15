@@ -23,7 +23,7 @@ import org.junit.Assert;
 /**
  * Basic tests of computation with fixed point numbers.
  * <p>
- * NOTE: these tests all assume a precision of {@link BasicFixedPointTests.DEFAULT_PRECISION}.
+ * NOTE: these tests all assume a precision of {@link BasicFixedPointTests#DEFAULT_PRECISION}.
  * </p>
  */
 public class BasicFixedPointTests {
@@ -111,7 +111,6 @@ public class BasicFixedPointTests {
           } else {
             Assert.assertNull(output);
           }
-
         }
       };
     }
@@ -184,7 +183,8 @@ public class BasicFixedPointTests {
 
             BigDecimal a = openInputs.get(idx);
             BigDecimal b = openInputs2.get(idx);
-            RealTestUtils.assertEqual(a.add(b), openOutput, DEFAULT_PRECISION);
+            RealTestUtils
+                .assertEqual(a.add(b), openOutput, DEFAULT_PRECISION);
           }
         }
       };
@@ -231,7 +231,8 @@ public class BasicFixedPointTests {
 
             BigDecimal a = openInputs.get(idx);
             BigDecimal b = openInputs2.get(idx);
-            RealTestUtils.assertEqual(a.subtract(b), openOutput, DEFAULT_PRECISION);
+            RealTestUtils
+                .assertEqual(a.subtract(b), openOutput, DEFAULT_PRECISION);
           }
         }
       };
@@ -261,9 +262,9 @@ public class BasicFixedPointTests {
                 openInputs.stream().map(producer.realNumeric()::known).collect(Collectors.toList());
             List<DRes<BigDecimal>> opened = Stream.concat(
                 IntStream.range(0, closed.size())
-                .mapToObj(i -> producer.realNumeric().sub(closed.get(i), openInputs2.get(i))),
+                    .mapToObj(i -> producer.realNumeric().sub(closed.get(i), openInputs2.get(i))),
                 IntStream.range(0, closed.size())
-                .mapToObj(i -> producer.realNumeric().sub(openInputs2.get(i), closed.get(i))))
+                    .mapToObj(i -> producer.realNumeric().sub(openInputs2.get(i), closed.get(i))))
                 .map(producer.realNumeric()::open)
                 .collect(Collectors.toList());
             return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
@@ -275,7 +276,8 @@ public class BasicFixedPointTests {
                   idx -> {
                     BigDecimal a = openInputs.get(idx);
                     BigDecimal b = openInputs2.get(idx);
-                    RealTestUtils.assertEqual(a.subtract(b), output.get(idx), DEFAULT_PRECISION);
+                    RealTestUtils.assertEqual(a.subtract(b), output.get(idx),
+                        DEFAULT_PRECISION);
                   });
 
           IntStream.range(openInputs.size(), output.size())
@@ -283,9 +285,10 @@ public class BasicFixedPointTests {
                   idx -> {
                     BigDecimal a = openInputs.get(idx - openInputs.size());
                     BigDecimal b = openInputs2.get(idx - openInputs.size());
-                    RealTestUtils.assertEqual(b.subtract(a), output.get(idx), DEFAULT_PRECISION);
+                    RealTestUtils.assertEqual(b.subtract(a), output.get(idx),
+                        DEFAULT_PRECISION);
                   });
-          }
+        }
       };
     }
   }
@@ -327,13 +330,12 @@ public class BasicFixedPointTests {
             // There should be no truncation after just one multiplication
             RealTestUtils.assertEqual(a.multiply(b), openOutput,
                 DEFAULT_PRECISION
-                - Math.max(RealTestUtils.floorLog2(a), RealTestUtils.floorLog2(b)));
+                    - Math.max(RealTestUtils.floorLog2(a), RealTestUtils.floorLog2(b)));
           }
         }
       };
     }
   }
-
 
   public static class TestRepeatedMultiplication<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
@@ -391,8 +393,9 @@ public class BasicFixedPointTests {
             return producer.realNumeric().open(product);
           };
           BigDecimal output = runApplication(app);
-          RealTestUtils.assertEqual(value.divide(value2), output, DEFAULT_PRECISION - 2
-              - Math.max(0, RealTestUtils.floorLog2(value) - RealTestUtils.floorLog2(value2)));
+          RealTestUtils
+              .assertEqual(value.divide(value2), output, DEFAULT_PRECISION - 2
+                  - Math.max(0, RealTestUtils.floorLog2(value) - RealTestUtils.floorLog2(value2)));
         }
       };
     }
@@ -418,8 +421,9 @@ public class BasicFixedPointTests {
             return producer.realNumeric().open(product);
           };
           BigDecimal output = runApplication(app);
-          RealTestUtils.assertEqual(value.divide(value2), output, DEFAULT_PRECISION - 2
-              - Math.max(0, RealTestUtils.floorLog2(value) - RealTestUtils.floorLog2(value2)));
+          RealTestUtils
+              .assertEqual(value.divide(value2), output, DEFAULT_PRECISION - 2
+                  - Math.max(0, RealTestUtils.floorLog2(value) - RealTestUtils.floorLog2(value2)));
         }
       };
     }
@@ -465,7 +469,8 @@ public class BasicFixedPointTests {
             BigDecimal b = openInputs2.get(idx);
 
             RealTestUtils.assertEqual(a.multiply(b), openOutput,
-                DEFAULT_PRECISION - 1 - Math.max(RealTestUtils.floorLog2(a), RealTestUtils.floorLog2(b)));
+                DEFAULT_PRECISION - 1 - Math
+                    .max(RealTestUtils.floorLog2(a), RealTestUtils.floorLog2(b)));
           }
         }
       };
@@ -512,7 +517,8 @@ public class BasicFixedPointTests {
 
             BigDecimal a = openInputs.get(idx);
             BigDecimal b = openInputs2.get(idx);
-            RealTestUtils.assertEqual(a.add(b), openOutput, DEFAULT_PRECISION);
+            RealTestUtils
+                .assertEqual(a.add(b), openOutput, DEFAULT_PRECISION);
           }
         }
       };

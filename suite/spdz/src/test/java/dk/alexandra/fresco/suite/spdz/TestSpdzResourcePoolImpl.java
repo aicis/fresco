@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
@@ -14,7 +13,7 @@ public class TestSpdzResourcePoolImpl {
   public void getRandomGenerator() {
     BigInteger modulus = ModulusFinder.findSuitableModulus(512);
     new SpdzResourcePoolImpl(1, 2, new SpdzOpenedValueStoreImpl(), new SpdzDummyDataSupplier(1, 2,
-        new FieldDefinitionBigInteger(new ModulusBigInteger(modulus)), modulus), null)
+        new BigIntegerFieldDefinition(modulus), modulus), null)
         .getRandomGenerator();
   }
 }

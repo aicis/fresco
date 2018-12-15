@@ -2,6 +2,7 @@ package dk.alexandra.fresco.tools.mascot.arithm;
 
 import static org.junit.Assert.assertEquals;
 
+import dk.alexandra.fresco.framework.builder.numeric.Addable;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;

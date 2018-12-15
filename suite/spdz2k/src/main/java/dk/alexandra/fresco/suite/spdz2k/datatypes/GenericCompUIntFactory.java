@@ -42,5 +42,4 @@ public class GenericCompUIntFactory implements
   public int getHighBitLength() {
     return highBitLength;
   }
-
 }

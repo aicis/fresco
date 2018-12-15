@@ -3,10 +3,10 @@ package dk.alexandra.fresco.tools.mascot.maccheck;
 import static org.junit.Assert.assertEquals;
 
 import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -15,7 +15,7 @@ import org.junit.Test;
 public class TestMacCheck extends NetworkedTest {
 
   private Pair<Boolean, Exception> runSinglePartyMacCheck(MascotTestContext ctx,
-      MascotFieldElement opened, MascotFieldElement macKeyShare, MascotFieldElement macShare) {
+      FieldElement opened, FieldElement macKeyShare, FieldElement macShare) {
     MacCheck macChecker = new MacCheck(ctx.getResourcePool(), ctx.getNetwork());
     boolean thrown = false;
     Exception exception = null;
@@ -28,15 +28,15 @@ public class TestMacCheck extends NetworkedTest {
     return new Pair<>(thrown, exception);
   }
 
-  private void maliciousPartyOne(MascotFieldElement opened, MascotFieldElement macKeyShare,
-      MascotFieldElement macShare) {
+  private void maliciousPartyOne(FieldElement opened, FieldElement macKeyShare,
+      FieldElement macShare) {
     // two parties run this
     initContexts(2);
 
     // the "honest" party inputs consistent values
-    MascotFieldElement openedCorrect = new MascotFieldElement(42, getModulus());
-    MascotFieldElement macKeyShareCorrect = new MascotFieldElement(7719, getModulus());
-    MascotFieldElement macShareCorrect = new MascotFieldElement(5204, getModulus());
+    FieldElement openedCorrect = getFieldDefinition().createElement(42);
+    FieldElement macKeyShareCorrect = getFieldDefinition().createElement(7719);
+    FieldElement macShareCorrect = getFieldDefinition().createElement(5204);
 
     // define task each party will run
     Callable<Pair<Boolean, Exception>> partyOneTask =
@@ -56,15 +56,15 @@ public class TestMacCheck extends NetworkedTest {
     }
   }
 
-  private void maliciousPartyTwo(MascotFieldElement opened, MascotFieldElement macKeyShare,
-      MascotFieldElement macShare) {
+  private void maliciousPartyTwo(FieldElement opened, FieldElement macKeyShare,
+      FieldElement macShare) {
     // two parties run this
     initContexts(2);
 
     // the "honest" party inputs consistent values
-    MascotFieldElement openedCorrect = new MascotFieldElement(42, getModulus());
-    MascotFieldElement macKeyShareCorrect = new MascotFieldElement(11231, getModulus());
-    MascotFieldElement macShareCorrect = new MascotFieldElement(4444, getModulus());
+    FieldElement openedCorrect = getFieldDefinition().createElement(42);
+    FieldElement macKeyShareCorrect = getFieldDefinition().createElement(11231);
+    FieldElement macShareCorrect = getFieldDefinition().createElement(4444);
 
     // define task each party will run
     Callable<Pair<Boolean, Exception>> partyOneTask = () -> runSinglePartyMacCheck(contexts.get(1),
@@ -84,17 +84,17 @@ public class TestMacCheck extends NetworkedTest {
     }
   }
 
-  private void maliciousPartyThree(MascotFieldElement opened, MascotFieldElement macKeyShare,
-      MascotFieldElement macShare) {
+  private void maliciousPartyThree(FieldElement opened, FieldElement macKeyShare,
+      FieldElement macShare) {
     initContexts(3);
 
-    MascotFieldElement openedOne = new MascotFieldElement(42, getModulus());
-    MascotFieldElement macKeyShareOne = new MascotFieldElement(11231, getModulus());
-    MascotFieldElement macShareOne = new MascotFieldElement(4444, getModulus());
+    FieldElement openedOne = getFieldDefinition().createElement(42);
+    FieldElement macKeyShareOne = getFieldDefinition().createElement(11231);
+    FieldElement macShareOne = getFieldDefinition().createElement(4444);
 
-    MascotFieldElement openedTwo = new MascotFieldElement(42, getModulus());
-    MascotFieldElement macKeyShareTwo = new MascotFieldElement(7719, getModulus());
-    MascotFieldElement macShareTwo = new MascotFieldElement(5204, getModulus());
+    FieldElement openedTwo = getFieldDefinition().createElement(42);
+    FieldElement macKeyShareTwo = getFieldDefinition().createElement(7719);
+    FieldElement macShareTwo = getFieldDefinition().createElement(5204);
 
     // define task each party will run
     Callable<Pair<Boolean, Exception>> partyOneTask =
@@ -122,14 +122,14 @@ public class TestMacCheck extends NetworkedTest {
     initContexts(2);
 
     // left party inputs
-    MascotFieldElement macKeyShareOne = new MascotFieldElement(11231, getModulus());
-    MascotFieldElement openedOne = new MascotFieldElement(42, getModulus());
-    MascotFieldElement macShareOne = new MascotFieldElement(9000, getModulus());
+    FieldElement macKeyShareOne = getFieldDefinition().createElement(11231);
+    FieldElement openedOne = getFieldDefinition().createElement(42);
+    FieldElement macShareOne = getFieldDefinition().createElement(9000);
 
     // right party inputs
-    MascotFieldElement macKeyShareTwo = new MascotFieldElement(7719, getModulus());
-    MascotFieldElement openedTwo = new MascotFieldElement(42, getModulus());
-    MascotFieldElement macShareTwo = new MascotFieldElement(672, getModulus());
+    FieldElement macKeyShareTwo = getFieldDefinition().createElement(7719);
+    FieldElement openedTwo = getFieldDefinition().createElement(42);
+    FieldElement macShareTwo = getFieldDefinition().createElement(672);
 
     // define task each party will run
     Callable<Pair<Boolean, Exception>> partyOneTask =
@@ -149,17 +149,17 @@ public class TestMacCheck extends NetworkedTest {
   public void testThreePartyValidMacCheck() {
     initContexts(3);
 
-    MascotFieldElement openedOne = new MascotFieldElement(42, getModulus());
-    MascotFieldElement macKeyShareOne = new MascotFieldElement(11231, getModulus());
-    MascotFieldElement macShareOne = new MascotFieldElement(9000, getModulus());
+    FieldElement openedOne = getFieldDefinition().createElement(42);
+    FieldElement macKeyShareOne = getFieldDefinition().createElement(11231);
+    FieldElement macShareOne = getFieldDefinition().createElement(9000);
 
-    MascotFieldElement openedTwo = new MascotFieldElement(42, getModulus());
-    MascotFieldElement macKeyShareTwo = new MascotFieldElement(7719, getModulus());
-    MascotFieldElement macShareTwo = new MascotFieldElement(700, getModulus());
+    FieldElement openedTwo = getFieldDefinition().createElement(42);
+    FieldElement macKeyShareTwo = getFieldDefinition().createElement(7719);
+    FieldElement macShareTwo = getFieldDefinition().createElement(700);
 
-    MascotFieldElement openedThree = new MascotFieldElement(42, getModulus());
-    MascotFieldElement macKeyShareThree = new MascotFieldElement(1, getModulus());
-    MascotFieldElement macShareThree = new MascotFieldElement(14, getModulus());
+    FieldElement openedThree = getFieldDefinition().createElement(42);
+    FieldElement macKeyShareThree = getFieldDefinition().createElement(1);
+    FieldElement macShareThree = getFieldDefinition().createElement(14);
 
     // define task each party will run
     Callable<Pair<Boolean, Exception>> partyOneTask =
@@ -179,73 +179,73 @@ public class TestMacCheck extends NetworkedTest {
 
   @Test
   public void testPartyOneTampersWithOpened() {
-    MascotFieldElement opened = new MascotFieldElement(41, getModulus()); // tamper
-    MascotFieldElement macKeyShare = new MascotFieldElement(11231, getModulus());
-    MascotFieldElement macShare = new MascotFieldElement(4444, getModulus());
+    FieldElement opened = getFieldDefinition().createElement(41); // tamper
+    FieldElement macKeyShare = getFieldDefinition().createElement(11231);
+    FieldElement macShare = getFieldDefinition().createElement(4444);
     maliciousPartyOne(opened, macKeyShare, macShare);
   }
 
   @Test
   public void testPartyOneTampersWithMacKeyShare() {
-    MascotFieldElement opened = new MascotFieldElement(42, getModulus());
-    MascotFieldElement macKeyShare = new MascotFieldElement(11031, getModulus()); // tamper
-    MascotFieldElement macShare = new MascotFieldElement(4444, getModulus());
+    FieldElement opened = getFieldDefinition().createElement(42);
+    FieldElement macKeyShare = getFieldDefinition().createElement(11031); // tamper
+    FieldElement macShare = getFieldDefinition().createElement(4444);
     maliciousPartyOne(opened, macKeyShare, macShare);
   }
 
   @Test
   public void testPartyOneTampersWithMacShare() {
-    MascotFieldElement opened = new MascotFieldElement(42, getModulus());
-    MascotFieldElement macKeyShare = new MascotFieldElement(11231, getModulus());
-    MascotFieldElement macShare = new MascotFieldElement(4442, getModulus()); // tamper
+    FieldElement opened = getFieldDefinition().createElement(42);
+    FieldElement macKeyShare = getFieldDefinition().createElement(11231);
+    FieldElement macShare = getFieldDefinition().createElement(4442); // tamper
     maliciousPartyOne(opened, macKeyShare, macShare);
   }
 
   @Test
   public void testPartyTwoTampersWithOpened() {
-    MascotFieldElement opened = new MascotFieldElement(41, getModulus()); // tamper
-    MascotFieldElement macKeyShare = new MascotFieldElement(7719, getModulus());
-    MascotFieldElement macShare = new MascotFieldElement(5204, getModulus());
+    FieldElement opened = getFieldDefinition().createElement(41); // tamper
+    FieldElement macKeyShare = getFieldDefinition().createElement(7719);
+    FieldElement macShare = getFieldDefinition().createElement(5204);
     maliciousPartyTwo(opened, macKeyShare, macShare);
   }
 
   @Test
   public void testPartyTwoTampersWithMacKeyShare() {
-    MascotFieldElement opened = new MascotFieldElement(42, getModulus());
-    MascotFieldElement macKeyShare = new MascotFieldElement(77, getModulus()); // tamper
-    MascotFieldElement macShare = new MascotFieldElement(5204, getModulus());
+    FieldElement opened = getFieldDefinition().createElement(42);
+    FieldElement macKeyShare = getFieldDefinition().createElement(77); // tamper
+    FieldElement macShare = getFieldDefinition().createElement(5204);
     maliciousPartyTwo(opened, macKeyShare, macShare);
   }
 
   @Test
   public void testPartyTwoTampersWithMacShare() {
-    MascotFieldElement opened = new MascotFieldElement(42, getModulus());
-    MascotFieldElement macKeyShare = new MascotFieldElement(7719, getModulus());
-    MascotFieldElement macShare = new MascotFieldElement(4204, getModulus()); // tamper
+    FieldElement opened = getFieldDefinition().createElement(42);
+    FieldElement macKeyShare = getFieldDefinition().createElement(7719);
+    FieldElement macShare = getFieldDefinition().createElement(4204); // tamper
     maliciousPartyTwo(opened, macKeyShare, macShare);
   }
 
   @Test
   public void testPartyThreeTampersWithOpened() {
-    MascotFieldElement opened = new MascotFieldElement(41, getModulus()); // tamper
-    MascotFieldElement macKeyShare = new MascotFieldElement(1, getModulus());
-    MascotFieldElement macShare = new MascotFieldElement(42, getModulus());
+    FieldElement opened = getFieldDefinition().createElement(41); // tamper
+    FieldElement macKeyShare = getFieldDefinition().createElement(1);
+    FieldElement macShare = getFieldDefinition().createElement(42);
     maliciousPartyThree(opened, macKeyShare, macShare);
   }
 
   @Test
   public void testPartyThreeTampersWithMacKeyShare() {
-    MascotFieldElement opened = new MascotFieldElement(42, getModulus());
-    MascotFieldElement macKeyShare = new MascotFieldElement(3, getModulus()); // tamper
-    MascotFieldElement macShare = new MascotFieldElement(42, getModulus());
+    FieldElement opened = getFieldDefinition().createElement(42);
+    FieldElement macKeyShare = getFieldDefinition().createElement(3); // tamper
+    FieldElement macShare = getFieldDefinition().createElement(42);
     maliciousPartyThree(opened, macKeyShare, macShare);
   }
 
   @Test
   public void testPartyThreeTampersWithMacShare() {
-    MascotFieldElement opened = new MascotFieldElement(42, getModulus());
-    MascotFieldElement macKeyShare = new MascotFieldElement(1, getModulus());
-    MascotFieldElement macShare = new MascotFieldElement(34, getModulus()); // tamper
+    FieldElement opened = getFieldDefinition().createElement(42);
+    FieldElement macKeyShare = getFieldDefinition().createElement(1);
+    FieldElement macShare = getFieldDefinition().createElement(34); // tamper
     maliciousPartyThree(opened, macKeyShare, macShare);
   }
 

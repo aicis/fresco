@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.framework;
 
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -33,6 +35,14 @@ public class TestThreadRunner {
 
     void setConfiguration(TestThreadConfiguration<ResourcePoolT, Builder> conf) {
       this.conf = conf;
+    }
+
+    protected FieldDefinition getFieldDefinition() {
+      ResourcePoolT resourcePool = conf.getResourcePool();
+      if (resourcePool instanceof NumericResourcePool) {
+        return ((NumericResourcePool) resourcePool).getFieldDefinition();
+      }
+      return null;
     }
 
     protected <OutputT> OutputT runApplication(Application<OutputT, Builder> app) {

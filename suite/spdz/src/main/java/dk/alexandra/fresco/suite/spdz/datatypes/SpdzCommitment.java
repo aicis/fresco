@@ -1,15 +1,16 @@
 package dk.alexandra.fresco.suite.spdz.datatypes;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.Random;
 
 public class SpdzCommitment {
 
   private final FieldElement value;
-  private FieldElement randomness;
-  private FieldElement commitment;
+  private byte[] randomness;
+  private byte[] commitment;
   private final MessageDigest hash;
   private final Random rand;
   private final byte[] randomBytes;
@@ -36,17 +37,16 @@ public class SpdzCommitment {
    *
    * @return If a commitment has already been computed, the existing commitment is returned.
    */
-  public FieldElement computeCommitment(FieldDefinition definition) {
+  public byte[] computeCommitment(ByteSerializer<FieldElement> definition) {
     if (commitment != null) {
       return commitment;
     }
     hash.update(definition.serialize(value));
     rand.nextBytes(randomBytes);
-    randomness = definition.deserialize(randomBytes);
+    randomness = randomBytes;
 
-    hash.update(definition.serialize(this.randomness));
-    commitment = definition.deserialize(hash.digest());
-
+    hash.update(this.randomness);
+    commitment = hash.digest();
     return this.commitment;
   }
 
@@ -54,7 +54,7 @@ public class SpdzCommitment {
     return this.value;
   }
 
-  public FieldElement getRandomness() {
+  public byte[] getRandomness() {
     return this.randomness;
   }
 
@@ -62,7 +62,7 @@ public class SpdzCommitment {
   public String toString() {
     return "SpdzCommitment["
         + "v:" + this.value + ", "
-        + "r:" + this.randomness + ", "
-        + "commitment:" + this.commitment + "]";
+        + "r:" + Arrays.toString(this.randomness) + ", "
+        + "commitment:" + Arrays.toString(this.commitment) + "]";
   }
 }

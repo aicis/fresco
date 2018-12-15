@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.maccheck;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
@@ -16,7 +16,7 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
 
   private SpdzCommitment commitment;
   private Map<Integer, FieldElement> ss;
-  private Map<Integer, FieldElement> commitments;
+  private Map<Integer, byte[]> commitments;
   private boolean openingValidated;
   private byte[] digest;
   private Boolean result;
@@ -31,7 +31,7 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
    * @param ss The resulting opened values from the commitments.
    */
   public MaliciousSpdzOpenCommitProtocol(SpdzCommitment commitment,
-      Map<Integer, FieldElement> commitments, Map<Integer, FieldElement> ss, boolean corruptNow) {
+      Map<Integer, byte[]> commitments, Map<Integer, FieldElement> ss, boolean corruptNow) {
     this.commitment = commitment;
     this.commitments = commitments;
     this.ss = ss;
@@ -51,11 +51,11 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
       // Send your opening to all players
       FieldElement value = this.commitment.getValue();
       network.sendToAll(definition.serialize(value));
-      FieldElement randomness = this.commitment.getRandomness();
+      byte[] randomness = this.commitment.getRandomness();
       if (corruptNow) {
-        randomness = randomness.add(definition.createElement(1));
+        randomness[0] = (byte) (randomness[0] ^ 0b1);
       }
-      network.sendToAll(definition.serialize(randomness));
+      network.sendToAll(randomness);
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
       // Receive openings from all parties and check they are valid
@@ -65,7 +65,7 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
       openingValidated = true;
       FieldElement[] broadcastMessages = new FieldElement[2 * players];
       for (int i = 0; i < players; i++) {
-        FieldElement com = commitments.get(i + 1);
+        byte[] com = commitments.get(i + 1);
         FieldElement open0 = definition.deserialize(values.get(i));
         FieldElement open1 = definition.deserialize(randomnesses.get(i));
         boolean validate = checkCommitment(spdzResourcePool, com, open0, open1);
@@ -90,14 +90,14 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
     }
   }
 
-  private boolean checkCommitment(SpdzResourcePool spdzResourcePool, FieldElement commitment,
+  private boolean checkCommitment(SpdzResourcePool spdzResourcePool, byte[] commitment,
       FieldElement value, FieldElement randomness) {
     FieldDefinition definition = spdzResourcePool.getFieldDefinition();
     MessageDigest messageDigest = spdzResourcePool.getMessageDigest();
     messageDigest.update(definition.serialize(value));
     messageDigest.update(definition.serialize(randomness));
-    FieldElement testSubject = definition.deserialize(messageDigest.digest());
-    return commitment.equals(testSubject);
+    byte[] testSubject = messageDigest.digest();
+    return Arrays.equals(commitment, testSubject);
   }
 
   private byte[] sendMaliciousBroadcastValidation(MessageDigest dig, Network network,

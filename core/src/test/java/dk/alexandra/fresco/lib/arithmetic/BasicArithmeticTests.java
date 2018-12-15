@@ -152,24 +152,10 @@ public class BasicArithmeticTests {
             DRes<SInt> result = numeric.add(left, right);
             return numeric.open(result);
           };
-          ResourcePoolT resourcePool = conf.getResourcePool();
           BigInteger output = runApplication(app);
-          Assert
-              .assertEquals(
-                  convertRepresentation(resourcePool, leftValue.add(rightValue)), output);
+          Assert.assertEquals(BigInteger.valueOf(3), output);
         }
       };
-    }
-  }
-
-  private static BigInteger convertRepresentation(NumericResourcePool resourcePool,
-      BigInteger add) {
-    BigInteger modulus = resourcePool.getModulus();
-    BigInteger actual = add.mod(modulus);
-    if (actual.compareTo(modulus.divide(BigInteger.valueOf(2))) > 0) {
-      return actual.subtract(modulus);
-    } else {
-      return actual;
     }
   }
 
@@ -239,11 +225,8 @@ public class BasicArithmeticTests {
             DRes<SInt> result = numeric.mult(left, right);
             return numeric.open(result);
           };
-          ResourcePoolT resourcePool = conf.getResourcePool();
           BigInteger output = runApplication(app);
-          Assert.assertEquals(
-              convertRepresentation(resourcePool, leftValue.multiply(rightValue)),
-              output);
+          Assert.assertEquals(BigInteger.valueOf(-2), output);
         }
       };
     }
@@ -266,10 +249,8 @@ public class BasicArithmeticTests {
             DRes<SInt> result = numeric.sub(leftClosed, rightClosed);
             return numeric.open(result);
           };
-          ResourcePoolT resourcePool = conf.getResourcePool();
-          BigInteger expected = convertRepresentation(resourcePool, left.subtract(right));
           BigInteger actual = runApplication(app);
-          Assert.assertEquals(expected, actual);
+          Assert.assertEquals(BigInteger.valueOf(6), actual);
         }
       };
     }
@@ -292,10 +273,8 @@ public class BasicArithmeticTests {
             DRes<SInt> result = numeric.sub(leftClosed, rightClosed);
             return numeric.open(result);
           };
-          ResourcePoolT resourcePool = conf.getResourcePool();
-          BigInteger expected = convertRepresentation(resourcePool, left.subtract(right));
           BigInteger actual = runApplication(app);
-          Assert.assertEquals(expected, actual);
+          Assert.assertEquals(BigInteger.valueOf(-6), actual);
         }
       };
     }
@@ -317,10 +296,8 @@ public class BasicArithmeticTests {
             DRes<SInt> result = numeric.sub(leftClosed, right);
             return numeric.open(result);
           };
-          ResourcePoolT resourcePool = conf.getResourcePool();
-          BigInteger expected = convertRepresentation(resourcePool, left.subtract(right));
           BigInteger actual = runApplication(app);
-          Assert.assertEquals(expected, actual);
+          Assert.assertEquals(BigInteger.valueOf(-6), actual);
         }
       };
     }
@@ -342,10 +319,8 @@ public class BasicArithmeticTests {
             DRes<SInt> result = numeric.sub(left, rightClosed);
             return numeric.open(result);
           };
-          ResourcePoolT resourcePool = conf.getResourcePool();
-          BigInteger expected = convertRepresentation(resourcePool, left.subtract(right));
           BigInteger actual = runApplication(app);
-          Assert.assertEquals(expected, actual);
+          Assert.assertEquals(BigInteger.valueOf(-6), actual);
         }
       };
     }
@@ -370,7 +345,7 @@ public class BasicArithmeticTests {
           };
           BigInteger output = runApplication(app);
 
-          Assert.assertEquals(value.add(add), output);
+          Assert.assertEquals(BigInteger.valueOf(14), output);
         }
       };
     }
@@ -394,7 +369,7 @@ public class BasicArithmeticTests {
           };
           BigInteger output = runApplication(app);
 
-          Assert.assertEquals(value.multiply(constant), output);
+          Assert.assertEquals(BigInteger.valueOf(40), output);
         }
       };
     }
@@ -472,8 +447,7 @@ public class BasicArithmeticTests {
             Numeric numeric = producer.numeric();
             DRes<SInt> closed = numeric.input(input, 1);
             DRes<BigInteger> opened = numeric.open(closed);
-            BigInteger expected = input.subtract(modulus);
-            return () -> new Pair<>(opened.out(), expected);
+            return () -> new Pair<>(opened.out(), input);
           };
           Pair<BigInteger, BigInteger> actualAndExpected = runApplication(app);
           Assert.assertEquals(actualAndExpected.getSecond(), actualAndExpected.getFirst());

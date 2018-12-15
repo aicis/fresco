@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -37,7 +37,7 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger>
         openedVal = openedVal.add(definition.deserialize(buffer));
       }
       spdzResourcePool.getOpenedValueStore().pushOpenedValue(((SpdzSInt) in.out()), openedVal);
-      this.out = spdzResourcePool.getFieldDefinition().convertRepresentation(openedVal);
+      this.out = definition.convertToUnsigned(openedVal);
       return EvaluationStatus.IS_DONE;
     }
   }

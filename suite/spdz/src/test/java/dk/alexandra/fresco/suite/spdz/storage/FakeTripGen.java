@@ -1,9 +1,8 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -65,9 +64,9 @@ public class FakeTripGen {
    */
   public static ByteBuffer elementToBytes(SpdzSInt element, int size) {
     FieldElement share = element.getShare();
-    byte[] shareBytes = definition.convertRepresentation(share).toByteArray();
+    byte[] shareBytes = definition.convertToUnsigned(share).toByteArray();
     FieldElement mac = element.getMac();
-    byte[] macBytes = definition.convertRepresentation(mac).toByteArray();
+    byte[] macBytes = definition.convertToUnsigned(mac).toByteArray();
     byte[] bytes = new byte[size * 2];
     if (shareBytes.length > size) {
       if (shareBytes.length == size + 1) {
@@ -100,7 +99,7 @@ public class FakeTripGen {
    * @return a byte representation.
    */
   public static ByteBuffer bigIntToBytes(FieldElement b, int size) {
-    byte[] bBytes = definition.convertRepresentation(b).toByteArray();
+    byte[] bBytes = definition.convertToUnsigned(b).toByteArray();
     byte[] bytes = new byte[size];
     if (bBytes.length > size) {
       if (bBytes.length == size + 1) {
@@ -370,7 +369,7 @@ public class FakeTripGen {
       SpdzSInt[][] expPipe = new SpdzSInt[noOfParties][EXP_PIPE_SIZE];
       FieldElement r = sample();
       FieldElement rInv = definition.createElement(
-          definition.convertRepresentation(r).modInverse(definition.getModulus()));
+          definition.convertToUnsigned(r).modInverse(definition.getModulus()));
       FieldElement mac = getMac(rInv);
       List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
       for (int i = 0; i < noOfParties; i++) {
@@ -402,7 +401,7 @@ public class FakeTripGen {
         SpdzSInt[][] expPipe = new SpdzSInt[noOfParties][EXP_PIPE_SIZE];
         FieldElement r = sample();
         FieldElement rInv = definition.createElement(
-            definition.convertRepresentation(r).modInverse(definition.getModulus()));
+            definition.convertToUnsigned(r).modInverse(definition.getModulus()));
         FieldElement mac = getMac(rInv);
         List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
         for (int i = 0; i < noOfParties; i++) {
@@ -530,7 +529,7 @@ public class FakeTripGen {
       String key = arg.substring(0, 3);
       String value = arg.substring(3);
       if (key.equals(primeKey)) {
-        definition = new FieldDefinitionBigInteger(new ModulusBigInteger(value));
+        definition = new BigIntegerFieldDefinition(value);
         primePresent = true;
       } else if (key.equals(tripKey)) {
         numberOfTriples = Integer.parseInt(value);
@@ -737,7 +736,7 @@ public class FakeTripGen {
     for (int j = 0; j < numberOfExps; j++) {
       FieldElement r = sample();
       FieldElement rInv = definition.createElement(
-          definition.convertRepresentation(r).modInverse(definition.getModulus()));
+          definition.convertToUnsigned(r).modInverse(definition.getModulus()));
       writeAsShared(rInv, channels);
       FieldElement exp = definition.createElement(1);
       for (int i = 1; i < EXP_PIPE_SIZE; i++) {
@@ -807,7 +806,7 @@ public class FakeTripGen {
    */
   private static FieldElement sample() {
     FieldElement result = sampleRandomBits(definition.getModulus().bitLength(), rand);
-    if (definition.convertRepresentation(result).compareTo(definition.getModulus()) < 0) {
+    if (definition.convertToUnsigned(result).compareTo(definition.getModulus()) < 0) {
       return result;
     } else {
       return sample();

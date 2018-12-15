@@ -6,9 +6,8 @@ import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
@@ -33,9 +32,8 @@ import org.junit.Test;
 
 public class TestGenericLoggingDecorators {
 
-  private final FieldDefinitionBigInteger fieldDefinition = new FieldDefinitionBigInteger(
-      new ModulusBigInteger(
-          "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
+  private final BigIntegerFieldDefinition fieldDefinition = new BigIntegerFieldDefinition(
+      "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
 
   @Test
   public void testEvaluatorLoggingDecorator() {
@@ -121,9 +119,9 @@ public class TestGenericLoggingDecorators {
     PerformanceLogger performanceLogger = decoratedLoggers.get(0);
 
     Map<String, Long> loggedValues = performanceLogger.getLoggedValues();
-    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is(4L));
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is(130L));
     assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), is(2L));
-    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_PARTY_BYTES + "_1"), is(4L));
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_PARTY_BYTES + "_1"), is(130L));
     performanceLogger.reset();
 
     loggedValues = performanceLogger.getLoggedValues();

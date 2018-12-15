@@ -1,13 +1,13 @@
 package dk.alexandra.fresco.tools.mascot.triple;
 
+import dk.alexandra.fresco.framework.builder.numeric.Addable;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotSecurityParameters;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
-import dk.alexandra.fresco.tools.mascot.arithm.Addable;
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
@@ -24,17 +24,18 @@ import org.junit.Test;
 public class TestTripleGeneration extends NetworkedTest {
 
   private FieldElementPrg getJointPrg(int prgSeedLength) {
-    return new FieldElementPrgImpl(new StrictBitVector(prgSeedLength));
+    return new FieldElementPrgImpl(new StrictBitVector(prgSeedLength), getFieldDefinition());
   }
 
-  private List<MascotFieldElement> runSinglePartyMult(MascotTestContext ctx, MascotFieldElement macKeyShare,
-      List<MascotFieldElement> leftFactorGroups, List<MascotFieldElement> rightFactors) {
+  private List<FieldElement> runSinglePartyMult(MascotTestContext ctx, FieldElement macKeyShare,
+      List<FieldElement> leftFactorGroups, List<FieldElement> rightFactors) {
     TripleGeneration tripleGen = new TripleGeneration(ctx.getResourcePool(), ctx.getNetwork(),
         getJointPrg(ctx.getPrgSeedLength()), macKeyShare);
     return tripleGen.multiply(leftFactorGroups, rightFactors);
   }
 
-  private List<MultiplicationTriple> runSinglePartyTriple(MascotTestContext ctx, MascotFieldElement macKeyShare,
+  private List<MultiplicationTriple> runSinglePartyTriple(MascotTestContext ctx,
+      FieldElement macKeyShare,
       int numTriples) {
     TripleGeneration tripleGen = new TripleGeneration(ctx.getResourcePool(), ctx.getNetwork(),
         getJointPrg(ctx.getPrgSeedLength()), macKeyShare);
@@ -42,7 +43,7 @@ public class TestTripleGeneration extends NetworkedTest {
   }
 
   private List<MultiplicationTriple> runSinglePartyTripleRepeated(MascotTestContext ctx,
-      MascotFieldElement macKeyShare, int numTriples, int numIterations) {
+      FieldElement macKeyShare, int numTriples, int numIterations) {
     TripleGeneration tripleGen = new TripleGeneration(ctx.getResourcePool(), ctx.getNetwork(),
         getJointPrg(ctx.getPrgSeedLength()), macKeyShare);
     List<MultiplicationTriple> triples = new ArrayList<>();
@@ -59,41 +60,41 @@ public class TestTripleGeneration extends NetworkedTest {
         getDefaultParameters().getLambdaSecurityParam(), getDefaultParameters().getPrgSeedLength(), 1));
 
     // left party mac key share
-    MascotFieldElement macKeyShareOne = new MascotFieldElement(new BigInteger("11231"), getModulus());
+    FieldElement macKeyShareOne = getFieldDefinition().createElement(new BigInteger("11231"));
 
     // right party mac key share
-    MascotFieldElement macKeyShareTwo = new MascotFieldElement(new BigInteger("7719"), getModulus());
+    FieldElement macKeyShareTwo = getFieldDefinition().createElement(new BigInteger("7719"));
 
     // party one input
     int[] leftArrOne = {12};
-    List<MascotFieldElement> leftFactorsOne =
-        MascotTestUtils.generateSingleRow(leftArrOne, getModulus());
+    List<FieldElement> leftFactorsOne =
+        MascotTestUtils.generateSingleRow(leftArrOne, getFieldDefinition());
     int[] rightArrOne = {11};
-    List<MascotFieldElement> rightFactorsOne =
-        MascotTestUtils.generateSingleRow(rightArrOne, getModulus());
+    List<FieldElement> rightFactorsOne =
+        MascotTestUtils.generateSingleRow(rightArrOne, getFieldDefinition());
 
     // party two input
     int[] leftArrTwo = {123};
-    List<MascotFieldElement> leftFactorsTwo =
-        MascotTestUtils.generateSingleRow(leftArrTwo, getModulus());
+    List<FieldElement> leftFactorsTwo =
+        MascotTestUtils.generateSingleRow(leftArrTwo, getFieldDefinition());
     int[] rightArrTwo = {2222};
-    List<MascotFieldElement> rightFactorsTwo =
-        MascotTestUtils.generateSingleRow(rightArrTwo, getModulus());
+    List<FieldElement> rightFactorsTwo =
+        MascotTestUtils.generateSingleRow(rightArrTwo, getFieldDefinition());
 
     // define task each party will run
-    Callable<List<MascotFieldElement>> partyOneTask =
+    Callable<List<FieldElement>> partyOneTask =
         () -> runSinglePartyMult(contexts.get(1), macKeyShareOne, leftFactorsOne, rightFactorsOne);
-    Callable<List<MascotFieldElement>> partyTwoTask =
+    Callable<List<FieldElement>> partyTwoTask =
         () -> runSinglePartyMult(contexts.get(2), macKeyShareTwo, leftFactorsTwo, rightFactorsTwo);
 
-    List<List<MascotFieldElement>> results =
+    List<List<FieldElement>> results =
         testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
-    MascotFieldElement left = results.get(0).get(0);
-    MascotFieldElement right = results.get(1).get(0);
+    FieldElement left = results.get(0).get(0);
+    FieldElement right = results.get(1).get(0);
 
     // (12 + 123) * (11 + 2222) % 65519
-    MascotFieldElement expected = new MascotFieldElement(39379, getModulus());
-    MascotFieldElement actual = left.add(right);
+    FieldElement expected = getFieldDefinition().createElement(39379);
+    FieldElement actual = left.add(right);
     CustomAsserts.assertEquals(expected, actual);
   }
 
@@ -103,52 +104,52 @@ public class TestTripleGeneration extends NetworkedTest {
     initContexts(2);
 
     // left party mac key share
-    MascotFieldElement macKeyShareOne = new MascotFieldElement(new BigInteger("11231"), getModulus());
+    FieldElement macKeyShareOne = getFieldDefinition().createElement(new BigInteger("11231"));
 
     // right party mac key share
-    MascotFieldElement macKeyShareTwo = new MascotFieldElement(new BigInteger("7719"), getModulus());
+    FieldElement macKeyShareTwo = getFieldDefinition().createElement(new BigInteger("7719"));
 
     // party one input
     int[] leftArrOne = {1, 2, 3, 4, 5, 6};
-    List<MascotFieldElement> leftFactorsOne =
-        MascotTestUtils.generateSingleRow(leftArrOne, getModulus());
+    List<FieldElement> leftFactorsOne =
+        MascotTestUtils.generateSingleRow(leftArrOne, getFieldDefinition());
     int[] rightArrOne = {7, 8};
-    List<MascotFieldElement> rightFactorsOne =
-        MascotTestUtils.generateSingleRow(rightArrOne, getModulus());
+    List<FieldElement> rightFactorsOne =
+        MascotTestUtils.generateSingleRow(rightArrOne, getFieldDefinition());
 
     // party two input
     int[] leftArrTwo = {9, 10, 11, 12, 13, 14};
-    List<MascotFieldElement> leftFactorsTwo =
-        MascotTestUtils.generateSingleRow(leftArrTwo, getModulus());
+    List<FieldElement> leftFactorsTwo =
+        MascotTestUtils.generateSingleRow(leftArrTwo, getFieldDefinition());
     int[] rightArrTwo = {15, 16};
-    List<MascotFieldElement> rightFactorsTwo =
-        MascotTestUtils.generateSingleRow(rightArrTwo, getModulus());
+    List<FieldElement> rightFactorsTwo =
+        MascotTestUtils.generateSingleRow(rightArrTwo, getFieldDefinition());
 
     // define task each party will run
-    Callable<List<MascotFieldElement>> partyOneTask =
+    Callable<List<FieldElement>> partyOneTask =
         () -> runSinglePartyMult(contexts.get(1), macKeyShareOne, leftFactorsOne, rightFactorsOne);
-    Callable<List<MascotFieldElement>> partyTwoTask =
+    Callable<List<FieldElement>> partyTwoTask =
         () -> runSinglePartyMult(contexts.get(2), macKeyShareTwo, leftFactorsTwo, rightFactorsTwo);
 
-    List<List<MascotFieldElement>> results =
+    List<List<FieldElement>> results =
         testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
-    FieldElementUtils fieldElementUtils = new FieldElementUtils(getModulus());
+    FieldElementUtils fieldElementUtils = new FieldElementUtils(getFieldDefinition());
     // for each input pair of factors the result is (a1 + a2 + ...) * (b1 + b2 + ...)
-    List<MascotFieldElement> expectedLeftFactors =
+    List<FieldElement> expectedLeftFactors =
         Addable.sumRows(Arrays.asList(leftFactorsOne, leftFactorsTwo));
-    List<MascotFieldElement> expectedRightFactors = fieldElementUtils
+    List<FieldElement> expectedRightFactors = fieldElementUtils
         .stretch(Addable.sumRows(Arrays.asList(rightFactorsOne, rightFactorsTwo)), 3);
 
-    List<MascotFieldElement> expected =
+    List<FieldElement> expected =
         fieldElementUtils.pairWiseMultiply(expectedLeftFactors, expectedRightFactors);
 
     // actual results, recombined
-    List<MascotFieldElement> actual = Addable.sumRows(results);
+    List<FieldElement> actual = Addable.sumRows(results);
     CustomAsserts.assertEquals(expected, actual);
   }
 
-  private void testMultiplePartiesTriple(List<MascotFieldElement> macKeyShares, int numTriples) {
+  private void testMultiplePartiesTriple(List<FieldElement> macKeyShares, int numTriples) {
     // set up runtime environment and get contexts
     initContexts(macKeyShares.size());
 
@@ -156,7 +157,7 @@ public class TestTripleGeneration extends NetworkedTest {
     List<Callable<List<MultiplicationTriple>>> tasks = new ArrayList<>();
     for (int pid = 1; pid <= macKeyShares.size(); pid++) {
       MascotTestContext partyCtx = contexts.get(pid);
-      MascotFieldElement macKeyShare = macKeyShares.get(pid - 1);
+      FieldElement macKeyShare = macKeyShares.get(pid - 1);
       Callable<List<MultiplicationTriple>> partyTask =
           () -> runSinglePartyTriple(partyCtx, macKeyShare, numTriples);
       tasks.add(partyTask);
@@ -170,7 +171,7 @@ public class TestTripleGeneration extends NetworkedTest {
     }
   }
 
-  private void testMultiplePartiesTripleRepeated(List<MascotFieldElement> macKeyShares, int numTriples,
+  private void testMultiplePartiesTripleRepeated(List<FieldElement> macKeyShares, int numTriples,
       int numIterations) {
     // set up runtime environment and get contexts
     initContexts(macKeyShares.size());
@@ -179,7 +180,7 @@ public class TestTripleGeneration extends NetworkedTest {
     List<Callable<List<MultiplicationTriple>>> tasks = new ArrayList<>();
     for (int pid = 1; pid <= macKeyShares.size(); pid++) {
       MascotTestContext partyCtx = contexts.get(pid);
-      MascotFieldElement macKeyShare = macKeyShares.get(pid - 1);
+      FieldElement macKeyShare = macKeyShares.get(pid - 1);
       Callable<List<MultiplicationTriple>> partyTask =
           () -> runSinglePartyTripleRepeated(partyCtx, macKeyShare, numTriples, numIterations);
       tasks.add(partyTask);
@@ -195,24 +196,24 @@ public class TestTripleGeneration extends NetworkedTest {
 
   @Test
   public void testTwoPartiesSingleTriple() {
-    MascotFieldElement macKeyShareOne = new MascotFieldElement(11231, getModulus());
-    MascotFieldElement macKeyShareTwo = new MascotFieldElement(7719, getModulus());
+    FieldElement macKeyShareOne = getFieldDefinition().createElement(11231);
+    FieldElement macKeyShareTwo = getFieldDefinition().createElement(7719);
     testMultiplePartiesTriple(Arrays.asList(macKeyShareOne, macKeyShareTwo), 1
     );
   }
 
   @Test
   public void testTwoPartiesMultipleTriple() {
-    MascotFieldElement macKeyShareOne = new MascotFieldElement(11231, getModulus());
-    MascotFieldElement macKeyShareTwo = new MascotFieldElement(7719, getModulus());
+    FieldElement macKeyShareOne = getFieldDefinition().createElement(11231);
+    FieldElement macKeyShareTwo = getFieldDefinition().createElement(7719);
     testMultiplePartiesTriple(Arrays.asList(macKeyShareOne, macKeyShareTwo), 10
     );
   }
 
   @Test
   public void testTwoPartiesMultipleTripleRepeated() {
-    MascotFieldElement macKeyShareOne = new MascotFieldElement(11231, getModulus());
-    MascotFieldElement macKeyShareTwo = new MascotFieldElement(7719, getModulus());
+    FieldElement macKeyShareOne = getFieldDefinition().createElement(11231);
+    FieldElement macKeyShareTwo = getFieldDefinition().createElement(7719);
     int triplesPerBatch = 2;
     int numIterations = 5;
     testMultiplePartiesTripleRepeated(Arrays.asList(macKeyShareOne, macKeyShareTwo),
@@ -221,18 +222,18 @@ public class TestTripleGeneration extends NetworkedTest {
 
   @Test
   public void testThreePartiesSingleTriple() {
-    MascotFieldElement macKeyShareOne = new MascotFieldElement(11231, getModulus());
-    MascotFieldElement macKeyShareTwo = new MascotFieldElement(7719, getModulus());
-    MascotFieldElement macKeyShareThree = new MascotFieldElement(4444, getModulus());
+    FieldElement macKeyShareOne = getFieldDefinition().createElement(11231);
+    FieldElement macKeyShareTwo = getFieldDefinition().createElement(7719);
+    FieldElement macKeyShareThree = getFieldDefinition().createElement(4444);
     testMultiplePartiesTriple(Arrays.asList(macKeyShareOne, macKeyShareTwo, macKeyShareThree), 1
     );
   }
 
   @Test
   public void testThreePartiesMultTriple() {
-    MascotFieldElement macKeyShareOne = new MascotFieldElement(11231, getModulus());
-    MascotFieldElement macKeyShareTwo = new MascotFieldElement(7719, getModulus());
-    MascotFieldElement macKeyShareThree = new MascotFieldElement(4444, getModulus());
+    FieldElement macKeyShareOne = getFieldDefinition().createElement(11231);
+    FieldElement macKeyShareTwo = getFieldDefinition().createElement(7719);
+    FieldElement macKeyShareThree = getFieldDefinition().createElement(4444);
     testMultiplePartiesTriple(Arrays.asList(macKeyShareOne, macKeyShareTwo, macKeyShareThree), 3
     );
   }

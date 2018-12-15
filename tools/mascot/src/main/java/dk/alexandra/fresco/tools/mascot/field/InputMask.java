@@ -1,12 +1,14 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
+
 /**
  * An input mask for player_i is random value r shared among parties so that only player_i knows the
  * real value r.
  */
 public class InputMask {
 
-  private final MascotFieldElement openValue;
+  private final FieldElement openValue;
   private final AuthenticatedElement maskShare;
 
   /**
@@ -15,7 +17,7 @@ public class InputMask {
    * @param openValue the actual value
    * @param maskShare the authenticated share of the value
    */
-  public InputMask(MascotFieldElement openValue, AuthenticatedElement maskShare) {
+  public InputMask(FieldElement openValue, AuthenticatedElement maskShare) {
     this.openValue = openValue;
     this.maskShare = maskShare;
   }
@@ -24,7 +26,7 @@ public class InputMask {
     this(null, maskShare);
   }
 
-  public MascotFieldElement getOpenValue() {
+  public FieldElement getOpenValue() {
     return openValue;
   }
 

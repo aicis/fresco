@@ -1,12 +1,12 @@
 package dk.alexandra.fresco.tools.mascot.triple;
 
+import dk.alexandra.fresco.framework.builder.numeric.Addable;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class TripleGeneration {
   public TripleGeneration(MascotResourcePool resourcePool, Network network,
       ElementGeneration elementGeneration, FieldElementPrg jointSampler) {
     this.resourcePool = resourcePool;
-    this.fieldElementUtils = new FieldElementUtils(resourcePool.getModulus());
+    this.fieldElementUtils = new FieldElementUtils(resourcePool.getFieldDefinition());
     this.leftMultipliers = new HashMap<>();
     this.rightMultipliers = new HashMap<>();
     initializeMultipliers(resourcePool, network);
@@ -67,7 +67,7 @@ public class TripleGeneration {
   }
 
   TripleGeneration(MascotResourcePool resourcePool, Network network, FieldElementPrg jointSampler,
-      MascotFieldElement macKeyShare) {
+      FieldElement macKeyShare) {
     this(resourcePool, network,
         new ElementGeneration(resourcePool, network, macKeyShare, jointSampler), jointSampler);
   }
@@ -82,14 +82,12 @@ public class TripleGeneration {
    */
   public List<MultiplicationTriple> triple(int numTriples) {
     // generate random left factor groups
-    List<MascotFieldElement> leftFactorGroups = resourcePool.getLocalSampler()
-        .getNext(resourcePool.getModulus(),
-            numTriples * resourcePool.getNumCandidatesPerTriple());
+    List<FieldElement> leftFactorGroups = resourcePool.getLocalSampler()
+        .getNext(numTriples * resourcePool.getNumCandidatesPerTriple());
     // generate random right factors
-    List<MascotFieldElement> rightFactors = resourcePool.getLocalSampler()
-        .getNext(resourcePool.getModulus(), numTriples);
+    List<FieldElement> rightFactors = resourcePool.getLocalSampler().getNext(numTriples);
     // compute product groups
-    List<MascotFieldElement> productGroups = multiply(leftFactorGroups, rightFactors);
+    List<FieldElement> productGroups = multiply(leftFactorGroups, rightFactors);
     // combine into unauthenticated triples
     List<UnauthenticatedTriple> unauthTriples =
         toUnauthenticatedTriple(leftFactorGroups, rightFactors, productGroups);
@@ -112,22 +110,24 @@ public class TripleGeneration {
    * <i> l<sub>0,0</sub></i>, <i>r<sub>0</sub></i> * <i>l<sub>0,1</sub></i>, <i>r<sub>1</sub></i> *
    * <i>l<sub>1,0</sub></i>, <i>r<sub>1</sub></i> * <i>l<sub>1,1</sub></i></p>
    *
-   * @param leftFactorGroups the left factors going into product evaluation. Note that these are
-   * referred to as groups since there are multiple (numLeftFactors) left factors per right factor.
+   * @param leftFactorGroups the left factors going into product evaluation. Note that these
+   *     are
+   *     referred to as groups since there are multiple (numLeftFactors) left factors per right
+   *     factor.
    * @param rightFactors the right factors going into product evaluation.
    * @return unauthenticated product shares
    */
-  List<MascotFieldElement> multiply(List<MascotFieldElement> leftFactorGroups,
-      List<MascotFieldElement> rightFactors) {
+  List<FieldElement> multiply(List<FieldElement> leftFactorGroups,
+      List<FieldElement> rightFactors) {
     // step 1 of protocol occurred before this method
     // "stretch" right factors, so we have one right factor for each left factor
-    List<MascotFieldElement> stretched =
+    List<FieldElement> stretched =
         fieldElementUtils
             .stretch(rightFactors, resourcePool.getNumCandidatesPerTriple());
 
     // step 2 of protocol
     // for each value we will have two sub-factors for each other party
-    List<List<MascotFieldElement>> subFactors = new ArrayList<>();
+    List<List<FieldElement>> subFactors = new ArrayList<>();
     for (int partyId = 1; partyId <= resourcePool.getNoOfParties(); partyId++) {
       if (partyId != resourcePool.getMyId()) {
         MultiplyLeft leftMult = leftMultipliers.get(partyId);
@@ -144,7 +144,7 @@ public class TripleGeneration {
 
     // step 3 or protocol
     // own part of the product
-    List<MascotFieldElement> localSubFactors =
+    List<FieldElement> localSubFactors =
         fieldElementUtils.pairWiseMultiply(leftFactorGroups, stretched);
     subFactors.add(localSubFactors);
 
@@ -159,20 +159,18 @@ public class TripleGeneration {
     // step 1 of protocol
     int numTriples = triples.size();
 
-    List<List<MascotFieldElement>> masks = jointSampler
-        .getNext(resourcePool.getModulus(), numTriples,
-            resourcePool.getNumCandidatesPerTriple());
+    List<List<FieldElement>> masks = jointSampler
+        .getNext(numTriples, resourcePool.getNumCandidatesPerTriple());
 
-    List<List<MascotFieldElement>> sacrificeMasks = jointSampler
-        .getNext(resourcePool.getModulus(),
-            numTriples, resourcePool.getNumCandidatesPerTriple());
+    List<List<FieldElement>> sacrificeMasks = jointSampler
+        .getNext(numTriples, resourcePool.getNumCandidatesPerTriple());
 
     // step 2 of protocol
     return IntStream.range(0, numTriples)
         .mapToObj(idx -> {
           UnauthenticatedTriple triple = triples.get(idx);
-          List<MascotFieldElement> m = masks.get(idx);
-          List<MascotFieldElement> ms = sacrificeMasks.get(idx);
+          List<FieldElement> m = masks.get(idx);
+          List<FieldElement> ms = sacrificeMasks.get(idx);
           return triple.toCandidate(m, ms);
         })
         .collect(Collectors.toList());
@@ -182,7 +180,7 @@ public class TripleGeneration {
    * Implements batched version of Authenticate sub-protocol of Protocol 4.
    */
   private List<AuthenticatedCandidate> authenticate(List<UnauthenticatedCandidate> candidates) {
-    List<MascotFieldElement> flatInputs = candidates.parallelStream()
+    List<FieldElement> flatInputs = candidates.parallelStream()
         .flatMap(TripleCandidate::stream)
         .collect(Collectors.toList());
 
@@ -204,8 +202,7 @@ public class TripleGeneration {
    */
   private List<MultiplicationTriple> sacrifice(List<AuthenticatedCandidate> candidates) {
     // step 1 or protocol
-    List<MascotFieldElement> randomCoefficients = jointSampler
-        .getNext(resourcePool.getModulus(), candidates.size());
+    List<FieldElement> randomCoefficients = jointSampler.getNext(candidates.size());
 
     // step 2
     // compute masked values we will open and use in mac-check
@@ -213,7 +210,7 @@ public class TripleGeneration {
 
     // step 3
     // open masked values
-    List<MascotFieldElement> openRhos = elementGeneration.open(rhos);
+    List<FieldElement> openRhos = elementGeneration.open(rhos);
 
     // step 4
     // compute macs
@@ -223,8 +220,8 @@ public class TripleGeneration {
     // put rhos and sigmas together
     rhos.addAll(sigmas);
     // pad open rhos with zeroes, one for each sigma
-    List<MascotFieldElement> paddedRhos = fieldElementUtils.padWith(openRhos,
-        new MascotFieldElement(0, resourcePool.getModulus()), sigmas.size());
+    List<FieldElement> paddedRhos = fieldElementUtils
+        .padWith(openRhos, resourcePool.getFieldDefinition().createElement(0), sigmas.size());
     // run mac-check
     elementGeneration.check(rhos, paddedRhos);
 
@@ -232,9 +229,9 @@ public class TripleGeneration {
     return toMultTriples(candidates);
   }
 
-  private List<UnauthenticatedTriple> toUnauthenticatedTriple(List<MascotFieldElement> left,
-      List<MascotFieldElement> right,
-      List<MascotFieldElement> products) {
+  private List<UnauthenticatedTriple> toUnauthenticatedTriple(List<FieldElement> left,
+      List<FieldElement> right,
+      List<FieldElement> products) {
     Stream<UnauthenticatedTriple> stream = IntStream.range(0, right.size()).mapToObj(idx -> {
       int groupStart = idx * resourcePool.getNumCandidatesPerTriple();
       int groupEnd = (idx + 1) * resourcePool.getNumCandidatesPerTriple();
@@ -254,21 +251,21 @@ public class TripleGeneration {
   }
 
   private List<AuthenticatedElement> computeRhos(List<AuthenticatedCandidate> candidates,
-      List<MascotFieldElement> masks) {
+      List<FieldElement> masks) {
     return IntStream.range(0, candidates.size()).mapToObj(idx -> {
       AuthenticatedCandidate cand = candidates.get(idx);
-      MascotFieldElement mask = masks.get(idx);
+      FieldElement mask = masks.get(idx);
       return cand.computeRho(mask);
     }).collect(Collectors.toList());
   }
 
   private List<AuthenticatedElement> computeSigmas(List<AuthenticatedCandidate> candidates,
-      List<MascotFieldElement> masks,
-      List<MascotFieldElement> openRhos) {
+      List<FieldElement> masks,
+      List<FieldElement> openRhos) {
     return IntStream.range(0, candidates.size()).mapToObj(idx -> {
       AuthenticatedCandidate cand = candidates.get(idx);
-      MascotFieldElement mask = masks.get(idx);
-      MascotFieldElement openRho = openRhos.get(idx);
+      FieldElement mask = masks.get(idx);
+      FieldElement openRho = openRhos.get(idx);
       return cand.computeSigma(openRho, mask);
     }).collect(Collectors.toList());
   }
@@ -284,24 +281,24 @@ public class TripleGeneration {
    */
   private final class UnauthenticatedTriple {
 
-    private final List<MascotFieldElement> leftFactors;
-    private final MascotFieldElement rightFactor;
-    private final List<MascotFieldElement> product;
+    private final List<FieldElement> leftFactors;
+    private final FieldElement rightFactor;
+    private final List<FieldElement> product;
 
-    UnauthenticatedTriple(List<MascotFieldElement> leftFactors, MascotFieldElement rightFactor,
-        List<MascotFieldElement> product) {
+    UnauthenticatedTriple(List<FieldElement> leftFactors, FieldElement rightFactor,
+        List<FieldElement> product) {
       super();
       this.leftFactors = leftFactors;
       this.rightFactor = rightFactor;
       this.product = product;
     }
 
-    UnauthenticatedCandidate toCandidate(List<MascotFieldElement> masks,
-        List<MascotFieldElement> sacrificeMasks) {
-      MascotFieldElement left = fieldElementUtils.innerProduct(leftFactors, masks);
-      MascotFieldElement prod = fieldElementUtils.innerProduct(product, masks);
-      MascotFieldElement leftSac = fieldElementUtils.innerProduct(leftFactors, sacrificeMasks);
-      MascotFieldElement prodSac = fieldElementUtils.innerProduct(product, sacrificeMasks);
+    UnauthenticatedCandidate toCandidate(List<FieldElement> masks,
+        List<FieldElement> sacrificeMasks) {
+      FieldElement left = fieldElementUtils.innerProduct(leftFactors, masks);
+      FieldElement prod = fieldElementUtils.innerProduct(product, masks);
+      FieldElement leftSac = fieldElementUtils.innerProduct(leftFactors, sacrificeMasks);
+      FieldElement prodSac = fieldElementUtils.innerProduct(product, sacrificeMasks);
       return new UnauthenticatedCandidate(left, rightFactor, prod, leftSac, prodSac);
     }
   }
@@ -311,10 +308,10 @@ public class TripleGeneration {
    * <i>c'</i>). <p>An unauthenticated triple candidate is the input to the authentication
    * sub-protocol of Protocol 4.</p>
    */
-  private final class UnauthenticatedCandidate extends TripleCandidate<MascotFieldElement> {
+  private final class UnauthenticatedCandidate extends TripleCandidate<FieldElement> {
 
-    UnauthenticatedCandidate(MascotFieldElement leftFactor, MascotFieldElement rightFactor,
-        MascotFieldElement product, MascotFieldElement leftFactorHat, MascotFieldElement productHat) {
+    UnauthenticatedCandidate(FieldElement leftFactor, FieldElement rightFactor,
+        FieldElement product, FieldElement leftFactorHat, FieldElement productHat) {
       super(leftFactor, rightFactor, product, leftFactorHat, productHat);
     }
   }
@@ -330,11 +327,11 @@ public class TripleGeneration {
       super(ordered);
     }
 
-    AuthenticatedElement computeRho(MascotFieldElement mask) {
+    AuthenticatedElement computeRho(FieldElement mask) {
       return leftFactor.multiply(mask).subtract(leftFactorHat);
     }
 
-    AuthenticatedElement computeSigma(MascotFieldElement openRho, MascotFieldElement mask) {
+    AuthenticatedElement computeSigma(FieldElement openRho, FieldElement mask) {
       return product.multiply(mask).subtract(productHat).subtract(rightFactor.multiply(openRho));
     }
 
@@ -367,5 +364,4 @@ public class TripleGeneration {
       return Stream.of(leftFactor, rightFactor, product, leftFactorHat, productHat);
     }
   }
-
 }

@@ -119,7 +119,9 @@ public class MathTests {
             BigDecimal a = openInputs.get(idx);
             // For large inputs, the result is quite imprecise. How imprecise is hard to estimate,
             // but for now we use 8 bits precision as bound.
-            RealTestUtils.assertEqual(new BigDecimal(Math.log(a.doubleValue())), openOutput, 8);
+            RealTestUtils
+                .assertEqual(new BigDecimal(Math.log(a.doubleValue())),
+                    openOutput, 8);
           }
         }
       };
@@ -157,7 +159,8 @@ public class MathTests {
             int idx = output.indexOf(openOutput);
 
             BigDecimal expected = new BigDecimal(Math.sqrt(openInputs.get(idx).doubleValue()));
-            RealTestUtils.assertEqual(expected, openOutput, DEFAULT_PRECISION / 2);
+            RealTestUtils
+                .assertEqual(expected, openOutput, DEFAULT_PRECISION / 2);
           }
         }
       };
@@ -183,7 +186,8 @@ public class MathTests {
             return producer.realNumeric().open(producer.realAdvanced().sum(closed));
           };
           BigDecimal output = runApplication(app);
-          RealTestUtils.assertEqual(expectedOutput, output, DEFAULT_PRECISION);
+          RealTestUtils
+              .assertEqual(expectedOutput, output, DEFAULT_PRECISION);
         }
       };
     }
@@ -221,7 +225,8 @@ public class MathTests {
             });
           };
           BigDecimal output = runApplication(app);
-          RealTestUtils.assertEqual(expectedOutput, output, DEFAULT_PRECISION);
+          RealTestUtils
+              .assertEqual(expectedOutput, output, DEFAULT_PRECISION);
         }
       };
     }
@@ -295,7 +300,8 @@ public class MathTests {
             });
           };
           BigDecimal output = runApplication(app);
-          RealTestUtils.assertEqual(expectedOutput, output, DEFAULT_PRECISION);
+          RealTestUtils
+              .assertEqual(expectedOutput, output, DEFAULT_PRECISION);
         }
       };
     }

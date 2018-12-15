@@ -46,5 +46,4 @@ public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
   public CompUInt128 zero() {
     return ZERO;
   }
-
 }
