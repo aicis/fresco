@@ -9,17 +9,18 @@ import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
+import java.math.BigInteger;
 
 public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
 
   private SpdzInputMask inputMask; // is opened by this gate.
-  protected FieldElement input;
+  protected BigInteger input;
   private FieldElement valueMasked;
   protected SpdzSInt out;
   private int inputter;
   private byte[] digest;
 
-  public SpdzInputProtocol(FieldElement input, int inputter) {
+  public SpdzInputProtocol(BigInteger input, int inputter) {
     this.input = input;
     this.inputter = inputter;
   }
@@ -33,7 +34,8 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
     if (round == 0) {
       this.inputMask = dataSupplier.getNextInputMask(this.inputter);
       if (myId == this.inputter) {
-        FieldElement bcValue = this.input.subtract(this.inputMask.getRealValue());
+        FieldElement inputElement = spdzResourcePool.getFieldDefinition().createElement(this.input);
+        FieldElement bcValue = inputElement.subtract(this.inputMask.getRealValue());
         network.sendToAll(definition.serialize(bcValue));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;

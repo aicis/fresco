@@ -120,9 +120,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
-        SpdzInputProtocol protocol = new SpdzInputProtocol(
-            value != null ? basicNumericContext.getFieldDefinition().createElement(value) : null,
-            inputParty);
+        SpdzInputProtocol protocol = new SpdzInputProtocol(value, inputParty);
         return protocolBuilder.append(protocol);
       }
 
@@ -144,8 +142,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
   @Override
   public MiscBigIntegerGenerators getBigIntegerHelper() {
     if (miscOIntGenerators == null) {
-      miscOIntGenerators = new MiscBigIntegerGenerators(
-          basicNumericContext.getModulus());
+      miscOIntGenerators = new MiscBigIntegerGenerators(basicNumericContext.getModulus());
     }
     return miscOIntGenerators;
   }

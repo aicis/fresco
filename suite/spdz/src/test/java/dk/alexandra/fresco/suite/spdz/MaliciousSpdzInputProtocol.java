@@ -9,6 +9,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzNativeProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
@@ -16,13 +17,13 @@ import java.util.List;
 public class MaliciousSpdzInputProtocol extends SpdzNativeProtocol<SInt> {
 
   private SpdzInputMask inputMask; // is opened by this gate.
-  protected FieldElement input;
+  protected BigInteger input;
   private FieldElement valueMasked;
   protected SpdzSInt out;
   private int inputter;
   private byte[] digest;
 
-  public MaliciousSpdzInputProtocol(FieldElement input, int inputter) {
+  public MaliciousSpdzInputProtocol(BigInteger input, int inputter) {
     this.input = input;
     this.inputter = inputter;
   }
@@ -35,7 +36,8 @@ public class MaliciousSpdzInputProtocol extends SpdzNativeProtocol<SInt> {
     if (round == 0) {
       this.inputMask = dataSupplier.getNextInputMask(this.inputter);
       if (myId == this.inputter) {
-        FieldElement bcValue = this.input.subtract(this.inputMask.getRealValue());
+        FieldElement inputElement = spdzResourcePool.getFieldDefinition().createElement(this.input);
+        FieldElement bcValue = inputElement.subtract(this.inputMask.getRealValue());
         network.sendToAll(definition.serialize(bcValue));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
