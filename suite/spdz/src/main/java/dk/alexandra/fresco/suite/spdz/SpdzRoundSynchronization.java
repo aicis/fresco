@@ -33,10 +33,12 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
    * Creates new {@link SpdzRoundSynchronization}.
    *
    * @param spdzProtocolSuite the spdz protocol suite which we will use for the mac-check
-   * computation
-   * @param openValueThreshold number of open values we accumulating before forcing mac-check (the
-   * mac-check will always run if there are output gates but in order to reduce memory usage we will
-   * run the mac-check even when there are no output gates yet but the threshold is exceeded)
+   *     computation
+   * @param openValueThreshold number of open values we accumulating before forcing mac-check
+   *     (the
+   *     mac-check will always run if there are output gates but in order to reduce memory usage we
+   *     will
+   *     run the mac-check even when there are no output gates yet but the threshold is exceeded)
    * @param batchSize batch size for mac-check protocol
    */
   public SpdzRoundSynchronization(SpdzProtocolSuite spdzProtocolSuite, int openValueThreshold,
@@ -64,8 +66,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
         store.popValues(),
         resourcePool.getModulus(),
         resourcePool.getRandomGenerator(),
-        resourcePool.getDataSupplier().getSecretSharedKey(),
-        resourcePool.getFieldDefinition().createElement(0));
+        resourcePool.getDataSupplier().getSecretSharedKey());
     ProtocolBuilderNumeric sequential = spdzBuilder.createSequential();
     macCheck.buildComputation(sequential);
     evaluator.eval(sequential.build(), resourcePool, network);

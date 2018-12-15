@@ -28,7 +28,6 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
   private final List<SpdzSInt> closedValues;
   private final List<FieldElement> openedValues;
   private final FieldElement alpha;
-  private final FieldElement zero;
 
   /**
    * Protocol which handles the MAC check internal to SPDZ. If this protocol reaches the end, no
@@ -44,8 +43,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
       final Pair<List<SpdzSInt>, List<FieldElement>> toCheck,
       final BigInteger modulus,
       final Drbg jointDrbg,
-      final FieldElement alpha,
-      final FieldElement zero) {
+      final FieldElement alpha) {
     this.rand = rand;
     this.digest = digest;
     this.closedValues = toCheck.getFirst();
@@ -53,16 +51,15 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
     this.modulus = modulus;
     this.jointDrbg = jointDrbg;
     this.alpha = alpha;
-    this.zero = zero;
   }
 
   @Override
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
     return builder
         .seq(seq -> {
-          FieldElement[] rs = sampleRandomCoefficients(openedValues.size(),
-              builder.getBasicNumericContext().getFieldDefinition());
-          FieldElement a = zero;
+          FieldDefinition fieldDefinition = builder.getBasicNumericContext().getFieldDefinition();
+          FieldElement[] rs = sampleRandomCoefficients(openedValues.size(), fieldDefinition);
+          FieldElement a = fieldDefinition.createElement(0);
           int index = 0;
           for (FieldElement openedValue : openedValues) {
             FieldElement openedValueHidden = openedValue.multiply(rs[index++]);
@@ -71,7 +68,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
 
           // compute gamma_i as the sum of all MAC's on the opened values times
           // r_j.
-          FieldElement gamma = zero;
+          FieldElement gamma = fieldDefinition.createElement(0);
           index = 0;
           for (SpdzSInt closedValue : closedValues) {
             FieldElement closedValueHidden = rs[index++].multiply(closedValue.getMac());
@@ -88,12 +85,13 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
                   subSeq.append(new SpdzOpenCommitProtocol(deltaCommitment.getValue(),
                       deltaCommitment.getRandomness(), commitProtocol)));
         }).seq((seq, commitments) -> {
+          FieldDefinition fieldDefinition = builder.getBasicNumericContext().getFieldDefinition();
           FieldElement deltaSum =
               commitments.values()
                   .stream()
-                  .reduce(zero, FieldElement::add);
+                  .reduce(fieldDefinition.createElement(0), FieldElement::add);
 
-          if (!deltaSum.equals(zero)) {
+          if (!deltaSum.equals(fieldDefinition.createElement(0))) {
             throw new MaliciousException(
                 "The sum of delta's was not 0. Someone was corrupting something amongst "
                     + openedValues.size()
