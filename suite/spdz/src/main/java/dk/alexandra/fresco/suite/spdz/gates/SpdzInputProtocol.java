@@ -30,18 +30,18 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
       Network network) {
     int myId = spdzResourcePool.getMyId();
     SpdzDataSupplier dataSupplier = spdzResourcePool.getDataSupplier();
-    ByteSerializer<FieldElement> definition = spdzResourcePool.getFieldDefinition();
+    ByteSerializer<FieldElement> serializer = spdzResourcePool.getFieldDefinition();
     if (round == 0) {
       this.inputMask = dataSupplier.getNextInputMask(this.inputter);
       if (myId == this.inputter) {
         FieldElement inputElement = spdzResourcePool.getFieldDefinition().createElement(this.input);
         FieldElement bcValue = inputElement.subtract(this.inputMask.getRealValue());
-        network.sendToAll(definition.serialize(bcValue));
+        network.sendToAll(serializer.serialize(bcValue));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
       byte[] receivedBytes = network.receive(inputter);
-      this.valueMasked = definition.deserialize(receivedBytes);
+      this.valueMasked = serializer.deserialize(receivedBytes);
       this.digest =
           sendBroadcastValidation(spdzResourcePool.getMessageDigest(), network, receivedBytes);
       return EvaluationStatus.HAS_MORE_ROUNDS;
