@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.PreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
@@ -68,8 +67,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> add(BigInteger a, DRes<SInt> b) {
-        SpdzAddProtocolKnownLeft spdzAddProtocolKnownLeft =
-            new SpdzAddProtocolKnownLeft(a, b);
+        SpdzAddProtocolKnownLeft spdzAddProtocolKnownLeft = new SpdzAddProtocolKnownLeft(a, b);
         return protocolBuilder.append(spdzAddProtocolKnownLeft);
       }
 
@@ -101,8 +99,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> mult(BigInteger a, DRes<SInt> b) {
-        SpdzMultProtocolKnownLeft spdzMultProtocol4 = new SpdzMultProtocolKnownLeft(
-            basicNumericContext.getFieldDefinition().createElement(a), b);
+        SpdzMultProtocolKnownLeft spdzMultProtocol4 = new SpdzMultProtocolKnownLeft(a, b);
         return protocolBuilder.append(spdzMultProtocol4);
       }
 

@@ -1,19 +1,19 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import java.math.BigInteger;
 
 public class SpdzMultProtocolKnownLeft extends SpdzNativeProtocol<SInt> {
 
-  private FieldElement left;
+  private BigInteger left;
   private DRes<SInt> right;
   private SpdzSInt out;
 
-  public SpdzMultProtocolKnownLeft(FieldElement left, DRes<SInt> right) {
+  public SpdzMultProtocolKnownLeft(BigInteger left, DRes<SInt> right) {
     this.left = left;
     this.right = right;
   }
@@ -27,7 +27,7 @@ public class SpdzMultProtocolKnownLeft extends SpdzNativeProtocol<SInt> {
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       Network network) {
     SpdzSInt right = (SpdzSInt) this.right.out();
-    out = right.multiply(left);
+    out = right.multiply(spdzResourcePool.getFieldDefinition().createElement(left));
     return EvaluationStatus.IS_DONE;
   }
 }
