@@ -36,8 +36,7 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
 
       @Override
       public DRes<SInt> add(BigInteger a, DRes<SInt> b) {
-        SpdzAddProtocolKnownLeft spdzAddProtocolKnownLeft =
-            new SpdzAddProtocolKnownLeft(a, b);
+        SpdzAddProtocolKnownLeft spdzAddProtocolKnownLeft = new SpdzAddProtocolKnownLeft(a, b);
         return protocolBuilder.append(spdzAddProtocolKnownLeft);
       }
 

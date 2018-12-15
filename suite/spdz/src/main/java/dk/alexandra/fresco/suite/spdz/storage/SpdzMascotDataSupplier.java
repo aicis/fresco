@@ -51,6 +51,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private final int batchSize;
   private final Drbg drbg;
   private final Map<Integer, RotList> seedOts;
+  private final MascotFormatConverter mascotFormatConverter;
   private Mascot mascot;
 
   /**
@@ -92,6 +93,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     this.ssk = ssk;
     this.seedOts = seedOts;
     this.drbg = drbg;
+    this.mascotFormatConverter = new MascotFormatConverter();
   }
 
   /**
@@ -126,7 +128,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       logger.trace("Got another triple batch");
     }
     MultiplicationTriple triple = triples.pop();
-    return new MascotFormatConverter().toSpdzTriple(triple);
+    return mascotFormatConverter.toSpdzTriple(triple);
   }
 
   @Override
@@ -137,7 +139,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       randomElements.addAll(mascot.getRandomElements(batchSize));
       logger.trace("Got another random element batch");
     }
-    return new MascotFormatConverter().toSpdzSInt(randomElements.pop());
+    return mascotFormatConverter.toSpdzSInt(randomElements.pop());
   }
 
   @Override
@@ -157,7 +159,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       inputMasks.addAll(mascot.getInputMasks(towardPlayerID, batchSize));
       logger.trace("Got another mask batch");
     }
-    return new MascotFormatConverter()
+    return mascotFormatConverter
         .toSpdzInputMask(inputMasks.pop());
   }
 
@@ -169,7 +171,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       randomBits.addAll(mascot.getRandomBits(batchSize));
       logger.trace("Got another bit batch");
     }
-    return new MascotFormatConverter().toSpdzSInt(randomBits.pop());
+    return mascotFormatConverter.toSpdzSInt(randomBits.pop());
   }
 
   @Override

@@ -55,7 +55,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   public SpdzInputMask getNextInputMask(int towardPlayerId) {
     Pair<BigInteger, BigInteger> raw = supplier.getRandomElementShare();
     if (myId == towardPlayerId) {
-      return new SpdzInputMask(toSpdzSInt(raw), getBigIntegerI(raw.getFirst()));
+      return new SpdzInputMask(toSpdzSInt(raw), createElement(raw.getFirst()));
     } else {
       return new SpdzInputMask(toSpdzSInt(raw), null);
     }
@@ -78,7 +78,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
 
   @Override
   public FieldElement getSecretSharedKey() {
-    return getBigIntegerI(secretSharedKey);
+    return createElement(secretSharedKey);
   }
 
   @Override
@@ -88,13 +88,13 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
 
   private SpdzSInt toSpdzSInt(Pair<BigInteger, BigInteger> raw) {
     return new SpdzSInt(
-        getBigIntegerI(raw.getSecond()),
-        getBigIntegerI(raw.getFirst().multiply(secretSharedKey)
+        createElement(raw.getSecond()),
+        createElement(raw.getFirst().multiply(secretSharedKey)
             .mod(fieldDefinition.getModulus()))
     );
   }
 
-  private FieldElement getBigIntegerI(BigInteger value) {
+  private FieldElement createElement(BigInteger value) {
     return fieldDefinition.createElement(value);
   }
 }

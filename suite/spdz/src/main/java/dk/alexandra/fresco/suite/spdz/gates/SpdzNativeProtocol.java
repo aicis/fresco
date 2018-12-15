@@ -11,15 +11,12 @@ import java.util.List;
 public abstract class SpdzNativeProtocol<OutputT> implements
     NativeProtocol<OutputT, SpdzResourcePool> {
 
-  byte[] sendBroadcastValidation(
-      MessageDigest dig, Network network, byte[] b) {
+  byte[] sendBroadcastValidation(MessageDigest dig, Network network, byte[] b) {
     dig.update(b);
     return sendAndReset(dig, network);
   }
 
-  byte[] sendBroadcastValidation(
-      MessageDigest dig, Network network,
-      Collection<byte[]> bs) {
+  byte[] sendBroadcastValidation(MessageDigest dig, Network network, Collection<byte[]> bs) {
     for (byte[] b : bs) {
       dig.update(b);
     }

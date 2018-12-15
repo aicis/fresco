@@ -29,22 +29,22 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
       Network network) {
     SpdzDataSupplier dataSupplier = spdzResourcePool.getDataSupplier();
     int noOfPlayers = spdzResourcePool.getNoOfParties();
-    ByteSerializer<FieldElement> definition = spdzResourcePool.getFieldDefinition();
+    ByteSerializer<FieldElement> serializer = spdzResourcePool.getFieldDefinition();
     if (round == 0) {
       this.triple = dataSupplier.getNextTriple();
 
       epsilon = ((SpdzSInt) left.out()).subtract(triple.getA());
       delta = ((SpdzSInt) right.out()).subtract(triple.getB());
 
-      network.sendToAll(definition.serialize(epsilon.getShare()));
-      network.sendToAll(definition.serialize(delta.getShare()));
+      network.sendToAll(serializer.serialize(epsilon.getShare()));
+      network.sendToAll(serializer.serialize(delta.getShare()));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       FieldElement[] epsilonShares = new FieldElement[noOfPlayers];
       FieldElement[] deltaShares = new FieldElement[noOfPlayers];
       for (int i = 0; i < noOfPlayers; i++) {
-        epsilonShares[i] = definition.deserialize(network.receive(i + 1));
-        deltaShares[i] = definition.deserialize(network.receive(i + 1));
+        epsilonShares[i] = serializer.deserialize(network.receive(i + 1));
+        deltaShares[i] = serializer.deserialize(network.receive(i + 1));
       }
 
       FieldElement e = epsilonShares[0];

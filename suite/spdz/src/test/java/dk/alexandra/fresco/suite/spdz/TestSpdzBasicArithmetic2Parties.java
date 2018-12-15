@@ -3,8 +3,8 @@ package dk.alexandra.fresco.suite.spdz;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests.TestMinInfFrac;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
-import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestKnownDivisorDivision;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestDivision;
+import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestKnownDivisorDivision;
 import dk.alexandra.fresco.lib.math.integer.log.LogTests.TestLogarithm;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests.TestSquareRoot;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
@@ -110,7 +110,6 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
         PreprocessingStrategy.MASCOT, 2, 16, 16, 16);
   }
 
-
   @Test
   public void test_Lots_Of_Mults_Sequential_Batched_Different_Modulus() {
     runTest(new BasicArithmeticTests.TestLotsMult<>(),
@@ -119,8 +118,8 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
 
   @Test
   public void testOpenWithConversionMascot() {
-    runTest(new BasicArithmeticTests.TestOpenWithConversion<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new BasicArithmeticTests.TestOpenWithConversion<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.MASCOT, 2, 16, 16, 16);
   }
-
 }

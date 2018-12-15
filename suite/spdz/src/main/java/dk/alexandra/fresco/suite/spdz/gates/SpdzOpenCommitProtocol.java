@@ -45,10 +45,10 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, Fiel
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       Network network) {
     int players = spdzResourcePool.getNoOfParties();
-    ByteSerializer<FieldElement> definition = spdzResourcePool.getFieldDefinition();
+    ByteSerializer<FieldElement> serializer = spdzResourcePool.getFieldDefinition();
     if (round == 0) {
       // Send your opening to all players
-      network.sendToAll(definition.serialize(value));
+      network.sendToAll(serializer.serialize(value));
       network.sendToAll(randomness);
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
@@ -65,7 +65,7 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, Fiel
         boolean validate = checkCommitment(
             spdzResourcePool, commitment, open0, open1);
         openingValidated = openingValidated && validate;
-        ss.put(i, definition.deserialize(open0));
+        ss.put(i, serializer.deserialize(open0));
         broadcastMessages[i * 2] = open0;
         broadcastMessages[i * 2 + 1] = open1;
       }
@@ -74,7 +74,8 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, Fiel
         return EvaluationStatus.IS_DONE;
       } else {
         digest = sendBroadcastValidation(
-            spdzResourcePool.getMessageDigest(), network, Arrays.asList(broadcastMessages));
+            spdzResourcePool.getMessageDigest(),
+            network, Arrays.asList(broadcastMessages));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
