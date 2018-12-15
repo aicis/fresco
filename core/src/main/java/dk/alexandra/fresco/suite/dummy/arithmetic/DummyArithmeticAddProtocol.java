@@ -31,8 +31,8 @@ public class DummyArithmeticAddProtocol extends DummyArithmeticNativeProtocol<SI
       Network network) {
     FieldElement l = ((DummyArithmeticSInt) left.out()).getValue();
     FieldElement r = ((DummyArithmeticSInt) right.out()).getValue();
-    FieldElement value = r.add(l);
-    out = resourcePool.createSInt(value);
+    FieldElement sum = r.add(l);
+    out = resourcePool.createSInt(sum);
     return EvaluationStatus.IS_DONE;
   }
 

@@ -5,10 +5,11 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import java.math.BigInteger;
 
 public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
 
-  private final FieldElement value;
+  private final BigInteger value;
   private SpdzSInt secretValue;
 
   /**
@@ -16,7 +17,7 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
    *
    * @param value the value
    */
-  public SpdzKnownSIntProtocol(FieldElement value) {
+  public SpdzKnownSIntProtocol(BigInteger value) {
     this.value = value;
   }
 
@@ -31,15 +32,15 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
     return EvaluationStatus.IS_DONE;
   }
 
-  static SpdzSInt createKnownSpdzElement(SpdzResourcePool spdzResourcePool, FieldElement input) {
+  static SpdzSInt createKnownSpdzElement(SpdzResourcePool spdzResourcePool, BigInteger input) {
     SpdzSInt elm;
-    FieldElement globalKeyShare =
-        spdzResourcePool.getDataSupplier().getSecretSharedKey();
+    FieldElement value = spdzResourcePool.getFieldDefinition().createElement(input);
+    FieldElement globalKeyShare = spdzResourcePool.getDataSupplier().getSecretSharedKey();
 
-    FieldElement mac = input.multiply(globalKeyShare);
+    FieldElement mac = value.multiply(globalKeyShare);
 
     if (spdzResourcePool.getMyId() == 1) {
-      elm = new SpdzSInt(input, mac);
+      elm = new SpdzSInt(value, mac);
     } else {
       elm = new SpdzSInt(spdzResourcePool.getFieldDefinition().createElement(0), mac);
     }

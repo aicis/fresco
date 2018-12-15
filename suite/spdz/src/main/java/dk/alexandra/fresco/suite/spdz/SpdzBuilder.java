@@ -2,7 +2,6 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.PreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -69,8 +68,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       @Override
       public DRes<SInt> add(BigInteger a, DRes<SInt> b) {
         SpdzAddProtocolKnownLeft spdzAddProtocolKnownLeft =
-            new SpdzAddProtocolKnownLeft(basicNumericContext.getFieldDefinition().createElement(a),
-                b);
+            new SpdzAddProtocolKnownLeft(a, b);
         return protocolBuilder.append(spdzAddProtocolKnownLeft);
       }
 
@@ -83,16 +81,14 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       @Override
       public DRes<SInt> sub(BigInteger a, DRes<SInt> b) {
         SpdzSubtractProtocolKnownLeft spdzSubtractProtocolKnownLeft =
-            new SpdzSubtractProtocolKnownLeft(
-                basicNumericContext.getFieldDefinition().createElement(a), b);
+            new SpdzSubtractProtocolKnownLeft(a, b);
         return protocolBuilder.append(spdzSubtractProtocolKnownLeft);
       }
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, BigInteger b) {
         SpdzSubtractProtocolKnownRight spdzSubtractProtocolKnownRight =
-            new SpdzSubtractProtocolKnownRight(a,
-                basicNumericContext.getFieldDefinition().createElement(b));
+            new SpdzSubtractProtocolKnownRight(a, b);
         return protocolBuilder.append(spdzSubtractProtocolKnownRight);
       }
 
@@ -121,8 +117,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> known(BigInteger value) {
-        FieldElement convertedValue = basicNumericContext.getFieldDefinition().createElement(value);
-        return protocolBuilder.append(new SpdzKnownSIntProtocol(convertedValue));
+        return protocolBuilder.append(new SpdzKnownSIntProtocol(value));
       }
 
       @Override
