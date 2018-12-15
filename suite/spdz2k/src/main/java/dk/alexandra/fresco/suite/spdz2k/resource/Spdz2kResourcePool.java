@@ -87,13 +87,7 @@ public interface Spdz2kResourcePool<PlainT extends CompUInt<?, ?, PlainT>>
    * value to a negative value depending on the semantics of the plain text type.</p>
    */
   default BigInteger convertRepresentation(PlainT value) {
-    BigInteger modulus = getModulus();
-    BigInteger actual = value.getLeastSignificant().toBigInteger();
-    if (actual.compareTo(modulus.divide(BigInteger.valueOf(2))) > 0) {
-      return actual.subtract(modulus);
-    } else {
-      return actual;
-    }
+    return value.getLeastSignificant().toBigInteger();
   }
 
   /**

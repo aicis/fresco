@@ -64,5 +64,4 @@ public class Spdz2kOutputSinglePartyProtocol<PlainT extends CompUInt<?, ?, Plain
   public BigInteger out() {
     return opened;
   }
-
 }

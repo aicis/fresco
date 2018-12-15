@@ -226,7 +226,9 @@ public class BasicArithmeticTests {
             return numeric.open(result);
           };
           BigInteger output = runApplication(app);
-          Assert.assertEquals(BigInteger.valueOf(-2), output);
+          BigInteger result = conf.getResourcePool().getModulus().add(BigInteger.valueOf(-2));
+
+          Assert.assertEquals(result, output);
         }
       };
     }
@@ -274,7 +276,8 @@ public class BasicArithmeticTests {
             return numeric.open(result);
           };
           BigInteger actual = runApplication(app);
-          Assert.assertEquals(BigInteger.valueOf(-6), actual);
+          BigInteger subtract = conf.getResourcePool().getModulus().add(BigInteger.valueOf(-6));
+          Assert.assertEquals(subtract, actual);
         }
       };
     }
@@ -297,7 +300,8 @@ public class BasicArithmeticTests {
             return numeric.open(result);
           };
           BigInteger actual = runApplication(app);
-          Assert.assertEquals(BigInteger.valueOf(-6), actual);
+          BigInteger subtract = conf.getResourcePool().getModulus().add(BigInteger.valueOf(-6));
+          Assert.assertEquals(subtract, actual);
         }
       };
     }
@@ -320,7 +324,8 @@ public class BasicArithmeticTests {
             return numeric.open(result);
           };
           BigInteger actual = runApplication(app);
-          Assert.assertEquals(BigInteger.valueOf(-6), actual);
+          BigInteger subtract = conf.getResourcePool().getModulus().add(BigInteger.valueOf(-6));
+          Assert.assertEquals(subtract, actual);
         }
       };
     }
