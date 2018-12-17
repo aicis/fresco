@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,15 +45,11 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
   private static final Logger LOGGER = LoggerFactory.getLogger(TinyTablesPreproResourcePool.class);
   private static final int TRIP_BATCH_SIZE = 8192;
 
-  private final int otBatchSize;
   private final Drng drng;
   private final List<TinyTablesPreproANDProtocol> unprocessedAnds;
   private final TinyTablesStorage storage;
   private final File tinyTablesFile;
-  private final TinyTablesOt baseOt;
-  private final RotList rotList;
-  private final CoinTossing ct;
-  private final OtExtensionResourcePool otExtRes;
+  private final Supplier<TinyTablesTripleProvider> supplier;
   private TinyTablesTripleProvider tinyTablesTripleProvider;
 
   /**
@@ -67,38 +64,37 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
    */
   public TinyTablesPreproResourcePool(int myId, TinyTablesOt baseOt, Drbg drbg,
       int computationalSecurity, int statisticalSecurity,
-      int otBatchSize, File tinyTablesFile) {
+      int otBatchSize, File tinyTablesFile, Supplier<Network> network) {
     super(myId, 2);
     this.unprocessedAnds = Collections.synchronizedList(new ArrayList<>());
     this.storage = new TinyTablesStorageImpl();
     this.tinyTablesFile = tinyTablesFile;
-    this.baseOt = baseOt;
-    this.rotList = new RotList(drbg, computationalSecurity);
-    this.ct = new CoinTossing(myId, Util.otherPlayerId(myId), drbg);
-    this.otExtRes = new OtExtensionResourcePoolImpl(myId, Util.otherPlayerId(myId),
-        computationalSecurity, statisticalSecurity, 1, drbg, ct, rotList);
     this.drng = new DrngImpl(drbg);
-    this.otBatchSize = otBatchSize;
-  }
-
-  public void initializeOtExtension(Network network) {
-    baseOt.init(network);
-    int otherId = Util.otherPlayerId(getMyId());
-    // Execute random seed OTs
-    if (getMyId() < otherId) {
-      rotList.send(baseOt);
-      rotList.receive(baseOt);
-    } else {
-      rotList.receive(baseOt);
-      rotList.send(baseOt);
-    }
-    ct.initialize(network);
-    // Setup the OT extension
-    RotFactory rotFactory = new RotFactory(otExtRes, network);
-    BristolOtFactory otFactory = new BristolOtFactory(rotFactory, otExtRes, network, otBatchSize);
-    TinyTablesTripleGenerator generator =
-        new TinyTablesTripleGenerator(getMyId(), getDrng(), otFactory);
-    this.tinyTablesTripleProvider = new BatchTinyTablesTripleProvider(generator, TRIP_BATCH_SIZE);
+    this.supplier = () -> {
+      RotList rotList = new RotList(drbg, computationalSecurity);
+      CoinTossing ct = new CoinTossing(myId, Util.otherPlayerId(myId), drbg);
+      OtExtensionResourcePool otExtRes = new OtExtensionResourcePoolImpl(myId,
+          Util.otherPlayerId(myId),
+          computationalSecurity, statisticalSecurity, 1, drbg, ct, rotList);
+      baseOt.init(network.get());
+      int otherId = Util.otherPlayerId(getMyId());
+      // Execute random seed OTs
+      if (getMyId() < otherId) {
+        rotList.send(baseOt);
+        rotList.receive(baseOt);
+      } else {
+        rotList.receive(baseOt);
+        rotList.send(baseOt);
+      }
+      ct.initialize(network.get());
+      // Setup the OT extension
+      RotFactory rotFactory = new RotFactory(otExtRes, network.get());
+      BristolOtFactory otFactory = new BristolOtFactory(rotFactory, otExtRes, network.get(),
+          otBatchSize);
+      TinyTablesTripleGenerator generator =
+          new TinyTablesTripleGenerator(getMyId(), getDrng(), otFactory);
+      return new BatchTinyTablesTripleProvider(generator, TRIP_BATCH_SIZE);
+    };
   }
 
   public Drng getDrng() {
@@ -125,6 +121,9 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
     List<TinyTablesTriple> usedTriples = new ArrayList<>();
     for (int i = 0; i < unprocessedGates; i++) {
       TinyTablesPreproANDProtocol gate = this.unprocessedAnds.get(i);
+      if (tinyTablesTripleProvider == null) {
+        tinyTablesTripleProvider = supplier.get();
+      }
       TinyTablesTriple triple = this.tinyTablesTripleProvider.getNextTriple();
       usedTriples.add(triple);
 
@@ -169,7 +168,9 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
   }
 
   public void closeEvaluation() {
-    tinyTablesTripleProvider.close();
+    if (tinyTablesTripleProvider != null) {
+      tinyTablesTripleProvider.close();
+    }
     /*
      * Store the TinyTables to a file.
      */

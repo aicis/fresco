@@ -109,14 +109,10 @@ public class TestPrivateSetDemo {
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
-              () -> {
-                TinyTablesPreproResourcePool tinyTablesPreproResourcePool = new TinyTablesPreproResourcePool(
-                    playerId, baseOt, random,
-                    COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE,
-                    getTinyTablesFile(playerId));
-                tinyTablesPreproResourcePool.initializeOtExtension(networkSupplier.get());
-                return tinyTablesPreproResourcePool;
-              },
+              () -> new TinyTablesPreproResourcePool(
+                  playerId, baseOt, random,
+                  COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE,
+                  getTinyTablesFile(playerId), networkSupplier),
               networkSupplier);
       conf.put(playerId, ttc);
     }

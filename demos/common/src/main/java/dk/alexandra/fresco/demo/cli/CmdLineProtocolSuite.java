@@ -32,6 +32,7 @@ import java.io.File;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.function.Supplier;
 
 /**
  * Utility for reading all configuration from command line. <p> A set of default configurations are
@@ -49,9 +50,10 @@ public class CmdLineProtocolSuite {
     return Arrays.toString(strings);
   }
 
-  CmdLineProtocolSuite(String protocolSuiteName, Properties properties, int myId, Network network) {
+  CmdLineProtocolSuite(String protocolSuiteName, Properties properties, int myId,
+      int noOfParties, Supplier<Network> network) {
     this.myId = myId;
-    this.noOfPlayers = network.getNoOfParties();
+    this.noOfPlayers = noOfParties;
     if (protocolSuiteName.equals("dummybool")) {
       this.protocolSuite = new DummyBooleanProtocolSuite();
       this.resourcePool =
@@ -76,11 +78,9 @@ public class CmdLineProtocolSuite {
       TinyTablesOt baseOt = new TinyTablesNaorPinkasOt(Util.otherPlayerId(myId), random,
           DhParameters
               .getStaticDhParams());
-      TinyTablesPreproResourcePool resourcePool = new TinyTablesPreproResourcePool(myId, baseOt,
+      this.resourcePool = new TinyTablesPreproResourcePool(myId, baseOt,
           random, 128, 40, 16000, new File(
-          tinyTablesFilePath));
-      resourcePool.initializeOtExtension(network);
-      this.resourcePool = resourcePool;
+          tinyTablesFilePath), network);
     } else {
       this.protocolSuite = tinyTablesFromCmdLine(properties);
       this.resourcePool = new ResourcePoolImpl(myId, noOfPlayers);
