@@ -19,15 +19,14 @@ import dk.alexandra.fresco.suite.tinytables.storage.BatchTinyTablesTripleProvide
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesTripleProvider;
+import dk.alexandra.fresco.suite.tinytables.util.TinyTablesTripleGenerator;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
-import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.BristolOtFactory;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
 import dk.alexandra.fresco.tools.ot.otextension.RotFactory;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -43,6 +42,7 @@ import org.slf4j.LoggerFactory;
 public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TinyTablesPreproResourcePool.class);
+  private static final int TRIP_BATCH_SIZE = 8192;
 
   private final int otBatchSize;
   private final Drng drng;
@@ -58,6 +58,7 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
   /**
    * Creates an instance of the default implementation of a resource pool. This contains the basic
    * resources needed within FRESCO.
+   *
    * @param myId The ID of the MPC party.
    * @param baseOt OT functionality for the base OTs
    * @param drbg Secure bit randomness generator
@@ -65,8 +66,8 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
    * @param tinyTablesFile file for data
    */
   public TinyTablesPreproResourcePool(int myId, TinyTablesOt baseOt, Drbg drbg,
-                                      int computationalSecurity, int statisticalSecurity,
-                                      int otBatchSize, File tinyTablesFile) {
+      int computationalSecurity, int statisticalSecurity,
+      int otBatchSize, File tinyTablesFile) {
     super(myId, 2);
     this.unprocessedAnds = Collections.synchronizedList(new ArrayList<>());
     this.storage = new TinyTablesStorageImpl();
@@ -80,7 +81,7 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
     this.otBatchSize = otBatchSize;
   }
 
-  public Ot initializeOtExtension(Network network) {
+  public void initializeOtExtension(Network network) {
     baseOt.init(network);
     int otherId = Util.otherPlayerId(getMyId());
     // Execute random seed OTs
@@ -93,8 +94,11 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
     }
     ct.initialize(network);
     // Setup the OT extension
-    return new BristolOtFactory(new RotFactory(otExtRes, network), otExtRes, network,
-        otBatchSize);
+    RotFactory rotFactory = new RotFactory(otExtRes, network);
+    BristolOtFactory otFactory = new BristolOtFactory(rotFactory, otExtRes, network, otBatchSize);
+    TinyTablesTripleGenerator generator =
+        new TinyTablesTripleGenerator(getMyId(), getDrng(), otFactory);
+    this.tinyTablesTripleProvider = new BatchTinyTablesTripleProvider(generator, TRIP_BATCH_SIZE);
   }
 
   public Drng getDrng() {
@@ -164,10 +168,6 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
     this.unprocessedAnds.clear();
   }
 
-  public void setTripleGenerator(BatchTinyTablesTripleProvider batchTinyTablesTripleProvider) {
-    this.tinyTablesTripleProvider = batchTinyTablesTripleProvider;
-  }
-
   public void closeEvaluation() {
     tinyTablesTripleProvider.close();
     /*
@@ -178,7 +178,6 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
       LOGGER.info("TinyTables stored to " + tinyTablesFile);
       return null;
     }, "Failed to store TinyTables");
-
   }
 
   private void storeTinyTables(TinyTablesStorage tinyTablesStorage, File file) throws IOException {

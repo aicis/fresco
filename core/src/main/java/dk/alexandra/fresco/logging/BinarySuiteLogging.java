@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.builder.binary.Binary;
 import dk.alexandra.fresco.framework.builder.binary.BuilderFactoryBinary;
 import dk.alexandra.fresco.framework.builder.binary.Comparison;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.logging.binary.BinaryComparisonLoggingDecorator;
 import dk.alexandra.fresco.logging.binary.BinaryLoggingDecorator;
@@ -33,9 +32,8 @@ public class BinarySuiteLogging<ResourcePoolT extends ResourcePool>
   }
 
   @Override
-  public BuilderFactoryBinary init(ResourcePoolT resourcePool,
-      Network network) {
-    BuilderFactoryBinary init = delegateSuite.init(resourcePool, network);
+  public BuilderFactoryBinary init(ResourcePoolT resourcePool) {
+    BuilderFactoryBinary init = delegateSuite.init(resourcePool);
     return new BuilderFactoryBinary() {
 
       BuilderFactoryBinary delegateFactory = init;

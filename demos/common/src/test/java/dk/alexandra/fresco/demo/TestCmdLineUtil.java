@@ -35,7 +35,7 @@ import org.junit.Test;
 public class TestCmdLineUtil {
 
   @Test
-  public void testDummyBoolFromCmdLine() throws InterruptedException {
+  public void testDummyBoolFromCmdLine() {
     CmdLineUtil<ResourcePoolImpl, ProtocolBuilderBinary> cmd = parseAndCloseNetwork(getArgs(1, "dummybool", "-b", "4048"));
     assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
     assertEquals(1, cmd.getNetworkConfiguration().getMyId());
@@ -46,7 +46,7 @@ public class TestCmdLineUtil {
   }
 
   @Test
-  public void testDummyBoolFromCmdLineWithLogging() throws InterruptedException {
+  public void testDummyBoolFromCmdLineWithLogging() {
     CmdLineUtil<ResourcePoolImpl, ProtocolBuilderBinary> cmd = parseAndCloseNetwork(getArgs(1, "dummybool", "-l"));
     assertTrue(cmd.getNetwork() instanceof NetworkLoggingDecorator);
     assertTrue(cmd.getEvaluator() instanceof EvaluatorLoggingDecorator);
@@ -58,7 +58,7 @@ public class TestCmdLineUtil {
   }
 
   @Test
-  public void testDummyAritmeticFromCmdLine() throws InterruptedException {
+  public void testDummyAritmeticFromCmdLine() {
     CmdLineUtil<DummyArithmeticResourcePool, ProtocolBuilderNumeric> cmd = parseAndCloseNetwork(getArgs(1, "dummyarithmetic", "-b", "4048"));
     assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
     assertEquals(1, cmd.getNetworkConfiguration().getMyId());
@@ -69,7 +69,7 @@ public class TestCmdLineUtil {
   }
 
   @Test
-  public void testSpdzAritmeticDummyFromCmdLine() throws InterruptedException {
+  public void testSpdzAritmeticDummyFromCmdLine() {
     CmdLineUtil<SpdzResourcePool, ProtocolBuilderNumeric> cmd = parseAndCloseNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=DUMMY"));
     assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
     assertEquals(1, cmd.getNetworkConfiguration().getMyId());
@@ -80,12 +80,12 @@ public class TestCmdLineUtil {
   }
 
   @Test(expected=IllegalArgumentException.class)
-  public void testSpdzBadBitLength() throws InterruptedException {
+  public void testSpdzBadBitLength() {
     parseAndCloseNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=DUMMY", "-D", "spdz.maxBitLength=1"));
   }
 
   @Test
-  public void testSpdzAritmeticStaticFromCmdLine() throws InterruptedException, IOException {
+  public void testSpdzAritmeticStaticFromCmdLine() throws IOException {
     InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2, 1, 1, 1, 1, 1);
     CmdLineUtil<SpdzResourcePool, ProtocolBuilderNumeric> cmd =
         parseAndCloseNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=STATIC"));
@@ -99,12 +99,12 @@ public class TestCmdLineUtil {
   }
 
   @Test(expected=IllegalArgumentException.class)
-  public void testSpdzAritmeticBadStrategyFromCmdLine() throws InterruptedException {
+  public void testSpdzAritmeticBadStrategyFromCmdLine() {
     parseAndCloseNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=NO_STRATEGY"));
   }
 
   @Test
-  public void testTinyTablesPreproFromCmdLine() throws InterruptedException {
+  public void testTinyTablesPreproFromCmdLine() {
     CmdLineUtil<?, ?> cmd = parseAndCloseNetwork(getArgs(1, "tinytablesprepro", "-b", "4048"));
     assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
     assertEquals(1, cmd.getNetworkConfiguration().getMyId());
@@ -115,7 +115,7 @@ public class TestCmdLineUtil {
   }
 
   @Test
-  public void testTinyTablesFromCmdLine() throws InterruptedException {
+  public void testTinyTablesFromCmdLine() {
     CmdLineUtil<?, ?> cmd = parseAndCloseNetwork(getArgs(1, "tinytables", "-b", "4048"));
     assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
     assertEquals(1, cmd.getNetworkConfiguration().getMyId());
@@ -126,7 +126,7 @@ public class TestCmdLineUtil {
   }
 
   @Test(expected=IllegalArgumentException.class)
-  public void testBadProtocolSuiteFromCmdLine() throws InterruptedException {
+  public void testBadProtocolSuiteFromCmdLine() {
     parseIncorrectArgs(getArgs(1, "not-a-protocolsuite", "-b", "4048"));
   }
 
@@ -186,7 +186,7 @@ public class TestCmdLineUtil {
   }
 
   @Test
-  public void testCmdLineHelp() throws IOException {
+  public void testCmdLineHelp() {
     @SuppressWarnings("rawtypes")
     CmdLineUtil cmd = new CmdLineUtil<>();
     cmd.addOption(new Option("fancy", "fancy option"));
@@ -206,7 +206,6 @@ public class TestCmdLineUtil {
       public void run() {
         CmdLineUtil<ResourcePoolT, Builder> cmd = new CmdLineUtil<>();
         cmd.parse(getArgs(2, "dummybool"));
-        cmd.startNetwork();
         try {
           Thread.sleep(50);
           cmd.closeNetwork();
@@ -219,7 +218,6 @@ public class TestCmdLineUtil {
     t1.start();
     CmdLineUtil<ResourcePoolT, Builder> cmd = new CmdLineUtil<>();
     cmd.parse(mainArgs);
-    cmd.startNetwork();
     try {
       cmd.closeNetwork();
     } catch (IOException e) {

@@ -6,7 +6,7 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
-public interface ProtocolSuite<ResourcePoolT extends ResourcePool, 
+public interface ProtocolSuite<ResourcePoolT extends ResourcePool,
     Builder extends ProtocolBuilder> {
 
   /**
@@ -15,9 +15,8 @@ public interface ProtocolSuite<ResourcePoolT extends ResourcePool,
    * internal protocols when needed.
    *
    * @param resourcePool the resources used in the init
-   * @param network the network used in the init
    */
-  BuilderFactory<Builder> init(ResourcePoolT resourcePool, Network network);
+  BuilderFactory<Builder> init(ResourcePoolT resourcePool);
 
   /**
    * Get a RoundSynchronization used by evaluators to signal progress and allow protocols to do
@@ -87,6 +86,5 @@ public interface ProtocolSuite<ResourcePoolT extends ResourcePool,
     public void finishedEval(ResourcePoolT resourcePool, Network network) {
 
     }
-
   }
 }

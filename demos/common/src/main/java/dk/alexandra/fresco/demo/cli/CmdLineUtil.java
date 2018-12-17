@@ -104,10 +104,10 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
     options.addOption(Option.builder("p")
         .desc(
             "Connection data for a party. Use -p multiple times to specify many players. "
-            + "You must always at least include yourself. Must be on the form "
-            + "[id]:[hostname]:[port]. "
-            + "id is a unique positive integer for the player, host and port is where to "
-            + "find the player")
+                + "You must always at least include yourself. Must be on the form "
+                + "[id]:[hostname]:[port]. "
+                + "id is a unique positive integer for the player, host and port is where to "
+                + "find the player")
         .longOpt("party").required(true).hasArgs().build());
 
     options.addOption(Option.builder("e")
@@ -119,7 +119,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
     options.addOption(Option.builder("b")
         .desc(
             "The maximum number of native protocols kept in memory at any point in time. "
-            + "Defaults to 4096")
+                + "Defaults to 4096")
         .longOpt("max-batch").required(false).hasArg(true).build());
 
     options.addOption(Option.builder("D").argName("property=value")
@@ -187,12 +187,6 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
     }
 
     this.networkConfiguration = new NetworkConfigurationImpl(myId, parties);
-  }
-
-  /**
-   * Create a network and connect to the other parties.
-   */
-  public void startNetwork() {
     this.network = new AsyncNetwork(networkConfiguration);
     if (logPerformance) {
       this.network = new NetworkLoggingDecorator(this.network);
@@ -221,6 +215,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
   /**
    * Parses the arguments. Also constructs various configuration objects such as ProtocolSuite
    * and ResourcePool.
+   *
    * @param args The arguments
    * @return CommandLine
    */
@@ -240,13 +235,11 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
         this.logPerformance = true;
       }
 
-
       String protocolSuiteName = validateAndGetProtocolSuite();
       parseAndSetupNetwork();
 
       CmdLineProtocolSuite protocolSuiteParser = new CmdLineProtocolSuite(protocolSuiteName,
-          cmd.getOptionProperties("D"), this.networkConfiguration.getMyId(),
-          this.networkConfiguration.noOfParties());
+          cmd.getOptionProperties("D"), this.networkConfiguration.getMyId(), network);
       protocolSuite = (ProtocolSuite<ResourcePoolT, BuilderT>)
           protocolSuiteParser.getProtocolSuite();
       resourcePool = (ResourcePoolT) protocolSuiteParser.getResourcePool();
@@ -260,9 +253,9 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
           maxBatchSize);
     } catch (Exception e) {
       ExceptionConverter.safe(() -> {
-        closeNetwork();
-        return null;
-      },
+            closeNetwork();
+            return null;
+          },
           "Failed to close the network");
 
       System.err.println("Error while parsing arguments / instantiating protocol suite: "
@@ -316,6 +309,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
 
   /**
    * Attempts to close the network.
+   *
    * @throws IOException If the networks fails to close
    */
   public void closeNetwork() throws IOException {

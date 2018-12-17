@@ -105,7 +105,6 @@ public class DistanceDemo implements Application<BigInteger, ProtocolBuilderNume
 
     DistanceDemo distDemo = new DistanceDemo(networkConfiguration.getMyId(), x, y);
     SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce = cmdUtil.getSce();
-    cmdUtil.startNetwork();
     ResourcePoolT resourcePool = cmdUtil.getResourcePool();
     BigInteger bigInteger = sce.runApplication(distDemo, resourcePool, cmdUtil.getNetwork());
     double dist = Math.sqrt(bigInteger.doubleValue());

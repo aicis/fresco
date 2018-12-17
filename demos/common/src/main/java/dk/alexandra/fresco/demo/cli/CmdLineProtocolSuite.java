@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.demo.cli;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
@@ -48,10 +49,9 @@ public class CmdLineProtocolSuite {
     return Arrays.toString(strings);
   }
 
-  CmdLineProtocolSuite(String protocolSuiteName, Properties properties, int myId,
-      int noOfPlayers) {
+  CmdLineProtocolSuite(String protocolSuiteName, Properties properties, int myId, Network network) {
     this.myId = myId;
-    this.noOfPlayers = noOfPlayers;
+    this.noOfPlayers = network.getNoOfParties();
     if (protocolSuiteName.equals("dummybool")) {
       this.protocolSuite = new DummyBooleanProtocolSuite();
       this.resourcePool =
@@ -76,13 +76,14 @@ public class CmdLineProtocolSuite {
       TinyTablesOt baseOt = new TinyTablesNaorPinkasOt(Util.otherPlayerId(myId), random,
           DhParameters
               .getStaticDhParams());
-      this.resourcePool =
-          new TinyTablesPreproResourcePool(myId, baseOt, random, 128, 40, 16000, new File(
-              tinyTablesFilePath));
+      TinyTablesPreproResourcePool resourcePool = new TinyTablesPreproResourcePool(myId, baseOt,
+          random, 128, 40, 16000, new File(
+          tinyTablesFilePath));
+      resourcePool.initializeOtExtension(network);
+      this.resourcePool = resourcePool;
     } else {
       this.protocolSuite = tinyTablesFromCmdLine(properties);
-      this.resourcePool =
-          new ResourcePoolImpl(myId, noOfPlayers);
+      this.resourcePool = new ResourcePoolImpl(myId, noOfPlayers);
     }
   }
 

@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz2k;
 
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
@@ -44,7 +43,7 @@ public abstract class Spdz2kProtocolSuite<
   }
 
   @Override
-  public BuilderFactoryNumeric init(Spdz2kResourcePool<PlainT> resourcePool, Network network) {
+  public BuilderFactoryNumeric init(Spdz2kResourcePool<PlainT> resourcePool) {
     return new Spdz2kBuilder<>(resourcePool.getFactory(), createBasicNumericContext(resourcePool));
   }
 
