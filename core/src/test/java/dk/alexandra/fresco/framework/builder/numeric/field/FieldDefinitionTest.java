@@ -112,4 +112,17 @@ public final class FieldDefinitionTest {
       }
     });
   }
+
+  @Test
+  public void deserializeStupidList() {
+    testDefinition((definition, converter) -> {
+      List<FieldElement> result = definition.deserializeList(Arrays.asList(
+          new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+          new byte[]{127, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -87},
+          new byte[]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 82}
+      ));
+      assertThat(toBigIntegers(result, converter),
+          Is.is(toBigIntegers(getElements(definition), converter)));
+    });
+  }
 }
