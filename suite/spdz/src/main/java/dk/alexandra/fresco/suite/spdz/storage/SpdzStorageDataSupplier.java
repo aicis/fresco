@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SpdzStorageDataSupplier implements SpdzDataSupplier {
 
-  private final static Logger logger = LoggerFactory.getLogger(SpdzStorageDataSupplier.class);
+  private static final Logger logger = LoggerFactory.getLogger(SpdzStorageDataSupplier.class);
   public static final String STORAGE_FOLDER = "spdz/";
   public static final String SSK_KEY = "SSK";
   public static final String MODULUS_KEY = "MOD_P";
@@ -129,11 +129,6 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
     }
     bitCounter++;
     return bit;
-  }
-
-  @Override
-  public BigInteger getModulus() {
-    return getFieldDefinition().getModulus();
   }
 
   @Override

@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import java.io.IOException;
-import java.math.BigInteger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,15 +44,12 @@ public class TestStorage {
    */
   @Test
   public void testInitInMemoryStorageAndDoubleFetch() {
-    InitializeStorage.initStorage(new Storage[] { new InMemoryStorage() }, 2, 10, 10, 100, 10);
+    InitializeStorage.initStorage(new Storage[]{new InMemoryStorage()}, 2, 10, 10, 100, 10);
   }
 
   @Test
-  public void testMultipleCallsAndRandomElm() throws Throwable {
+  public void testMultipleCallsAndRandomElm() {
     SpdzDataSupplier supplier = (new Initializer()).numTriples(1).init();
-    BigInteger m1 = supplier.getModulus();
-    BigInteger m2 = supplier.getModulus();
-    assertEquals(m1, m2);
     FieldElement ssk1 = supplier.getSecretSharedKey();
     FieldElement ssk2 = supplier.getSecretSharedKey();
     assertEquals(ssk1, ssk2);
@@ -61,19 +57,19 @@ public class TestStorage {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testMissingModulus() throws Throwable {
+  public void testMissingModulus() {
     SpdzDataSupplier supplier = new SpdzStorageDataSupplier(storage, storageName, 2);
-    supplier.getModulus();
+    supplier.getFieldDefinition();
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testMissingSecretSharedKey() throws Throwable {
+  public void testMissingSecretSharedKey() {
     SpdzDataSupplier supplier = new SpdzStorageDataSupplier(storage, storageName, 2);
     supplier.getSecretSharedKey();
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testMissingTriple() throws Throwable {
+  public void testMissingTriple() {
     SpdzDataSupplier supplier = (new Initializer()).numTriples(1).init();
     try {
       supplier.getNextTriple();
@@ -85,7 +81,7 @@ public class TestStorage {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testMissingInput() throws Throwable {
+  public void testMissingInput() {
     SpdzDataSupplier supplier = (new Initializer()).numInputs(1).numPlayers(2).init();
     try {
       supplier.getNextInputMask(2);
@@ -97,7 +93,7 @@ public class TestStorage {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testMissingBit() throws Throwable {
+  public void testMissingBit() {
     SpdzDataSupplier supplier = (new Initializer()).numBits(1).init();
     try {
       supplier.getNextBit();
@@ -109,8 +105,7 @@ public class TestStorage {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testMissingExpPipe() throws Throwable {
-    int noOfThreads = 1;
+  public void testMissingExpPipe() {
     SpdzStorageDataSupplier supplier = (new Initializer()).numExps(1).init();
     try {
       supplier.getNextExpPipe();
@@ -160,7 +155,9 @@ public class TestStorage {
     }
 
     public SpdzStorageDataSupplier init() {
-      InitializeStorage.initStreamedStorage(storage, numPlayers, numThreads, numTriples, numInputs, numBits, numExps);
+      InitializeStorage
+          .initStreamedStorage(storage, numPlayers, numThreads, numTriples, numInputs, numBits,
+              numExps);
       return new SpdzStorageDataSupplier(storage, storageName, 2);
     }
   }

@@ -217,7 +217,6 @@ public class TestSpdzDummyDataSupplier {
     FieldDefinition fieldDefinition = fields.get(0);
     SpdzDummyDataSupplier supplier =
         new SpdzDummyDataSupplier(1, 2, fieldDefinition, BigInteger.ONE);
-    assertEquals(fields.get(0).getModulus(), supplier.getModulus());
     assertEquals(BigInteger.ONE,
         fieldDefinition.convertToUnsigned(supplier.getSecretSharedKey()));
   }

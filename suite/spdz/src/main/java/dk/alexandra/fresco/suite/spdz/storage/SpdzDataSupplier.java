@@ -6,7 +6,6 @@ import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestBruteforce;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
-import java.math.BigInteger;
 
 public interface SpdzDataSupplier {
 
@@ -43,13 +42,6 @@ public interface SpdzDataSupplier {
   SpdzSInt getNextBit();
 
   /**
-   * The modulus used for this instance of SPDZ.
-   *
-   * @return a modulus
-   */
-  BigInteger getModulus();
-
-  /**
    * The field definition used for this instance of SPDZ.
    *
    * @return a field definition
@@ -70,5 +62,4 @@ public interface SpdzDataSupplier {
    * @return A SpdzSInt representing a random secret shared field element.
    */
   SpdzSInt getNextRandomFieldElement();
-
 }
