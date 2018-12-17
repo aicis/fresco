@@ -9,11 +9,9 @@ import java.util.Random;
 public class SpdzCommitment {
 
   private final FieldElement value;
-  private byte[] randomness;
-  private byte[] commitment;
   private final MessageDigest hash;
-  private final Random rand;
   private final byte[] randomBytes;
+  private byte[] commitment;
 
   /**
    * Commit to a specific value.
@@ -26,7 +24,6 @@ public class SpdzCommitment {
   public SpdzCommitment(
       MessageDigest hash, FieldElement value, Random rand, int modulusBitLength) {
     this.value = value;
-    this.rand = rand;
     this.hash = hash;
     this.randomBytes = new byte[modulusBitLength / 8 + 1];
     rand.nextBytes(randomBytes);
@@ -42,10 +39,7 @@ public class SpdzCommitment {
       return commitment;
     }
     hash.update(definition.serialize(value));
-    rand.nextBytes(randomBytes);
-    randomness = randomBytes;
-
-    hash.update(this.randomness);
+    hash.update(this.randomBytes);
     commitment = hash.digest();
     return this.commitment;
   }
@@ -55,14 +49,14 @@ public class SpdzCommitment {
   }
 
   public byte[] getRandomness() {
-    return this.randomness;
+    return this.randomBytes;
   }
 
   @Override
   public String toString() {
     return "SpdzCommitment["
         + "v:" + this.value + ", "
-        + "r:" + Arrays.toString(this.randomness) + ", "
+        + "r:" + Arrays.toString(this.randomBytes) + ", "
         + "commitment:" + Arrays.toString(this.commitment) + "]";
   }
 }

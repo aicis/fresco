@@ -23,12 +23,13 @@ public class TestSpdzDatatypes {
 
   @Test
   public void testCommitment() throws NoSuchAlgorithmException {
-    SpdzCommitment comm = new SpdzCommitment(null, null, new Random(1),
-        definition.getModulus().bitLength());
-    Assert.assertEquals("SpdzCommitment[v:null, r:null, commitment:null]", comm.toString());
-    MessageDigest H = MessageDigest.getInstance("SHA-256");
-    SpdzCommitment c = new SpdzCommitment(H, definition.createElement(1), new Random(0),
-        definition.getModulus().bitLength());
+    final int bitLength = definition.getModulus().bitLength();
+    SpdzCommitment comm =
+        new SpdzCommitment(null, null, new Random(1), bitLength);
+    Assert.assertEquals("SpdzCommitment[v:null, r:[115, -43], commitment:null]", comm.toString());
+    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+    SpdzCommitment c =
+        new SpdzCommitment(digest, definition.createElement(1), new Random(0), bitLength);
     byte[] c1 = c.computeCommitment(definition);
     byte[] c2 = c.computeCommitment(definition);
     Assert.assertEquals(c1, c2);
