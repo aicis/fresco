@@ -75,10 +75,10 @@ final class MersennePrimeFieldElement implements FieldElement {
 
   @Override
   public String toString() {
-    return "MersennePrimeFieldElement{" +
-        "value=" + value +
-        ", modulus =" + modulus +
-        '}';
+    return "MersennePrimeFieldElement{"
+        + "value=" + value
+        + ", modulus =" + modulus
+        + '}';
   }
 
   @Override
@@ -90,8 +90,8 @@ final class MersennePrimeFieldElement implements FieldElement {
       return false;
     }
     MersennePrimeFieldElement that = (MersennePrimeFieldElement) o;
-    return Objects.equals(modulus, that.modulus) &&
-        Objects.equals(value, that.value);
+    return Objects.equals(modulus, that.modulus)
+        && Objects.equals(value, that.value);
   }
 
   @Override
