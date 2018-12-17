@@ -3,7 +3,12 @@ image: registry.gitlab.com/partisia/dockerimages/maven-jdk9:latest
 run-test:
   stage: build
   script:
-  - mvn test
+    - mvn test
   artifacts:
     paths:
-    - test-report/
+      - core/target/site/jacoco
+      - suite/spdz/target/site/jacoco
+      - suite/spdz2k/target/site/jacoco
+      - suite/tinytables/target/site/jacoco
+      - tools/mascot/target/site/jacoco
+      - tools/ot/target/site/jacoco
