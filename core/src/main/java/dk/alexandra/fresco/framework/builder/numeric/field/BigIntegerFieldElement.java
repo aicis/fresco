@@ -70,10 +70,10 @@ final class BigIntegerFieldElement implements FieldElement {
 
   @Override
   public String toString() {
-    return "BigIntegerFieldElement{" +
-        "value=" + value +
-        ", modulus=" + modulus +
-        '}';
+    return "BigIntegerFieldElement{"
+        + "value=" + value
+        + ", modulus=" + modulus
+        + '}';
   }
 
   @Override
@@ -85,8 +85,8 @@ final class BigIntegerFieldElement implements FieldElement {
       return false;
     }
     BigIntegerFieldElement that = (BigIntegerFieldElement) o;
-    return Objects.equals(modulus, that.modulus) &&
-        Objects.equals(value, that.value);
+    return Objects.equals(modulus, that.modulus)
+        && Objects.equals(value, that.value);
   }
 
   @Override
