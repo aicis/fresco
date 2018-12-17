@@ -2,7 +2,6 @@ package dk.alexandra.fresco.framework.builder.numeric.field;
 
 import dk.alexandra.fresco.framework.util.MathUtils;
 import java.math.BigInteger;
-import java.util.Objects;
 
 final class MersennePrimeFieldElement implements FieldElement {
 
@@ -79,23 +78,5 @@ final class MersennePrimeFieldElement implements FieldElement {
         + "value=" + value
         + ", modulus =" + modulus
         + '}';
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    MersennePrimeFieldElement that = (MersennePrimeFieldElement) o;
-    return Objects.equals(modulus, that.modulus)
-        && Objects.equals(value, that.value);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(modulus, value);
   }
 }

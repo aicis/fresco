@@ -54,7 +54,7 @@ public class TestCope extends NetworkedTest {
 
     FieldElement expected = macKeyShare.multiply(input);
     FieldElement actual = leftResults.get(0).add(rightResults.get(0));
-    CustomAsserts.assertEquals(expected, actual);
+    CustomAsserts.assertEquals(getFieldDefinition(), expected, actual);
   }
 
   private void testBatchedExtend(int lambdaSecurityParam) {
@@ -92,7 +92,7 @@ public class TestCope extends NetworkedTest {
         .mapToObj(idx -> leftResults.get(idx).add(rightResults.get(idx)))
         .collect(Collectors.toList());
 
-    CustomAsserts.assertEquals(expected, actual);
+    CustomAsserts.assertEquals(getFieldDefinition(), expected, actual);
   }
 
   @Test

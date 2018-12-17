@@ -90,6 +90,6 @@ public final class BigIntegerFieldDefinition implements FieldDefinition {
   @Override
   public StrictBitVector convertToBitVector(FieldElement fieldElement) {
     return FieldUtils.convertToBitVector(
-        getBitLength(), BigIntegerFieldElement.extractValue(fieldElement));
+        modulusLength, BigIntegerFieldElement.extractValue(fieldElement));
   }
 }

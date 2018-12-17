@@ -1,8 +1,6 @@
 package dk.alexandra.fresco.framework.builder.numeric.field;
 
-import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 import org.hamcrest.core.Is;
@@ -24,8 +22,8 @@ public class BigIntegerFieldElementTest {
     FieldElement element2 = BigIntegerFieldElement.create("27", modulus);
     FieldElement element3 = BigIntegerFieldElement.create(BigInteger.valueOf(27), modulus);
     assertThat(BigIntegerFieldElement.extractValue(element1), Is.is(BigInteger.valueOf(27)));
-    assertThat(element1, Is.is(element2));
-    assertThat(element2, Is.is(element3));
+    assertThat(BigIntegerFieldElement.extractValue(element2), Is.is(BigInteger.valueOf(27)));
+    assertThat(BigIntegerFieldElement.extractValue(element3), Is.is(BigInteger.valueOf(27)));
   }
 
   @Test
@@ -73,36 +71,6 @@ public class BigIntegerFieldElementTest {
     assertThat(result3, Is.is(BigInteger.valueOf(111)));
     assertThat(result4, Is.is(BigInteger.valueOf(91)));
     assertThat(result5, Is.is(BigInteger.valueOf(112)));
-  }
-
-  @SuppressWarnings({"SimplifiableJUnitAssertion", "EqualsWithItself",
-      "EqualsBetweenInconvertibleTypes", "ConstantConditions"})
-  @Test
-  public void equals() {
-    FieldElement firstElement =
-        BigIntegerFieldElement.create(BigInteger.valueOf(27), modulus);
-    FieldElement firstElementAgain =
-        BigIntegerFieldElement.create(
-            modulus.getBigInteger().add(BigInteger.valueOf(27)), modulus);
-    FieldElement differentValue =
-        BigIntegerFieldElement.create(BigInteger.valueOf(28), modulus);
-    FieldElement differentPrime =
-        BigIntegerFieldElement.create(BigInteger.valueOf(27), bigModulus);
-
-    assertTrue(firstElement.equals(firstElementAgain));
-    assertFalse(firstElement.equals(differentValue));
-    assertFalse(firstElement.equals(differentPrime));
-
-    assertTrue(firstElement.equals(firstElement));
-    assertFalse(firstElement.equals(""));
-    assertFalse(firstElement.equals(null));
-  }
-
-  @Test
-  public void hash() {
-    assertThat(element1.hashCode(), Is.is(5434));
-    assertThat(element2.hashCode(), Is.is(5450));
-    assertThat(element3.hashCode(), Is.is(5474));
   }
 
   @Test

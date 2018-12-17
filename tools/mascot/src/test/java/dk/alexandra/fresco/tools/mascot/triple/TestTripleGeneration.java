@@ -95,7 +95,7 @@ public class TestTripleGeneration extends NetworkedTest {
     // (12 + 123) * (11 + 2222) % 65519
     FieldElement expected = getFieldDefinition().createElement(39379);
     FieldElement actual = left.add(right);
-    CustomAsserts.assertEquals(expected, actual);
+    CustomAsserts.assertEquals(getFieldDefinition(), expected, actual);
   }
 
   @Test
@@ -146,7 +146,7 @@ public class TestTripleGeneration extends NetworkedTest {
 
     // actual results, recombined
     List<FieldElement> actual = Addable.sumRows(results);
-    CustomAsserts.assertEquals(expected, actual);
+    CustomAsserts.assertEquals(getFieldDefinition(), expected, actual);
   }
 
   private void testMultiplePartiesTriple(List<FieldElement> macKeyShares, int numTriples) {
@@ -167,7 +167,7 @@ public class TestTripleGeneration extends NetworkedTest {
     List<MultiplicationTriple> combined = Addable.sumRows(results);
     Assert.assertThat(combined, IsCollectionWithSize.hasSize(numTriples));
     for (MultiplicationTriple triple : combined) {
-      CustomAsserts.assertTripleIsValid(triple, Addable.sum(macKeyShares));
+      CustomAsserts.assertTripleIsValid(getFieldDefinition(), triple, Addable.sum(macKeyShares));
     }
   }
 
@@ -190,7 +190,7 @@ public class TestTripleGeneration extends NetworkedTest {
     List<MultiplicationTriple> combined = Addable.sumRows(results);
     Assert.assertThat(combined, IsCollectionWithSize.hasSize(numTriples * numIterations));
     for (MultiplicationTriple triple : combined) {
-      CustomAsserts.assertTripleIsValid(triple, Addable.sum(macKeyShares));
+      CustomAsserts.assertTripleIsValid(getFieldDefinition(), triple, Addable.sum(macKeyShares));
     }
   }
 

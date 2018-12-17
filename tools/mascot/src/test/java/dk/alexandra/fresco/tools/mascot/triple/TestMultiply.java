@@ -66,7 +66,7 @@ public class TestMultiply extends NetworkedTest {
     FieldElement actual = left.add(right);
     FieldElement expected = leftInput.multiply(rightInput);
 
-    CustomAsserts.assertEquals(expected, actual);
+    CustomAsserts.assertEquals(getFieldDefinition(), expected, actual);
   }
 
   @Test
@@ -104,7 +104,7 @@ public class TestMultiply extends NetworkedTest {
         .mapToObj(idx -> leftResults.get(idx).add(rightResults.get(idx)))
         .collect(Collectors.toList());
 
-    CustomAsserts.assertEquals(expected, actual);
+    CustomAsserts.assertEquals(getFieldDefinition(), expected, actual);
   }
 
   private void testManyMults(int lambdaSecurityParam) {
@@ -133,7 +133,7 @@ public class TestMultiply extends NetworkedTest {
     List<FieldElement> actual = Addable.sumRows(results);
     List<FieldElement> expected =
         new FieldElementUtils(getFieldDefinition()).pairWiseMultiply(leftInputs, rightInputs);
-    CustomAsserts.assertEquals(expected, actual);
+    CustomAsserts.assertEquals(getFieldDefinition(), expected, actual);
   }
 
   @Test

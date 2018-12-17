@@ -67,7 +67,7 @@ public class TestBitConverter extends NetworkedTest {
     List<FieldElement> partyTwoOutput = results.get(1);
 
     // outputs should be same
-    CustomAsserts.assertEquals(partyOneOutput, partyTwoOutput);
+    CustomAsserts.assertEquals(getFieldDefinition(), partyOneOutput, partyTwoOutput);
 
     // outputs should be bits
     for (FieldElement actualBit : partyOneOutput) {

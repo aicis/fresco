@@ -44,23 +44,4 @@ public class DummyArithmeticSInt implements SInt {
   public SInt out() {
     return this;
   }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    DummyArithmeticSInt that = (DummyArithmeticSInt) o;
-
-    return value.equals(that.value);
-  }
-
-  @Override
-  public int hashCode() {
-    return value.hashCode();
-  }
 }

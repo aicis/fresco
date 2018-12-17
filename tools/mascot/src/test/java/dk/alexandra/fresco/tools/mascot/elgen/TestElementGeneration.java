@@ -106,7 +106,7 @@ public class TestElementGeneration extends NetworkedTest {
         new AuthenticatedElement(expectedRecomb, expectedMacRecomb);
     AuthenticatedElement actual = leftShare.add(rightShare);
 
-    CustomAsserts.assertEquals(expected, actual);
+    CustomAsserts.assertEquals(getFieldDefinition(), expected, actual);
   }
 
   @Test
@@ -147,7 +147,7 @@ public class TestElementGeneration extends NetworkedTest {
         new AuthenticatedElement(expectedRecomb, expectedMacRecomb);
     AuthenticatedElement actual = leftShare.add(rightShare);
 
-    CustomAsserts.assertEquals(expected, actual);
+    CustomAsserts.assertEquals(getFieldDefinition(), expected, actual);
   }
 
   @Test
@@ -183,7 +183,7 @@ public class TestElementGeneration extends NetworkedTest {
         Arrays.asList(macKeyShareOne, macKeyShareTwo, macKeyShareThree);
     List<AuthenticatedElement> expected = computeExpected(inputs, macKeyShares);
 
-    CustomAsserts.assertEqualsAuth(expected, actual);
+    CustomAsserts.assertEqualsAuth(getFieldDefinition(), expected, actual);
   }
 
   @Test
@@ -214,7 +214,7 @@ public class TestElementGeneration extends NetworkedTest {
     List<AuthenticatedElement> expected =
         computeExpected(inputs, macKeyShares);
 
-    CustomAsserts.assertEqualsAuth(expected, actual);
+    CustomAsserts.assertEqualsAuth(getFieldDefinition(), expected, actual);
   }
 
   @Test
@@ -251,7 +251,7 @@ public class TestElementGeneration extends NetworkedTest {
     List<AuthenticatedElement> expected =
         computeExpected(flatInputs, macKeyShares);
 
-    CustomAsserts.assertEqualsAuth(expected, actual);
+    CustomAsserts.assertEqualsAuth(getFieldDefinition(), expected, actual);
   }
 
   // util methods
