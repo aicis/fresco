@@ -317,7 +317,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
    */
   public void closeNetwork() throws IOException {
     if (this.network != null) {
-      ((Closeable) this.network).close();
+      ((Closeable) this.network.get()).close();
     }
   }
 }
