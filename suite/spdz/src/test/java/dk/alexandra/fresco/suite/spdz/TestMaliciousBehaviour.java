@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
@@ -157,7 +156,7 @@ public class TestMaliciousBehaviour {
     }
 
     @Override
-    public BuilderFactoryNumeric init(SpdzResourcePool resourcePool, Network network) {
+    public BuilderFactoryNumeric init(SpdzResourcePool resourcePool) {
       BasicNumericContext spdzFactory = createNumericContext(resourcePool);
       RealNumericContext realNumericContext = createRealNumericContext();
       if (resourcePool.getMyId() == 1 && corrupt.compareTo(Corrupt.INPUT) == 0) {

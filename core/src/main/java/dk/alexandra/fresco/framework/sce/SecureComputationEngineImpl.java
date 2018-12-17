@@ -74,7 +74,7 @@ public class SecureComputationEngineImpl
       ResourcePoolT resourcePool, Network network) {
     logger.info(
         "Running application: " + application + " using protocol suite: " + this.protocolSuite);
-    BuilderFactory<BuilderT> protocolFactory = this.protocolSuite.init(resourcePool, network);
+    BuilderFactory<BuilderT> protocolFactory = this.protocolSuite.init(resourcePool);
     BuilderT builder = protocolFactory.createSequential();
     final DRes<OutputT> output = application.buildComputation(builder);
     long then = System.currentTimeMillis();

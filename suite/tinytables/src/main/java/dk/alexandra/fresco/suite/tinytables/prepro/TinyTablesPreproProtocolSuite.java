@@ -6,10 +6,7 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
-import dk.alexandra.fresco.suite.tinytables.storage.BatchTinyTablesTripleProvider;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
-import dk.alexandra.fresco.suite.tinytables.util.TinyTablesTripleGenerator;
-import dk.alexandra.fresco.tools.ot.base.Ot;
 
 /**
  * <p>
@@ -40,20 +37,13 @@ import dk.alexandra.fresco.tools.ot.base.Ot;
 public class TinyTablesPreproProtocolSuite
     implements ProtocolSuite<TinyTablesPreproResourcePool, ProtocolBuilderBinary> {
 
-  private static final int TRIP_BATCH_SIZE = 8192;
 
   public TinyTablesPreproProtocolSuite() {
   }
 
   @Override
   public BuilderFactory<ProtocolBuilderBinary> init(
-      TinyTablesPreproResourcePool resourcePool,
-      Network network) {
-    Ot otFactory = resourcePool.initializeOtExtension(network);
-
-    resourcePool.setTripleGenerator(new BatchTinyTablesTripleProvider(new TinyTablesTripleGenerator(
-        resourcePool.getMyId(), resourcePool.getDrng(), otFactory), TRIP_BATCH_SIZE));
-
+      TinyTablesPreproResourcePool resourcePool) {
     return new TinyTablesPreproBuilderFactory();
   }
 

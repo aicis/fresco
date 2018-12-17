@@ -108,8 +108,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     ResourcePoolT resourcePool = util.getResourcePool();
     
     AggregationDemo<ResourcePoolT> demo = new AggregationDemo<>();
-    
-    util.startNetwork();
+
     demo.runApplication(sce, resourcePool, util.getNetwork());
     
     util.closeNetwork();

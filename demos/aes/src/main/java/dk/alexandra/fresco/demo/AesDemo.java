@@ -81,7 +81,7 @@ public class AesDemo implements Application<List<Boolean>, ProtocolBuilderBinary
     CommandLine cmd = util.parse(args);
     
     // Get and validate the AES specific input.
-    Boolean[] input = null;
+    Boolean[] input;
     int myId = util.getNetworkConfiguration().getMyId();
     if (myId == 1 || myId == 2) {
 
@@ -108,7 +108,6 @@ public class AesDemo implements Application<List<Boolean>, ProtocolBuilderBinary
         new SecureComputationEngineImpl<>(psConf, util.getEvaluator());
 
     ResourcePoolT resourcePool = util.getResourcePool();
-    util.startNetwork();
     AesDemo aes = new AesDemo(util.getNetworkConfiguration().getMyId(), input);
     List<Boolean> aesResult = sce.runApplication(aes, resourcePool, util.getNetwork());
     

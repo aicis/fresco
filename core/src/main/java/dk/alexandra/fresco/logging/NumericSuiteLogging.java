@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.builder.numeric.Comparison;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.lib.real.RealNumericContext;
@@ -36,9 +35,8 @@ public class NumericSuiteLogging<ResourcePoolT extends NumericResourcePool>
   }
 
   @Override
-  public BuilderFactoryNumeric init(ResourcePoolT resourcePool,
-      Network network) {
-    final BuilderFactoryNumeric delegateFactory = delegateSuite.init(resourcePool, network);
+  public BuilderFactoryNumeric init(ResourcePoolT resourcePool) {
+    final BuilderFactoryNumeric delegateFactory = delegateSuite.init(resourcePool);
     return new BuilderFactoryNumeric() {
 
       @Override

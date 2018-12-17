@@ -2,7 +2,6 @@ package dk.alexandra.fresco.suite;
 
 import dk.alexandra.fresco.framework.builder.binary.BuilderFactoryBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
 /**
@@ -16,5 +15,5 @@ public interface ProtocolSuiteBinary<ResourcePoolT extends ResourcePool> extends
     ProtocolSuite<ResourcePoolT, ProtocolBuilderBinary> {
 
   @Override
-  BuilderFactoryBinary init(ResourcePoolT resourcePool, Network network);
+  BuilderFactoryBinary init(ResourcePoolT resourcePool);
 }
