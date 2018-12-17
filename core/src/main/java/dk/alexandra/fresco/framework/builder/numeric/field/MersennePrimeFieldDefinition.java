@@ -8,8 +8,8 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
 
   private final MersennePrimeModulus modulus;
   private final BigInteger modulusHalf;
-  private final int modulusLength;
   private final int modulusBitLength;
+  private final FieldUtils utils;
 
   /**
    * Construct a new field definition for a pseudo mersenne prime.
@@ -21,49 +21,8 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
     this.modulus = new MersennePrimeModulus(bitLength, constant);
     this.modulusHalf = modulus.getPrime().shiftRight(1);
     this.modulusBitLength = bitLength;
-    this.modulusLength = FieldUtils.bytesNeededForBits(modulusBitLength);
-  }
-
-  @Override
-  public BigInteger convertToUnsigned(FieldElement value) {
-    return MersennePrimeFieldElement.extractValue(value);
-  }
-
-  @Override
-  public BigInteger convertToSigned(BigInteger signed) {
-    return FieldUtils.convertRepresentation(signed, getModulus(), modulusHalf);
-  }
-
-  @Override
-  public BigInteger getModulus() {
-    return modulus.getPrime();
-  }
-
-  @Override
-  public int getBitLength() {
-    return modulusBitLength;
-  }
-
-  @Override
-  public FieldElement deserialize(byte[] bytes) {
-    return FieldUtils.deserialize(bytes, modulusLength, this::createElement);
-  }
-
-  @Override
-  public List<FieldElement> deserializeList(byte[] bytes) {
-    return FieldUtils.deserializeList(bytes, modulusLength, this::createElement);
-  }
-
-  @Override
-  public byte[] serialize(FieldElement fieldElement) {
-    return FieldUtils.serialize(
-        modulusLength, MersennePrimeFieldElement.extractValue(fieldElement));
-  }
-
-  @Override
-  public byte[] serialize(List<FieldElement> fieldElements) {
-    return FieldUtils.serializeList(
-        modulusLength, fieldElements, MersennePrimeFieldElement::extractValue);
+    this.utils = new FieldUtils(modulusBitLength, this::createElement,
+        MersennePrimeFieldElement::extractValue);
   }
 
   @Override
@@ -82,8 +41,47 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
   }
 
   @Override
+  public BigInteger getModulus() {
+    return modulus.getPrime();
+  }
+
+  @Override
+  public int getBitLength() {
+    return modulusBitLength;
+  }
+
+  @Override
   public StrictBitVector convertToBitVector(FieldElement fieldElement) {
-    return FieldUtils.convertToBitVector(
-        modulusLength, MersennePrimeFieldElement.extractValue(fieldElement));
+    return utils.convertToBitVector(fieldElement);
+  }
+
+  @Override
+  public BigInteger convertToUnsigned(FieldElement value) {
+    return BigIntegerFieldElement.extractValue(value);
+  }
+
+  @Override
+  public BigInteger convertToSigned(BigInteger signed) {
+    return FieldUtils.convertRepresentation(signed, getModulus(), modulusHalf);
+  }
+
+  @Override
+  public byte[] serialize(FieldElement fieldElement) {
+    return utils.serialize(fieldElement);
+  }
+
+  @Override
+  public byte[] serialize(List<FieldElement> fieldElements) {
+    return utils.serializeList(fieldElements);
+  }
+
+  @Override
+  public FieldElement deserialize(byte[] bytes) {
+    return utils.deserialize(bytes);
+  }
+
+  @Override
+  public List<FieldElement> deserializeList(byte[] bytes) {
+    return utils.deserializeList(bytes);
   }
 }

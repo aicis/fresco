@@ -8,7 +8,7 @@ public final class BigIntegerFieldDefinition implements FieldDefinition {
 
   private final BigIntegerModulus modulus;
   private final BigInteger modulusHalf;
-  private final int modulusLength;
+  private final FieldUtils utils;
   private final int modulusBitLength;
 
   /**
@@ -20,7 +20,8 @@ public final class BigIntegerFieldDefinition implements FieldDefinition {
     this.modulus = new BigIntegerModulus(value);
     this.modulusHalf = modulus.getBigInteger().shiftRight(1);
     this.modulusBitLength = modulus.getBigInteger().bitLength();
-    this.modulusLength = FieldUtils.bytesNeededForBits(modulusBitLength);
+    this.utils = new FieldUtils(modulusBitLength, this::createElement,
+        BigIntegerFieldElement::extractValue);
   }
 
   public BigIntegerFieldDefinition(int value) {
@@ -29,26 +30,6 @@ public final class BigIntegerFieldDefinition implements FieldDefinition {
 
   public BigIntegerFieldDefinition(String value) {
     this(new BigInteger(value));
-  }
-
-  @Override
-  public BigInteger convertToUnsigned(FieldElement value) {
-    return BigIntegerFieldElement.extractValue(value);
-  }
-
-  @Override
-  public BigInteger convertToSigned(BigInteger signed) {
-    return FieldUtils.convertRepresentation(signed, getModulus(), modulusHalf);
-  }
-
-  @Override
-  public BigInteger getModulus() {
-    return modulus.getBigInteger();
-  }
-
-  @Override
-  public int getBitLength() {
-    return modulusBitLength;
   }
 
   @Override
@@ -67,29 +48,47 @@ public final class BigIntegerFieldDefinition implements FieldDefinition {
   }
 
   @Override
-  public FieldElement deserialize(byte[] bytes) {
-    return FieldUtils.deserialize(bytes, modulusLength, this::createElement);
+  public BigInteger getModulus() {
+    return modulus.getBigInteger();
   }
 
   @Override
-  public List<FieldElement> deserializeList(byte[] bytes) {
-    return FieldUtils.deserializeList(bytes, modulusLength, this::createElement);
-  }
-
-  @Override
-  public byte[] serialize(FieldElement fieldElement) {
-    return FieldUtils.serialize(modulusLength, BigIntegerFieldElement.extractValue(fieldElement));
-  }
-
-  @Override
-  public byte[] serialize(List<FieldElement> fieldElements) {
-    return FieldUtils
-        .serializeList(modulusLength, fieldElements, BigIntegerFieldElement::extractValue);
+  public int getBitLength() {
+    return modulusBitLength;
   }
 
   @Override
   public StrictBitVector convertToBitVector(FieldElement fieldElement) {
-    return FieldUtils.convertToBitVector(
-        modulusLength, BigIntegerFieldElement.extractValue(fieldElement));
+    return utils.convertToBitVector(fieldElement);
+  }
+
+  @Override
+  public BigInteger convertToUnsigned(FieldElement value) {
+    return BigIntegerFieldElement.extractValue(value);
+  }
+
+  @Override
+  public BigInteger convertToSigned(BigInteger signed) {
+    return FieldUtils.convertRepresentation(signed, getModulus(), modulusHalf);
+  }
+
+  @Override
+  public byte[] serialize(FieldElement fieldElement) {
+    return utils.serialize(fieldElement);
+  }
+
+  @Override
+  public byte[] serialize(List<FieldElement> fieldElements) {
+    return utils.serializeList(fieldElements);
+  }
+
+  @Override
+  public FieldElement deserialize(byte[] bytes) {
+    return utils.deserialize(bytes);
+  }
+
+  @Override
+  public List<FieldElement> deserializeList(byte[] bytes) {
+    return utils.deserializeList(bytes);
   }
 }

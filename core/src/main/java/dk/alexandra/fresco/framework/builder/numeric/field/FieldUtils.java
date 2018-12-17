@@ -8,65 +8,61 @@ import java.util.function.Function;
 
 final class FieldUtils {
 
-  private FieldUtils() {
+  private final int modulusLength;
+  private final Function<BigInteger, FieldElement> creator;
+  private final Function<FieldElement, BigInteger> toBigInteger;
+
+  FieldUtils(int modulusBitLength, Function<BigInteger, FieldElement> creator,
+      Function<FieldElement, BigInteger> toBigInteger) {
+    this.modulusLength = 1 + ((modulusBitLength - 1) / 8);
+    this.creator = creator;
+    this.toBigInteger = toBigInteger;
   }
 
-  static int bytesNeededForBits(int bits) {
-    return 1 + ((bits - 1) / 8);
+  StrictBitVector convertToBitVector(FieldElement value) {
+    return new StrictBitVector(serialize(value));
   }
 
-  static StrictBitVector convertToBitVector(int byteLength, BigInteger value) {
-    return new StrictBitVector(serialize(byteLength, value));
+  byte[] serialize(FieldElement value) {
+    return serializeWithOffset(value, 0, new byte[modulusLength]);
   }
 
-  static byte[] serialize(int byteLength, BigInteger value) {
-    return serializeWithOffset(byteLength, value, 0, new byte[byteLength]);
-  }
-
-  private static byte[] serializeWithOffset(int byteLength, BigInteger value, int offset,
-      byte[] res) {
-    byte[] bytes = value.toByteArray();
-    int arrayStart = bytes.length > byteLength ? bytes.length - byteLength : 0;
-    int resStart = bytes.length > byteLength ? 0 : byteLength - bytes.length;
-    int len = Math.min(byteLength, bytes.length);
+  private byte[] serializeWithOffset(FieldElement value, int offset, byte[] res) {
+    byte[] bytes = toBigInteger.apply(value).toByteArray();
+    int arrayStart = bytes.length > modulusLength ? bytes.length - modulusLength : 0;
+    int resStart = bytes.length > modulusLength ? 0 : modulusLength - bytes.length;
+    int len = Math.min(modulusLength, bytes.length);
     System.arraycopy(bytes, arrayStart, res, resStart + offset, len);
     return res;
   }
 
-  static FieldElement deserialize(byte[] bytes, int byteLength,
-      Function<BigInteger, FieldElement> creator) {
-    return deserializeWithOffset(bytes, 0, byteLength, creator);
+  FieldElement deserialize(byte[] bytes) {
+    return deserializeWithOffset(bytes, 0);
   }
 
-  private static FieldElement deserializeWithOffset(byte[] bytes, int offset, int byteLength,
-      Function<BigInteger, FieldElement> creator) {
+  private FieldElement deserializeWithOffset(byte[] bytes, int offset) {
     byte[] actual;
-    if (bytes.length == byteLength && offset == 0) {
+    if (bytes.length == modulusLength) {
       actual = bytes;
     } else {
-      actual = new byte[byteLength];
-      System.arraycopy(bytes, offset, actual, 0, byteLength);
+      actual = new byte[modulusLength];
+      System.arraycopy(bytes, offset, actual, 0, modulusLength);
     }
     return creator.apply(new BigInteger(1, actual));
   }
 
-  static byte[] serializeList(
-      int byteLength,
-      List<FieldElement> fieldElements,
-      Function<FieldElement, BigInteger> serializer) {
-    byte[] bytes = new byte[byteLength * fieldElements.size()];
+  byte[] serializeList(List<FieldElement> fieldElements) {
+    byte[] bytes = new byte[modulusLength * fieldElements.size()];
     for (int i = 0; i < fieldElements.size(); i++) {
-      serializeWithOffset(byteLength, serializer.apply(fieldElements.get(i)), i * byteLength,
-          bytes);
+      serializeWithOffset(fieldElements.get(i), i * modulusLength, bytes);
     }
     return bytes;
   }
 
-  static List<FieldElement> deserializeList(byte[] bytes, int byteLength,
-      Function<BigInteger, FieldElement> creator) {
+  List<FieldElement> deserializeList(byte[] bytes) {
     ArrayList<FieldElement> elements = new ArrayList<>();
-    for (int i = 0; i < bytes.length; i += byteLength) {
-      elements.add(deserializeWithOffset(bytes, i, byteLength, creator));
+    for (int i = 0; i < bytes.length; i += modulusLength) {
+      elements.add(deserializeWithOffset(bytes, i));
     }
     return elements;
   }
