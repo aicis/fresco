@@ -11,6 +11,12 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
   private final int modulusLength;
   private final int modulusBitLength;
 
+  /**
+   * Construct a new field definition for a pseudo mersenne prime.
+   *
+   * @param bitLength the bitlength of the prime
+   * @param constant the constant subtracted from 2^bitlength
+   */
   public MersennePrimeFieldDefinition(int bitLength, int constant) {
     this.modulus = new MersennePrimeModulus(bitLength, constant);
     this.modulusHalf = modulus.getPrime().shiftRight(1);
