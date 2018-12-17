@@ -18,7 +18,6 @@ import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
-import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayDeque;
 import java.util.HashMap;
@@ -151,12 +150,12 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
-  public SpdzInputMask getNextInputMask(int towardPlayerID) {
+  public SpdzInputMask getNextInputMask(int towardsPlayerId) {
     ensureInitialized();
-    ArrayDeque<InputMask> inputMasks = masks.get(towardPlayerID);
+    ArrayDeque<InputMask> inputMasks = masks.get(towardsPlayerId);
     if (inputMasks.isEmpty()) {
       logger.trace("Getting another mask batch");
-      inputMasks.addAll(mascot.getInputMasks(towardPlayerID, batchSize));
+      inputMasks.addAll(mascot.getInputMasks(towardsPlayerId, batchSize));
       logger.trace("Got another mask batch");
     }
     return mascotFormatConverter
@@ -172,11 +171,6 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       logger.trace("Got another bit batch");
     }
     return mascotFormatConverter.toSpdzSInt(randomBits.pop());
-  }
-
-  @Override
-  public BigInteger getModulus() {
-    return fieldDefinition.getModulus();
   }
 
   @Override

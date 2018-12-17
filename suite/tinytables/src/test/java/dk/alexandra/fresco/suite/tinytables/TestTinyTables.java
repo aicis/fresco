@@ -8,8 +8,9 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -41,6 +42,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import javax.crypto.spec.DHParameterSpec;
 import org.junit.After;
@@ -49,6 +51,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class TestTinyTables {
+
   private static final int OT_BATCH_SIZE = 128;
   private static final int COMPUTATIONAL_SECURITY = 128;
   private static final int STATISTICAL_SECURITY = 40;
@@ -66,6 +69,7 @@ public class TestTinyTables {
       File tinyTablesFile = new File(getFilenameForTest(playerId, name));
       Supplier<ResourcePoolImpl> resourcePoolSupplier;
       SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> computationEngine;
+      NetworkSupplier networkSupplier = new NetworkSupplier(playerId, netConf);
       if (preprocessing) {
         BatchEvaluationStrategy<TinyTablesPreproResourcePool> batchStrategy =
             evalStrategy.getStrategy();
@@ -73,8 +77,13 @@ public class TestTinyTables {
         TinyTablesOt baseOt = new TinyTablesDummyOt(Util.otherPlayerId(playerId));
         Drbg random = new AesCtrDrbg(new byte[32]);
         resourcePoolSupplier =
-            () -> new TinyTablesPreproResourcePool(playerId, baseOt, random,
-                COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE, tinyTablesFile);
+            () -> {
+              TinyTablesPreproResourcePool tinyTablesPreproResourcePool = new TinyTablesPreproResourcePool(
+                  playerId, baseOt, random,
+                  COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE, tinyTablesFile);
+              tinyTablesPreproResourcePool.initializeOtExtension(networkSupplier.get());
+              return tinyTablesPreproResourcePool;
+            };
         ProtocolEvaluator<TinyTablesPreproResourcePool> evaluator =
             new BatchedProtocolEvaluator<>(batchStrategy, suite);
         computationEngine =
@@ -89,11 +98,10 @@ public class TestTinyTables {
       }
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> configuration =
           new TestThreadConfiguration<>(computationEngine, resourcePoolSupplier,
-              () -> new SocketNetwork(netConf.get(playerId)));
+              networkSupplier);
       conf.put(playerId, configuration);
     }
     TestThreadRunner.run(f, conf);
-
   }
 
   /*
@@ -138,7 +146,6 @@ public class TestTinyTables {
   /*
    * Basic tests
    */
-
 
   /**
    * Creates a directory in which to store preprocessing material for TinyTables. If the directory
@@ -372,17 +379,41 @@ public class TestTinyTables {
       DHParameterSpec params = DhParameters.getStaticDhParams();
       TinyTablesOt baseOt = new TinyTablesNaorPinkasOt(Util.otherPlayerId(playerId), random,
           params);
-      resourcePoolSupplier = () -> new TinyTablesPreproResourcePool(playerId, baseOt,
-          random, COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE, tinyTablesFile);
+      Supplier<Network> network = new NetworkSupplier(playerId, netConf);
+      resourcePoolSupplier = () -> {
+        TinyTablesPreproResourcePool tinyTablesPreproResourcePool = new TinyTablesPreproResourcePool(
+            playerId, baseOt,
+            random, COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE, tinyTablesFile);
+        tinyTablesPreproResourcePool.initializeOtExtension(network.get());
+        return tinyTablesPreproResourcePool;
+      };
       ProtocolEvaluator<TinyTablesPreproResourcePool> evaluator = new BatchedProtocolEvaluator<>(
           EvaluationStrategy.SEQUENTIAL_BATCHED.getStrategy(), suite);
       computationEngine = (SecureComputationEngine) new SecureComputationEngineImpl<>(suite,
           evaluator);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> configuration = new TestThreadConfiguration<>(
-          computationEngine, resourcePoolSupplier, () -> new SocketNetwork(netConf.get(playerId)));
+          computationEngine, resourcePoolSupplier, network);
       conf.put(playerId, configuration);
     }
     TestThreadRunner.run(new BristolCryptoTests.DesTest<>(false), conf);
+  }
 
+  private static class NetworkSupplier implements Supplier<Network> {
+
+    private final int playerId;
+    private final Map<Integer, NetworkConfiguration> netConf;
+    private final Map<Integer, Network> nets;
+
+    public NetworkSupplier(int playerId, Map<Integer, NetworkConfiguration> netConf) {
+      this.playerId = playerId;
+      this.netConf = netConf;
+      this.nets = new ConcurrentHashMap<>();
+    }
+
+    @Override
+    public Network get() {
+      return nets
+          .computeIfAbsent(playerId, integer -> new SocketNetwork(netConf.get(playerId)));
+    }
   }
 }
