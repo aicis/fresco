@@ -6,20 +6,20 @@ import java.math.BigInteger;
 
 public interface FieldDefinition extends ByteSerializer<FieldElement> {
 
-  BigInteger convertToUnsigned(FieldElement value);
-
-  BigInteger convertToSigned(BigInteger signed);
-
-  BigInteger getModulus();
-
-  int getBitLength();
-
   FieldElement createElement(int value);
 
   FieldElement createElement(String value);
 
   FieldElement createElement(BigInteger value);
 
+  BigInteger getModulus();
+
+  int getBitLength();
+
   StrictBitVector convertToBitVector(FieldElement fieldElement);
+
+  BigInteger convertToUnsigned(FieldElement value);
+
+  BigInteger convertToSigned(BigInteger signed);
 }
 
