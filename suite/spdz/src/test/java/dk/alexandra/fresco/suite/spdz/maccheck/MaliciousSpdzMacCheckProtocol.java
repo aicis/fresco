@@ -101,12 +101,12 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         if (!openComm.out()) {
           throw new MaliciousException("Malicious activity detected: Opening commitments failed.");
         }
-        BigInteger deltaSum = BigInteger.ZERO;
-        for (FieldElement d : commitments.values()) {
-          deltaSum = deltaSum.add(definition.convertToUnsigned(d));
-        }
-        deltaSum = deltaSum.mod(modulusBigInteger);
-        if (!deltaSum.equals(BigInteger.ZERO)) {
+        FieldElement deltaSum =
+            commitments.values()
+                .stream()
+                .reduce(definition.createElement(0), FieldElement::add);
+
+        if (!BigInteger.ZERO.equals(definition.convertToUnsigned(deltaSum))) {
           throw new MaliciousException(
               "The sum of delta's was not 0. Someone was corrupting something amongst "
                   + openedValues.size()

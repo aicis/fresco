@@ -1,7 +1,8 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
@@ -59,7 +60,8 @@ public class TestSpdzDummyDataSupplier {
     return macKey;
   }
 
-  private void testGetNextTriple(int noOfParties, FieldDefinition fieldDefinition) {
+  private void testGetNextTriple(FieldDefinition definition, int noOfParties,
+      FieldDefinition fieldDefinition) {
     List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, fieldDefinition);
     FieldElement macKey = getMacKeyFromSuppliers(suppliers, fieldDefinition);
     List<SpdzTriple> triples = new ArrayList<>(noOfParties);
@@ -67,16 +69,16 @@ public class TestSpdzDummyDataSupplier {
       triples.add(supplier.getNextTriple());
     }
     SpdzTriple recombined = recombineTriples(triples);
-    assertTripleValid(recombined, macKey);
+    assertTripleValid(definition, recombined, macKey);
   }
 
   private void testGetNextTriple(int noOfParties) {
     for (FieldDefinition definition : fields) {
-      testGetNextTriple(noOfParties, definition);
+      testGetNextTriple(definition, noOfParties, definition);
     }
   }
 
-  private void testGetNextInputMask(int noOfParties, int towardParty,
+  private void testGetNextInputMask(FieldDefinition definition, int noOfParties, int towardParty,
       FieldDefinition fieldDefinition) {
     List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, fieldDefinition);
     FieldElement macKey = getMacKeyFromSuppliers(suppliers, fieldDefinition);
@@ -89,20 +91,21 @@ public class TestSpdzDummyDataSupplier {
     for (int i = 0; i < noOfParties; i++) {
       SpdzInputMask spdzInputMask = masks.get(i);
       if (i + 1 != towardParty) {
-        assertEquals(null, spdzInputMask.getRealValue());
+        assertNull(spdzInputMask.getRealValue());
       } else {
         realValue = spdzInputMask.getRealValue();
       }
       shares.add(spdzInputMask.getMask());
     }
     SpdzSInt recombined = recombine(shares);
-    assertMacCorrect(recombined, macKey);
-    assertEquals(realValue, recombined.getShare());
+    assertMacCorrect(definition, recombined, macKey);
+    assertEquals(definition.convertToUnsigned(realValue),
+        definition.convertToUnsigned(recombined.getShare()));
   }
 
-  private void testGetNextInputMask(int noOfParties, int towardParty) {
+  private void testGetNextInputMask(FieldDefinition definition, int noOfParties, int towardParty) {
     for (FieldDefinition field : fields) {
-      testGetNextInputMask(noOfParties, towardParty, field);
+      testGetNextInputMask(definition, noOfParties, towardParty, field);
     }
   }
 
@@ -114,7 +117,7 @@ public class TestSpdzDummyDataSupplier {
       bitShares.add(supplier.getNextBit());
     }
     SpdzSInt recombined = recombine(bitShares);
-    assertMacCorrect(recombined, macKey);
+    assertMacCorrect(definition, recombined, macKey);
     FieldElement value = recombined.getShare();
     BigInteger actualResult = definition.convertToUnsigned(value);
     assertTrue("Value not a bit " + actualResult,
@@ -135,12 +138,12 @@ public class TestSpdzDummyDataSupplier {
       bitShares.add(supplier.getNextRandomFieldElement());
     }
     SpdzSInt recombined = recombine(bitShares);
-    assertMacCorrect(recombined, macKey);
+    assertMacCorrect(definition, recombined, macKey);
     // sanity check not zero (with 251, that is actually not unlikely enough)
     if (!definition.getModulus().equals(new BigInteger("251"))) {
       FieldElement value = recombined.getShare();
       BigInteger bigIntegerValue = definition.convertToUnsigned(value);
-      assertFalse("Random value was 0 ", bigIntegerValue.equals(BigInteger.ZERO));
+      assertNotEquals("Random value was 0 ", bigIntegerValue, BigInteger.ZERO);
     }
   }
 
@@ -193,7 +196,7 @@ public class TestSpdzDummyDataSupplier {
     List<Integer> partyCounts = Arrays.asList(2, 3, 5);
     for (int partyCount : partyCounts) {
       for (int i = 0; i < partyCount; i++) {
-        testGetNextInputMask(partyCount, i + 1);
+        testGetNextInputMask(fields.get(0), partyCount, i + 1);
       }
     }
   }
@@ -222,6 +225,7 @@ public class TestSpdzDummyDataSupplier {
   }
 
   private SpdzSInt recombine(List<SpdzSInt> shares) {
+    //noinspection OptionalGetWithoutIsPresent
     return shares.stream().reduce(SpdzSInt::add).get();
   }
 
@@ -243,26 +247,30 @@ public class TestSpdzDummyDataSupplier {
     return new SpdzTriple(recombine(left), recombine(right), recombine(product));
   }
 
-  private void assertMacCorrect(SpdzSInt recombined, FieldElement macKey) {
+  private void assertMacCorrect(
+      FieldDefinition definition,
+      SpdzSInt recombined, FieldElement macKey) {
     FieldElement share = recombined.getShare().multiply(macKey);
-    assertEquals(share, recombined.getMac());
+    assertEquals(definition.convertToUnsigned(share),
+        definition.convertToUnsigned(recombined.getMac()));
   }
 
-  private void assertTripleValid(SpdzTriple recombined, FieldElement macKey) {
-    assertMacCorrect(recombined.getA(), macKey);
-    assertMacCorrect(recombined.getB(), macKey);
-    assertMacCorrect(recombined.getC(), macKey);
+  private void assertTripleValid(FieldDefinition definition, SpdzTriple recombined,
+      FieldElement macKey) {
+    assertMacCorrect(definition, recombined.getA(), macKey);
+    assertMacCorrect(definition, recombined.getB(), macKey);
+    assertMacCorrect(definition, recombined.getC(), macKey);
 
     FieldElement copy = recombined.getA().getShare().multiply(recombined.getB().getShare());
     // check that a * b = c
-    assertEquals(recombined.getC().getShare(), copy
-    );
+    assertEquals(definition.convertToUnsigned(recombined.getC().getShare()),
+        definition.convertToUnsigned(copy));
   }
 
   private void assertExpPipeValid(List<SpdzSInt> recombined, FieldElement macKey,
       FieldDefinition definition) {
     for (SpdzSInt element : recombined) {
-      assertMacCorrect(element, macKey);
+      assertMacCorrect(definition, element, macKey);
     }
     List<FieldElement> values = recombined.stream().map(SpdzSInt::getShare)
         .collect(Collectors.toList());
