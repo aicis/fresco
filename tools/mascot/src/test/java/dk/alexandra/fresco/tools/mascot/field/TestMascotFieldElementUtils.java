@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 
@@ -40,6 +41,11 @@ public class TestMascotFieldElementUtils {
     CustomAsserts.assertEquals(definition, expected, actual);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void pairWiseMultipleLengthMismatch() {
+    fieldElementUtils.pairWiseMultiply(left, right.subList(0, 2));
+  }
+
   @Test
   public void testInnerProduct() {
     FieldElement expected = definition.createElement(70);
@@ -47,10 +53,24 @@ public class TestMascotFieldElementUtils {
     CustomAsserts.assertEquals(definition, expected, actual);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void innerProduceLengthMismatch() {
+    fieldElementUtils.innerProduct(
+        left, right.subList(0, 2)
+    );
+  }
+
   @Test
   public void testRecombine() {
     FieldElement actual = fieldElementUtils.recombine(left);
     CustomAsserts.assertEquals(definition, definition.createElement(49), actual);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void recombineLengthMismatch() {
+    List<FieldElement> elements =
+        Collections.nCopies(modulus.bitLength() + 1, definition.createElement(0));
+    fieldElementUtils.recombine(elements);
   }
 
   @Test

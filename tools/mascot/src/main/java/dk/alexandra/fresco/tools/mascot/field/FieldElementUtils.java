@@ -22,7 +22,6 @@ public final class FieldElementUtils {
    * @param definition field definition for underlying field element operations
    */
   public FieldElementUtils(FieldDefinition definition) {
-    super();
     this.definition = definition;
     this.generators = precomputeGenerators();
   }
