@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.lib.compare.bool.eq;
 
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.binary.AdvancedBinary;
@@ -12,11 +11,9 @@ import java.util.List;
 /**
  * Does a simple compare like this: out = (a1 XNOR b1) AND (a2 XNOR b2) AND (a3 XNOR b3) AND ...
  *
- * The XNORs are done in parallel and the ANDs are done by a log-depth tree structured protocol.
- *
+ * <p>The XNORs are done in parallel and the ANDs are done by a log-depth tree structured protocol.
  */
 public class BinaryEquality implements Computation<SBool, ProtocolBuilderBinary> {
-
 
   private List<DRes<SBool>> inLeft;
   private List<DRes<SBool>> inRight;
@@ -44,7 +41,7 @@ public class BinaryEquality implements Computation<SBool, ProtocolBuilderBinary>
       IterationState is = new IterationState(xnors.size(), () -> xnors);
       return is;
     }).whileLoop(
-        (state) -> state.round > 1, 
+        (state) -> state.round > 1,
         (seq, state) -> {
           List<DRes<SBool>> input = state.value.out();
           int size = input.size() % 2 + input.size() / 2;
@@ -82,5 +79,4 @@ public class BinaryEquality implements Computation<SBool, ProtocolBuilderBinary>
       return this;
     }
   }
-
 }
