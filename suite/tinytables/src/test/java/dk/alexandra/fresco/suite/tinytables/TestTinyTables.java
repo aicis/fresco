@@ -9,6 +9,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
@@ -41,6 +42,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import javax.crypto.spec.DHParameterSpec;
 import org.junit.After;
@@ -67,6 +69,7 @@ public class TestTinyTables {
       File tinyTablesFile = new File(getFilenameForTest(playerId, name));
       Supplier<ResourcePoolImpl> resourcePoolSupplier;
       SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> computationEngine;
+      NetworkSupplier networkSupplier = new NetworkSupplier(playerId, netConf);
       if (preprocessing) {
         BatchEvaluationStrategy<TinyTablesPreproResourcePool> batchStrategy =
             evalStrategy.getStrategy();
@@ -78,8 +81,7 @@ public class TestTinyTables {
               TinyTablesPreproResourcePool tinyTablesPreproResourcePool = new TinyTablesPreproResourcePool(
                   playerId, baseOt, random,
                   COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE, tinyTablesFile);
-              SocketNetwork network = new SocketNetwork(netConf.get(playerId));
-              tinyTablesPreproResourcePool.initializeOtExtension(network);
+              tinyTablesPreproResourcePool.initializeOtExtension(networkSupplier.get());
               return tinyTablesPreproResourcePool;
             };
         ProtocolEvaluator<TinyTablesPreproResourcePool> evaluator =
@@ -96,7 +98,7 @@ public class TestTinyTables {
       }
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> configuration =
           new TestThreadConfiguration<>(computationEngine, resourcePoolSupplier,
-              () -> new SocketNetwork(netConf.get(playerId)));
+              networkSupplier);
       conf.put(playerId, configuration);
     }
     TestThreadRunner.run(f, conf);
@@ -377,12 +379,12 @@ public class TestTinyTables {
       DHParameterSpec params = DhParameters.getStaticDhParams();
       TinyTablesOt baseOt = new TinyTablesNaorPinkasOt(Util.otherPlayerId(playerId), random,
           params);
+      Supplier<Network> network = new NetworkSupplier(playerId, netConf);
       resourcePoolSupplier = () -> {
         TinyTablesPreproResourcePool tinyTablesPreproResourcePool = new TinyTablesPreproResourcePool(
             playerId, baseOt,
             random, COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE, tinyTablesFile);
-        tinyTablesPreproResourcePool
-            .initializeOtExtension(new SocketNetwork(netConf.get(playerId)));
+        tinyTablesPreproResourcePool.initializeOtExtension(network.get());
         return tinyTablesPreproResourcePool;
       };
       ProtocolEvaluator<TinyTablesPreproResourcePool> evaluator = new BatchedProtocolEvaluator<>(
@@ -390,9 +392,28 @@ public class TestTinyTables {
       computationEngine = (SecureComputationEngine) new SecureComputationEngineImpl<>(suite,
           evaluator);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> configuration = new TestThreadConfiguration<>(
-          computationEngine, resourcePoolSupplier, () -> new SocketNetwork(netConf.get(playerId)));
+          computationEngine, resourcePoolSupplier, network);
       conf.put(playerId, configuration);
     }
     TestThreadRunner.run(new BristolCryptoTests.DesTest<>(false), conf);
+  }
+
+  private static class NetworkSupplier implements Supplier<Network> {
+
+    private final int playerId;
+    private final Map<Integer, NetworkConfiguration> netConf;
+    private final Map<Integer, Network> nets;
+
+    public NetworkSupplier(int playerId, Map<Integer, NetworkConfiguration> netConf) {
+      this.playerId = playerId;
+      this.netConf = netConf;
+      this.nets = new ConcurrentHashMap<>();
+    }
+
+    @Override
+    public Network get() {
+      return nets
+          .computeIfAbsent(playerId, integer -> new SocketNetwork(netConf.get(playerId)));
+    }
   }
 }
