@@ -98,7 +98,6 @@ public class DeaSolverTests {
       outputs = buildOutputs(dataset);
     }
 
-
     public TestDeaFixed2(AnalysisType type) {
       super(inputs, outputs, inputs, outputs, type, 50, false);
     }
@@ -147,7 +146,6 @@ public class DeaSolverTests {
       this.maxNoOfIterations = maxNoOfIterations;
       this.willBreak = willBreak;
     }
-
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -284,7 +282,7 @@ public class DeaSolverTests {
     }
 
     private BigInteger[][] asArray(List<List<BigInteger>> lists) {
-      return lists.stream().map(list -> list.toArray(new BigInteger[list.size()]))
+      return lists.stream().map(list -> list.toArray(new BigInteger[0]))
           .toArray(BigInteger[][]::new);
     }
 
@@ -376,7 +374,7 @@ public class DeaSolverTests {
     BigInteger two = BigInteger.valueOf(2);
     BigInteger uv = innerproduct(u, v);
     BigInteger vv = innerproduct(v, v);
-    BigInteger uu = innerproduct(u, u);
+    BigInteger uu;
     do {
       BigInteger[] q = uv.divideAndRemainder(vv);
       boolean negRes = q[1].signum() == -1;
@@ -403,5 +401,4 @@ public class DeaSolverTests {
   private static BigInteger innerproduct(BigInteger[] u, BigInteger[] v) {
     return u[0].multiply(v[0]).add(u[1].multiply(v[1]));
   }
-
 }
