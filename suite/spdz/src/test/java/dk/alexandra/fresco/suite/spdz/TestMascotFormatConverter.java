@@ -33,7 +33,8 @@ public class TestMascotFormatConverter {
     AuthenticatedElement element = getAuthElement(100, 123);
     SpdzSInt expected = getSpdzElement(100, 123, definition);
     SpdzSInt actual = new MascotFormatConverter().toSpdzSInt(element);
-    assertEquals(expected, actual);
+    assertEquals(definition.convertToUnsigned(expected.getShare()),
+        definition.convertToUnsigned(actual.getShare()));
   }
 
   @Test
@@ -45,6 +46,11 @@ public class TestMascotFormatConverter {
     SpdzTriple expected = new SpdzTriple(getSpdzElement(1, 2, definition),
         getSpdzElement(3, 4, definition), getSpdzElement(5, 6, definition));
     SpdzTriple actual = new MascotFormatConverter().toSpdzTriple(triple);
-    assertEquals(expected, actual);
+    assertEquals(definition.convertToUnsigned(expected.getA().getShare()),
+        definition.convertToUnsigned(actual.getA().getShare()));
+    assertEquals(definition.convertToUnsigned(expected.getB().getShare()),
+        definition.convertToUnsigned(actual.getB().getShare()));
+    assertEquals(definition.convertToUnsigned(expected.getC().getShare()),
+        definition.convertToUnsigned(actual.getC().getShare()));
   }
 }

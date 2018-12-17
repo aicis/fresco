@@ -44,13 +44,11 @@ public class TestFakeTripGen {
       FieldElement shareC = t[0].getC().getMac().add(t[1].getC().getMac());
 
       FieldElement actual = a.multiply(b);
-      Assert.assertEquals(c, actual);
+      assertEquals(c, actual);
 
-      FieldElement zero = definition.createElement(0);
-
-      Assert.assertEquals(zero, subtract(a, shareA));
-      Assert.assertEquals(zero, subtract(b, shareB));
-      Assert.assertEquals(zero, subtract(c, shareC));
+      assertEquals(zero, subtract(a, shareA));
+      assertEquals(zero, subtract(b, shareB));
+      assertEquals(zero, subtract(c, shareC));
     }
   }
 
@@ -77,9 +75,9 @@ public class TestFakeTripGen {
         SpdzInputMask m1 = masks[0];
         SpdzInputMask m2 = masks[1];
         FieldElement share = m1.getMask().getShare().add(m2.getMask().getShare());
-        Assert.assertEquals(realMask.getRealValue(), share);
+        assertEquals(realMask.getRealValue(), share);
         FieldElement mac = m1.getMask().getMac().add(m2.getMask().getMac());
-        Assert.assertEquals(zero, subtract(share, mac));
+        assertEquals(zero, subtract(share, mac));
       }
     }
   }
@@ -98,9 +96,9 @@ public class TestFakeTripGen {
       SpdzInputMask m1 = masks[0];
       SpdzInputMask m2 = masks[1];
       FieldElement share = m1.getMask().getShare().add(m2.getMask().getShare());
-      Assert.assertEquals(realMask.getRealValue(), share);
+      assertEquals(realMask.getRealValue(), share);
       FieldElement mac = m1.getMask().getMac().add(m2.getMask().getMac());
-      Assert.assertEquals(zero, subtract(share, mac));
+      assertEquals(zero, subtract(share, mac));
     }
   }
 
@@ -120,14 +118,18 @@ public class TestFakeTripGen {
       for (int i = 0; i < as.length; i++) {
         FieldElement share = as[i].getShare().add(bs[i].getShare());
         FieldElement mac = as[i].getMac().add(bs[i].getMac());
-        Assert.assertEquals(zero, subtract(share, mac));
+        assertEquals(zero, subtract(share, mac));
         if (i > 1) {
           FieldElement copy = r.multiply(prevR);
-          Assert.assertEquals(copy, share);
+          assertEquals(copy, share);
           prevR = share;
         }
       }
     }
+  }
+
+  private void assertEquals(FieldElement first, FieldElement second) {
+    Assert.assertEquals(definition.convertToUnsigned(first), definition.convertToUnsigned(second));
   }
 
   private BigInteger getBigInteger(FieldElement r) {
@@ -146,7 +148,7 @@ public class TestFakeTripGen {
       BigInteger bigIntegerValue = getBigInteger(val);
       Assert.assertTrue(
           bigIntegerValue.equals(BigInteger.ZERO) || bigIntegerValue.equals(BigInteger.ONE));
-      Assert.assertEquals(zero, subtract(val, mac));
+      Assert.assertEquals(BigInteger.ZERO, definition.convertToUnsigned(subtract(val, mac)));
     }
   }
 
@@ -160,8 +162,7 @@ public class TestFakeTripGen {
     try {
       FakeTripGen.elementToBytes(element, 0);
       Assert.fail("Should have cast an exception");
-    } catch (RuntimeException e) {
-
+    } catch (RuntimeException ignored) {
     }
 
     element = new SpdzSInt(definition.createElement(1), definition.createElement(200));
@@ -171,8 +172,7 @@ public class TestFakeTripGen {
     try {
       FakeTripGen.elementToBytes(element, 0);
       Assert.fail("Should have cast an exception");
-    } catch (RuntimeException e) {
-
+    } catch (RuntimeException ignored) {
     }
   }
 
@@ -186,8 +186,7 @@ public class TestFakeTripGen {
     try {
       FakeTripGen.bigIntToBytes(b, 0);
       Assert.fail("Should have cast an exception");
-    } catch (RuntimeException e) {
-
+    } catch (RuntimeException ignored) {
     }
   }
 

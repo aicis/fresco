@@ -91,7 +91,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
                   .stream()
                   .reduce(fieldDefinition.createElement(0), FieldElement::add);
 
-          if (!deltaSum.equals(fieldDefinition.createElement(0))) {
+          if (!BigInteger.ZERO.equals(fieldDefinition.convertToUnsigned(deltaSum))) {
             throw new MaliciousException(
                 "The sum of delta's was not 0. Someone was corrupting something amongst "
                     + openedValues.size()
