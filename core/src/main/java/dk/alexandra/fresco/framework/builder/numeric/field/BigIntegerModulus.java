@@ -35,8 +35,8 @@ final class BigIntegerModulus implements Serializable {
 
   @Override
   public String toString() {
-    return "BigIntegerModulus{" +
-        "value=" + value +
-        '}';
+    return "BigIntegerModulus{"
+        + "value=" + value
+        + '}';
   }
 }
