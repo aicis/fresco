@@ -69,7 +69,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     Application<Matrix<BigInteger>, ProtocolBuilderNumeric> aggApp = root -> {
       DRes<Matrix<DRes<SInt>>> closed;
       // player 1 provides input
-      if (root.getBasicNumericContext().getMyId() == 1) {
+      if (rp.getMyId() == 1) {
         closed = root.collections().closeMatrix(readInputs(), 1);
       } else {
         // if we aren't player 1 we need to provide the expected size of the input
