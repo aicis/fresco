@@ -5,8 +5,8 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
-import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -189,9 +189,9 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
 
     this.networkConfiguration = new NetworkConfigurationImpl(myId, parties);
     if (logPerformance) {
-      this.network = () -> new NetworkLoggingDecorator(new AsyncNetwork(networkConfiguration));
+      this.network = () -> new NetworkLoggingDecorator(new SocketNetwork(networkConfiguration));
     } else {
-      this.network = () -> new AsyncNetwork(networkConfiguration);
+      this.network = () -> new SocketNetwork(networkConfiguration);
     }
   }
 
