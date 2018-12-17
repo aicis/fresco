@@ -30,7 +30,7 @@ public class TestMascotFieldElementUtils {
         MascotTestUtils.generateSingleRow(expectedArr, definition);
 
     List<FieldElement> actual = fieldElementUtils.pairWiseMultiply(left, right);
-    CustomAsserts.assertEquals(expected, actual);
+    CustomAsserts.assertEquals(definition, expected, actual);
   }
 
   @Test
@@ -40,20 +40,20 @@ public class TestMascotFieldElementUtils {
         MascotTestUtils.generateSingleRow(expectedArr, definition);
     List<FieldElement> actual =
         fieldElementUtils.scalarMultiply(left, definition.createElement(2));
-    CustomAsserts.assertEquals(expected, actual);
+    CustomAsserts.assertEquals(definition, expected, actual);
   }
 
   @Test
   public void testInnerProduct() {
     FieldElement expected = definition.createElement(70);
     FieldElement actual = fieldElementUtils.innerProduct(left, right);
-    CustomAsserts.assertEquals(expected, actual);
+    CustomAsserts.assertEquals(definition, expected, actual);
   }
 
   @Test
   public void testRecombine() {
     FieldElement actual = fieldElementUtils.recombine(left);
-    CustomAsserts.assertEquals(definition.createElement(49), actual);
+    CustomAsserts.assertEquals(definition, definition.createElement(49), actual);
   }
 
   @Test
@@ -62,7 +62,7 @@ public class TestMascotFieldElementUtils {
     List<FieldElement> expected =
         MascotTestUtils.generateSingleRow(expectedArr, definition);
     List<FieldElement> actual = fieldElementUtils.stretch(left, 2);
-    CustomAsserts.assertEquals(expected, actual);
+    CustomAsserts.assertEquals(definition, expected, actual);
   }
 
   @Test
@@ -72,7 +72,7 @@ public class TestMascotFieldElementUtils {
         MascotTestUtils.generateSingleRow(expectedArr, definition);
     FieldElement pad = definition.createElement(0);
     List<FieldElement> actual = fieldElementUtils.padWith(left, pad, 2);
-    CustomAsserts.assertEquals(expected, actual);
+    CustomAsserts.assertEquals(definition, expected, actual);
   }
 
   @Test

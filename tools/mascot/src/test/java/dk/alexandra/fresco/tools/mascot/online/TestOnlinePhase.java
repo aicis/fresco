@@ -76,12 +76,12 @@ public class TestOnlinePhase extends NetworkedTest {
     List<FieldElement> partyTwoOutput = results.get(1);
 
     // outputs should be same
-    CustomAsserts.assertEquals(partyOneOutput, partyTwoOutput);
+    CustomAsserts.assertEquals(getFieldDefinition(), partyOneOutput, partyTwoOutput);
 
     // outputs should be correct products
     List<FieldElement> expected = MascotTestUtils
         .generateSingleRow(new int[]{0, 33, 221, 65517}, getFieldDefinition());
-    CustomAsserts.assertEquals(expected, partyOneOutput);
+    CustomAsserts.assertEquals(getFieldDefinition(), expected, partyOneOutput);
   }
 
 }

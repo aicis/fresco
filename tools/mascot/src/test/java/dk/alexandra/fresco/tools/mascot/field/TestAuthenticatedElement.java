@@ -41,7 +41,7 @@ public class TestAuthenticatedElement {
     AuthenticatedElement expectedPartyTwo = new AuthenticatedElement(
         definition.createElement(2),
         definition.createElement(86));
-    CustomAsserts.assertEquals(actualPartyOne, expectedPartyOne);
-    CustomAsserts.assertEquals(actualPartyTwo, expectedPartyTwo);
+    CustomAsserts.assertEquals(definition, actualPartyOne, expectedPartyOne);
+    CustomAsserts.assertEquals(definition, actualPartyTwo, expectedPartyTwo);
   }
 }

@@ -35,7 +35,7 @@ public class TestShareUtils {
     FieldElement input = definition.createElement(1);
     List<FieldElement> shares = shareUtils.share(input, 3);
     FieldElement actual = shareUtils.recombine(shares);
-    CustomAsserts.assertEquals(input, actual);
+    CustomAsserts.assertEquals(definition, input, actual);
   }
   
 }

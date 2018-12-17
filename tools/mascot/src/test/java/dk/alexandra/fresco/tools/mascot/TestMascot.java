@@ -2,7 +2,7 @@ package dk.alexandra.fresco.tools.mascot;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 
 import dk.alexandra.fresco.framework.builder.numeric.Addable;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
@@ -72,7 +72,8 @@ public class TestMascot extends NetworkedTest {
     assertEquals(results.get(1).size(), 1);
     List<MultiplicationTriple> combined = Addable.sumRows(results);
     for (MultiplicationTriple triple : combined) {
-      CustomAsserts.assertTripleIsValid(triple, macKeyShareOne.add(macKeyShareTwo));
+      CustomAsserts
+          .assertTripleIsValid(getFieldDefinition(), triple, macKeyShareOne.add(macKeyShareTwo));
     }
   }
 
@@ -135,11 +136,11 @@ public class TestMascot extends NetworkedTest {
     for (int i = 0; i < leftMasks.size(); i++) {
       InputMask left = leftMasks.get(i);
       InputMask right = rightMasks.get(i);
-      assertTrue(right.getOpenValue() == null);
+      assertNull(right.getOpenValue());
       AuthenticatedElement recombined = left.getMaskShare().add(right.getMaskShare());
       AuthenticatedElement expected = new AuthenticatedElement(left.getOpenValue(),
           left.getOpenValue().multiply(macKey));
-      CustomAsserts.assertEquals(expected, recombined);
+      CustomAsserts.assertEquals(getFieldDefinition(), expected, recombined);
     }
 
   }
@@ -163,9 +164,9 @@ public class TestMascot extends NetworkedTest {
         Addable.sumRows(results);
     FieldElement actualRecombinedValue = combined.get(0).getShare();
     FieldElement actualRecombinedMac = combined.get(0).getMac();
-    CustomAsserts.assertEquals(input, actualRecombinedValue);
+    CustomAsserts.assertEquals(getFieldDefinition(), input, actualRecombinedValue);
     FieldElement expectedMac = input.multiply(macKeyShareOne.add(macKeyShareTwo));
-    CustomAsserts.assertEquals(expectedMac, actualRecombinedMac);
+    CustomAsserts.assertEquals(getFieldDefinition(), expectedMac, actualRecombinedMac);
   }
 
   @Test
@@ -186,7 +187,8 @@ public class TestMascot extends NetworkedTest {
     assertEquals(results.get(1).size(), 1);
     List<MultiplicationTriple> combined = Addable.sumRows(results);
     for (MultiplicationTriple triple : combined) {
-      CustomAsserts.assertTripleIsValid(triple, macKeyShareOne.add(macKeyShareTwo));
+      CustomAsserts
+          .assertTripleIsValid(getFieldDefinition(), triple, macKeyShareOne.add(macKeyShareTwo));
     }
   }
 

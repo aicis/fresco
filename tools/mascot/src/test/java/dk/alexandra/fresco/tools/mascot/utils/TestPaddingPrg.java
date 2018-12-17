@@ -62,7 +62,7 @@ public class TestPaddingPrg {
     FieldElementPrg prgTwo = new FieldElementPrgImpl(seedOther, definition);
     FieldElement elOne = prgOne.getNext();
     FieldElement elTwo = prgTwo.getNext();
-    CustomAsserts.assertEquals(elOne, elTwo);
+    CustomAsserts.assertEquals(definition, elOne, elTwo);
   }
 
   @Test
