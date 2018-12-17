@@ -3,7 +3,6 @@ package dk.alexandra.fresco.suite.spdz.datatypes;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.io.Serializable;
-import java.util.Objects;
 
 /**
  * Spdz-specific representation of a secret integer.
@@ -88,24 +87,6 @@ public class SpdzSInt implements SInt, Serializable {
   @Override
   public String toString() {
     return "spdz(" + share + ", " + mac + ")";
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    SpdzSInt spdzSInt = (SpdzSInt) o;
-    return Objects.equals(share, spdzSInt.share)
-        && Objects.equals(mac, spdzSInt.mac);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(share, mac);
   }
 
   @Override

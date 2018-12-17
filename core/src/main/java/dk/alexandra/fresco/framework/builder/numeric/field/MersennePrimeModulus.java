@@ -2,7 +2,6 @@ package dk.alexandra.fresco.framework.builder.numeric.field;
 
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.util.Objects;
 
 final class MersennePrimeModulus implements Serializable {
 
@@ -21,23 +20,6 @@ final class MersennePrimeModulus implements Serializable {
 
   BigInteger getPrime() {
     return prime;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    MersennePrimeModulus that = (MersennePrimeModulus) o;
-    return bitLength == that.bitLength && constant.equals(that.constant);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(bitLength, constant);
   }
 
   @Override
