@@ -377,8 +377,14 @@ public class TestTinyTables {
       DHParameterSpec params = DhParameters.getStaticDhParams();
       TinyTablesOt baseOt = new TinyTablesNaorPinkasOt(Util.otherPlayerId(playerId), random,
           params);
-      resourcePoolSupplier = () -> new TinyTablesPreproResourcePool(playerId, baseOt,
-          random, COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE, tinyTablesFile);
+      resourcePoolSupplier = () -> {
+        TinyTablesPreproResourcePool tinyTablesPreproResourcePool = new TinyTablesPreproResourcePool(
+            playerId, baseOt,
+            random, COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE, tinyTablesFile);
+        tinyTablesPreproResourcePool
+            .initializeOtExtension(new SocketNetwork(netConf.get(playerId)));
+        return tinyTablesPreproResourcePool;
+      };
       ProtocolEvaluator<TinyTablesPreproResourcePool> evaluator = new BatchedProtocolEvaluator<>(
           EvaluationStrategy.SEQUENTIAL_BATCHED.getStrategy(), suite);
       computationEngine = (SecureComputationEngine) new SecureComputationEngineImpl<>(suite,
