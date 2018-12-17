@@ -8,8 +8,8 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -49,6 +49,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class TestTinyTables {
+
   private static final int OT_BATCH_SIZE = 128;
   private static final int COMPUTATIONAL_SECURITY = 128;
   private static final int STATISTICAL_SECURITY = 40;
@@ -73,8 +74,14 @@ public class TestTinyTables {
         TinyTablesOt baseOt = new TinyTablesDummyOt(Util.otherPlayerId(playerId));
         Drbg random = new AesCtrDrbg(new byte[32]);
         resourcePoolSupplier =
-            () -> new TinyTablesPreproResourcePool(playerId, baseOt, random,
-                COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE, tinyTablesFile);
+            () -> {
+              TinyTablesPreproResourcePool tinyTablesPreproResourcePool = new TinyTablesPreproResourcePool(
+                  playerId, baseOt, random,
+                  COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE, tinyTablesFile);
+              SocketNetwork network = new SocketNetwork(netConf.get(playerId));
+              tinyTablesPreproResourcePool.initializeOtExtension(network);
+              return tinyTablesPreproResourcePool;
+            };
         ProtocolEvaluator<TinyTablesPreproResourcePool> evaluator =
             new BatchedProtocolEvaluator<>(batchStrategy, suite);
         computationEngine =
@@ -93,7 +100,6 @@ public class TestTinyTables {
       conf.put(playerId, configuration);
     }
     TestThreadRunner.run(f, conf);
-
   }
 
   /*
@@ -138,7 +144,6 @@ public class TestTinyTables {
   /*
    * Basic tests
    */
-
 
   /**
    * Creates a directory in which to store preprocessing material for TinyTables. If the directory
@@ -383,6 +388,5 @@ public class TestTinyTables {
       conf.put(playerId, configuration);
     }
     TestThreadRunner.run(new BristolCryptoTests.DesTest<>(false), conf);
-
   }
 }

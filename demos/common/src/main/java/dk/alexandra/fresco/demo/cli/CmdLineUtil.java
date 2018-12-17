@@ -249,8 +249,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
         batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
       }
       int maxBatchSize = getMaxBatchSize();
-      this.evaluator = new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite,
-          maxBatchSize);
+      this.evaluator = new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite, maxBatchSize);
     } catch (Exception e) {
       ExceptionConverter.safe(() -> {
             closeNetwork();
