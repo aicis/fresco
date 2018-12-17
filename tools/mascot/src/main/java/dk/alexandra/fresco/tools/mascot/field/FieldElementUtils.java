@@ -91,7 +91,7 @@ public final class FieldElementUtils {
    * @return list of products
    */
   public List<FieldElement> scalarMultiply(List<FieldElement> values, FieldElement scalar) {
-    return values.stream().map(value -> value.multiply(scalar)).collect(Collectors.toList());
+    return values.stream().map(scalar::multiply).collect(Collectors.toList());
   }
 
   /**
@@ -119,9 +119,7 @@ public final class FieldElementUtils {
   public List<FieldElement> stretch(List<FieldElement> elements, int stretchBy) {
     List<FieldElement> stretched = new ArrayList<>(elements.size() * stretchBy);
     for (FieldElement element : elements) {
-      for (int c = 0; c < stretchBy; c++) {
-        stretched.add(element);
-      }
+      stretched.addAll(Collections.nCopies(stretchBy, element));
     }
     return stretched;
   }
