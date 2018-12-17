@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.mult;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
@@ -35,14 +36,21 @@ public class MultiplyLeftHelper {
    * @param seedLength the length of the seeds that the ROT produces
    * @return list of seeds to prgs
    */
-  public List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors,
-      int seedLength) {
-    StrictBitVector packedFactors = fieldElementUtils.pack(leftFactors,
-        true);
+  public List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors, int seedLength) {
+    FieldDefinition fieldDefinition = resourcePool.getFieldDefinition();
+    StrictBitVector packedFactors =
+        new StrictBitVector(fieldDefinition.serialize(reversed(leftFactors)));
     // use rot to get choice seeds
     List<StrictBitVector> seeds = rot.receive(packedFactors, seedLength);
     Collections.reverse(seeds);
     return seeds;
+  }
+
+  private List<FieldElement> reversed(List<FieldElement> leftFactors) {
+    List<FieldElement> elements = leftFactors;
+    elements = new ArrayList<>(elements);
+    Collections.reverse(elements);
+    return elements;
   }
 
   public List<StrictBitVector> generateSeeds(FieldElement leftFactor, int seedLength) {
@@ -81,5 +89,4 @@ public class MultiplyLeftHelper {
     }
     return result;
   }
-
 }

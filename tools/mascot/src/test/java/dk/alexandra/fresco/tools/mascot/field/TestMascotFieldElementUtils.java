@@ -1,10 +1,7 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
-import static org.junit.Assert.assertEquals;
-
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
-import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import java.math.BigInteger;
@@ -73,13 +70,5 @@ public class TestMascotFieldElementUtils {
     FieldElement pad = definition.createElement(0);
     List<FieldElement> actual = fieldElementUtils.padWith(left, pad, 2);
     CustomAsserts.assertEquals(definition, expected, actual);
-  }
-
-  @Test
-  public void testPack() {
-    StrictBitVector actual = fieldElementUtils.pack(left, true);
-    byte[] expectedBytes = {0x00, 0x04, 0x00, 0x03, 0x00, 0x02, 0x00, 0x01};
-    StrictBitVector expected = new StrictBitVector(expectedBytes);
-    assertEquals(expected, actual);
   }
 }

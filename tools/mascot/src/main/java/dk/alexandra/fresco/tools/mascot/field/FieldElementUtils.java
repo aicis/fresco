@@ -3,7 +3,6 @@ package dk.alexandra.fresco.tools.mascot.field;
 import dk.alexandra.fresco.framework.builder.numeric.Addable;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
-import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -137,20 +136,5 @@ public final class FieldElementUtils {
     List<FieldElement> copy = new ArrayList<>(elements);
     copy.addAll(Collections.nCopies(numPads, padElement));
     return copy;
-  }
-
-  /**
-   * Converts field elements to bit vectors and concatenates the result.
-   *
-   * @param elements field elements to pack
-   * @param reverse indicator whether to reverse the order of bytes
-   * @return concatenated field elements in bit representation
-   */
-  public StrictBitVector pack(List<FieldElement> elements, boolean reverse) {
-    if (reverse) {
-      elements = new ArrayList<>(elements);
-      Collections.reverse(elements);
-    }
-    return new StrictBitVector(definition.serialize(elements));
   }
 }
