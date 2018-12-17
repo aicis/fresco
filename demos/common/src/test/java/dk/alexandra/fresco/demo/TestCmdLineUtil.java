@@ -15,7 +15,6 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
-import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
@@ -54,7 +53,6 @@ public class TestCmdLineUtil {
   public void testDummyBoolFromCmdLineWithLogging() {
     CmdLineUtil<ResourcePoolImpl, ProtocolBuilderBinary> cmd = parseAndCloseNetwork("dummybool",
         "-l");
-    assertTrue(cmd.getNetwork() instanceof NetworkLoggingDecorator);
     assertTrue(cmd.getEvaluator() instanceof EvaluatorLoggingDecorator);
     assertEquals(1, cmd.getNetworkConfiguration().getMyId());
     assertEquals(2, cmd.getNetworkConfiguration().noOfParties());
