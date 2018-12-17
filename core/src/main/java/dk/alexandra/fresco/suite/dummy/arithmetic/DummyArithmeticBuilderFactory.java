@@ -26,7 +26,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
   private Random rand;
 
   /**
-   * Creates a dummy arithmetic builder factory which creates basic numeric operations
+   * Creates a dummy arithmetic builder factory which creates basic numeric operations.
    *
    * @param basicNumericContext The numeric context we work within.
    * @param realNumericContext The real numeric context we work within.
