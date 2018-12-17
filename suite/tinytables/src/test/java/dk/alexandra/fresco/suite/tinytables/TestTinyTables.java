@@ -77,13 +77,10 @@ public class TestTinyTables {
         TinyTablesOt baseOt = new TinyTablesDummyOt(Util.otherPlayerId(playerId));
         Drbg random = new AesCtrDrbg(new byte[32]);
         resourcePoolSupplier =
-            () -> {
-              TinyTablesPreproResourcePool tinyTablesPreproResourcePool = new TinyTablesPreproResourcePool(
-                  playerId, baseOt, random,
-                  COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE, tinyTablesFile);
-              tinyTablesPreproResourcePool.initializeOtExtension(networkSupplier.get());
-              return tinyTablesPreproResourcePool;
-            };
+            () -> new TinyTablesPreproResourcePool(
+                playerId, baseOt, random,
+                COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE, tinyTablesFile,
+                networkSupplier);
         ProtocolEvaluator<TinyTablesPreproResourcePool> evaluator =
             new BatchedProtocolEvaluator<>(batchStrategy, suite);
         computationEngine =
@@ -380,13 +377,10 @@ public class TestTinyTables {
       TinyTablesOt baseOt = new TinyTablesNaorPinkasOt(Util.otherPlayerId(playerId), random,
           params);
       Supplier<Network> network = new NetworkSupplier(playerId, netConf);
-      resourcePoolSupplier = () -> {
-        TinyTablesPreproResourcePool tinyTablesPreproResourcePool = new TinyTablesPreproResourcePool(
-            playerId, baseOt,
-            random, COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE, tinyTablesFile);
-        tinyTablesPreproResourcePool.initializeOtExtension(network.get());
-        return tinyTablesPreproResourcePool;
-      };
+      resourcePoolSupplier = () -> new TinyTablesPreproResourcePool(
+          playerId, baseOt,
+          random, COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE, tinyTablesFile,
+          network);
       ProtocolEvaluator<TinyTablesPreproResourcePool> evaluator = new BatchedProtocolEvaluator<>(
           EvaluationStrategy.SEQUENTIAL_BATCHED.getStrategy(), suite);
       computationEngine = (SecureComputationEngine) new SecureComputationEngineImpl<>(suite,
