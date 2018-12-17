@@ -14,6 +14,8 @@ public class BasicNumericContext {
   private FieldDefinition fieldDefinition;
 
   /**
+   * Construct a new BasicNumericContext.
+   *
    * @param maxBitLength The maximum length in bits that the numbers in the application will
    *     have.
    * @param myId my party id
@@ -54,7 +56,7 @@ public class BasicNumericContext {
   }
 
   /**
-   * Returns the id of the party
+   * Returns the id of the party.
    */
   public int getMyId() {
     return myId;
