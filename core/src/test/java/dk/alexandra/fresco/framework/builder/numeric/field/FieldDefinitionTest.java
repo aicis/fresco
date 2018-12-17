@@ -16,7 +16,10 @@ import org.junit.Test;
 
 public final class FieldDefinitionTest {
 
-  private byte[] bytes = new byte[]{
+  private final static String modulusValue = "340282366920938463463374607431768211283";
+  private final int bitLength = 128;
+  private final int constant = 173;
+  private final byte[] bytes = new byte[]{
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       127, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -87,
       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 82
@@ -26,21 +29,22 @@ public final class FieldDefinitionTest {
     return Arrays.asList(
         definition.createElement(0),
         definition.createElement(definition.getModulus().shiftRight(1)),
-        definition.createElement(definition.getModulus()).subtract(definition.createElement(1))
+        definition.createElement(modulusValue)
+            .subtract(definition.createElement(1))
     );
   }
 
   private void testDefinition(
       BiConsumer<FieldDefinition, Function<FieldElement, BigInteger>> test) {
-    test.accept(new BigIntegerFieldDefinition("340282366920938463463374607431768211283"),
+    test.accept(new BigIntegerFieldDefinition(modulusValue),
         BigIntegerFieldElement::extractValue);
-    test.accept(new MersennePrimeFieldDefinition(128, 173),
+    test.accept(new MersennePrimeFieldDefinition(bitLength, constant),
         MersennePrimeFieldElement::extractValue);
   }
 
   private void testDefinition(Consumer<FieldDefinition> test) {
-    test.accept(new BigIntegerFieldDefinition("340282366920938463463374607431768211283"));
-    test.accept(new MersennePrimeFieldDefinition(128, 173));
+    test.accept(new BigIntegerFieldDefinition(modulusValue));
+    test.accept(new MersennePrimeFieldDefinition(bitLength, constant));
   }
 
   private List<BigInteger> toBigIntegers(List<FieldElement> elements,
@@ -50,7 +54,7 @@ public final class FieldDefinitionTest {
 
   @Test
   public void bitLength() {
-    testDefinition(definition -> assertThat(definition.getBitLength(), Is.is(128)));
+    testDefinition(definition -> assertThat(definition.getBitLength(), Is.is(bitLength)));
   }
 
   @Test
