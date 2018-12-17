@@ -42,9 +42,9 @@ final class MersennePrimeModulus implements Serializable {
 
   @Override
   public String toString() {
-    return "MersennePrimeModulus{" +
-        "value=" + prime +
-        '}';
+    return "MersennePrimeModulus{"
+        + "value=" + prime
+        + '}';
   }
 
   BigInteger mod(BigInteger value) {

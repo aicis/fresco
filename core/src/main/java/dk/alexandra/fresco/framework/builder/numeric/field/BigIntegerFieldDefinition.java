@@ -11,6 +11,11 @@ public final class BigIntegerFieldDefinition implements FieldDefinition {
   private final int modulusLength;
   private final int modulusBitLength;
 
+  /**
+   * Construct a new field definition for a specified modulus.
+   *
+   * @param value the modulus
+   */
   public BigIntegerFieldDefinition(BigInteger value) {
     this.modulus = new BigIntegerModulus(value);
     this.modulusHalf = modulus.getBigInteger().shiftRight(1);

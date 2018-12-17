@@ -81,9 +81,9 @@ public class AuthenticatedElement implements Addable<AuthenticatedElement> {
 
   @Override
   public String toString() {
-    return "AuthenticatedElement [" +
-        "share=" + share +
-        ", mac=" + mac +
-        ']';
+    return "AuthenticatedElement ["
+        + "share=" + share
+        + ", mac=" + mac
+        + ']';
   }
 }

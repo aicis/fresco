@@ -53,7 +53,7 @@ public interface Binary extends ComputationDirectory {
   DRes<Boolean> open(DRes<SBool> toOpen, int towardsPartyId);
 
   /**
-   * Basic AND operation
+   * Basic AND operation.
    * 
    * @param left The left AND argument
    * @param right The right AND argument
@@ -71,7 +71,7 @@ public interface Binary extends ComputationDirectory {
   DRes<SBool> xor(DRes<SBool> left, DRes<SBool> right);
 
   /**
-   * Basic NOT operation
+   * Basic NOT operation.
    * 
    * @param in The input to be inverted.
    * @return A deferred result computing <code>!in</code>.

@@ -126,7 +126,7 @@ public class BitSetUtils {
    * Converts of a {@link BitSet} to an array of {@link boolean}.
    * @param bitset a BitSet
    * @param length the number of bits of <code>bitset</code> to convert to array
-   * @return an array containing the <code>length</code> first bits of <code>bitset</bitset>
+   * @return an array containing the <code>length</code> first bits of <code>bitset</code>
    */
   public static boolean[] toArray(BitSet bitset, int length) {
     if (length < 0) {
@@ -143,7 +143,7 @@ public class BitSetUtils {
    * Converts of a {@link BitSet} to a list of {@link Boolean}.
    * @param bitset a BitSet
    * @param n the number of bits of <code>bitset</code> to convert to a list
-   * @return a list containing the <code>n</code> first bits of <code>bitset</bitset>
+   * @return a list containing the <code>n</code> first bits of <code>bitset</code>
    */
   public static List<Boolean> toList(BitSet bitset, int n) {
     if (n < 0) {
