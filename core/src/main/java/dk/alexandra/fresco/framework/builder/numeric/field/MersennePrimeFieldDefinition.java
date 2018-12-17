@@ -57,7 +57,7 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
 
   @Override
   public BigInteger convertToUnsigned(FieldElement value) {
-    return BigIntegerFieldElement.extractValue(value);
+    return MersennePrimeFieldElement.extractValue(value);
   }
 
   @Override
