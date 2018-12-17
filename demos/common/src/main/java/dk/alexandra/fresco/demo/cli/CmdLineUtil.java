@@ -25,6 +25,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -45,7 +46,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
   private Options appOptions;
   private CommandLine cmd;
   private NetworkConfiguration networkConfiguration;
-  private Network network;
+  private Supplier<Network> network;
   private boolean logPerformance;
   private ProtocolSuite<ResourcePoolT, BuilderT> protocolSuite;
   private ProtocolEvaluator<ResourcePoolT> evaluator;
@@ -63,7 +64,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
   }
 
   public Network getNetwork() {
-    return this.network;
+    return this.network.get();
   }
 
   public ResourcePoolT getResourcePool() {
@@ -187,9 +188,10 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
     }
 
     this.networkConfiguration = new NetworkConfigurationImpl(myId, parties);
-    this.network = new AsyncNetwork(networkConfiguration);
     if (logPerformance) {
-      this.network = new NetworkLoggingDecorator(this.network);
+      this.network = () -> new NetworkLoggingDecorator(new AsyncNetwork(networkConfiguration));
+    } else {
+      this.network = () -> new AsyncNetwork(networkConfiguration);
     }
   }
 
@@ -240,7 +242,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
 
       CmdLineProtocolSuite protocolSuiteParser = new CmdLineProtocolSuite(protocolSuiteName,
           cmd.getOptionProperties("D"), this.networkConfiguration.getMyId(),
-          network.getNoOfParties(), () -> network
+          networkConfiguration.noOfParties(), network
       );
       protocolSuite = (ProtocolSuite<ResourcePoolT, BuilderT>)
           protocolSuiteParser.getProtocolSuite();
