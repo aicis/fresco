@@ -1,13 +1,19 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.suite.spdz2k.util.UIntSerializer;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.List;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
 
   private static final CompUInt128 ZERO = new CompUInt128(new byte[16]);
+  private static final BigInteger valueModulus = BigInteger.ONE.shiftLeft(64);
+  private static final BigInteger valueHalfModulus = BigInteger.ONE.shiftLeft(32);
   private final SecureRandom random = new SecureRandom();
 
   @Override
@@ -38,12 +44,63 @@ public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
   }
 
   @Override
-  public CompUInt128 createFromBigInteger(BigInteger value) {
+  public CompUInt128 createElement(BigInteger value) {
     return value == null ? null : new CompUInt128(value.toByteArray(), true);
+  }
+
+  @Override
+  public FieldElement createElement(int value) {
+    return new CompUInt128(value);
+  }
+
+  @Override
+  public BigInteger getModulus() {
+    return valueModulus;
+  }
+
+  @Override
+  public StrictBitVector convertToBitVector(FieldElement fieldElement) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public BigInteger convertToUnsigned(FieldElement value) {
+    return ((CompUInt128) value)
+        .getLeastSignificant()
+        .toBigInteger();
+  }
+
+  @Override
+  public BigInteger convertToSigned(BigInteger signed) {
+    if (signed.compareTo(valueHalfModulus) > 0) {
+      return signed.subtract(valueModulus);
+    } else {
+      return signed;
+    }
   }
 
   @Override
   public CompUInt128 zero() {
     return ZERO;
+  }
+
+  @Override
+  public byte[] serialize(FieldElement object) {
+    return new byte[0];
+  }
+
+  @Override
+  public byte[] serialize(List<FieldElement> objects) {
+    return new byte[0];
+  }
+
+  @Override
+  public FieldElement deserialize(byte[] bytes) {
+    return null;
+  }
+
+  @Override
+  public List<FieldElement> deserializeList(byte[] bytes) {
+    return null;
   }
 }

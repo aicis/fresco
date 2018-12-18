@@ -39,14 +39,19 @@ public class Spdz2kOutputToAllProtocol<PlainT extends CompUInt<?, ?, PlainT>>
         .getOpenedValueStore();
     if (round == 0) {
       authenticatedElement = toSpdz2kSInt(share);
-      network.sendToAll(authenticatedElement.getShare().getLeastSignificant().toByteArray());
+      network.sendToAll(authenticatedElement
+          .getShare()
+          .getLeastSignificant()
+          .toByteArray());
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       ByteSerializer<PlainT> serializer = resourcePool.getPlainSerializer();
       List<PlainT> shares = serializer.deserializeList(network.receiveFromAll());
       PlainT recombined = UInt.sum(shares);
       openedValueStore.pushOpenedValue(authenticatedElement, recombined);
-      this.opened = resourcePool.convertRepresentation(recombined);
+      this.opened = recombined
+          .getLeastSignificant()
+          .toBigInteger();
       return EvaluationStatus.IS_DONE;
     }
   }

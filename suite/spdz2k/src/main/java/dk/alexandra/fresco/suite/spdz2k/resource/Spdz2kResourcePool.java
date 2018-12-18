@@ -83,14 +83,6 @@ public interface Spdz2kResourcePool<PlainT extends CompUInt<?, ?, PlainT>>
   int getMaxBitLength();
 
   /**
-   * Converts opened value of underlying arithmetic type to a BigInteger. <p>This may convert the
-   * value to a negative value depending on the semantics of the plain text type.</p>
-   */
-  default BigInteger convertRepresentation(PlainT value) {
-    return value.getLeastSignificant().toBigInteger();
-  }
-
-  /**
    * Returns serializer for {@link HashBasedCommitment}.
    */
   default ByteSerializer<HashBasedCommitment> getCommitmentSerializer() {

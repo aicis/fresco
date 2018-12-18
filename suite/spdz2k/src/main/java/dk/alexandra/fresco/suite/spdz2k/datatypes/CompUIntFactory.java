@@ -1,12 +1,16 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.math.BigInteger;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * Factory for {@link CompT} instances.
  */
-public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> {
+public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> extends FieldDefinition {
 
   /**
    * Creates new {@link CompT} from a raw array of bytes.
@@ -41,12 +45,41 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> {
   }
 
   /**
-   * Creates new {@link CompT} from a {@link BigInteger}.
-   */
-  CompT createFromBigInteger(BigInteger value);
-
-  /**
    * Creates element whose value is zero.
    */
   CompT zero();
+
+  /**
+   * Creates new {@link CompT} from a {@link BigInteger}.
+   */
+  @Override
+  CompT createElement(BigInteger value);
+
+  @Override
+  FieldElement createElement(int value);
+
+  @Override
+  default FieldElement createElement(String value) {
+    return createElement(new BigInteger(value));
+  }
+
+  @Override
+  BigInteger getModulus();
+
+  @Override
+  default int getBitLength() {
+    return getCompositeBitLength();
+  }
+
+  @Override
+  default StrictBitVector convertToBitVector(FieldElement fieldElement) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  BigInteger convertToUnsigned(FieldElement value);
+
+  @Override
+  BigInteger convertToSigned(BigInteger signed);
+
 }
