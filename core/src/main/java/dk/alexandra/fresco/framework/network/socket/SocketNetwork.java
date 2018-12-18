@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.framework.network.socket;
 
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.network.CloseableNetwork;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import java.net.Socket;
@@ -57,11 +56,12 @@ public class SocketNetwork implements CloseableNetwork {
    * </p>
    *
    * @param conf the network configuration
-   * @param socketMap a mapping from party ids to the socket to be used for communicating with the
-   *        given party.
-   *
-   * @throws IllegalArgumentException if {@code socketMap} and {@code conf} are inconsistent or the
-   *         sockets are not open and connected.
+   * @param socketMap a mapping from party ids to the socket to be used for communicating with
+   *     the
+   *     given party.
+   * @throws IllegalArgumentException if {@code socketMap} and {@code conf} are inconsistent or
+   *     the
+   *     sockets are not open and connected.
    */
   public SocketNetwork(NetworkConfiguration conf, Map<Integer, Socket> socketMap) {
     Objects.requireNonNull(conf);
@@ -80,10 +80,10 @@ public class SocketNetwork implements CloseableNetwork {
       if (!s.isConnected()) {
         throw new IllegalArgumentException("Unconnected socket for P" + i);
       }
-        ExceptionConverter.safe(() -> {
-          s.setTcpNoDelay(true);
-          return null;
-        }, "Could not set delayless TCP connection");
+      ExceptionConverter.safe(() -> {
+        s.setTcpNoDelay(true);
+        return null;
+      }, "Could not set delayless TCP connection");
     }
     this.conf = conf;
     int externalParties = conf.noOfParties() - 1;
@@ -208,5 +208,4 @@ public class SocketNetwork implements CloseableNetwork {
   public int getNoOfParties() {
     return this.conf.noOfParties();
   }
-
 }

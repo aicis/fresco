@@ -2,9 +2,19 @@ package dk.alexandra.fresco.suite.spdz.storage;
 
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
+import java.math.BigInteger;
 import org.junit.Test;
 
 public class TestSpdzStorage {
+
+  @Test
+  public void testDataSupplierModFoundTwice() {
+    FilebasedStreamedStorageImpl storage = new FilebasedStreamedStorageImpl(new InMemoryStorage());
+    storage.putNext("valid" + SpdzStorageDataSupplier.MODULUS_KEY, BigInteger.ONE);
+    SpdzStorageDataSupplier supplier = new SpdzStorageDataSupplier(storage, "valid", 2);
+    supplier.getFieldDefinition();
+    supplier.getFieldDefinition();
+  }
 
   @Test(expected = IllegalArgumentException.class)
   public void testDataSupplierModNotFound() {

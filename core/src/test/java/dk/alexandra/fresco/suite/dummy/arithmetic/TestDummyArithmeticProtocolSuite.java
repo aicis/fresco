@@ -55,7 +55,6 @@ import dk.alexandra.fresco.logging.arithmetic.ComparisonLoggerDecorator;
 import dk.alexandra.fresco.logging.arithmetic.NumericLoggingDecorator;
 import java.util.ArrayList;
 import java.util.Random;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTest {
@@ -303,7 +302,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
-  @Ignore
   public void test_permute_empty_rows() {
     runTest(PermuteRowsTests.permuteEmptyRows(), new TestParameters().numParties(2));
   }

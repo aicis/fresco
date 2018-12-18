@@ -8,6 +8,9 @@ import java.util.Random;
  */
 public class MiMCConstants {
 
+  private MiMCConstants() {
+  }
+
 	/**
 	 * Returns a random but deterministic constant depending on the round and the field size.
 	 * It might be a better idea to pre-generate the constants using SecureRandom, and distribute
@@ -18,10 +21,10 @@ public class MiMCConstants {
 	 */
 	public static BigInteger getConstant(int roundIndex, BigInteger mod) {
 		Random rnd = new Random(roundIndex);
-		BigInteger r;
-		do {
-		    r = new BigInteger(mod.bitLength(), rnd);
-		} while (r.compareTo(mod) >= 0);
-		return r;
+    BigInteger r;
+    do {
+      r = new BigInteger(mod.bitLength(), rnd);
+    } while (r.compareTo(mod) >= 0);
+    return r;
 	}
 }
