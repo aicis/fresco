@@ -362,7 +362,7 @@ public class BasicArithmeticTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigInteger value = BigInteger.valueOf(10);
-      BigInteger constant = BigInteger.valueOf(4);
+      long constant = 4L;
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() {
