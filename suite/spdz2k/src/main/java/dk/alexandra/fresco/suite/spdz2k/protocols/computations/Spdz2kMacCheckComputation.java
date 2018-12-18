@@ -141,7 +141,7 @@ public class Spdz2kMacCheckComputation<
     for (int i = 0; i < numCoefficients; i++) {
       byte[] bytes = new byte[factory.getHighBitLength() / Byte.SIZE];
       drbg.nextBytes(bytes);
-      randomCoefficients.add(factory.createFromBytes(bytes));
+      randomCoefficients.add(factory.deserialize(bytes));
     }
     return randomCoefficients;
   }

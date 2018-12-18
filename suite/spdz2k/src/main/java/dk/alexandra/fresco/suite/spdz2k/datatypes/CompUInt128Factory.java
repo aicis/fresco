@@ -17,7 +17,7 @@ public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
   private final SecureRandom random = new SecureRandom();
 
   @Override
-  public CompUInt128 createFromBytes(byte[] bytes) {
+  public CompUInt128 deserialize(byte[] bytes) {
     return new CompUInt128(bytes);
   }
 
@@ -25,7 +25,7 @@ public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
   public CompUInt128 createRandom() {
     byte[] bytes = new byte[16];
     this.random.nextBytes(bytes);
-    return createFromBytes(bytes);
+    return this.deserialize(bytes);
   }
 
   @Override
@@ -84,23 +84,4 @@ public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
     return ZERO;
   }
 
-  @Override
-  public byte[] serialize(FieldElement object) {
-    return new byte[0];
-  }
-
-  @Override
-  public byte[] serialize(List<FieldElement> objects) {
-    return new byte[0];
-  }
-
-  @Override
-  public FieldElement deserialize(byte[] bytes) {
-    return null;
-  }
-
-  @Override
-  public List<FieldElement> deserializeList(byte[] bytes) {
-    return null;
-  }
 }
