@@ -18,10 +18,6 @@ public class MiMCConstants {
 	 */
 	public static BigInteger getConstant(int roundIndex, BigInteger mod) {
 		Random rnd = new Random(roundIndex);
-		BigInteger r;
-		do {
-		    r = new BigInteger(mod.bitLength(), rnd);
-		} while (r.compareTo(mod) >= 0);
-		return r;
+    return new BigInteger(mod.bitLength(), rnd);
 	}
 }
