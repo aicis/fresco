@@ -43,15 +43,10 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> {
   /**
    * Creates new {@link CompT} from a {@link BigInteger}.
    */
-  default CompT createFromBigInteger(BigInteger value) {
-    return (value == null) ? null : createFromBytes(value.toByteArray());
-  }
+  CompT createFromBigInteger(BigInteger value);
 
   /**
    * Creates element whose value is zero.
    */
-  default CompT zero() {
-    return createFromBytes(new byte[getCompositeBitLength() / Byte.SIZE]);
-  }
-  
+  CompT zero();
 }
