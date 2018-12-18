@@ -8,8 +8,6 @@ public class MiMCConstantsTest {
   @Test
   public void constructor() throws Exception {
     new MiMCConstants();
-    for (int i = 0; i < 100; i++) {
-      MiMCConstants.getConstant(100, BigInteger.ONE);
-    }
+    MiMCConstants.getConstant(0, BigInteger.ONE);
   }
 }
