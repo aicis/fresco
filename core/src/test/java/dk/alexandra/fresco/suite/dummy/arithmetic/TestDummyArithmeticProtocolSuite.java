@@ -356,29 +356,39 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_MiMC_DifferentPlainTexts() {
-    runTest(new MiMCTests.TestMiMCDifferentPlainTexts<>(), new TestParameters());
+    runTest(new MiMCTests.TestMiMCDifferentPlainTexts<>(false), new TestParameters());
+  }
+
+  @Test
+  public void test_MiMC_DifferentPlainTexts_Reduced() {
+    runTest(new MiMCTests.TestMiMCDifferentPlainTexts<>(true), new TestParameters());
   }
 
   @Test
   public void test_MiMC_EncSameEnc() {
-    runTest(new MiMCTests.TestMiMCEncSameEnc<>(), new TestParameters());
+    runTest(new MiMCTests.TestMiMCEncSameEnc<>(false), new TestParameters());
+  }
+
+  @Test
+  public void test_MiMC_EncSameEncReduced() {
+    runTest(new MiMCTests.TestMiMCEncSameEnc<>(true), new TestParameters());
+  }
+
+  @Test
+  public void test_MiMC_EncDec_Reduced() {
+    runTest(new MiMCTests.TestMiMCEncDec<>(true), new TestParameters()
+        .field(getModulus(512)));
   }
 
   @Test
   public void test_MiMC_EncDec() {
-    runTest(new MiMCTests.TestMiMCEncDec<>(), new TestParameters()
+    runTest(new MiMCTests.TestMiMCEncDec<>(false), new TestParameters()
         .field(getModulus(512)));
   }
 
   @Test
   public void test_MiMC_EncDecFixedRounds() {
     runTest(new MiMCTests.TestMiMCEncDecFixedRounds<>(), new TestParameters()
-        .field(getModulus(512)));
-  }
-
-  @Test
-  public void test_MiMC_Deterministically() {
-    runTest(new MiMCTests.TestMiMCEncryptsDeterministically<>(), new TestParameters()
         .field(getModulus(512)));
   }
 

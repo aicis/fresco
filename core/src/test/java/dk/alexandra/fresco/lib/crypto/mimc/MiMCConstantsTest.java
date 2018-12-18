@@ -10,7 +10,7 @@ public class MiMCConstantsTest {
 
   @Test
   public void rejectionSampling() {
-    BigInteger constant = MiMCConstants.getConstant(4, BigInteger.ONE.shiftLeft(127));
+    BigInteger constant = new MimcConstants().getConstant(4, BigInteger.ONE.shiftLeft(127));
     assertThat(constant, Is.is(new BigInteger("21050421667816228993181298429140717896")));
   }
 }
