@@ -115,8 +115,8 @@ public class BasicArithmeticTests {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      BigInteger leftValue = BigInteger.valueOf(10);
-      BigInteger rightValue = BigInteger.valueOf(4);
+      long leftValue = 10L;
+      long rightValue = 4L;
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() {
@@ -128,7 +128,7 @@ public class BasicArithmeticTests {
             return numeric.open(result);
           };
           BigInteger output = runApplication(app);
-          Assert.assertEquals(leftValue.add(rightValue), output);
+          Assert.assertEquals(BigInteger.valueOf(leftValue + rightValue), output);
         }
       };
     }

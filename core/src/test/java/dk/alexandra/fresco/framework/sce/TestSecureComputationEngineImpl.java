@@ -52,8 +52,8 @@ public class TestSecureComputationEngineImpl {
   public void testRunApplication() {
     Application<BigInteger, ProtocolBuilderNumeric> app =
         builder -> {
-          DRes<SInt> a = builder.numeric().known(BigInteger.valueOf(10));
-          DRes<SInt> b = builder.numeric().known(BigInteger.valueOf(10));
+          DRes<SInt> a = builder.numeric().known(10L);
+          DRes<SInt> b = builder.numeric().known(10L);
           return builder.numeric().open(builder.numeric().add(a, b));
         };
     DummyArithmeticResourcePool rp =
