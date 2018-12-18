@@ -25,7 +25,7 @@ public class SpdzSInt implements SInt, Serializable {
     this.mac = mac;
   }
 
-  FieldElement getShare() {
+  public FieldElement getShare() {
     return share;
   }
 
