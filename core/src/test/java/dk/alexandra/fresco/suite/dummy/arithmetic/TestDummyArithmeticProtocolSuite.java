@@ -84,6 +84,11 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
+  public void test_AddPublicValue_Sequential_long() {
+    runTest(new BasicArithmeticTests.TestAddPublicValueLong<>(), new TestParameters());
+  }
+
+  @Test
   public void test_KnownSInt_Sequential() {
     runTest(new BasicArithmeticTests.TestKnownSInt<>(), new TestParameters());
   }

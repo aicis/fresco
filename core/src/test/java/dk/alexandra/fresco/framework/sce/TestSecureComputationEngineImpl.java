@@ -52,6 +52,21 @@ public class TestSecureComputationEngineImpl {
   public void testRunApplication() {
     Application<BigInteger, ProtocolBuilderNumeric> app =
         builder -> {
+          DRes<SInt> a = builder.numeric().known(BigInteger.valueOf(10));
+          DRes<SInt> b = builder.numeric().known(BigInteger.valueOf(10));
+          return builder.numeric().open(builder.numeric().add(a, b));
+        };
+    DummyArithmeticResourcePool rp =
+        new DummyArithmeticResourcePoolImpl(0, 1, fieldDefinition);
+
+    BigInteger b = sce.runApplication(app, rp, null);
+    assertThat(b, is(BigInteger.valueOf(20)));
+  }
+
+  @Test
+  public void testRunApplicationLong() {
+    Application<BigInteger, ProtocolBuilderNumeric> app =
+        builder -> {
           DRes<SInt> a = builder.numeric().known(10L);
           DRes<SInt> b = builder.numeric().known(10L);
           return builder.numeric().open(builder.numeric().add(a, b));

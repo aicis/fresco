@@ -32,6 +32,13 @@ public interface Numeric extends ComputationDirectory {
   DRes<SInt> add(BigInteger a, DRes<SInt> b);
 
   /**
+   * Convenience implementation of {@link #add(BigInteger, DRes)}
+   */
+  default DRes<SInt> add(long a, DRes<SInt> b) {
+    return add(BigInteger.valueOf(a), b);
+  }
+
+  /**
    * Subtracts two secret values and returns the result.
    *
    * @param a Secret value 1
@@ -50,6 +57,13 @@ public interface Numeric extends ComputationDirectory {
   DRes<SInt> sub(BigInteger a, DRes<SInt> b);
 
   /**
+   * Convenience implementation of {@link #sub(BigInteger, DRes)}
+   */
+  default DRes<SInt> sub(long a, DRes<SInt> b) {
+    return sub(BigInteger.valueOf(a), b);
+  }
+
+  /**
    * Subtracts a secret value and a public value and returns the result.
    *
    * @param a Secret value
@@ -57,6 +71,13 @@ public interface Numeric extends ComputationDirectory {
    * @return A deferred result computing a-b
    */
   DRes<SInt> sub(DRes<SInt> a, BigInteger b);
+
+  /**
+   * Convenience implementation of {@link #sub(DRes, BigInteger)}
+   */
+  default DRes<SInt> sub(DRes<SInt> a, long b) {
+    return sub(a, BigInteger.valueOf(b));
+  }
 
   /**
    * Multiplies two secret values and returns the result.
@@ -75,6 +96,13 @@ public interface Numeric extends ComputationDirectory {
    * @return A deferred result computing a*b
    */
   DRes<SInt> mult(BigInteger a, DRes<SInt> b);
+
+  /**
+   * Convenience implementation of {@link #mult(BigInteger, DRes)}
+   */
+  default DRes<SInt> mult(long a, DRes<SInt> b) {
+    return mult(BigInteger.valueOf(a), b);
+  }
 
   /**
    * Returns a deferred result which creates a secret shared random bit. (This should be computed
