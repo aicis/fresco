@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.BuildStep;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -65,27 +64,25 @@ public class ExponentiationTests {
         private final List<Integer> exps = Arrays.asList(1, 2, 3, 6, 12, 16, 19);
 
         @Override
-        public void test() throws Exception {
-          Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> {
-            return producer.seq(seq -> {
-              DRes<SInt> base = seq.numeric().known(input);
-              return base;
-            }).par((par, base) -> {
-              List<DRes<SInt>> closedResults = new ArrayList<>(exps.size());
-              for (int exp : exps) {
-                DRes<SInt> res = par.advancedNumeric().exp(base, BigInteger.valueOf(exp));
-                closedResults.add(res);
-              }
-              return () -> closedResults;
-            }).par((par, closedResults) -> {
-              List<DRes<BigInteger>> openResults = closedResults.stream()
-                  .map(par.numeric()::open)
-                  .collect(Collectors.toList());
-              return () -> openResults;
-            }).seq((seq, openResults) -> {
-              return () -> openResults.stream().map(DRes::out).collect(Collectors.toList());
-            });
-          };
+        public void test() {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
+              producer -> producer.seq(
+                  seq -> seq.numeric().known(input)
+              ).par((par, base) -> {
+                List<DRes<SInt>> closedResults = new ArrayList<>(exps.size());
+                for (int exp : exps) {
+                  DRes<SInt> res = par.advancedNumeric().exp(base, exp);
+                  closedResults.add(res);
+                }
+                return () -> closedResults;
+              }).par((par, closedResults) -> {
+                List<DRes<BigInteger>> openResults = closedResults.stream()
+                    .map(par.numeric()::open)
+                    .collect(Collectors.toList());
+                return () -> openResults;
+              }).seq((seq, openResults) ->
+                  () -> openResults.stream().map(DRes::out).collect(Collectors.toList())
+              );
           List<BigInteger> results = runApplication(app);
           assertEquals(results.size(), exps.size());
           Iterator<BigInteger> resIt = results.iterator();
@@ -107,11 +104,11 @@ public class ExponentiationTests {
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        private final BigInteger input = BigInteger.valueOf(12332157);
+        private final long input = 12332157L;
         private final int exp = 12;
 
         @Override
-        public void test() throws Exception {
+        public void test() {
           Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
             Numeric numeric = producer.numeric();
             DRes<SInt> exponent = numeric.known(BigInteger.valueOf(exp));
@@ -122,7 +119,7 @@ public class ExponentiationTests {
           };
           BigInteger result = runApplication(app);
 
-          Assert.assertEquals(input.pow(exp), result);
+          Assert.assertEquals(BigInteger.valueOf(input).pow(exp), result);
         }
       };
     }
@@ -163,5 +160,4 @@ public class ExponentiationTests {
       };
     }
   }
-
 }

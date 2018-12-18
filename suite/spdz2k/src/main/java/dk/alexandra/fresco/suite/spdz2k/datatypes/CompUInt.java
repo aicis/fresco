@@ -1,8 +1,6 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 /**
  * An unsigned integer conceptually composed of two other unsigned integers. <p>Composite integers
  * have a bit length of t = s + k, where the s most significant bits can be viewed as a s-bit
@@ -58,7 +56,7 @@ public interface CompUInt<
 
   @Override
   default FieldElement sqrt() {
-    throw new NotImplementedException();
+    throw new UnsupportedOperationException();
   }
 
   @Override
