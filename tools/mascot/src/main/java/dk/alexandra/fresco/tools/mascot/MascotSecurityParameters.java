@@ -6,7 +6,6 @@ package dk.alexandra.fresco.tools.mascot;
  */
 public class MascotSecurityParameters {
 
-  private final int modBitLength;
   private final int lambdaSecurityParam;
   private final int prgSeedLength;
   private final int numCandidatesPerTriple;
@@ -14,16 +13,15 @@ public class MascotSecurityParameters {
   /**
    * Creates new {@link MascotSecurityParameters}.
    *
-   * @param modBitLength bit length of modulus (k security param in Mascot paper)
    * @param lambdaSecurityParam OT security parameter num bits (lambda in Mascot paper)
    * @param prgSeedLength bit length of seed used to underlying prg
-   * @param numCandidatesPerTriple number of factors that go into Sacrifice step of Protocol 4 (tau
-   * in Mascot paper) <p> For each triple we generate, we will generate and numCandidatesPerTriple -
-   * 1 triples for a single right factor and sacrifice these to authenticate the triple.</p>
+   * @param numCandidatesPerTriple number of factors that go into Sacrifice step of Protocol 4
+   *     (tau in Mascot paper) For each triple we generate, we will generate and
+   *     numCandidatesPerTriple - 1 triples for a single right factor and sacrifice these to
+   *     authenticate the triple.
    */
-  public MascotSecurityParameters(int modBitLength, int lambdaSecurityParam, int prgSeedLength,
-      int numCandidatesPerTriple) {
-    this.modBitLength = modBitLength;
+  public MascotSecurityParameters(
+      int lambdaSecurityParam, int prgSeedLength, int numCandidatesPerTriple) {
     this.lambdaSecurityParam = lambdaSecurityParam;
     this.prgSeedLength = prgSeedLength;
     this.numCandidatesPerTriple = numCandidatesPerTriple;
@@ -34,16 +32,7 @@ public class MascotSecurityParameters {
    * recommendations).
    */
   public MascotSecurityParameters() {
-    this(128, 64, 256, 3);
-  }
-
-  /**
-   * Gets bit length of modulus (k security param in Mascot paper).
-   *
-   * @return modulus bit length
-   */
-  public int getModBitLength() {
-    return modBitLength;
+    this(64, 256, 3);
   }
 
   /**
@@ -74,5 +63,4 @@ public class MascotSecurityParameters {
   public int getNumCandidatesPerTriple() {
     return numCandidatesPerTriple;
   }
-
 }

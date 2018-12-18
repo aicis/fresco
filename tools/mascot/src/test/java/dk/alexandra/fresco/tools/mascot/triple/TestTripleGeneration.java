@@ -56,8 +56,11 @@ public class TestTripleGeneration extends NetworkedTest {
   @Test
   public void testTwoPartiesSingleMult() {
     // configure number of left factors
-    initContexts(2, new MascotSecurityParameters(getDefaultParameters().getModBitLength(),
-        getDefaultParameters().getLambdaSecurityParam(), getDefaultParameters().getPrgSeedLength(), 1));
+    initContexts(2,
+        new MascotSecurityParameters(
+            getDefaultParameters().getLambdaSecurityParam(),
+            getDefaultParameters().getPrgSeedLength(),
+            1));
 
     // left party mac key share
     FieldElement macKeyShareOne = getFieldDefinition().createElement(new BigInteger("11231"));
@@ -237,5 +240,4 @@ public class TestTripleGeneration extends NetworkedTest {
     testMultiplePartiesTriple(Arrays.asList(macKeyShareOne, macKeyShareTwo, macKeyShareThree), 3
     );
   }
-
 }

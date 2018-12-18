@@ -1,12 +1,10 @@
 package dk.alexandra.fresco.tools.mascot;
 
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
-import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
@@ -42,18 +40,20 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
    * @param seedOts pre-computed base OTs
    * @param mascotSecurityParameters mascot security parameters ({@link
    *     MascotSecurityParameters})
+   * @param fieldDefinition field used for calculations
    */
   public MascotResourcePoolImpl(int myId, int noOfParties, int instanceId, Drbg drbg,
-      Map<Integer, RotList> seedOts, MascotSecurityParameters mascotSecurityParameters) {
+      Map<Integer, RotList> seedOts, MascotSecurityParameters mascotSecurityParameters,
+      FieldDefinition fieldDefinition) {
     super(myId, noOfParties);
     this.drbg = drbg;
     this.instanceId = instanceId;
     this.seedOts = seedOts;
-    this.fieldDefinition = new BigIntegerFieldDefinition(
-        ModulusFinder.findSuitableModulus(mascotSecurityParameters.getModBitLength()));
+    this.fieldDefinition = fieldDefinition;
     this.mascotSecurityParameters = mascotSecurityParameters;
     this.localSampler = new FieldElementPrgImpl(
-        new StrictBitVector(mascotSecurityParameters.getPrgSeedLength(), drbg), fieldDefinition);
+        new StrictBitVector(mascotSecurityParameters.getPrgSeedLength(), drbg),
+        this.fieldDefinition);
     this.messageDigest = ExceptionConverter.safe(() -> MessageDigest.getInstance("SHA-256"),
         "Configuration error, SHA-256 is needed for Mascot");
   }
@@ -70,7 +70,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
 
   @Override
   public int getModBitLength() {
-    return mascotSecurityParameters.getModBitLength();
+    return fieldDefinition.getBitLength();
   }
 
   @Override
