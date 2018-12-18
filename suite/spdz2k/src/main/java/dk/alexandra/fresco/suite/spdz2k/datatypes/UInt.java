@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public interface UInt<T extends UInt> {
    * around mod 2^bitLength since the value is unsigned. Equivalent to computing unsigned result of
    * (this * (2^bitLength - 1)).</p>
    */
-  T negate();
+  T negateUInt();
 
   /**
    * Check if values is zero.

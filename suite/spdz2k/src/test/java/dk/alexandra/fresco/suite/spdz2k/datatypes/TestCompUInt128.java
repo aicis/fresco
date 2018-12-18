@@ -170,19 +170,19 @@ public class TestCompUInt128 {
   public void testNegate() {
     assertEquals(
         BigInteger.ZERO,
-        new CompUInt128(BigInteger.ZERO).negate().toBigInteger()
+        new CompUInt128(BigInteger.ZERO).negateUInt().toBigInteger()
     );
     assertEquals(
         BigInteger.ONE,
-        new CompUInt128(twoTo128.subtract(BigInteger.ONE)).negate().toBigInteger()
+        new CompUInt128(twoTo128.subtract(BigInteger.ONE)).negateUInt().toBigInteger()
     );
     assertEquals(
         two,
-        new CompUInt128(twoTo128.subtract(two)).negate().toBigInteger()
+        new CompUInt128(twoTo128.subtract(two)).negateUInt().toBigInteger()
     );
     assertEquals(
         twoTo128.subtract(two),
-        new CompUInt128(two).negate().toBigInteger()
+        new CompUInt128(two).negateUInt().toBigInteger()
     );
   }
 
