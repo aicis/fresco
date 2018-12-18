@@ -535,7 +535,7 @@ public class BasicArithmeticTests {
     }
   }
 
-  public static class TestOpenWithConversion<ResourcePoolT extends ResourcePool>
+  public static class TestOpenNoConversionByDefault<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
