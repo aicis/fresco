@@ -31,7 +31,7 @@ public interface MascotResourcePool extends NumericResourcePool {
   int getInstanceId();
 
   /**
-   * {@link MascotSecurityParameters#getModBitLength()}.
+   * {@link FieldDefinition#getBitLength()}.
    */
   int getModBitLength();
 

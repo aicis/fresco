@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.tools.mascot;
 
 import dk.alexandra.fresco.framework.Party;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
@@ -9,6 +11,7 @@ import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.ot.base.DhParameters;
 import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
@@ -26,10 +29,12 @@ public class MascotDemo {
 
   private final Mascot mascot;
   private final Closeable toClose;
-  private MascotSecurityParameters parameters = new MascotSecurityParameters();
+  private final MascotSecurityParameters parameters = new MascotSecurityParameters();
+  private final FieldDefinition fieldDefinition =
+      new BigIntegerFieldDefinition(ModulusFinder.findSuitableModulus(128));
 
   private MascotDemo(int myId, int noOfParties) {
-       Network network =
+    Network network =
         new SocketNetwork(defaultNetworkConfiguration(myId, noOfParties));
     MascotResourcePool resourcePool = defaultResourcePool(myId, noOfParties,
         network);
@@ -85,7 +90,8 @@ public class MascotDemo {
       }
     }
     int instanceId = 1;
-    return new MascotResourcePoolImpl(myId, noOfParties, instanceId, drbg, seedOts, parameters);
+    return new MascotResourcePoolImpl(
+        myId, noOfParties, instanceId, drbg, seedOts, parameters, fieldDefinition);
   }
 
   /**
@@ -95,5 +101,4 @@ public class MascotDemo {
     int myId = Integer.parseInt(args[0]);
     new MascotDemo(myId, 2).run(1, 9 * 1024);
   }
-
 }

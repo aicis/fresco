@@ -59,8 +59,8 @@ public class TestCope extends NetworkedTest {
 
   private void testBatchedExtend(int lambdaSecurityParam) {
     initContexts(2,
-        new MascotSecurityParameters(getDefaultParameters().getModBitLength(), lambdaSecurityParam,
-            getDefaultParameters().getPrgSeedLength(), getDefaultParameters().getNumCandidatesPerTriple()));
+        new MascotSecurityParameters(lambdaSecurityParam, getDefaultParameters().getPrgSeedLength(),
+            getDefaultParameters().getNumCandidatesPerTriple()));
 
     // left parties input (can be multiple)
     FieldElement macKeyShare = getFieldDefinition().createElement("11231");
@@ -104,5 +104,4 @@ public class TestCope extends NetworkedTest {
   public void testUnequalSecParamAndBitLength() {
     testBatchedExtend(24);
   }
-
 }

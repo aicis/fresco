@@ -54,8 +54,7 @@ public class TestParallelMascots {
     executorService = Executors.newCachedThreadPool();
     mascotSecurityParameters = new MascotSecurityParameters();
     iterations = 3;
-    definition = new BigIntegerFieldDefinition(
-        ModulusFinder.findSuitableModulus(mascotSecurityParameters.getModBitLength()));
+    definition = new BigIntegerFieldDefinition(ModulusFinder.findSuitableModulus(128));
   }
 
   @After
@@ -131,7 +130,7 @@ public class TestParallelMascots {
         Map<Integer, RotList> seedOt = seedOts.get(finalMyId - 1);
         mascotCreators.add(() -> new Mascot(
             new MascotResourcePoolImpl(finalMyId, noOfParties,
-                finalInstanceId, getDrbg(), seedOt, mascotSecurityParameters),
+                finalInstanceId, getDrbg(), seedOt, mascotSecurityParameters, definition),
             normalManager.createExtraNetwork(finalMyId),
             randomSsk));
       }
@@ -155,7 +154,7 @@ public class TestParallelMascots {
         mascotCreators.add(() -> {
           Mascot mascot = new Mascot(
               new MascotResourcePoolImpl(finalMyId, noOfParties, finalInstanceId,
-                  getDrbg(), seedOt, mascotSecurityParameters),
+                  getDrbg(), seedOt, mascotSecurityParameters, definition),
               normalManager.createExtraNetwork(finalMyId), randomSsk);
           return mascot.getTriples(16);
         });

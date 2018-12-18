@@ -172,7 +172,7 @@ public class TestMascot extends NetworkedTest {
   @Test
   public void testTripleDifferentModBiLength() {
     // set up runtime environment and get contexts
-    initContexts(2, new MascotSecurityParameters(8, 8, 256, 3));
+    initContexts(2, 8, new MascotSecurityParameters(8, 256, 3));
 
     FieldElement macKeyShareOne = getFieldDefinition().createElement(111);
     FieldElement macKeyShareTwo = getFieldDefinition().createElement(212);

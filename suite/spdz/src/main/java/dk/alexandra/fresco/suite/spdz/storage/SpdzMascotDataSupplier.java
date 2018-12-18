@@ -187,7 +187,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     int numCandidatesPerTriple = 3;
     mascot = new Mascot(
         new MascotResourcePoolImpl(myId, numberOfPlayers, instanceId, drbg, seedOts,
-            new MascotSecurityParameters(modBitLength, modBitLength, prgSeedLength,
-                numCandidatesPerTriple)), tripleNetwork.get(), ssk);
+            new MascotSecurityParameters(modBitLength, prgSeedLength,
+                numCandidatesPerTriple), this.fieldDefinition), tripleNetwork.get(), ssk);
   }
 }

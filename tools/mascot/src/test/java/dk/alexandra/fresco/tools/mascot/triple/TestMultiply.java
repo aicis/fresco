@@ -110,7 +110,7 @@ public class TestMultiply extends NetworkedTest {
   private void testManyMults(int lambdaSecurityParam) {
     // two parties run this
     initContexts(2,
-        new MascotSecurityParameters(getDefaultParameters().getModBitLength(), lambdaSecurityParam,
+        new MascotSecurityParameters(lambdaSecurityParam,
             getDefaultParameters().getPrgSeedLength(), getDefaultParameters().getNumCandidatesPerTriple()));
     // left parties input
     List<FieldElement> leftInputs = new ArrayList<>(2);
