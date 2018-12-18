@@ -46,7 +46,7 @@ public class Spdz2kDummyDataSupplier<
     Pair<BigInteger, BigInteger> raw = supplier.getRandomElementShare();
     if (myId == towardPlayerId) {
       return new Spdz2kInputMask<>(toSpdz2kSInt(raw),
-          factory.createFromBigInteger(raw.getFirst()));
+          factory.createElement(raw.getFirst()));
     } else {
       return new Spdz2kInputMask<>(toSpdz2kSInt(raw));
     }
@@ -68,8 +68,8 @@ public class Spdz2kDummyDataSupplier<
   }
 
   private Spdz2kSInt<PlainT> toSpdz2kSInt(Pair<BigInteger, BigInteger> raw) {
-    PlainT openValue = factory.createFromBigInteger(raw.getFirst());
-    PlainT share = factory.createFromBigInteger(raw.getSecond());
+    PlainT openValue = factory.createElement(raw.getFirst());
+    PlainT share = factory.createElement(raw.getSecond());
     PlainT macShare = openValue.multiply(secretSharedKey);
     return new Spdz2kSInt<>(share, macShare);
   }
