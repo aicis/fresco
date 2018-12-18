@@ -7,7 +7,6 @@ import java.math.BigInteger;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.StringContains;
 import org.junit.Test;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class TestCompUInt128FieldElementMethods {
 
@@ -39,7 +38,7 @@ public class TestCompUInt128FieldElementMethods {
         Is.is(expectedDiff));
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expected = UnsupportedOperationException.class)
   public void sqrt() {
     element.sqrt();
   }
