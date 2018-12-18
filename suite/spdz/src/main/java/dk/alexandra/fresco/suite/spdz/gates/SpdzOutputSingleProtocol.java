@@ -41,7 +41,7 @@ public class SpdzOutputSingleProtocol extends SpdzNativeProtocol<BigInteger>
       this.mask = dataSupplier.getNextInputMask(targetPlayer);
       SpdzSInt closedValue = (SpdzSInt) this.in.out();
       inMinusMask = closedValue.subtract(this.mask.getMask());
-      network.sendToAll(definition.serialize(inMinusMask.getShare()));
+      network.sendToAll(inMinusMask.serializeShare(definition));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       List<byte[]> shares = network.receiveFromAll();

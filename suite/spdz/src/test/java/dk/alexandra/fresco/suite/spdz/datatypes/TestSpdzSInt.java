@@ -1,11 +1,10 @@
-package dk.alexandra.fresco.suite.spdz;
+package dk.alexandra.fresco.suite.spdz.datatypes;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import java.math.BigInteger;
 import org.hamcrest.core.StringContains;
 import org.junit.Test;
@@ -26,5 +25,13 @@ public class TestSpdzSInt {
 
   private FieldElement get(BigInteger bigInteger) {
     return definition.createElement(bigInteger);
+  }
+
+  public static FieldElement getShare(SpdzSInt spdzSInt) {
+    return spdzSInt.getShare();
+  }
+
+  public static FieldElement getMac(SpdzSInt spdzSInt) {
+    return spdzSInt.getMac();
   }
 }

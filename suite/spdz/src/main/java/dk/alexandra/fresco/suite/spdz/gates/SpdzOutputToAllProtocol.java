@@ -27,7 +27,7 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger>
     FieldDefinition definition = spdzResourcePool.getFieldDefinition();
     if (round == 0) {
       SpdzSInt out = (SpdzSInt) in.out();
-      network.sendToAll(definition.serialize(out.getShare()));
+      network.sendToAll((out.serializeShare(definition)));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       List<byte[]> shares = network.receiveFromAll();
