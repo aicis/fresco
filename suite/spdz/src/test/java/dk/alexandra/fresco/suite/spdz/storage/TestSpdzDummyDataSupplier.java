@@ -13,7 +13,6 @@ import dk.alexandra.fresco.framework.util.TransposeUtils;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
-import dk.alexandra.fresco.suite.spdz.datatypes.TestSpdzSInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -101,7 +100,7 @@ public class TestSpdzDummyDataSupplier {
     SpdzSInt recombined = recombine(shares);
     assertMacCorrect(definition, recombined, macKey);
     assertEquals(definition.convertToUnsigned(realValue),
-        definition.convertToUnsigned(TestSpdzSInt.getShare(recombined)));
+        definition.convertToUnsigned(recombined.getShare()));
   }
 
   private void testGetNextInputMask(FieldDefinition definition, int noOfParties, int towardParty) {
@@ -119,7 +118,7 @@ public class TestSpdzDummyDataSupplier {
     }
     SpdzSInt recombined = recombine(bitShares);
     assertMacCorrect(definition, recombined, macKey);
-    FieldElement value = TestSpdzSInt.getShare(recombined);
+    FieldElement value = recombined.getShare();
     BigInteger actualResult = definition.convertToUnsigned(value);
     assertTrue("Value not a bit " + actualResult,
         actualResult.equals(BigInteger.ZERO) || actualResult.equals(BigInteger.ONE));
@@ -142,7 +141,7 @@ public class TestSpdzDummyDataSupplier {
     assertMacCorrect(definition, recombined, macKey);
     // sanity check not zero (with 251, that is actually not unlikely enough)
     if (!definition.getModulus().equals(new BigInteger("251"))) {
-      FieldElement value = TestSpdzSInt.getShare(recombined);
+      FieldElement value = recombined.getShare();
       BigInteger bigIntegerValue = definition.convertToUnsigned(value);
       assertNotEquals("Random value was 0 ", bigIntegerValue, BigInteger.ZERO);
     }
@@ -251,7 +250,7 @@ public class TestSpdzDummyDataSupplier {
   private void assertMacCorrect(
       FieldDefinition definition,
       SpdzSInt recombined, FieldElement macKey) {
-    FieldElement share = TestSpdzSInt.getShare(recombined).multiply(macKey);
+    FieldElement share = recombined.getShare().multiply(macKey);
     assertEquals(definition.convertToUnsigned(share),
         definition.convertToUnsigned(recombined.getMac()));
   }
@@ -262,10 +261,10 @@ public class TestSpdzDummyDataSupplier {
     assertMacCorrect(definition, recombined.getB(), macKey);
     assertMacCorrect(definition, recombined.getC(), macKey);
 
-    FieldElement copy = TestSpdzSInt.getShare(recombined.getA())
-        .multiply(TestSpdzSInt.getShare(recombined.getB()));
+    FieldElement copy = recombined.getA().getShare()
+        .multiply(recombined.getB().getShare());
     // check that a * b = c
-    assertEquals(definition.convertToUnsigned(TestSpdzSInt.getShare(recombined.getC())),
+    assertEquals(definition.convertToUnsigned(recombined.getC().getShare()),
         definition.convertToUnsigned(copy));
   }
 
@@ -274,7 +273,7 @@ public class TestSpdzDummyDataSupplier {
     for (SpdzSInt element : recombined) {
       assertMacCorrect(definition, element, macKey);
     }
-    List<FieldElement> values = recombined.stream().map(TestSpdzSInt::getShare)
+    List<FieldElement> values = recombined.stream().map(spdzSInt -> spdzSInt.getShare())
         .collect(Collectors.toList());
     FieldElement inverted = values.get(0);
     FieldElement first = values.get(1);

@@ -25,7 +25,6 @@ import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
-import dk.alexandra.fresco.suite.spdz.datatypes.TestSpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
@@ -128,7 +127,7 @@ public class TestMacCheck {
       maliciousCountdown--;
       SpdzTriple trip = super.getNextTriple();
       if (maliciousCountdown == 0) {
-        FieldElement share = TestSpdzSInt.getShare(trip.getA());
+        FieldElement share = trip.getA().getShare();
         share.add(definition.createElement(1));
         SpdzSInt newA = new SpdzSInt(share, trip.getA().getMac());
         trip = new SpdzTriple(newA, trip.getB(), trip.getC());

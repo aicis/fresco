@@ -7,7 +7,6 @@ import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
-import dk.alexandra.fresco.suite.spdz.datatypes.TestSpdzSInt;
 import dk.alexandra.fresco.suite.spdz.preprocessing.MascotFormatConverter;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
@@ -34,8 +33,8 @@ public class TestMascotFormatConverter {
     AuthenticatedElement element = getAuthElement(100, 123);
     SpdzSInt expected = getSpdzElement(100, 123, definition);
     SpdzSInt actual = MascotFormatConverter.toSpdzSInt(element);
-    assertEquals(definition.convertToUnsigned(TestSpdzSInt.getShare(expected)),
-        definition.convertToUnsigned(TestSpdzSInt.getShare(actual)));
+    assertEquals(definition.convertToUnsigned(expected.getShare()),
+        definition.convertToUnsigned(actual.getShare()));
   }
 
   @Test
@@ -47,11 +46,11 @@ public class TestMascotFormatConverter {
     SpdzTriple expected = new SpdzTriple(getSpdzElement(1, 2, definition),
         getSpdzElement(3, 4, definition), getSpdzElement(5, 6, definition));
     SpdzTriple actual = MascotFormatConverter.toSpdzTriple(triple);
-    assertEquals(definition.convertToUnsigned(TestSpdzSInt.getShare(expected.getA())),
-        definition.convertToUnsigned(TestSpdzSInt.getShare(actual.getA())));
-    assertEquals(definition.convertToUnsigned(TestSpdzSInt.getShare(expected.getB())),
-        definition.convertToUnsigned(TestSpdzSInt.getShare(actual.getB())));
-    assertEquals(definition.convertToUnsigned(TestSpdzSInt.getShare(expected.getC())),
-        definition.convertToUnsigned(TestSpdzSInt.getShare(actual.getC())));
+    assertEquals(definition.convertToUnsigned(expected.getA().getShare()),
+        definition.convertToUnsigned(actual.getA().getShare()));
+    assertEquals(definition.convertToUnsigned(expected.getB().getShare()),
+        definition.convertToUnsigned(actual.getB().getShare()));
+    assertEquals(definition.convertToUnsigned(expected.getC().getShare()),
+        definition.convertToUnsigned(actual.getC().getShare()));
   }
 }

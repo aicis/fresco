@@ -26,12 +26,4 @@ public class TestSpdzSInt {
   private FieldElement get(BigInteger bigInteger) {
     return definition.createElement(bigInteger);
   }
-
-  public static FieldElement getShare(SpdzSInt spdzSInt) {
-    return spdzSInt.getShare();
-  }
-
-  public static FieldElement getMac(SpdzSInt spdzSInt) {
-    return spdzSInt.getMac();
-  }
 }
