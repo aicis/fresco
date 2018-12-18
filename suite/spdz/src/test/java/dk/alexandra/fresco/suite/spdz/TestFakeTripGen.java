@@ -64,17 +64,7 @@ public class TestFakeTripGen {
         FakeTripGen.generateInputMasks(amount, noOfParties, definition, alpha);
     for (int towardsPlayer = 1; towardsPlayer < noOfParties + 1; towardsPlayer++) {
       List<SpdzInputMask[]> inputMasks = inps.get(towardsPlayer - 1);
-      for (SpdzInputMask[] masks : inputMasks) {
-        SpdzInputMask realMask = masks[towardsPlayer - 1];
-        Assert.assertNotNull(realMask.getRealValue());
-
-        SpdzInputMask m1 = masks[0];
-        SpdzInputMask m2 = masks[1];
-        FieldElement share = m1.getMask().getShare().add(m2.getMask().getShare());
-        assertEquals(realMask.getRealValue(), share);
-        FieldElement mac = m1.getMask().getMac().add(m2.getMask().getMac());
-        assertEquals(zero, subtract(share, mac));
-      }
+      checkMasks(towardsPlayer, inputMasks);
     }
   }
 
@@ -85,6 +75,10 @@ public class TestFakeTripGen {
     int towardsPlayer = 1;
     List<SpdzInputMask[]> inputMasks =
         FakeTripGen.generateInputMasks(amount, towardsPlayer, noOfParties, definition, alpha);
+    checkMasks(towardsPlayer, inputMasks);
+  }
+
+  private void checkMasks(int towardsPlayer, List<SpdzInputMask[]> inputMasks) {
     for (SpdzInputMask[] masks : inputMasks) {
       SpdzInputMask realMask = masks[towardsPlayer - 1];
       Assert.assertNotNull(realMask.getRealValue());
