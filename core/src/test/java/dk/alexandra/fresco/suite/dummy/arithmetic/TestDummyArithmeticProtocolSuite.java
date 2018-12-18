@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefini
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests;
 import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests.TestMinInfFrac;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
@@ -81,11 +80,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_AddPublicValue_Sequential() {
     runTest(new BasicArithmeticTests.TestAddPublicValue<>(), new TestParameters());
-  }
-
-  @Test
-  public void test_AddPublicValue_Sequential_long() {
-    runTest(new BasicArithmeticTests.TestAddPublicValueLong<>(), new TestParameters());
   }
 
   @Test
@@ -494,11 +488,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new DivisionTests.TestDivision<>(), new TestParameters().performanceLogging(true));
     assertThat(performanceLoggers.get(1).getLoggedValues()
         .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_COMP0), is((long) 80));
-  }
-
-  @Test
-  public void test_Modulus() {
-    runTest(new AdvancedNumericTests.TestModulus<>(), new TestParameters());
   }
 
   @Test

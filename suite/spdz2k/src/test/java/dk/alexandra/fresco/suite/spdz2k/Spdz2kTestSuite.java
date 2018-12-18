@@ -85,12 +85,6 @@ public abstract class Spdz2kTestSuite<Spdz2kResourcePoolT extends Spdz2kResource
   }
 
   @Test
-  public void testMultiplyByPublicValueLong() {
-    runTest(new BasicArithmeticTests.TestMultiplyByPublicValueLong<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED);
-  }
-
-  @Test
   public void testSubtract() {
     runTest(new BasicArithmeticTests.TestSubtract<>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED);
@@ -109,20 +103,8 @@ public abstract class Spdz2kTestSuite<Spdz2kResourcePoolT extends Spdz2kResource
   }
 
   @Test
-  public void testSubtractPublicLong() {
-    runTest(new BasicArithmeticTests.TestSubtractPublicLong<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED);
-  }
-
-  @Test
   public void testSubtractFromPublic() {
     runTest(new BasicArithmeticTests.TestSubtractFromPublic<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED);
-  }
-
-  @Test
-  public void testSubtractFromPublicLong() {
-    runTest(new BasicArithmeticTests.TestSubtractFromPublicLong<>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 

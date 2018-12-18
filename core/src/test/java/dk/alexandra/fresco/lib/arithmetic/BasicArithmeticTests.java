@@ -289,30 +289,6 @@ public class BasicArithmeticTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigInteger left = BigInteger.valueOf(4);
-      BigInteger right = BigInteger.valueOf(10);
-      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        @Override
-        public void test() {
-          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
-            Numeric numeric = producer.numeric();
-            DRes<SInt> leftClosed = numeric.input(left, 1);
-            DRes<SInt> result = numeric.sub(leftClosed, right);
-            return numeric.open(result);
-          };
-          BigInteger actual = runApplication(app);
-          BigInteger subtract = conf.getResourcePool().getModulus().add(BigInteger.valueOf(-6));
-          Assert.assertEquals(subtract, actual);
-        }
-      };
-    }
-  }
-
-  public static class TestSubtractPublicLong<ResourcePoolT extends NumericResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      long left = 4L;
       long right = 10L;
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
@@ -336,7 +312,7 @@ public class BasicArithmeticTests {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      BigInteger left = BigInteger.valueOf(4);
+      long left = 4L;
       BigInteger right = BigInteger.valueOf(10);
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
@@ -355,56 +331,7 @@ public class BasicArithmeticTests {
     }
   }
 
-  public static class TestSubtractFromPublicLong<ResourcePoolT extends NumericResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      long left = 4L;
-      long right = 10L;
-      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        @Override
-        public void test() {
-          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
-            Numeric numeric = producer.numeric();
-            DRes<SInt> rightClosed = numeric.input(right, 1);
-            DRes<SInt> result = numeric.sub(left, rightClosed);
-            return numeric.open(result);
-          };
-          BigInteger actual = runApplication(app);
-          BigInteger subtract = conf.getResourcePool().getModulus().add(BigInteger.valueOf(-6));
-          Assert.assertEquals(subtract, actual);
-        }
-      };
-    }
-  }
-
   public static class TestAddPublicValue<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      BigInteger value = BigInteger.valueOf(10);
-      BigInteger add = BigInteger.valueOf(4);
-      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        @Override
-        public void test() {
-          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
-            Numeric numeric = producer.numeric();
-
-            DRes<SInt> input = numeric.input(value, 1);
-            DRes<SInt> result = numeric.add(add, input);
-            return numeric.open(result);
-          };
-          BigInteger output = runApplication(app);
-
-          Assert.assertEquals(BigInteger.valueOf(14), output);
-        }
-      };
-    }
-  }
-
-  public static class TestAddPublicValueLong<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
@@ -436,30 +363,6 @@ public class BasicArithmeticTests {
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigInteger value = BigInteger.valueOf(10);
       BigInteger constant = BigInteger.valueOf(4);
-      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        @Override
-        public void test() {
-          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
-            Numeric numeric = producer.numeric();
-            DRes<SInt> input = numeric.input(value, 1);
-            DRes<SInt> result = numeric.mult(constant, input);
-            return numeric.open(result);
-          };
-          BigInteger output = runApplication(app);
-
-          Assert.assertEquals(BigInteger.valueOf(40), output);
-        }
-      };
-    }
-  }
-
-  public static class TestMultiplyByPublicValueLong<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      long value = 10L;
-      long constant = 4L;
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() {

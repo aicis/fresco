@@ -76,7 +76,7 @@ public class AdvancedNumericTests {
           Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
             fieldDefinition = builder.getBasicNumericContext().getFieldDefinition();
             DRes<SInt> p = builder.numeric().known(numerator);
-            DRes<SInt> result = builder.advancedNumeric().div(p, denominator);
+            DRes<SInt> result = builder.advancedNumeric().div(p, (long) denominator);
             return builder.numeric().open(result);
           };
 
