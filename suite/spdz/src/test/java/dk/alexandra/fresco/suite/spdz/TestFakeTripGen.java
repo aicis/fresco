@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
+import dk.alexandra.fresco.suite.spdz.datatypes.TestSpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.FakeTripGen;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -35,20 +36,16 @@ public class TestFakeTripGen {
     List<SpdzTriple[]> triples = FakeTripGen
         .generateTriples(amount, noOfParties, definition, alpha);
     for (SpdzTriple[] t : triples) {
-      FieldElement a = t[0].getA().getShare().add(t[1].getA().getShare());
-      FieldElement b = t[0].getB().getShare().add(t[1].getB().getShare());
-      FieldElement c = t[0].getC().getShare().add(t[1].getC().getShare());
+      SpdzSInt a = t[0].getA().add(t[1].getA());
+      SpdzSInt b = t[0].getB().add(t[1].getB());
+      SpdzSInt c = t[0].getC().add(t[1].getC());
 
-      FieldElement shareA = t[0].getA().getMac().add(t[1].getA().getMac());
-      FieldElement shareB = t[0].getB().getMac().add(t[1].getB().getMac());
-      FieldElement shareC = t[0].getC().getMac().add(t[1].getC().getMac());
+      SpdzSInt actual = a.multiply(TestSpdzSInt.getShare(b));
+      assertEquals(TestSpdzSInt.getShare(c), TestSpdzSInt.getShare(actual));
 
-      FieldElement actual = a.multiply(b);
-      assertEquals(c, actual);
-
-      assertEquals(zero, subtract(a, shareA));
-      assertEquals(zero, subtract(b, shareB));
-      assertEquals(zero, subtract(c, shareC));
+      assertEquals(zero, subtract(TestSpdzSInt.getShare(a), TestSpdzSInt.getMac(a)));
+      assertEquals(zero, subtract(TestSpdzSInt.getShare(b), TestSpdzSInt.getShare(b)));
+      assertEquals(zero, subtract(TestSpdzSInt.getShare(c), TestSpdzSInt.getShare(c)));
     }
   }
 
@@ -68,17 +65,7 @@ public class TestFakeTripGen {
         FakeTripGen.generateInputMasks(amount, noOfParties, definition, alpha);
     for (int towardsPlayer = 1; towardsPlayer < noOfParties + 1; towardsPlayer++) {
       List<SpdzInputMask[]> inputMasks = inps.get(towardsPlayer - 1);
-      for (SpdzInputMask[] masks : inputMasks) {
-        SpdzInputMask realMask = masks[towardsPlayer - 1];
-        Assert.assertNotNull(realMask.getRealValue());
-
-        SpdzInputMask m1 = masks[0];
-        SpdzInputMask m2 = masks[1];
-        FieldElement share = m1.getMask().getShare().add(m2.getMask().getShare());
-        assertEquals(realMask.getRealValue(), share);
-        FieldElement mac = m1.getMask().getMac().add(m2.getMask().getMac());
-        assertEquals(zero, subtract(share, mac));
-      }
+      checkMasks(towardsPlayer, inputMasks);
     }
   }
 
@@ -89,13 +76,18 @@ public class TestFakeTripGen {
     int towardsPlayer = 1;
     List<SpdzInputMask[]> inputMasks =
         FakeTripGen.generateInputMasks(amount, towardsPlayer, noOfParties, definition, alpha);
+    checkMasks(towardsPlayer, inputMasks);
+  }
+
+  private void checkMasks(int towardsPlayer, List<SpdzInputMask[]> inputMasks) {
     for (SpdzInputMask[] masks : inputMasks) {
       SpdzInputMask realMask = masks[towardsPlayer - 1];
       Assert.assertNotNull(realMask.getRealValue());
 
       SpdzInputMask m1 = masks[0];
       SpdzInputMask m2 = masks[1];
-      FieldElement share = m1.getMask().getShare().add(m2.getMask().getShare());
+      FieldElement share = TestSpdzSInt.getShare(m1.getMask())
+          .add(TestSpdzSInt.getShare(m2.getMask()));
       assertEquals(realMask.getRealValue(), share);
       FieldElement mac = m1.getMask().getMac().add(m2.getMask().getMac());
       assertEquals(zero, subtract(share, mac));
@@ -111,12 +103,12 @@ public class TestFakeTripGen {
     for (SpdzSInt[][] pipe : expPipes) {
       SpdzSInt[] as = pipe[0];
       SpdzSInt[] bs = pipe[1];
-      FieldElement r = as[1].getShare().add(bs[1].getShare());
-      Assert.assertEquals(getBigInteger(r).modInverse(definition.getModulus()),
-          getBigInteger(as[0].getShare().add(bs[0].getShare())));
+      FieldElement r = TestSpdzSInt.getShare(as[1]).add(TestSpdzSInt.getShare(bs[1]));
+      FieldElement add = TestSpdzSInt.getShare(as[0]).add(TestSpdzSInt.getShare(bs[0]));
+      Assert.assertEquals(getBigInteger(r).modInverse(definition.getModulus()), getBigInteger(add));
       FieldElement prevR = r;
       for (int i = 0; i < as.length; i++) {
-        FieldElement share = as[i].getShare().add(bs[i].getShare());
+        FieldElement share = TestSpdzSInt.getShare(as[i]).add(TestSpdzSInt.getShare(bs[i]));
         FieldElement mac = as[i].getMac().add(bs[i].getMac());
         assertEquals(zero, subtract(share, mac));
         if (i > 1) {
@@ -133,7 +125,7 @@ public class TestFakeTripGen {
   }
 
   private BigInteger getBigInteger(FieldElement r) {
-    return definition.convertToUnsigned(r).mod(definition.getModulus());
+    return definition.convertToUnsigned(r);
   }
 
   @Test
@@ -142,7 +134,7 @@ public class TestFakeTripGen {
     int noOfParties = 2;
     List<SpdzSInt[]> bits = FakeTripGen.generateBits(amount, noOfParties, definition, alpha);
     for (SpdzSInt[] b : bits) {
-      FieldElement val = b[0].getShare().add(b[1].getShare());
+      FieldElement val = TestSpdzSInt.getShare(b[0]).add(TestSpdzSInt.getShare(b[1]));
       FieldElement mac = b[0].getMac().add(b[1].getMac());
 
       BigInteger bigIntegerValue = getBigInteger(val);

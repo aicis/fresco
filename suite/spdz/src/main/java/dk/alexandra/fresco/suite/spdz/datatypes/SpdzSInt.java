@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.datatypes;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.io.Serializable;
 
@@ -24,7 +25,7 @@ public class SpdzSInt implements SInt, Serializable {
     this.mac = mac;
   }
 
-  public FieldElement getShare() {
+  FieldElement getShare() {
     return share;
   }
 
@@ -92,5 +93,9 @@ public class SpdzSInt implements SInt, Serializable {
   @Override
   public SInt out() {
     return this;
+  }
+
+  public byte[] serializeShare(ByteSerializer<FieldElement> serializer) {
+    return serializer.serialize(getShare());
   }
 }

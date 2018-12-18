@@ -36,8 +36,8 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
       epsilon = ((SpdzSInt) left.out()).subtract(triple.getA());
       delta = ((SpdzSInt) right.out()).subtract(triple.getB());
 
-      network.sendToAll(serializer.serialize(epsilon.getShare()));
-      network.sendToAll(serializer.serialize(delta.getShare()));
+      network.sendToAll(epsilon.serializeShare(serializer));
+      network.sendToAll(delta.serializeShare(serializer));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       FieldElement[] epsilonShares = new FieldElement[noOfPlayers];
