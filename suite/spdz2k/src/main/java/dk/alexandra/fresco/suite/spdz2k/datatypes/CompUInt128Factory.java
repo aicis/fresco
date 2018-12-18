@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.suite.spdz2k.util.UIntSerializer;
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.List;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
@@ -14,7 +13,12 @@ public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
   private static final CompUInt128 ZERO = new CompUInt128(new byte[16]);
   private static final BigInteger valueModulus = BigInteger.ONE.shiftLeft(64);
   private static final BigInteger valueHalfModulus = BigInteger.ONE.shiftLeft(32);
-  private final SecureRandom random = new SecureRandom();
+
+  private final SecureRandom random;
+
+  public CompUInt128Factory() {
+    random = new SecureRandom();
+  }
 
   @Override
   public CompUInt128 deserialize(byte[] bytes) {
@@ -49,7 +53,7 @@ public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
   }
 
   @Override
-  public FieldElement createElement(int value) {
+  public CompUInt128 createElement(int value) {
     return new CompUInt128(value);
   }
 
