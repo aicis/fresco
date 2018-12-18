@@ -35,20 +35,16 @@ public class TestFakeTripGen {
     List<SpdzTriple[]> triples = FakeTripGen
         .generateTriples(amount, noOfParties, definition, alpha);
     for (SpdzTriple[] t : triples) {
-      FieldElement a = t[0].getA().getShare().add(t[1].getA().getShare());
-      FieldElement b = t[0].getB().getShare().add(t[1].getB().getShare());
-      FieldElement c = t[0].getC().getShare().add(t[1].getC().getShare());
+      SpdzSInt a = t[0].getA().add(t[1].getA());
+      SpdzSInt b = t[0].getB().add(t[1].getB());
+      SpdzSInt c = t[0].getC().add(t[1].getC());
 
-      FieldElement shareA = t[0].getA().getMac().add(t[1].getA().getMac());
-      FieldElement shareB = t[0].getB().getMac().add(t[1].getB().getMac());
-      FieldElement shareC = t[0].getC().getMac().add(t[1].getC().getMac());
+      SpdzSInt actual = a.multiply(b.getShare());
+      assertEquals(c.getShare(), actual.getShare());
 
-      FieldElement actual = a.multiply(b);
-      assertEquals(c, actual);
-
-      assertEquals(zero, subtract(a, shareA));
-      assertEquals(zero, subtract(b, shareB));
-      assertEquals(zero, subtract(c, shareC));
+      assertEquals(zero, subtract(a.getShare(), a.getMac()));
+      assertEquals(zero, subtract(b.getShare(), b.getMac()));
+      assertEquals(zero, subtract(c.getShare(), c.getMac()));
     }
   }
 
