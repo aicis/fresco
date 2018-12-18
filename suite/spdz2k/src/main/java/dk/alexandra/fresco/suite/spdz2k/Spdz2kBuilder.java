@@ -71,7 +71,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
       @Override
       public DRes<SInt> sub(DRes<SInt> a, BigInteger b) {
         return builder.append(
-            new Spdz2kAddKnownProtocol<>(factory.createFromBigInteger(b).negate(), a));
+            new Spdz2kAddKnownProtocol<>(factory.createFromBigInteger(b).negateUInt(), a));
       }
 
       @Override

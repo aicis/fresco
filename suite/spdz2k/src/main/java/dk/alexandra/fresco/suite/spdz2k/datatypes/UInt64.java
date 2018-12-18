@@ -31,7 +31,7 @@ public class UInt64 implements UInt<UInt64> {
   }
 
   @Override
-  public UInt64 negate() {
+  public UInt64 negateUInt() {
     return new UInt64(-value);
   }
 
