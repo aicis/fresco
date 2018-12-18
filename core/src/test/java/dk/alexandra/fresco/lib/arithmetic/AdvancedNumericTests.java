@@ -75,12 +75,8 @@ public class AdvancedNumericTests {
         public void test() {
           Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
             fieldDefinition = builder.getBasicNumericContext().getFieldDefinition();
-
-            DRes<SInt> p = builder.numeric().known(BigInteger.valueOf(numerator));
-            BigInteger q = BigInteger.valueOf(denominator);
-
-            DRes<SInt> result = builder.advancedNumeric().div(p, q);
-
+            DRes<SInt> p = builder.numeric().known(numerator);
+            DRes<SInt> result = builder.advancedNumeric().div(p, denominator);
             return builder.numeric().open(result);
           };
 
@@ -107,10 +103,7 @@ public class AdvancedNumericTests {
         public void test() {
           Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
             DRes<SInt> p = builder.numeric().known(BigInteger.valueOf(numerator));
-            BigInteger q = BigInteger.valueOf(denominator);
-
-            DRes<SInt> result = builder.advancedNumeric().mod(p, q);
-
+            DRes<SInt> result = builder.advancedNumeric().mod(p, denominator);
             return builder.numeric().open(result);
           };
 

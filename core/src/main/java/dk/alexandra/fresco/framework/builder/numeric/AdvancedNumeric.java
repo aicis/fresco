@@ -39,6 +39,13 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<SInt> div(DRes<SInt> dividend, BigInteger divisor);
 
   /**
+   * Convenience implementation of {@link #div(DRes, BigInteger)}
+   */
+  default DRes<SInt> div(DRes<SInt> dividend, long divisor) {
+    return div(dividend, BigInteger.valueOf(divisor));
+  }
+
+  /**
    * This protocol calculates an approximation of <code>floor(dividend / divisor)</code>, which will
    * be either correct or slightly smaller than the correct result.
    *
@@ -57,6 +64,13 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * @return A deferred result computing quotient and remainder.
    */
   DRes<SInt> mod(DRes<SInt> dividend, BigInteger divisor);
+
+  /**
+   * Convenience implementation of {@link #mod(DRes, BigInteger)}
+   */
+  default DRes<SInt> mod(DRes<SInt> dividend, long divisor) {
+    return mod(dividend, BigInteger.valueOf(divisor));
+  }
 
   /**
    * Convert an integer to an list of bits, with index 0 being the least significant bit.
@@ -87,6 +101,13 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<SInt> exp(BigInteger x, DRes<SInt> e, int maxExponentLength);
 
   /**
+   * Convenience implementation of {@link #exp(BigInteger, DRes, int)}
+   */
+  default DRes<SInt> exp(long x, DRes<SInt> e, int maxExponentLength) {
+    return exp(BigInteger.valueOf(x), e, maxExponentLength);
+  }
+
+  /**
    * Computes the exponentiation of x^e.
    *
    * @param x The base
@@ -94,6 +115,13 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * @return A deferred result computing x^e
    */
   DRes<SInt> exp(DRes<SInt> x, BigInteger e);
+
+  /**
+   * Convenience implementation of {@link #exp(DRes, BigInteger)}
+   */
+  default DRes<SInt> exp(DRes<SInt> x, long e) {
+    return exp(x, BigInteger.valueOf(e));
+  }
 
   /**
    * Calculating the square root of a given input.
@@ -161,9 +189,9 @@ public interface AdvancedNumeric extends ComputationDirectory {
    *
    * @param input input
    * @return A deferred result computing<br>
-   *         result: input >> 1<br>
-   *         remainder: The <code>shifts</code> least significant bits of the input with the least
-   *         significant having index 0.
+   *     result: input >> 1<br>
+   *     remainder: The <code>shifts</code> least significant bits of the input with the least
+   *     significant having index 0.
    */
   DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input);
 
@@ -174,9 +202,9 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * @param input input
    * @param shifts Number of shifts
    * @return A deferred result computing <br>
-   *         result: input >> shifts<br>
-   *         remainder: The <code>shifts</code> least significant bits of the input with the least
-   *         significant having index 0.
+   *     result: input >> shifts<br>
+   *     remainder: The <code>shifts</code> least significant bits of the input with the least
+   *     significant having index 0.
    */
   DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input, int shifts);
 
@@ -184,8 +212,9 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * Computes the bit length of the input.
    *
    * @param input The number to know the bit length of
-   * @param maxBitLength The maximum bit length this number can have (if unknown, set this to the
-   *        modulus bit size)
+   * @param maxBitLength The maximum bit length this number can have (if unknown, set this to
+   *     the
+   *     modulus bit size)
    * @return A deferred result computing the bit length of the input number.
    */
   DRes<SInt> bitLength(DRes<SInt> input, int maxBitLength);
@@ -201,8 +230,9 @@ public interface AdvancedNumeric extends ComputationDirectory {
   /**
    * Selects left or right based on condition.
    *
-   * @param condition the Computation holding the condition on which to select. Must be either 0 or
-   *        1.
+   * @param condition the Computation holding the condition on which to select. Must be either 0
+   *     or
+   *     1.
    * @param left the Computation holding the left argument.
    * @param right the Computation holding the right argument.
    * @return a computation holding either left or right depending on the condition.
@@ -217,7 +247,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * @param left The left argument
    * @param right The right argument
    * @return A deferred result computing a pair containing [left, right] if the condition is 0 and
-   *         [right, left] if condition is 1.
+   *     [right, left] if condition is 1.
    */
   DRes<Pair<DRes<SInt>, DRes<SInt>>> swapIf(DRes<SInt> condition, DRes<SInt> left,
       DRes<SInt> right);

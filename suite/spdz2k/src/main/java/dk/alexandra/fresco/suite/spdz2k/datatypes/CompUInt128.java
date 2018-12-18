@@ -2,7 +2,6 @@ package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import java.math.BigInteger;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * Unsigned 128-bit integer with support for in-place operations. <p>Loosely follows this article
