@@ -8,6 +8,8 @@ import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.network.CloseableNetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -15,6 +17,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
+import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
@@ -215,6 +218,8 @@ public class TestCmdLineUtil {
           CmdLineUtil<ResourcePoolT, Builder> cmd = new CmdLineUtil<>();
           cmd.parse(getArgs(2, protocolSuite, addedOptions));
           try {
+            // Make sure the network is initialized in this thread.
+            cmd.getNetwork();
             Thread.sleep(50);
             cmd.closeNetwork();
           } catch (InterruptedException | IOException e) {
@@ -225,6 +230,9 @@ public class TestCmdLineUtil {
     t1.start();
     CmdLineUtil<ResourcePoolT, Builder> cmd = new CmdLineUtil<>();
     cmd.parse(getArgs(1, protocolSuite, addedOptions));
+    Network network = cmd.getNetwork();
+    assertTrue(network instanceof NetworkLoggingDecorator
+        || network instanceof CloseableNetwork);
     try {
       cmd.closeNetwork();
     } catch (IOException e) {

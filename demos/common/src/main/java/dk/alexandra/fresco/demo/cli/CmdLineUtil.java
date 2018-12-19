@@ -53,6 +53,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
 
   private ResourcePoolT resourcePool;
   private SecureComputationEngine<ResourcePoolT, BuilderT> sce;
+  private Network createdNetwork;
 
   public CmdLineUtil() {
     this.appOptions = new Options();
@@ -64,7 +65,10 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
   }
 
   public Network getNetwork() {
-    return this.network.get();
+    if (createdNetwork == null) {
+      createdNetwork = this.network.get();
+    }
+    return createdNetwork;
   }
 
   public ResourcePoolT getResourcePool() {
