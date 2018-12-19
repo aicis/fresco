@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
@@ -9,7 +10,7 @@ import java.math.BigInteger;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 
-public class TestCompUIntFactoryFieldElementMethods {
+public class TestCompUIntFactoryFieldDefinitionMethods {
 
   private final FieldDefinition fieldDefinition = new CompUInt128Factory();
 
@@ -62,6 +63,8 @@ public class TestCompUIntFactoryFieldElementMethods {
     final BigInteger expectedUnsigned = BigInteger.ONE.shiftLeft(64).subtract(BigInteger.ONE);
     BigInteger actualUnsigned = fieldDefinition.convertToSigned(expectedUnsigned);
     assertThat(actualUnsigned, Is.is(BigInteger.valueOf(-1)));
+    BigInteger notNegative = BigInteger.ONE;
+    assertThat(fieldDefinition.convertToSigned(notNegative), Is.is(notNegative));
   }
 
   @Test
@@ -74,4 +77,8 @@ public class TestCompUIntFactoryFieldElementMethods {
     assertThat(vector, Is.is(expected));
   }
 
+  @Test
+  public void testGetBitLength() {
+    assertEquals(128, fieldDefinition.getBitLength());
+  }
 }

@@ -68,7 +68,6 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> extends Fi
     return getCompositeBitLength();
   }
 
-
   /**
    * {@inheritDoc}
    *
@@ -104,18 +103,16 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> extends Fi
 
   @Override
   default byte[] serialize(List<FieldElement> objects) {
-    int byteLength = getCompositeBitLength() / Byte.SIZE;
-    byte[] all = new byte[byteLength * objects.size()];
-    for (int i = 0; i < objects.size(); i++) {
-      byte[] serialized = serialize(objects.get(i));
-      System.arraycopy(serialized, 0, all, i * byteLength, byteLength);
-    }
-    return all;
+    // TODO hack for now until we figure out a clean way to do serialization using the factory only
+    // while keeping things compliant with FieldDefinition interface
+    List<CompT> correctType = objects.stream().map(x -> (CompT) x).collect(Collectors.toList());
+    return getSerializer().serialize(correctType);
   }
 
   @Override
   default List<FieldElement> deserializeList(byte[] bytes) {
-    // TODO hack hack hack
+    // TODO hack for now until we figure out a clean way to do serialization using the factory only
+    // while keeping things compliant with FieldDefinition interface
     List<CompT> wrongType = getSerializer().deserializeList(bytes);
     return wrongType.stream().map(x -> (FieldElement) x).collect(Collectors.toList());
   }

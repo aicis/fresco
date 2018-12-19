@@ -6,9 +6,6 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.suite.spdz2k.util.UIntSerializer;
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
 
