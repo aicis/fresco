@@ -43,11 +43,6 @@ public interface Spdz2kResourcePool<PlainT extends CompUInt<?, ?, PlainT>>
   CompUIntFactory<PlainT> getFactory();
 
   /**
-   * Returns serializer for instances of {@link PlainT}.
-   */
-  ByteSerializer<PlainT> getPlainSerializer();
-
-  /**
    * Initializes deterministic joint randomness source. <p>Must be called before any protocols
    * relying on joint randomness are used. Requires a network since a coin tossing protocol is
    * executed to establish a joint random seed. It is guaranteed that the supplied network will be

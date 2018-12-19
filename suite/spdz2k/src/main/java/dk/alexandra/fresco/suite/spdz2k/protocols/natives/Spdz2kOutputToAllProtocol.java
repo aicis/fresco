@@ -45,7 +45,9 @@ public class Spdz2kOutputToAllProtocol<PlainT extends CompUInt<?, ?, PlainT>>
           .toByteArray());
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
-      ByteSerializer<PlainT> serializer = resourcePool.getPlainSerializer();
+      ByteSerializer<PlainT> serializer = resourcePool
+          .getFactory()
+          .getSerializer();
       List<PlainT> shares = serializer.deserializeList(network.receiveFromAll());
       PlainT recombined = UInt.sum(shares);
       openedValueStore.pushOpenedValue(authenticatedElement, recombined);

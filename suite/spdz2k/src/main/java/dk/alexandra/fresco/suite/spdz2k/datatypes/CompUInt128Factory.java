@@ -15,9 +15,11 @@ public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
   private static final BigInteger valueHalfModulus = BigInteger.ONE.shiftLeft(32);
 
   private final SecureRandom random;
+  private final ByteSerializer<CompUInt128> serializer;
 
   public CompUInt128Factory() {
     random = new SecureRandom();
+    serializer = new UIntSerializer<>(this);
   }
 
   @Override
@@ -33,8 +35,10 @@ public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
   }
 
   @Override
-  public ByteSerializer<CompUInt128> createSerializer() {
-    return new UIntSerializer<>(this);
+  public ByteSerializer<CompUInt128> getSerializer() {
+    // TODO hack for now until we figure out a clean way to do serialization using the factory only
+    // while keeping things compliant with FieldDefinition interface
+    return serializer;
   }
 
   @Override

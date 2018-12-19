@@ -61,7 +61,7 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     this.storage = storage;
     this.supplier = supplier;
     this.factory = factory;
-    this.rawSerializer = factory.createSerializer();
+    this.rawSerializer = factory.getSerializer();
     this.drbg = drbg;
     this.localDrbg = new AesCtrDrbg();
   }
@@ -84,11 +84,6 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
   @Override
   public CompUIntFactory<PlainT> getFactory() {
     return factory;
-  }
-
-  @Override
-  public ByteSerializer<PlainT> getPlainSerializer() {
-    return rawSerializer;
   }
 
   @Override

@@ -52,7 +52,7 @@ public class Spdz2kMacCheckComputation<
     this.authenticatedElements = toCheck.getFirst();
     this.openValues = toCheck.getSecond();
     this.converter = converter;
-    this.serializer = resourcePool.getFactory().createSerializer();
+    this.serializer = resourcePool.getFactory().getSerializer();
     this.supplier = resourcePool.getDataSupplier();
     this.randomCoefficients = sampleCoefficients(
         resourcePool.getRandomGenerator(),

@@ -22,7 +22,7 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> extends Fi
   /**
    * Creates serializer for {@link CompT} instances.
    */
-  ByteSerializer<CompT> createSerializer();
+  ByteSerializer<CompT> getSerializer();
 
   /**
    * Get length of most significant bits which represent the masking portion.
@@ -101,7 +101,7 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> extends Fi
   @Override
   default List<FieldElement> deserializeList(byte[] bytes) {
     // TODO hack hack hack
-    List<CompT> wrongType = createSerializer().deserializeList(bytes);
+    List<CompT> wrongType = getSerializer().deserializeList(bytes);
     return wrongType.stream().map(x -> (FieldElement) x).collect(Collectors.toList());
   }
 
