@@ -15,7 +15,7 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz2k.AbstractSpdz2kTest;
-import dk.alexandra.fresco.suite.spdz2k.Spdz2kProtocolSuite128;
+import dk.alexandra.fresco.suite.spdz2k.Spdz2kProtocolSuiteK64;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128Factory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
@@ -66,7 +66,7 @@ public class TestSpdz2kMacCheckComputation extends
 
   @Override
   protected ProtocolSuiteNumeric<Spdz2kResourcePool<CompUInt128>> createProtocolSuite() {
-    return new Spdz2kProtocolSuite128();
+    return new Spdz2kProtocolSuiteK64();
   }
 
   private static class TestModifyShare<ResourcePoolT extends Spdz2kResourcePool<CompUInt128>>

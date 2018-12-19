@@ -11,12 +11,19 @@ import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import dk.alexandra.fresco.suite.spdz2k.synchronization.Spdz2kRoundSynchronization;
 
 /**
- * The SPDZ2k protocol suite. <p>This suite works with ring elements. Each ring element, represented
- * by {@link PlainT} is conceptually composed of two smaller ring elements, represented by {@link
- * HighT} and {@link LowT}, i.e., a most significant bit portion and a least significant bit
- * portion. The least-significant bit portion is used to store the actual value (or secret-share
- * thereof) we are computing on. The most-significant bit portion is required for security and is
- * used in the mac-check protocol implemented in {@link Spdz2kMacCheckComputation}.</p>
+ * The SPDZ2k protocol suite.
+ *
+ * <p>This suite works with ring elements. Each ring element, represented by {@link PlainT} is
+ * conceptually composed of two smaller ring elements, represented by {@link HighT} and {@link
+ * LowT}, i.e., a most significant bit portion and a least significant bit portion. The
+ * least-significant bit portion is used to store the actual value (or secret-share thereof) we are
+ * computing on. The most-significant bit portion is required for security and is used in the
+ * mac-check protocol implemented in {@link Spdz2kMacCheckComputation}.</p>
+ *
+ * <p>Note that while the suite internally works with k + s bit values (where k is the least
+ * significant portion and s the most significant), the top s bits are for security only and
+ * therefore the protocol suite conceptually only computes over/ is able to express k bit
+ * values.</p>
  *
  * @param <HighT> type representing most significant bit portion of open values
  * @param <LowT> type representing least significant bit portion of open values
@@ -33,10 +40,9 @@ public abstract class Spdz2kProtocolSuite<
   /**
    * Constructs new {@link Spdz2kProtocolSuite}.
    *
-   * @param converter helper which allows converting {@link HighT}, and {@link LowT} instances
-   *     to
-   *     {@link PlainT}. This is necessary for the mac-check protocol where we perform arithmetic
-   *     between these different types.
+   * @param converter helper which allows converting {@link HighT}, and {@link LowT} instances to
+   * {@link PlainT}. This is necessary for the mac-check protocol where we perform arithmetic
+   * between these different types.
    */
   Spdz2kProtocolSuite(CompUIntConverter<HighT, LowT, PlainT> converter) {
     this.converter = converter;

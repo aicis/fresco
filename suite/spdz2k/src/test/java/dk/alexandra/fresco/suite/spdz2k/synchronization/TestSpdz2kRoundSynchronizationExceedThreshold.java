@@ -11,7 +11,7 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz2k.AbstractSpdz2kTest;
-import dk.alexandra.fresco.suite.spdz2k.Spdz2kProtocolSuite128;
+import dk.alexandra.fresco.suite.spdz2k.Spdz2kProtocolSuiteK64;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128Factory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntConverter128;
@@ -78,7 +78,7 @@ public class TestSpdz2kRoundSynchronizationExceedThreshold extends
     }
   }
 
-  private class MockSpdz2kProtocolSuite128 extends Spdz2kProtocolSuite128 {
+  private class MockSpdz2kProtocolSuite128 extends Spdz2kProtocolSuiteK64 {
 
     @Override
     public RoundSynchronization<Spdz2kResourcePool<CompUInt128>> createRoundSynchronization() {
