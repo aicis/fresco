@@ -6,7 +6,9 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.suite.spdz2k.util.UIntSerializer;
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
 
@@ -68,7 +70,10 @@ public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
 
   @Override
   public StrictBitVector convertToBitVector(FieldElement fieldElement) {
-    throw new NotImplementedException();
+    byte[] bytes = ((CompUInt128) fieldElement)
+        .getLeastSignificant()
+        .toByteArray();
+    return new StrictBitVector(bytes);
   }
 
   @Override

@@ -70,7 +70,6 @@ public class TestCompUIntFactorySerialization {
 
   @Test(expected = IllegalArgumentException.class)
   public void testDeserializeListWrongLength() {
-    Random random = new Random(42);
     byte[] rawBytes = new byte[33];
     factory.deserializeList(rawBytes);
   }

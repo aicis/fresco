@@ -68,16 +68,31 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> extends Fi
     return getCompositeBitLength();
   }
 
-  @Override
-  default StrictBitVector convertToBitVector(FieldElement fieldElement) {
-    throw new NotImplementedException();
-  }
 
+  /**
+   * {@inheritDoc}
+   *
+   * Note that this method does not convert the entire element but only the lower k bits, since the
+   * top s bits do not represent the actual value we are computing over.
+   */
   @Override
   BigInteger convertToUnsigned(FieldElement value);
 
+  /**
+   * {@inheritDoc}
+   *
+   * See {@link #convertToUnsigned(FieldElement)}.
+   */
   @Override
   BigInteger convertToSigned(BigInteger signed);
+
+  /**
+   * Note that this method is consistent with {@link #convertToUnsigned(FieldElement)} and {@link
+   * #convertToSigned(BigInteger)} in that in only converts the lower k bits and discards the top s
+   * bits.
+   */
+  @Override
+  StrictBitVector convertToBitVector(FieldElement fieldElement);
 
   @Override
   CompT deserialize(byte[] bytes);
