@@ -320,8 +320,8 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
    * @throws IOException If the networks fails to close
    */
   public void closeNetwork() throws IOException {
-    if (this.network != null) {
-      ((Closeable) this.network.get()).close();
+    if (this.createdNetwork != null) {
+      ((Closeable) this.createdNetwork).close();
     }
   }
 }

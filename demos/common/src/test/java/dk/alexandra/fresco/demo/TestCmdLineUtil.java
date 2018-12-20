@@ -2,6 +2,7 @@ package dk.alexandra.fresco.demo;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
@@ -233,6 +234,7 @@ public class TestCmdLineUtil {
     Network network = cmd.getNetwork();
     assertTrue(network instanceof NetworkLoggingDecorator
         || network instanceof CloseableNetwork);
+    assertSame(network, cmd.getNetwork());
     try {
       cmd.closeNetwork();
     } catch (IOException e) {
