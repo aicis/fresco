@@ -182,7 +182,11 @@ public class DeaSolverTests {
                 List<DRes<OpenDeaResult>> result =
                     new ArrayList<>();
                 for (DeaResult deaResult : deaResults) {
-                  result.add(OpenDeaResult.createOpenDeaResult(producer, numeric, deaResult));
+                  FieldDefinition fieldDefinition =
+                      producer.getBasicNumericContext().getFieldDefinition();
+                  result.add(
+                      OpenDeaResult.createOpenDeaResult(numeric, deaResult, fieldDefinition)
+                  );
                 }
                 return () -> result.stream().map(DRes::out).collect(Collectors.toList());
               };
@@ -308,8 +312,7 @@ public class DeaSolverTests {
       }
 
       static DRes<OpenDeaResult> createOpenDeaResult(
-          ProtocolBuilderNumeric producer,
-          Numeric numeric, DeaResult deaResult) {
+          Numeric numeric, DeaResult deaResult, FieldDefinition fieldDefinition) {
         DRes<BigInteger> optimal = numeric.open(deaResult.optimal);
         DRes<BigInteger> numerator = numeric.open(deaResult.numerator);
         DRes<BigInteger> denominator = numeric.open(deaResult.denominator);
@@ -317,7 +320,6 @@ public class DeaSolverTests {
             deaResult.peers.stream().map(numeric::open).collect(Collectors.toList());
         List<DRes<BigInteger>> peerValues =
             deaResult.peerValues.stream().map(numeric::open).collect(Collectors.toList());
-        FieldDefinition fieldDefinition = producer.getBasicNumericContext().getFieldDefinition();
         return () -> new OpenDeaResult(
             fieldDefinition.convertToSigned(optimal.out()),
             fieldDefinition.convertToSigned(numerator.out()),
