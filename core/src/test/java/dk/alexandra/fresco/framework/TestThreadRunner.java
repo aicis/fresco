@@ -78,7 +78,7 @@ public class TestThreadRunner {
           if (conf.network instanceof Closeable) {
             try {
               try {
-                Thread.sleep(1000);
+                Thread.sleep(100);
               } catch (InterruptedException ignored) {
               }
               ((Closeable) conf.network).close();
@@ -107,11 +107,11 @@ public class TestThreadRunner {
       }
     }
 
-    public void setUp() throws Exception {
+    public void setUp() {
       // Override this if test fixture setup needed.
     }
 
-    public void tearDown() throws Exception {
+    public void tearDown() {
       // Override this if actions needed to tear down test fixture.
     }
 
@@ -168,14 +168,6 @@ public class TestThreadRunner {
   public static <ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> void run(
       TestThreadFactory<ResourcePoolT, Builder> f,
       Map<Integer, TestThreadConfiguration<ResourcePoolT, Builder>> confs) {
-    int randSeed = 3457878;
-    run(f, confs, randSeed);
-  }
-
-  private static <ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> void run(
-      TestThreadFactory<ResourcePoolT, Builder> f,
-      Map<Integer, TestThreadConfiguration<ResourcePoolT, Builder>> confs, int randSeed)
-      throws TestFrameworkException {
     final Set<TestThread<ResourcePoolT, Builder>> threads = new HashSet<>();
 
     for (TestThreadConfiguration<ResourcePoolT, Builder> c : confs.values()) {
