@@ -26,7 +26,7 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
   }
 
   @Override
-  public FieldElement createElement(int value) {
+  public FieldElement createElement(long value) {
     return MersennePrimeFieldElement.create(value, modulus);
   }
 
@@ -61,8 +61,8 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
   }
 
   @Override
-  public BigInteger convertToSigned(BigInteger signed) {
-    return FieldUtils.convertRepresentation(signed, getModulus(), modulusHalf);
+  public BigInteger convertToSigned(BigInteger asUnsigned) {
+    return FieldUtils.convertRepresentation(asUnsigned, getModulus(), modulusHalf);
   }
 
   @Override

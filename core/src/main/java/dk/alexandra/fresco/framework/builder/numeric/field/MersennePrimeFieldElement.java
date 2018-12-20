@@ -26,7 +26,7 @@ final class MersennePrimeFieldElement implements FieldElement {
     return new MersennePrimeFieldElement(value, modulus);
   }
 
-  static FieldElement create(int value, MersennePrimeModulus modulus) {
+  static FieldElement create(long value, MersennePrimeModulus modulus) {
     return create(BigInteger.valueOf(value), modulus);
   }
 

@@ -213,8 +213,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
    *
    * @param input The number to know the bit length of
    * @param maxBitLength The maximum bit length this number can have (if unknown, set this to
-   *     the
-   *     modulus bit size)
+   *     the modulus bit size)
    * @return A deferred result computing the bit length of the input number.
    */
   DRes<SInt> bitLength(DRes<SInt> input, int maxBitLength);
@@ -230,9 +229,8 @@ public interface AdvancedNumeric extends ComputationDirectory {
   /**
    * Selects left or right based on condition.
    *
-   * @param condition the Computation holding the condition on which to select. Must be either 0
-   *     or
-   *     1.
+   * @param condition the Computation holding the condition on which to select.
+   *     Must be either 0 or 1.
    * @param left the Computation holding the left argument.
    * @param right the Computation holding the right argument.
    * @return a computation holding either left or right depending on the condition.

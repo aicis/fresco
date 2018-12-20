@@ -33,7 +33,7 @@ public final class BigIntegerFieldDefinition implements FieldDefinition {
   }
 
   @Override
-  public FieldElement createElement(int value) {
+  public FieldElement createElement(long value) {
     return BigIntegerFieldElement.create(value, modulus);
   }
 
@@ -68,8 +68,8 @@ public final class BigIntegerFieldDefinition implements FieldDefinition {
   }
 
   @Override
-  public BigInteger convertToSigned(BigInteger signed) {
-    return FieldUtils.convertRepresentation(signed, getModulus(), modulusHalf);
+  public BigInteger convertToSigned(BigInteger asUnsigned) {
+    return FieldUtils.convertRepresentation(asUnsigned, getModulus(), modulusHalf);
   }
 
   @Override

@@ -56,7 +56,7 @@ public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
   }
 
   @Override
-  public CompUInt128 createElement(int value) {
+  public CompUInt128 createElement(long value) {
     return new CompUInt128(value);
   }
 
@@ -81,11 +81,11 @@ public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
   }
 
   @Override
-  public BigInteger convertToSigned(BigInteger signed) {
-    if (signed.compareTo(valueHalfModulus) > 0) {
-      return signed.subtract(valueModulus);
+  public BigInteger convertToSigned(BigInteger asUnsigned) {
+    if (asUnsigned.compareTo(valueHalfModulus) > 0) {
+      return asUnsigned.subtract(valueModulus);
     } else {
-      return signed;
+      return asUnsigned;
     }
   }
 

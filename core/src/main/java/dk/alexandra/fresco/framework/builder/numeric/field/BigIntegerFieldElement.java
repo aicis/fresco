@@ -21,7 +21,7 @@ final class BigIntegerFieldElement implements FieldElement {
     return new BigIntegerFieldElement(value, modulus);
   }
 
-  static FieldElement create(int value, BigIntegerModulus modulus) {
+  static FieldElement create(long value, BigIntegerModulus modulus) {
     return create(BigInteger.valueOf(value), modulus);
   }
 

@@ -7,7 +7,6 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * Factory for {@link CompT} instances.
@@ -53,7 +52,7 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> extends Fi
   CompT createElement(BigInteger value);
 
   @Override
-  CompT createElement(int value);
+  CompT createElement(long value);
 
   @Override
   default CompT createElement(String value) {
@@ -81,9 +80,10 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> extends Fi
    * {@inheritDoc}
    *
    * See {@link #convertToUnsigned(FieldElement)}.
+   * @param asUnsigned
    */
   @Override
-  BigInteger convertToSigned(BigInteger signed);
+  BigInteger convertToSigned(BigInteger asUnsigned);
 
   /**
    * Note that this method is consistent with {@link #convertToUnsigned(FieldElement)} and {@link
