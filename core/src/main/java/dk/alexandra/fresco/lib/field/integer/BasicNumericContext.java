@@ -11,7 +11,7 @@ public class BasicNumericContext {
   private final int maxBitLength;
   private final int myId;
   private final int noOfParties;
-  private FieldDefinition fieldDefinition;
+  private final FieldDefinition fieldDefinition;
 
   /**
    * Construct a new BasicNumericContext.

@@ -57,11 +57,9 @@ public class SocketNetwork implements CloseableNetwork {
    *
    * @param conf the network configuration
    * @param socketMap a mapping from party ids to the socket to be used for communicating with
-   *     the
-   *     given party.
+   *     the given party.
    * @throws IllegalArgumentException if {@code socketMap} and {@code conf} are inconsistent or
-   *     the
-   *     sockets are not open and connected.
+   *     the sockets are not open and connected.
    */
   public SocketNetwork(NetworkConfiguration conf, Map<Integer, Socket> socketMap) {
     Objects.requireNonNull(conf);
