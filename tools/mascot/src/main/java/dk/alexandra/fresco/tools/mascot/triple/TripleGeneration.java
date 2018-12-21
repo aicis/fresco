@@ -111,8 +111,7 @@ public class TripleGeneration {
    * <i>l<sub>1,0</sub></i>, <i>r<sub>1</sub></i> * <i>l<sub>1,1</sub></i></p>
    *
    * @param leftFactorGroups the left factors going into product evaluation. Note that these
-   *     are
-   *     referred to as groups since there are multiple (numLeftFactors) left factors per right
+   *     are referred to as groups since there are multiple (numLeftFactors) left factors per right
    *     factor.
    * @param rightFactors the right factors going into product evaluation.
    * @return unauthenticated product shares
