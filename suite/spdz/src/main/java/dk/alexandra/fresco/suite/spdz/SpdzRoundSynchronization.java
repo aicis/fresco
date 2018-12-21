@@ -35,10 +35,9 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
    * @param spdzProtocolSuite the spdz protocol suite which we will use for the mac-check
    *     computation
    * @param openValueThreshold number of open values we accumulating before forcing mac-check
-   *     (the
-   *     mac-check will always run if there are output gates but in order to reduce memory usage we
-   *     will
-   *     run the mac-check even when there are no output gates yet but the threshold is exceeded)
+   *     (the mac-check will always run if there are output gates but in order to reduce memory
+   *     usage we will run the mac-check even when there are no output gates yet but the threshold
+   *     is exceeded)
    * @param batchSize batch size for mac-check protocol
    */
   public SpdzRoundSynchronization(SpdzProtocolSuite spdzProtocolSuite, int openValueThreshold,

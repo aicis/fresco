@@ -12,7 +12,6 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDataSupplier;
-import java.math.BigInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -57,9 +56,9 @@ public interface Spdz2kResourcePool<PlainT extends CompUInt<?, ?, PlainT>>
 
   /**
    * The DRBG is useful for protocols which needs a form of shared randomness where the random
-   * bytes
-   * are not easily guessed by an adversary. This generator will provide exactly that. For explicit
-   * security guarantees, we refer to implementations of {@link dk.alexandra.fresco.framework.util.Drbg}.
+   * bytes are not easily guessed by an adversary. This generator will provide exactly that. For
+   * explicit security guarantees, we refer to implementations of
+   * {@link dk.alexandra.fresco.framework.util.Drbg}.
    *
    * @return An instance of a DRBG.
    */
