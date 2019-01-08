@@ -680,66 +680,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
-  public void test_Close_Real_Matrix() {
-    runTest(new LinearAlgebraTests.TestCloseFixedMatrix<>(), new TestParameters().numParties(2));
-  }
-
-  @Test
-  public void test_Close_And_Open_Real_Matrix() {
-    runTest(new LinearAlgebraTests.TestCloseAndOpenMatrix<>(), new TestParameters().numParties(2));
-  }
-
-  @Test
-  public void test_Real_Matrix_Addition() {
-    runTest(new LinearAlgebraTests.TestMatrixAddition<>(), new TestParameters().numParties(2));
-  }
-
-  @Test
-  public void test_Real_Matrix_Subtraction() {
-    runTest(new LinearAlgebraTests.TestMatrixSubtraction<>(), new TestParameters().numParties(2));
-  }
-
-  @Test
-  public void test_Real_Matrix_Multiplication() {
-    runTest(new LinearAlgebraTests.TestMatrixMultiplication<>(),
-        new TestParameters().numParties(2));
-  }
-
-  @Test
-  public void test_Real_Matrix_Scale() {
-    runTest(new LinearAlgebraTests.TestMatrixScale<>(), new TestParameters().numParties(2));
-  }
-
-  @Test
-  public void test_Real_Matrix_Operate() {
-    runTest(new LinearAlgebraTests.TestMatrixOperate<>(), new TestParameters().numParties(2));
-  }
-
-  @Test
-  public void test_Real_Vector_Multiplication_Unmatched() {
-    runTest(new LinearAlgebraTests.TestVectorMultUnmatchedDimensions<>(),
-        new TestParameters());
-  }
-
-  @Test
-  public void test_Real_Matrix_Multiplication_Unmatched() {
-    runTest(new LinearAlgebraTests.TestMatrixMultUnmatchedDimensions<>(),
-        new TestParameters());
-  }
-
-  @Test
-  public void test_Real_Matrix_Addition_Unmatched() {
-    runTest(new LinearAlgebraTests.TestAdditionUnmatchedDimensions<>(),
-        new TestParameters());
-  }
-
-  @Test
-  public void test_Real_Matrix_Transpose() {
-    runTest(new LinearAlgebraTests.TestTransposeMatrix<>(),
-        new TestParameters());
-  }
-
-  @Test
   public void test_Real_Exp() {
     runTest(new MathTests.TestExp<>(), new TestParameters().numParties(2));
   }
