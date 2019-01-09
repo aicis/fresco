@@ -57,7 +57,12 @@ public interface RealLinearAlgebra extends ComputationDirectory {
    * @return A deferred result computing a-b
    */
   DRes<Matrix<DRes<SReal>>> sub(DRes<Matrix<DRes<SReal>>> a, Matrix<BigDecimal> n);
-  
+
+  /**
+   * Subtracts two secret vectors.
+   */
+  DRes<Vector<DRes<SReal>>> subVectors(DRes<Vector<DRes<SReal>>> a, DRes<Vector<DRes<SReal>>> b);
+
   /**
    * Multiplies two secret values and returns the result.
    *

@@ -149,6 +149,18 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
   }
 
   @Override
+  public DRes<Vector<DRes<SReal>>> subVectors(DRes<Vector<DRes<SReal>>> a, DRes<Vector<DRes<SReal>>> b) {
+    return builder.par(par -> {
+      Vector<DRes<SReal>> result = new Vector<>();
+      for (int i=0; i<a.out().size(); i++) {
+        DRes<SReal> element = par.realNumeric().sub(a.out().get(i), b.out().get(i));
+        result.add(element);
+      }
+      return () -> result;
+    });
+  }
+
+  @Override
   public DRes<Matrix<DRes<SReal>>> mult(DRes<Matrix<DRes<SReal>>> a, Matrix<BigDecimal> b) {
     return builder.seq(seq -> {
       return mult(seq, a.out(), b, (scope, x) -> scope.realAdvanced()

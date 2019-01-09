@@ -160,6 +160,20 @@ public class LinearAlgebraTest {
   }
 
   @Test
+  public void testVectorSubtraction() {
+    Vector<BigDecimal> a = new Vector<>(asList(valueOf(1.0), valueOf(2.0)));
+    Vector<BigDecimal> b = new Vector<>(asList(valueOf(0.3), valueOf(0.4)));
+    List<BigDecimal> output = run(root-> {
+      DRes<Vector<DRes<SReal>>> closedA = root.realLinAlg().input(a, 1);
+      DRes<Vector<DRes<SReal>>> closedB = root.realLinAlg().input(b, 1);
+      DRes<Vector<DRes<SReal>>> closedResult = root.realLinAlg().subVectors(closedA, closedB);
+      DRes<Vector<DRes<BigDecimal>>> opened = root.realLinAlg().openVector(closedResult);
+      return () -> unwrap(opened);
+    });
+    assertEqual(output, asList(valueOf(0.7), valueOf(1.6)), 15);
+  }
+
+  @Test
   public void testMatrixScale() {
     // define input and output
     ArrayList<ArrayList<BigDecimal>> a = new ArrayList<>(asList(
