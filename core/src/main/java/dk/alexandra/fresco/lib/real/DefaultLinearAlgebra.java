@@ -73,6 +73,18 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
     });
   }
 
+  @Override
+  public DRes<Vector<DRes<SReal>>> addVectors(DRes<Vector<DRes<SReal>>> a, DRes<Vector<DRes<SReal>>> b) {
+    return builder.par(par -> {
+      Vector<DRes<SReal>> result = new Vector<>();
+      for (int i=0; i<a.out().size(); i++) {
+        DRes<SReal> element = par.realNumeric().add(a.out().get(i), b.out().get(i));
+        result.add(element);
+      }
+      return () -> result;
+    });
+  }
+
   /**
    * Apply an operator taking two arguments in an entrywise fashion to the entries of two matrices
    * of equal dimensions.

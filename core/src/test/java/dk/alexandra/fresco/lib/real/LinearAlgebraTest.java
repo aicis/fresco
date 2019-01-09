@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
+import static dk.alexandra.fresco.lib.collections.ListUtils.unwrap;
 import static dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticRunner.run;
 import static org.junit.Assert.assertTrue;
 
@@ -99,6 +100,20 @@ public class LinearAlgebraTest {
         RealTestUtils.assertEqual(expected.getRow(i), output.get(j).getRow(i), 15);
       }
     }
+  }
+
+  @Test
+  public void testVectorAddition() {
+    Vector<BigDecimal> a = new Vector<>(Arrays.asList(BigDecimal.valueOf(1.0), BigDecimal.valueOf(2.0)));
+    Vector<BigDecimal> b = new Vector<>(Arrays.asList(BigDecimal.valueOf(0.3), BigDecimal.valueOf(0.4)));
+    List<BigDecimal> output = run(root-> {
+      DRes<Vector<DRes<SReal>>> closedA = root.realLinAlg().input(a, 1);
+      DRes<Vector<DRes<SReal>>> closedB = root.realLinAlg().input(b, 1);
+      DRes<Vector<DRes<SReal>>> closedResult = root.realLinAlg().addVectors(closedA, closedB);
+      DRes<Vector<DRes<BigDecimal>>> opened = root.realLinAlg().openVector(closedResult);
+      return () -> unwrap(opened);
+    });
+    RealTestUtils.assertEqual(output, Arrays.asList(BigDecimal.valueOf(1.3), BigDecimal.valueOf(2.4)), 15);
   }
 
   @Test

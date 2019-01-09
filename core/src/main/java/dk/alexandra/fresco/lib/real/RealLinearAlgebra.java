@@ -27,6 +27,11 @@ public interface RealLinearAlgebra extends ComputationDirectory {
   DRes<Matrix<DRes<SReal>>> add(Matrix<BigDecimal> a, DRes<Matrix<DRes<SReal>>> b);
 
   /**
+   * Adds two secret vectors.
+   */
+  DRes<Vector<DRes<SReal>>> addVectors(DRes<Vector<DRes<SReal>>> a, DRes<Vector<DRes<SReal>>> b);
+
+  /**
    * Subtracts two secret values and returns the result.
    *
    * @param a First secret value
@@ -177,6 +182,5 @@ public interface RealLinearAlgebra extends ComputationDirectory {
    * @return The opened value represented by the closed value.
    */
   DRes<Vector<DRes<BigDecimal>>> openVector(DRes<Vector<DRes<SReal>>> secretShare);
-
 
 }
