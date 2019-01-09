@@ -122,12 +122,17 @@ public interface RealLinearAlgebra extends ComputationDirectory {
   DRes<Matrix<DRes<SReal>>> scale(BigDecimal s, DRes<Matrix<DRes<SReal>>> a);
 
   /**
-   * Multiply a secret matrix by a secret constant.
-   *
-   * @param s secret value
-   * @param a Secret value
-   * @return A deferred result computing sa
+   * Multiply a secret vector by a public constant.
    */
+  DRes<Vector<DRes<SReal>>> scaleVector(BigDecimal s, DRes<Vector<DRes<SReal>>> a);
+
+    /**
+     * Multiply a secret matrix by a secret constant.
+     *
+     * @param s secret value
+     * @param a Secret value
+     * @return A deferred result computing sa
+     */
   DRes<Matrix<DRes<SReal>>> scale(DRes<SReal> s, DRes<Matrix<DRes<SReal>>> a);
 
   /**

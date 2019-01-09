@@ -148,8 +148,6 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
     });
   }
 
-
-
   @Override
   public DRes<Matrix<DRes<SReal>>> mult(DRes<Matrix<DRes<SReal>>> a, Matrix<BigDecimal> b) {
     return builder.seq(seq -> {
@@ -210,6 +208,18 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
     return builder.par(par -> {
       return scale(par, s, a.out(),
           (builder, x) -> builder.realNumeric().mult(x.getFirst(), x.getSecond()));
+    });
+  }
+
+  @Override
+  public DRes<Vector<DRes<SReal>>> scaleVector(BigDecimal s, DRes<Vector<DRes<SReal>>> a) {
+    return builder.par(par -> {
+      Vector<DRes<SReal>> result = new Vector<>();
+      for (int i=0; i<a.out().size(); i++) {
+        DRes<SReal> element = par.realNumeric().mult(s, a.out().get(i));
+        result.add(element);
+      }
+      return () -> result;
     });
   }
 

@@ -193,6 +193,19 @@ public class LinearAlgebraTest {
   }
 
   @Test
+  public void testVectorScaling() {
+    Vector<BigDecimal> vector = new Vector<>(asList(valueOf(1.0), valueOf(2.0)));
+    BigDecimal factor = valueOf(3.0);
+    List<BigDecimal> output = run(root-> {
+      DRes<Vector<DRes<SReal>>> closedVector = root.realLinAlg().input(vector, 1);
+      DRes<Vector<DRes<SReal>>> closedResult = root.realLinAlg().scaleVector(factor, closedVector);
+      DRes<Vector<DRes<BigDecimal>>> opened = root.realLinAlg().openVector(closedResult);
+      return () -> unwrap(opened);
+    });
+    assertEqual(output, asList(valueOf(3.0), valueOf(6.0)), 15);
+  }
+
+  @Test
   public void testMatrixMultiplication() {
     final int dimension = 50;
     final int precision = 4;
