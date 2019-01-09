@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 import java.util.stream.Collectors;
@@ -17,6 +16,8 @@ import java.util.stream.Collectors;
 import static dk.alexandra.fresco.lib.collections.ListUtils.unwrap;
 import static dk.alexandra.fresco.lib.real.RealTestUtils.assertEqual;
 import static dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticRunner.run;
+import static java.math.BigDecimal.valueOf;
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertTrue;
 
 public class LinearAlgebraTest {
@@ -39,14 +40,14 @@ public class LinearAlgebraTest {
   public void testCloseAndOpenMatrix() {
     // define input and output
     ArrayList<BigDecimal> rowOne = new ArrayList<>();
-    rowOne.add(BigDecimal.valueOf(1.1));
-    rowOne.add(BigDecimal.valueOf(2.2));
+    rowOne.add(valueOf(1.1));
+    rowOne.add(valueOf(2.2));
     ArrayList<BigDecimal> rowTwo = new ArrayList<>();
-    rowTwo.add(BigDecimal.valueOf(3.3));
-    rowTwo.add(BigDecimal.valueOf(4.4));
+    rowTwo.add(valueOf(3.3));
+    rowTwo.add(valueOf(4.4));
     ArrayList<BigDecimal> rowThree = new ArrayList<>();
-    rowThree.add(BigDecimal.valueOf(5.5));
-    rowThree.add(BigDecimal.valueOf(6.6));
+    rowThree.add(valueOf(5.5));
+    rowThree.add(valueOf(6.6));
     ArrayList<ArrayList<BigDecimal>> mat = new ArrayList<>();
     mat.add(rowOne);
     mat.add(rowTwo);
@@ -67,21 +68,21 @@ public class LinearAlgebraTest {
   @Test
   public void testMatrixAddition() {
     ArrayList<BigDecimal> rowA1 =
-            new ArrayList<>(Arrays.asList(BigDecimal.valueOf(1.1), BigDecimal.valueOf(2.2)));
+            new ArrayList<>(asList(valueOf(1.1), valueOf(2.2)));
     ArrayList<BigDecimal> rowA2 =
-            new ArrayList<>(Arrays.asList(BigDecimal.valueOf(3.3), BigDecimal.valueOf(4.2)));
-    Matrix<BigDecimal> a = new Matrix<>(2, 2, new ArrayList<>(Arrays.asList(rowA1, rowA2)));
+            new ArrayList<>(asList(valueOf(3.3), valueOf(4.2)));
+    Matrix<BigDecimal> a = new Matrix<>(2, 2, new ArrayList<>(asList(rowA1, rowA2)));
     ArrayList<BigDecimal> rowB1 =
-            new ArrayList<>(Arrays.asList(BigDecimal.valueOf(1.9), BigDecimal.valueOf(2.9)));
+            new ArrayList<>(asList(valueOf(1.9), valueOf(2.9)));
     ArrayList<BigDecimal> rowB2 =
-            new ArrayList<>(Arrays.asList(BigDecimal.valueOf(3.9), BigDecimal.valueOf(4.8)));
-    Matrix<BigDecimal> b = new Matrix<>(2, 2, new ArrayList<>(Arrays.asList(rowB1, rowB2)));
+            new ArrayList<>(asList(valueOf(3.9), valueOf(4.8)));
+    Matrix<BigDecimal> b = new Matrix<>(2, 2, new ArrayList<>(asList(rowB1, rowB2)));
     ArrayList<BigDecimal> rowC1 = new ArrayList<>(
-            Arrays.asList(rowA1.get(0).add(rowB1.get(0)), rowA1.get(1).add(rowB1.get(1))));
+            asList(rowA1.get(0).add(rowB1.get(0)), rowA1.get(1).add(rowB1.get(1))));
     ArrayList<BigDecimal> rowC2 = new ArrayList<>(
-            Arrays.asList(rowA2.get(0).add(rowB2.get(0)), rowA2.get(1).add(rowB2.get(1))));
+            asList(rowA2.get(0).add(rowB2.get(0)), rowA2.get(1).add(rowB2.get(1))));
     Matrix<BigDecimal> expected =
-            new Matrix<>(2, 2, new ArrayList<>(Arrays.asList(rowC1, rowC2)));
+            new Matrix<>(2, 2, new ArrayList<>(asList(rowC1, rowC2)));
     // define functionality to be tested
 
     List<Matrix<BigDecimal>> output = run(root -> {
@@ -93,7 +94,7 @@ public class LinearAlgebraTest {
       DRes<Matrix<DRes<BigDecimal>>> open1 = root.realLinAlg().openMatrix(res1);
       DRes<Matrix<DRes<BigDecimal>>> open2 = root.realLinAlg().openMatrix(res2);
       DRes<Matrix<DRes<BigDecimal>>> open3 = root.realLinAlg().openMatrix(res3);
-      return () -> Arrays.asList(new MatrixUtils().unwrapMatrix(open1),
+      return () -> asList(new MatrixUtils().unwrapMatrix(open1),
               new MatrixUtils().unwrapMatrix(open2), new MatrixUtils().unwrapMatrix(open3));
     }, 2);
     for (int i = 0; i < a.getHeight(); i++) {
@@ -105,8 +106,8 @@ public class LinearAlgebraTest {
 
   @Test
   public void testVectorAddition() {
-    Vector<BigDecimal> a = new Vector<>(Arrays.asList(BigDecimal.valueOf(1.0), BigDecimal.valueOf(2.0)));
-    Vector<BigDecimal> b = new Vector<>(Arrays.asList(BigDecimal.valueOf(0.3), BigDecimal.valueOf(0.4)));
+    Vector<BigDecimal> a = new Vector<>(asList(valueOf(1.0), valueOf(2.0)));
+    Vector<BigDecimal> b = new Vector<>(asList(valueOf(0.3), valueOf(0.4)));
     List<BigDecimal> output = run(root-> {
       DRes<Vector<DRes<SReal>>> closedA = root.realLinAlg().input(a, 1);
       DRes<Vector<DRes<SReal>>> closedB = root.realLinAlg().input(b, 1);
@@ -114,27 +115,29 @@ public class LinearAlgebraTest {
       DRes<Vector<DRes<BigDecimal>>> opened = root.realLinAlg().openVector(closedResult);
       return () -> unwrap(opened);
     });
-    assertEqual(output, Arrays.asList(BigDecimal.valueOf(1.3), BigDecimal.valueOf(2.4)), 15);
+    assertEqual(output, asList(valueOf(1.3), valueOf(2.4)), 15);
   }
 
   @Test
   public void testMatrixSubtraction() {
     ArrayList<BigDecimal> rowA1 =
-            new ArrayList<>(Arrays.asList(BigDecimal.valueOf(1.1), BigDecimal.valueOf(2.2)));
+            new ArrayList<>(asList(valueOf(1.1), valueOf(2.2)));
     ArrayList<BigDecimal> rowA2 =
-            new ArrayList<>(Arrays.asList(BigDecimal.valueOf(3.3), BigDecimal.valueOf(4.2)));
-    Matrix<BigDecimal> a = new Matrix<>(2, 2, new ArrayList<>(Arrays.asList(rowA1, rowA2)));
+            new ArrayList<>(asList(valueOf(3.3), valueOf(4.2)));
+    Matrix<BigDecimal> a = new Matrix<>(2, 2, new ArrayList<>(asList(rowA1, rowA2)));
     ArrayList<BigDecimal> rowB1 =
-            new ArrayList<>(Arrays.asList(BigDecimal.valueOf(1.9), BigDecimal.valueOf(2.9)));
+            new ArrayList<>(asList(valueOf(1.9), valueOf(2.9)));
     ArrayList<BigDecimal> rowB2 =
-            new ArrayList<>(Arrays.asList(BigDecimal.valueOf(3.9), BigDecimal.valueOf(4.8)));
-    Matrix<BigDecimal> b = new Matrix<>(2, 2, new ArrayList<>(Arrays.asList(rowB1, rowB2)));
-    ArrayList<BigDecimal> rowC1 = new ArrayList<>(Arrays
-            .asList(rowA1.get(0).subtract(rowB1.get(0)), rowA1.get(1).subtract(rowB1.get(1))));
-    ArrayList<BigDecimal> rowC2 = new ArrayList<>(Arrays
-            .asList(rowA2.get(0).subtract(rowB2.get(0)), rowA2.get(1).subtract(rowB2.get(1))));
+            new ArrayList<>(asList(valueOf(3.9), valueOf(4.8)));
+    Matrix<BigDecimal> b = new Matrix<>(2, 2, new ArrayList<>(asList(rowB1, rowB2)));
+    ArrayList<BigDecimal> rowC1 = new ArrayList<>(asList(
+            rowA1.get(0).subtract(rowB1.get(0)),
+            rowA1.get(1).subtract(rowB1.get(1))));
+    ArrayList<BigDecimal> rowC2 = new ArrayList<>(asList(
+            rowA2.get(0).subtract(rowB2.get(0)),
+            rowA2.get(1).subtract(rowB2.get(1))));
     Matrix<BigDecimal> expected =
-            new Matrix<>(2, 2, new ArrayList<>(Arrays.asList(rowC1, rowC2)));
+            new Matrix<>(2, 2, new ArrayList<>(asList(rowC1, rowC2)));
     // define functionality to be tested
 
     List<Matrix<BigDecimal>> output = run(root -> {
@@ -146,7 +149,7 @@ public class LinearAlgebraTest {
       DRes<Matrix<DRes<BigDecimal>>> open1 = root.realLinAlg().openMatrix(res1);
       DRes<Matrix<DRes<BigDecimal>>> open2 = root.realLinAlg().openMatrix(res2);
       DRes<Matrix<DRes<BigDecimal>>> open3 = root.realLinAlg().openMatrix(res3);
-      return () -> Arrays.asList(new MatrixUtils().unwrapMatrix(open1),
+      return () -> asList(new MatrixUtils().unwrapMatrix(open1),
               new MatrixUtils().unwrapMatrix(open2), new MatrixUtils().unwrapMatrix(open3));
     }, 2);
     for (int i = 0; i < a.getHeight(); i++) {
@@ -159,14 +162,14 @@ public class LinearAlgebraTest {
   @Test
   public void testMatrixScale() {
     // define input and output
-    ArrayList<ArrayList<BigDecimal>> a = new ArrayList<>(Arrays.asList(
-            new ArrayList<>(Arrays.asList(BigDecimal.valueOf(1.0), BigDecimal.valueOf(2.0))),
-            new ArrayList<>(Arrays.asList(BigDecimal.valueOf(3.0), BigDecimal.valueOf(4.0)))));
+    ArrayList<ArrayList<BigDecimal>> a = new ArrayList<>(asList(
+            new ArrayList<>(asList(valueOf(1.0), valueOf(2.0))),
+            new ArrayList<>(asList(valueOf(3.0), valueOf(4.0)))));
     Matrix<BigDecimal> matrix = new Matrix<>(2, 2, a);
-    BigDecimal s = BigDecimal.valueOf(0.1);
-    ArrayList<ArrayList<BigDecimal>> c = new ArrayList<>(Arrays.asList(
-            new ArrayList<>(Arrays.asList(BigDecimal.valueOf(0.1), BigDecimal.valueOf(0.2))),
-            new ArrayList<>(Arrays.asList(BigDecimal.valueOf(0.3), BigDecimal.valueOf(0.4)))));
+    BigDecimal s = valueOf(0.1);
+    ArrayList<ArrayList<BigDecimal>> c = new ArrayList<>(asList(
+            new ArrayList<>(asList(valueOf(0.1), valueOf(0.2))),
+            new ArrayList<>(asList(valueOf(0.3), valueOf(0.4)))));
     Matrix<BigDecimal> expected = new Matrix<>(2, 2, c);
 
     // define functionality to be tested
@@ -179,7 +182,7 @@ public class LinearAlgebraTest {
       DRes<Matrix<DRes<BigDecimal>>> open1 = root.realLinAlg().openMatrix(res1);
       DRes<Matrix<DRes<BigDecimal>>> open2 = root.realLinAlg().openMatrix(res2);
       DRes<Matrix<DRes<BigDecimal>>> open3 = root.realLinAlg().openMatrix(res3);
-      return () -> Arrays.asList(new MatrixUtils().unwrapMatrix(open1),
+      return () -> asList(new MatrixUtils().unwrapMatrix(open1),
               new MatrixUtils().unwrapMatrix(open2), new MatrixUtils().unwrapMatrix(open3));
     }, 2);
     for (int i = 0; i < matrix.getHeight(); i++) {
@@ -200,7 +203,7 @@ public class LinearAlgebraTest {
     ArrayList<ArrayList<BigDecimal>> e = new ArrayList<>();
     for (int i = 0; i < dimension; i++) {
       ArrayList<BigDecimal> row = new ArrayList<>(dimension);
-      row.add(BigDecimal.valueOf(dimension).setScale(1));
+      row.add(valueOf(dimension).setScale(1));
       e.add(row);
     }
     Matrix<BigDecimal> expected = new Matrix<>(dimension, 1, e);
@@ -213,7 +216,7 @@ public class LinearAlgebraTest {
       DRes<Matrix<DRes<BigDecimal>>> open1 = root.realLinAlg().openMatrix(res1);
       DRes<Matrix<DRes<BigDecimal>>> open2 = root.realLinAlg().openMatrix(res2);
       DRes<Matrix<DRes<BigDecimal>>> open3 = root.realLinAlg().openMatrix(res3);
-      return () -> Arrays.asList(new MatrixUtils().unwrapMatrix(open1),
+      return () -> asList(new MatrixUtils().unwrapMatrix(open1),
               new MatrixUtils().unwrapMatrix(open2), new MatrixUtils().unwrapMatrix(open3));
     }, 2);
     for (int i = 0; i < matrix.getHeight(); i++) {
@@ -232,7 +235,7 @@ public class LinearAlgebraTest {
     Vector<BigDecimal> vector = allOneVector(dimension, precision);
     Vector<BigDecimal> expected = new Vector<>(dimension);
     for (int i = 0; i < dimension; i++) {
-      expected.add(BigDecimal.valueOf(dimension).setScale(1));
+      expected.add(valueOf(dimension).setScale(1));
     }
     List<Vector<BigDecimal>> output = run(root -> {
 
@@ -245,7 +248,7 @@ public class LinearAlgebraTest {
       DRes<Vector<DRes<BigDecimal>>> open1 = root.realLinAlg().openVector(res1);
       DRes<Vector<DRes<BigDecimal>>> open2 = root.realLinAlg().openVector(res2);
       DRes<Vector<DRes<BigDecimal>>> open3 = root.realLinAlg().openVector(res3);
-      return () -> Arrays.asList(
+      return () -> asList(
               open1.out().stream().map(x -> x.out())
                       .collect(Collectors.toCollection(Vector::new)),
               open2.out().stream().map(x -> x.out())
@@ -321,14 +324,14 @@ public class LinearAlgebraTest {
   public void testTransposeMatrix() {
     // define input and output
     ArrayList<BigDecimal> rowOne = new ArrayList<>();
-    rowOne.add(BigDecimal.valueOf(1.1));
-    rowOne.add(BigDecimal.valueOf(2.2));
+    rowOne.add(valueOf(1.1));
+    rowOne.add(valueOf(2.2));
     ArrayList<BigDecimal> rowTwo = new ArrayList<>();
-    rowTwo.add(BigDecimal.valueOf(3.3));
-    rowTwo.add(BigDecimal.valueOf(4.4));
+    rowTwo.add(valueOf(3.3));
+    rowTwo.add(valueOf(4.4));
     ArrayList<BigDecimal> rowThree = new ArrayList<>();
-    rowThree.add(BigDecimal.valueOf(5.5));
-    rowThree.add(BigDecimal.valueOf(6.6));
+    rowThree.add(valueOf(5.5));
+    rowThree.add(valueOf(6.6));
     ArrayList<ArrayList<BigDecimal>> mat = new ArrayList<>();
     mat.add(rowOne);
     mat.add(rowTwo);
