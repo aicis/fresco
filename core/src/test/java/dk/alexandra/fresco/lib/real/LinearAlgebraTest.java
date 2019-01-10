@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import static dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticRunner.run;
 import static org.junit.Assert.assertTrue;
 
-public class LinearAlgebraTests {
+public class LinearAlgebraTest {
 
   @Test
   public void testCloseMatrix() {

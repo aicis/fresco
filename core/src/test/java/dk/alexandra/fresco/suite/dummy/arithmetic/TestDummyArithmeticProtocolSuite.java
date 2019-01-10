@@ -40,7 +40,6 @@ import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.lib.math.integer.stat.StatisticsTests;
 import dk.alexandra.fresco.lib.math.polynomial.PolynomialTests;
 import dk.alexandra.fresco.lib.real.BasicFixedPointTests;
-import dk.alexandra.fresco.lib.real.LinearAlgebraTests;
 import dk.alexandra.fresco.lib.real.MathTests;
 import dk.alexandra.fresco.lib.real.TruncationTests;
 import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
