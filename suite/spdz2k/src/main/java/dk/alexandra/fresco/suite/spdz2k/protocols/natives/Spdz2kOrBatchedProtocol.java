@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Native protocol for computing logical AND of two values in boolean form.
+ * Native protocol for computing logical OR of twos lists of values.
  */
 public class Spdz2kOrBatchedProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
     Spdz2kNativeProtocol<List<DRes<SInt>>, PlainT> {
