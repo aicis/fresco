@@ -68,7 +68,7 @@ public class DefaultComparison implements Comparison {
 
   @Override
   public DRes<List<SIntPair>> carry(List<SIntPair> bitPairs) {
-    return builder.par(new Carry(bitPairs));
+    return builder.seq(new Carry(bitPairs));
   }
 
   @Override
