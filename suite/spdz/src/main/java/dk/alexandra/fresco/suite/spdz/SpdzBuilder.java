@@ -5,6 +5,8 @@ import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Conversion;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultAdvancedNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.DefaultLogical;
+import dk.alexandra.fresco.framework.builder.numeric.Logical;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.PreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -19,6 +21,7 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolKnownLeft;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzAndBatchedProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputTwoPartyProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
@@ -32,6 +35,7 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownRight;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzTruncationPairProtocol;
 import java.math.BigInteger;
+import java.util.List;
 
 /**
  * Basic native builder for the SPDZ protocol suite.
@@ -73,6 +77,11 @@ class SpdzBuilder implements BuilderFactoryNumeric {
   @Override
   public AdvancedNumeric createAdvancedNumeric(ProtocolBuilderNumeric builder) {
     return new SpdzAdvancedNumeric(this, builder);
+  }
+
+  @Override
+  public Logical createLogical(ProtocolBuilderNumeric builder) {
+    return new SpdzLogical(builder);
   }
 
   @Override
@@ -224,6 +233,20 @@ class SpdzBuilder implements BuilderFactoryNumeric {
   @Override
   public OIntArithmetic getOIntArithmetic() {
     return oIntArithmetic;
+  }
+
+  class SpdzLogical extends DefaultLogical {
+
+    protected SpdzLogical(
+        ProtocolBuilderNumeric builder) {
+      super(builder);
+    }
+
+    @Override
+    public DRes<List<DRes<SInt>>> pairWiseAnd(DRes<List<DRes<SInt>>> bitsA,
+        DRes<List<DRes<SInt>>> bitsB) {
+      return builder.append(new SpdzAndBatchedProtocol(bitsA, bitsB));
+    }
   }
 
   class SpdzAdvancedNumeric extends DefaultAdvancedNumeric {

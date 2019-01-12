@@ -21,6 +21,7 @@ public class Spdz2kAndBatchedProtocol<PlainT extends CompUInt<?, ?, PlainT>> ext
 
   private DRes<List<DRes<SInt>>> bitsADef;
   private DRes<List<DRes<SInt>>> bitsBDef;
+  // TODO final LinkedLists?
   private List<Spdz2kTriple<PlainT, Spdz2kSIntBoolean<PlainT>>> triples;
   private List<Spdz2kSIntBoolean<PlainT>> epsilons;
   private List<Spdz2kSIntBoolean<PlainT>> deltas;
