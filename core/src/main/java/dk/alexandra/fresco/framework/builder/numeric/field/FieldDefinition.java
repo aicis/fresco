@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.math.BigInteger;
 
 /**
- * A field describes the algebraic structure being a finite Galois field.
+ * Describes a finite field.
  * Every element in the field is a positive number less than the modulus.
  */
 public interface FieldDefinition extends ByteSerializer<FieldElement> {
