@@ -27,6 +27,7 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzInputTwoPartyProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocolKnownLeft;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzOrBatchedProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputSingleProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol;
@@ -35,6 +36,7 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownRight;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzTruncationPairProtocol;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -243,9 +245,31 @@ class SpdzBuilder implements BuilderFactoryNumeric {
     }
 
     @Override
+    public DRes<List<DRes<SInt>>> pairWiseOr(DRes<List<DRes<SInt>>> bitsA,
+        DRes<List<DRes<SInt>>> bitsB) {
+      return builder.append(new SpdzOrBatchedProtocol(bitsA, bitsB));
+    }
+
+    @Override
     public DRes<List<DRes<SInt>>> pairWiseAnd(DRes<List<DRes<SInt>>> bitsA,
         DRes<List<DRes<SInt>>> bitsB) {
       return builder.append(new SpdzAndBatchedProtocol(bitsA, bitsB));
+    }
+
+    @Override
+    public DRes<List<DRes<SInt>>> orNeighbors(List<DRes<SInt>> bits) {
+      // TODO same as SPDZ2k version
+      List<DRes<SInt>> leftBits = new ArrayList<>(bits.size() / 2);
+      List<DRes<SInt>> rightBits = new ArrayList<>(bits.size() / 2);
+      for (int i = 0; i < bits.size() - 1; i += 2) {
+        leftBits.add(bits.get(i));
+        rightBits.add(bits.get(i + 1));
+      }
+      final boolean isOdd = bits.size() % 2 != 0;
+      return builder.append(new SpdzOrBatchedProtocol(
+          () -> leftBits,
+          () -> rightBits,
+          isOdd ? bits.get(bits.size() - 1) : null));
     }
   }
 

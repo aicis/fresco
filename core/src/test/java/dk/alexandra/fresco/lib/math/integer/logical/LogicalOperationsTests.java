@@ -183,6 +183,43 @@ public class LogicalOperationsTests {
     }
   }
 
+  public static class TestOrNeighbors<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        private final List<BigInteger> list = Arrays.asList(
+            BigInteger.ONE,
+            BigInteger.ZERO,
+            BigInteger.ONE,
+            BigInteger.ZERO,
+            BigInteger.ZERO);
+
+        @Override
+        public void test() {
+          Application<List<DRes<BigInteger>>, ProtocolBuilderNumeric> app =
+              root -> {
+                DRes<List<DRes<SInt>>> leftClosed = root.numeric().knownAsDRes(list);
+                return root.seq(seq -> {
+                  DRes<List<DRes<SInt>>> orred = seq.logical().orNeighbors(leftClosed.out());
+                  return seq.collections().openList(orred);
+                });
+              };
+          List<BigInteger> actual = runApplication(app).stream().map(DRes::out)
+              .collect(Collectors.toList());
+          List<BigInteger> expected = Arrays.asList(
+              BigInteger.ONE,
+              BigInteger.ONE,
+              BigInteger.ZERO
+          );
+          Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+  }
+
   public static class TestOrList<ResourcePoolT extends ResourcePool> extends
       TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
@@ -209,7 +246,7 @@ public class LogicalOperationsTests {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app = root -> {
             List<DRes<BigInteger>> results = inputLists.stream().map(
                 current -> root.numeric().open(root.logical().orOfList(root.numeric().knownAsDRes(
-                        current)))).collect(Collectors.toList());
+                    current)))).collect(Collectors.toList());
             return () -> results.stream().map(DRes::out).collect(Collectors
                 .toList());
           };

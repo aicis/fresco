@@ -26,7 +26,7 @@ public class Spdz2kOrBatchedProtocol<PlainT extends CompUInt<?, ?, PlainT>> exte
   private List<Spdz2kSIntBoolean<PlainT>> deltas;
   private List<PlainT> openEpsilons;
   private List<PlainT> openDeltas;
-  private DRes<SInt> extraBit;
+  private final DRes<SInt> extraBit;
   private List<DRes<SInt>> products;
 
   public Spdz2kOrBatchedProtocol(DRes<List<DRes<SInt>>> bitsA,
