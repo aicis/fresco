@@ -3,7 +3,12 @@ package dk.alexandra.fresco.framework.builder.numeric.field;
 import dk.alexandra.fresco.framework.util.MathUtils;
 import java.math.BigInteger;
 
+/**
+ * An element in a field with a normal big integer modulus.
+ */
 final class BigIntegerFieldElement implements FieldElement {
+
+  private static final long serialVersionUID = -6786266947587799652L;
 
   private final BigInteger value;
   private final BigIntegerModulus modulus;

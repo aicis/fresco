@@ -4,6 +4,9 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.math.BigInteger;
 import java.util.List;
 
+/**
+ * Defines a field based on a modulus as a normal BigInteger.
+ */
 public final class BigIntegerFieldDefinition implements FieldDefinition {
 
   private final BigIntegerModulus modulus;
@@ -14,22 +17,23 @@ public final class BigIntegerFieldDefinition implements FieldDefinition {
   /**
    * Construct a new field definition for a specified modulus.
    *
-   * @param value the modulus
+   * @param modulus the modulus
    */
-  public BigIntegerFieldDefinition(BigInteger value) {
-    this.modulus = new BigIntegerModulus(value);
-    this.modulusHalf = modulus.getBigInteger().shiftRight(1);
-    this.modulusBitLength = modulus.getBigInteger().bitLength();
+  public BigIntegerFieldDefinition(BigInteger modulus) {
+    this.modulus = new BigIntegerModulus(modulus);
+    this.modulusHalf = this.modulus.getBigInteger().shiftRight(1);
+    this.modulusBitLength = this.modulus.getBigInteger().bitLength();
     this.utils = new FieldUtils(modulusBitLength, this::createElement,
         BigIntegerFieldElement::extractValue);
   }
 
-  public BigIntegerFieldDefinition(int value) {
-    this(BigInteger.valueOf(value));
-  }
-
-  public BigIntegerFieldDefinition(String value) {
-    this(new BigInteger(value));
+  /**
+   * Construct a new field definition for a specified modulus.
+   *
+   * @param modulus the modulus as a string.
+   */
+  public BigIntegerFieldDefinition(String modulus) {
+    this(new BigInteger(modulus));
   }
 
   @Override
