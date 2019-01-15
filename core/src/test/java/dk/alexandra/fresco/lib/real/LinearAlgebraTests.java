@@ -135,6 +135,56 @@ public class LinearAlgebraTests {
     }
   }
 
+  public static class TestMatrixSubtraction<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() throws Exception {
+          ArrayList<BigDecimal> rowA1 =
+              new ArrayList<>(Arrays.asList(BigDecimal.valueOf(1.1), BigDecimal.valueOf(2.2)));
+          ArrayList<BigDecimal> rowA2 =
+              new ArrayList<>(Arrays.asList(BigDecimal.valueOf(3.3), BigDecimal.valueOf(4.2)));
+          Matrix<BigDecimal> a = new Matrix<>(2, 2, new ArrayList<>(Arrays.asList(rowA1, rowA2)));
+          ArrayList<BigDecimal> rowB1 =
+              new ArrayList<>(Arrays.asList(BigDecimal.valueOf(1.9), BigDecimal.valueOf(2.9)));
+          ArrayList<BigDecimal> rowB2 =
+              new ArrayList<>(Arrays.asList(BigDecimal.valueOf(3.9), BigDecimal.valueOf(4.8)));
+          Matrix<BigDecimal> b = new Matrix<>(2, 2, new ArrayList<>(Arrays.asList(rowB1, rowB2)));
+          ArrayList<BigDecimal> rowC1 = new ArrayList<>(Arrays
+              .asList(rowA1.get(0).subtract(rowB1.get(0)), rowA1.get(1).subtract(rowB1.get(1))));
+          ArrayList<BigDecimal> rowC2 = new ArrayList<>(Arrays
+              .asList(rowA2.get(0).subtract(rowB2.get(0)), rowA2.get(1).subtract(rowB2.get(1))));
+          Matrix<BigDecimal> expected =
+              new Matrix<>(2, 2, new ArrayList<>(Arrays.asList(rowC1, rowC2)));
+          // define functionality to be tested
+          Application<List<Matrix<BigDecimal>>, ProtocolBuilderNumeric> testApplication = root -> {
+            DRes<Matrix<DRes<SReal>>> closedA = root.realLinAlg().input(a, 1);
+            DRes<Matrix<DRes<SReal>>> closedB = root.realLinAlg().input(b, 1);
+            DRes<Matrix<DRes<SReal>>> res1 = root.realLinAlg().sub(closedA, closedB);
+            DRes<Matrix<DRes<SReal>>> res2 = root.realLinAlg().sub(a, closedB);
+            DRes<Matrix<DRes<SReal>>> res3 = root.realLinAlg().sub(closedA, b);
+            DRes<Matrix<DRes<BigDecimal>>> open1 = root.realLinAlg().openMatrix(res1);
+            DRes<Matrix<DRes<BigDecimal>>> open2 = root.realLinAlg().openMatrix(res2);
+            DRes<Matrix<DRes<BigDecimal>>> open3 = root.realLinAlg().openMatrix(res3);
+            return () -> Arrays.asList(new MatrixUtils().unwrapMatrix(open1),
+                new MatrixUtils().unwrapMatrix(open2), new MatrixUtils().unwrapMatrix(open3));
+          };
+
+          List<Matrix<BigDecimal>> output = runApplication(testApplication);
+          for (int i = 0; i < a.getHeight(); i++) {
+            for (int j = 0; j < output.size(); j++) {
+              RealTestUtils.assertEqual(expected.getRow(i), output.get(j).getRow(i), 15);
+            }
+          }
+        }
+      };
+    }
+  }
+
   public static class TestMatrixScale<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
@@ -382,6 +432,49 @@ public class LinearAlgebraTests {
       };
     }
   }
+
+  public static class TestTransposeMatrix<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() throws Exception {
+          // define input and output
+          ArrayList<BigDecimal> rowOne = new ArrayList<>();
+          rowOne.add(BigDecimal.valueOf(1.1));
+          rowOne.add(BigDecimal.valueOf(2.2));
+          ArrayList<BigDecimal> rowTwo = new ArrayList<>();
+          rowTwo.add(BigDecimal.valueOf(3.3));
+          rowTwo.add(BigDecimal.valueOf(4.4));
+          ArrayList<BigDecimal> rowThree = new ArrayList<>();
+          rowThree.add(BigDecimal.valueOf(5.5));
+          rowThree.add(BigDecimal.valueOf(6.6));
+          ArrayList<ArrayList<BigDecimal>> mat = new ArrayList<>();
+          mat.add(rowOne);
+          mat.add(rowTwo);
+          mat.add(rowThree);
+          Matrix<BigDecimal> input = new Matrix<>(3, 2, mat);
+
+          // define functionality to be tested
+          Application<Matrix<BigDecimal>, ProtocolBuilderNumeric> testApplication = root -> {
+            DRes<Matrix<DRes<SReal>>> closed = root.realLinAlg().input(input, 1);
+            DRes<Matrix<DRes<SReal>>> transposed = root.realLinAlg().transpose(closed);
+            DRes<Matrix<DRes<BigDecimal>>> opened = root.realLinAlg().openMatrix(transposed);
+            return () -> new MatrixUtils().unwrapMatrix(opened);
+          };
+          Matrix<BigDecimal> output = runApplication(testApplication);
+          System.out.println(output);
+          for (int i = 0; i < input.getHeight(); i++) {
+            RealTestUtils.assertEqual(output.getColumn(i), input.getRow(i), 15);
+          }
+        }
+      };
+    }
+  }
+
 
   private static Vector<BigDecimal> allOneVector(int dimension, int precision) {
     Vector<BigDecimal> vector = new Vector<>(dimension);

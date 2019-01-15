@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.AbstractSpdzTest;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -24,7 +23,7 @@ public class TestSpdzMacCheckTamperWithValues extends AbstractSpdzTest {
   public void testModifyShare() {
     int noOfParties = 2;
     for (int cheatingPartyId = 1; cheatingPartyId <= noOfParties; cheatingPartyId++) {
-      runTest(new TestModifyShare<>(cheatingPartyId), EvaluationStrategy.SEQUENTIAL_BATCHED,
+      runTest(new TestModifyShare<>(cheatingPartyId),
           PreprocessingStrategy.DUMMY, noOfParties);
     }
   }
@@ -33,7 +32,7 @@ public class TestSpdzMacCheckTamperWithValues extends AbstractSpdzTest {
   public void testModifyShareThree() {
     int noOfParties = 3;
     for (int cheatingPartyId = 1; cheatingPartyId <= noOfParties; cheatingPartyId++) {
-      runTest(new TestModifyShare<>(cheatingPartyId), EvaluationStrategy.SEQUENTIAL_BATCHED,
+      runTest(new TestModifyShare<>(cheatingPartyId),
           PreprocessingStrategy.DUMMY, noOfParties);
     }
   }

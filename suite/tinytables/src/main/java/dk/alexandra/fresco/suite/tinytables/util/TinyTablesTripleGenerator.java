@@ -1,33 +1,29 @@
 package dk.alexandra.fresco.suite.tinytables.util;
 
+import dk.alexandra.fresco.framework.util.Drng;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesTriple;
-import dk.alexandra.fresco.suite.tinytables.ot.OTFactory;
-import dk.alexandra.fresco.suite.tinytables.ot.OTReceiver;
-import dk.alexandra.fresco.suite.tinytables.ot.OTSender;
-import dk.alexandra.fresco.suite.tinytables.ot.datatypes.OTInput;
-import dk.alexandra.fresco.suite.tinytables.ot.datatypes.OTSigma;
-import java.security.SecureRandom;
+import dk.alexandra.fresco.tools.ot.base.Ot;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
 
 public class TinyTablesTripleGenerator {
 
-  private int playerId;
-  private OTFactory otFactory;
-  private SecureRandom random;
+  private final int playerId;
+  private final Ot ot;
+  private final Drng random;
 
   /**
    * Creates a new triple generator.
    *
    * @param playerId the id of the player to generate triples for
    * @param random a source of randomness
-   * @param otFactory a factory for OT's
+   * @param ot class for executing OTs
    */
-  public TinyTablesTripleGenerator(int playerId, SecureRandom random, OTFactory otFactory) {
+  public TinyTablesTripleGenerator(int playerId, Drng random, Ot ot) {
     this.playerId = playerId;
     this.random = random;
-    this.otFactory = otFactory;
+    this.ot = ot;
   }
 
   /**
@@ -39,48 +35,46 @@ public class TinyTablesTripleGenerator {
     List<TinyTablesTriple> triples = new ArrayList<>();
 
     if (playerId == 1) {
-      List<OTInput> otInputs = new ArrayList<>();
+      // StrictBitVector only supports bitvectors of and 8 multiple
+      StrictBitVector zeroMessage = new StrictBitVector(8);
+      StrictBitVector oneMessage = new StrictBitVector(8);
       for (int i = 0; i < amount; i++) {
         // Pick random shares of a and b
-        boolean a = random.nextBoolean();
-        boolean b = random.nextBoolean();
+        boolean a = random.nextBit();
+        boolean b = random.nextBit();
         // Masks for the OTs
-        boolean x = random.nextBoolean();
-        boolean y = random.nextBoolean();
-        otInputs.add(new OTInput(x, x ^ a));
-        otInputs.add(new OTInput(y, y ^ b));
+        boolean x = random.nextBit();
+        boolean y = random.nextBit();
+
+        zeroMessage.setBit(0, x);
+        oneMessage.setBit(0, x ^ a);
+        ot.send(zeroMessage, oneMessage);
+        zeroMessage.setBit(0, y);
+        oneMessage.setBit(0, y ^ b);
+        ot.send(zeroMessage, oneMessage);
         boolean c = a & b ^ x ^ y;
         triples.add(TinyTablesTriple.fromShares(a, b, c));
-      }
 
-      OTSender sender = otFactory.createOTSender();
-      sender.send(otInputs);
+      }
     }
     if (playerId == 2) {
-      List<OTSigma> otSigmas = new ArrayList<>();
       for (int i = 0; i < amount; i++) {
         /*
          * Pick random shares of a and b and use them for sigmas in the OT's:
          */
-        boolean a = random.nextBoolean();
-        boolean b = random.nextBoolean();
-        otSigmas.add(new OTSigma(b));
-        otSigmas.add(new OTSigma(a));
-        // We don't know c until after we have done the OT's
-        triples.add(TinyTablesTriple.fromShares(a, b, false));
-      }
-      OTReceiver receiver = otFactory.createOTReceiver();
-      List<BitSet> results = receiver.receive(otSigmas, 1);
+        boolean a = random.nextBit();
+        boolean b = random.nextBit();
+        StrictBitVector bMessage = ot.receive(b);
+        StrictBitVector aMessage = ot.receive(a);
 
-      for (int i = 0; i < amount; i++) {
-        TinyTablesTriple trip = triples.get(i);
-        boolean c = results.get(2 * i).get(0) ^ results.get(2 * i + 1).get(0)
-            ^ trip.getA().getShare() & trip.getB().getShare();
-        triples.set(i,
-            TinyTablesTriple.fromShares(trip.getA().getShare(), trip.getB().getShare(), c));
+        // We don't know c until after we have done the OT's
+        TinyTablesTriple trip = TinyTablesTriple.fromShares(a, b, false);
+        boolean c = aMessage.getBit(0) ^ bMessage.getBit(0) ^ trip.getA().getShare() & trip.getB()
+            .getShare();
+        trip = TinyTablesTriple.fromShares(trip.getA().getShare(), trip.getB().getShare(), c);
+        triples.add(trip);
       }
     }
     return triples;
   }
-
 }

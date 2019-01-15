@@ -9,8 +9,8 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
 import dk.alexandra.fresco.framework.network.AsyncNetwork;
+import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
@@ -20,7 +20,6 @@ import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,14 +32,9 @@ public class TestAesDemo {
   @Test
   public void testAESDemo() {
     int noPlayers = 2;
-    // Since SCAPI currently does not work with ports > 9999 we use fixed ports
-    // here instead of relying on ephemeral ports which are often > 9999.
-    List<Integer> ports = new ArrayList<>(noPlayers);
-    for (int i = 1; i <= noPlayers; i++) {
-      ports.add(9000 + i * 10);
-    }
+    List<Integer> ports = NetworkUtil.getFreePorts(noPlayers);
     Map<Integer, NetworkConfiguration> netConf =
-        NetworkTestUtils.getNetworkConfigurations(noPlayers, ports);
+        NetworkUtil.getNetworkConfigurations(ports);
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {

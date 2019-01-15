@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import java.math.BigInteger;
@@ -17,14 +16,12 @@ public class TestSpdzRoundSynchronization extends AbstractSpdzTest {
   @Test
   public void testFinishedEvalMacCheck() {
     runTest(new TestMacCheckEvalFinished<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void testMacCheckExceedThreshold() {
     runTest(new TestMacCheckExceedThreshold<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 

@@ -1,0 +1,34 @@
+version: '3'
+services:
+  alice:
+    build: ../..
+    expose:
+      - "8080"
+    entrypoint:
+      - java
+      - -jar
+      - /home/fresco/demos/sum/target/fresco-demo-sum.jar
+      - -i
+      - "1"
+      - -s
+      - dummyarithmetic
+      - -p
+      - "1:alice:8080"
+      - -p
+      - "2:bob:8080"
+  bob:
+    build: ../..
+    expose:
+      - "8080"
+    entrypoint:
+      - java
+      - -jar
+      - /home/fresco/demos/sum/target/fresco-demo-sum.jar
+      - -i
+      - "2"
+      - -s
+      - dummyarithmetic
+      - -p
+      - "1:alice:8080"
+      - -p
+      - "2:bob:8080"

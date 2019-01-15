@@ -33,8 +33,12 @@ public class RotSenderImpl extends RotSharedImpl implements RotSender {
 
   @Override
   public Pair<List<StrictBitVector>, List<StrictBitVector>> extend(int size) {
-    int ellPrime = size + resources.getComputationalSecurityParameter()
-        + resources.getLambdaSecurityParam();
+    // The underlying scheme requires computational security parameter plus lambda security
+    // parameter extra OTs
+    int minOts = size + resources.getComputationalSecurityParameter() + resources
+        .getLambdaSecurityParam();
+    // Round up to nearest two-power, which is required by the underlying scheme
+    int ellPrime = (int) Math.pow(2, Math.ceil(Math.log(minOts) / Math.log(2)));
     // Construct a sufficient amount correlated OTs with errors
     List<StrictBitVector> qlist = sender.extend(ellPrime);
     // Agree on a random challenge for each of the correlated OTs with errors

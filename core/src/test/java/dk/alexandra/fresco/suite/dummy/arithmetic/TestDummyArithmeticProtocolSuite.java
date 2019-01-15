@@ -5,7 +5,6 @@ import static org.junit.Assert.assertThat;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests;
-import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests;
@@ -374,29 +373,39 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_MiMC_DifferentPlainTexts() {
-    runTest(new MiMCTests.TestMiMCDifferentPlainTexts<>(), new TestParameters());
+    runTest(new MiMCTests.TestMiMCDifferentPlainTexts<>(false), new TestParameters());
+  }
+
+  @Test
+  public void test_MiMC_DifferentPlainTexts_Reduced() {
+    runTest(new MiMCTests.TestMiMCDifferentPlainTexts<>(true), new TestParameters());
   }
 
   @Test
   public void test_MiMC_EncSameEnc() {
-    runTest(new MiMCTests.TestMiMCEncSameEnc<>(), new TestParameters());
+    runTest(new MiMCTests.TestMiMCEncSameEnc<>(false), new TestParameters());
+  }
+
+  @Test
+  public void test_MiMC_EncSameEncReduced() {
+    runTest(new MiMCTests.TestMiMCEncSameEnc<>(true), new TestParameters());
+  }
+
+  @Test
+  public void test_MiMC_EncDec_Reduced() {
+    runTest(new MiMCTests.TestMiMCEncDec<>(true), new TestParameters()
+        .modulus(ModulusFinder.findSuitableModulus(512)));
   }
 
   @Test
   public void test_MiMC_EncDec() {
-    runTest(new MiMCTests.TestMiMCEncDec<>(), new TestParameters()
+    runTest(new MiMCTests.TestMiMCEncDec<>(false), new TestParameters()
         .modulus(ModulusFinder.findSuitableModulus(512)));
   }
 
   @Test
   public void test_MiMC_EncDecFixedRounds() {
     runTest(new MiMCTests.TestMiMCEncDecFixedRounds<>(), new TestParameters()
-        .modulus(ModulusFinder.findSuitableModulus(512)));
-  }
-
-  @Test
-  public void test_MiMC_Deterministically() {
-    runTest(new MiMCTests.TestMiMCEncryptsDeterministically<>(), new TestParameters()
         .modulus(ModulusFinder.findSuitableModulus(512)));
   }
 
@@ -460,7 +469,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(
         new RandomDataDeaTest<>(2, 1, 5, 1, DeaSolver.AnalysisType.OUTPUT_EFFICIENCY, new Random(),
             1, true),
-        EvaluationStrategy.SEQUENTIAL, 2);
+        new TestParameters().numParties(2));
   }
 
 
@@ -711,6 +720,11 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
+  public void test_Real_Matrix_Subtraction() {
+    runTest(new LinearAlgebraTests.TestMatrixSubtraction<>(), new TestParameters().numParties(2));
+  }
+
+  @Test
   public void test_Real_Matrix_Multiplication() {
     runTest(new LinearAlgebraTests.TestMatrixMultiplication<>(),
         new TestParameters().numParties(2));
@@ -741,6 +755,13 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_Real_Matrix_Addition_Unmatched() {
     runTest(new LinearAlgebraTests.TestAdditionUnmatchedDimensions<>(),
+        new TestParameters());
+  }
+
+  @Ignore
+  @Test
+  public void test_Real_Matrix_Transpose() {
+    runTest(new LinearAlgebraTests.TestTransposeMatrix<>(),
         new TestParameters());
   }
 

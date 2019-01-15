@@ -6,8 +6,11 @@ import java.math.BigInteger;
  * A simple implementation based on a deterministic bit generator.
  */
 public class DrngImpl implements Drng {
+  private static final int RANDOMBUFFER_SIZE = 16;
 
   private Drbg drbg;
+  private byte[] randomBytes = new byte[RANDOMBUFFER_SIZE];
+  private int bitsLeft = 0;
 
   /**
    * Creates a number generator from a bit generator.
@@ -46,6 +49,19 @@ public class DrngImpl implements Drng {
     byte[] bytes = getBytes(bitSize);
     BigInteger result = new BigInteger(1, bytes);
     return result.compareTo(limit) < 0 ? result : nextBigInteger(limit);
+  }
+
+  @Override
+  public boolean nextBit() {
+    if (bitsLeft == 0) {
+      drbg.nextBytes(randomBytes);
+      bitsLeft = RANDOMBUFFER_SIZE * Byte.SIZE;
+    }
+    int index = RANDOMBUFFER_SIZE * Byte.SIZE - bitsLeft;
+    byte currentByte = randomBytes[index / (Byte.SIZE)];
+    byte currentBit = (byte) (currentByte >> (index % (Byte.SIZE)));
+    bitsLeft--;
+    return currentBit == 0x00 ? false : true;
   }
 
   private byte[] getBytes(int bitSize) {
