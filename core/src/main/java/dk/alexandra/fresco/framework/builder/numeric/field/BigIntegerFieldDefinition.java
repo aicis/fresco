@@ -5,7 +5,7 @@ import java.math.BigInteger;
 import java.util.List;
 
 /**
- * Defines a field based on a modulus as a normal BigInteger.
+ * Defines a field based on a {@link BigIntegerModulus}
  */
 public final class BigIntegerFieldDefinition implements FieldDefinition {
 
