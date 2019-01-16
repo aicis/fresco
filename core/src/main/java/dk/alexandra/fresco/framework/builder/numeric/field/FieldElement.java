@@ -10,7 +10,7 @@ import java.io.Serializable;
 public interface FieldElement extends Serializable, Addable<FieldElement> {
 
   /**
-   * Subtracts an element from this element
+   * Subtracts an element from this element.
    *
    * @param other operand
    * @return this - other
