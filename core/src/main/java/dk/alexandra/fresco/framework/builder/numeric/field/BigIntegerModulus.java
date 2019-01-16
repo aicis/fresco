@@ -5,7 +5,7 @@ import java.math.BigInteger;
 import java.util.Objects;
 
 /**
- * This class is a naïve implementation of a modulus, other field structures would
+ * A naïve implementation that does restrict the value of the modulus used. Alternative implementations (e.g. {@link MersennePrimeModulus}) may impose special restrictions on the modulus value.
  * have more complicated data structures than this.
  */
 final class BigIntegerModulus implements Serializable {
