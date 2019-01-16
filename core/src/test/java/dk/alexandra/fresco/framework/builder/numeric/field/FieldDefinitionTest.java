@@ -26,7 +26,7 @@ public final class FieldDefinitionTest {
   };
 
   /**
-   * Creates a list of constants 0, modulusHalf, modulus-1 in the given field.
+   * Creates a list of constants 0, modulus/2, modulus-1 in the given field.
    *
    * @param definition the definition to load into.
    */
