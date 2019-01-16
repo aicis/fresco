@@ -61,7 +61,7 @@ public interface FieldDefinition extends ByteSerializer<FieldElement> {
   StrictBitVector convertToBitVector(FieldElement fieldElement);
 
   /**
-   * Gets the raw value of the internal field element and returns it.
+   * Returns the element represented as an non-negative integer in the range <i>0, ..., p - 1</i> for modulus <i>p</i>.
    *
    * @param value The element to convert
    * @return the unsigned representation as a BigInteger
