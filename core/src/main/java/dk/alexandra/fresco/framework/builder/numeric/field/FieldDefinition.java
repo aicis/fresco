@@ -61,7 +61,8 @@ public interface FieldDefinition extends ByteSerializer<FieldElement> {
   StrictBitVector convertToBitVector(FieldElement fieldElement);
 
   /**
-   * Returns the element represented as an non-negative integer in the range <i>0, ..., p - 1</i> for modulus <i>p</i>.
+   * Returns the element represented as an non-negative integer in the range
+   * <i>0, ..., p - 1</i> for modulus <i>p</i>.
    *
    * @param value The element to convert
    * @return the unsigned representation as a BigInteger
@@ -69,15 +70,19 @@ public interface FieldDefinition extends ByteSerializer<FieldElement> {
   BigInteger convertToUnsigned(FieldElement value);
 
   /**
-   * Converts the integer based on the assumption that if the unsigned number is quite close
-   * to modulus, then it is more reasonable to assume it being a negative number.
+   * Takes an unsigned big integer and interprets it as a normal integer.
    * <p>
-   * Users of the framework should know themselves if this is the case and then
-   * call this method.
+   * This method returns the asUnsigned if in the range <i>0, ..., p/2 - 1</i> for modulus <i>p</i>.
+   * This method returns the asUnsigned - modulus if in the range <i>p/2, ..., p - 1</i>
+   * for modulus <i>p</i>.
+   * </p><p>
+   * Users of the framework would know themselves if a previously converted field element should
+   * be cleansed through this method.
    * </p>
    *
    * @param asUnsigned The element to convert
-   * @return asUnsigned - modulus
+   * @return asUnsigned if the value hereof is positive and close to 0, asUnsigned - modulus if
+   *     close to modulus
    */
   BigInteger convertToSigned(BigInteger asUnsigned);
 }
