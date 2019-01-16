@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.builder.numeric.Addable;
 import java.io.Serializable;
 
 /**
- * A field element is one element of the finite Galois field it belongs to defined
+ * An element of a finite field defined
  * by {@link FieldDefinition}.
  */
 public interface FieldElement extends Serializable, Addable<FieldElement> {
