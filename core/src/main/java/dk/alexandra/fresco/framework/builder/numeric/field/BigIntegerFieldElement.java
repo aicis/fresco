@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.util.MathUtils;
 import java.math.BigInteger;
 
 /**
- * An element in a field with a normal big integer modulus.
+ * An element in a field defined by a {@link BigIntegerModulus}.
  */
 final class BigIntegerFieldElement implements FieldElement {
 
