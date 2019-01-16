@@ -17,7 +17,7 @@ public class BigIntegerFieldElementTest {
   private FieldElement element3;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     modulus = new BigIntegerModulus(BigInteger.valueOf(113));
     bigModulus =
         new BigIntegerModulus(
