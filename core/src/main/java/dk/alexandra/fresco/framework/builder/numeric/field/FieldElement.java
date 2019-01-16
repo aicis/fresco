@@ -10,39 +10,39 @@ import java.io.Serializable;
 public interface FieldElement extends Serializable, Addable<FieldElement> {
 
   /**
-   * Subtracts an element from this element.
+   * Computes this element subtracted with the operand.
    *
    * @param other operand
-   * @return this - other
+   * @return <code>this - other</code>
    */
   FieldElement subtract(FieldElement other);
 
   /**
-   * Negates this element.
+   * Computes the additive inverse of this element.
    *
-   * @return -this or rather modulus-this
+   * @return <code>-this</code>
    */
   FieldElement negate();
 
   /**
-   * Multiplies an element from this element
+   * Computes the product between an element and  an element from this element.
    *
    * @param other operand
-   * @return this * other
+   * @return <code>this * other</code>
    */
   FieldElement multiply(FieldElement other);
 
   /**
-   * Computes the square root of this element.
+   * Computes the modular inverse of this element..
    *
-   * @return x, where x*x = this
+   * @return x, where <code>x*x = this</code>
    */
   FieldElement sqrt();
 
   /**
    * Computes the modular inverse of this element.
    *
-   * @return this<sup>-1</sup> mod modulus
+   * @return <code>this<sup>-1</sup> mod modulus</code>
    */
   FieldElement modInverse();
 }

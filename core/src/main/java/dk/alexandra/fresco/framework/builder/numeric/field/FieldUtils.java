@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * Set of utility methods for the FieldDefinition.
+ */
 final class FieldUtils {
 
   private final int modulusLength;
@@ -19,10 +22,21 @@ final class FieldUtils {
     this.toBigInteger = toBigInteger;
   }
 
+  /**
+   * Converts the supplied value to an strict bit vector by taking the bit representation
+   * of the internal value.
+   */
   StrictBitVector convertToBitVector(FieldElement value) {
     return new StrictBitVector(serialize(value));
   }
 
+  /**
+   * Serializes the field element to a byte array, the length as determined as the the bit length
+   * of the modulus.
+   *
+   * @param value value to serialize
+   * @return the value in a byte array
+   */
   byte[] serialize(FieldElement value) {
     return serializeWithOffset(value, 0, new byte[modulusLength]);
   }
@@ -36,6 +50,13 @@ final class FieldUtils {
     return res;
   }
 
+  /**
+   * Reads the serialized field element from a byte array, the length is fixed and
+   * determined as the the bit length of the modulus.
+   *
+   * @param bytes the value in a byte array
+   * @return value deserialized
+   */
   FieldElement deserialize(byte[] bytes) {
     return deserializeWithOffset(bytes, 0);
   }
@@ -51,6 +72,12 @@ final class FieldUtils {
     return creator.apply(new BigInteger(1, actual));
   }
 
+  /**
+   * Serializes a list of field elements to a byte array, similar to a single serialization.
+   *
+   * @param fieldElements values to serialize
+   * @return the value in a byte array
+   */
   byte[] serializeList(List<FieldElement> fieldElements) {
     byte[] bytes = new byte[modulusLength * fieldElements.size()];
     for (int i = 0; i < fieldElements.size(); i++) {
@@ -59,6 +86,13 @@ final class FieldUtils {
     return bytes;
   }
 
+  /**
+   * Reads a list of serialized field elements from a byte array, the length is fixed and
+   * determined as the the bit length of the modulus for each value.
+   *
+   * @param bytes the values in a byte array
+   * @return value deserialized
+   */
   List<FieldElement> deserializeList(byte[] bytes) {
     ArrayList<FieldElement> elements = new ArrayList<>();
     for (int i = 0; i < bytes.length; i += modulusLength) {
@@ -67,6 +101,14 @@ final class FieldUtils {
     return elements;
   }
 
+  /**
+   * Implementation of {@link FieldDefinition#convertToSigned(BigInteger)}.
+   *
+   * @param value the value to convert
+   * @param modulus the modulus to convert under
+   * @param modulusHalf a precomputed value
+   * @return the converted value according to the specification
+   */
   static BigInteger convertRepresentation(BigInteger value, BigInteger modulus,
       BigInteger modulusHalf) {
     if (value.compareTo(modulusHalf) > 0) {
