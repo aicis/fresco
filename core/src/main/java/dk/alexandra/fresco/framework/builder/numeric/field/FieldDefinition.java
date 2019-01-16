@@ -64,7 +64,7 @@ public interface FieldDefinition extends ByteSerializer<FieldElement> {
    * Gets the raw value of the internal field element and returns it.
    *
    * @param value The element to convert
-   * @return the bit integer equivalent of the value
+   * @return the unsigned representation as a BigInteger
    */
   BigInteger convertToUnsigned(FieldElement value);
 
