@@ -84,7 +84,7 @@ public class DistanceDemo implements Application<BigInteger, ProtocolBuilderNume
     MatrixLogger matrixLog = new MatrixLogger();
     matrixLog.startTask("Setup");
     CmdLineUtil<ResourcePoolT, ProtocolBuilderNumeric> cmdUtil = new CmdLineUtil<>();
-    CommandLine cmd = cmdUtil.parse(args);
+    cmdUtil.parse(args);
     NetworkConfiguration networkConfiguration = cmdUtil.getNetworkConfiguration();
     int myId = networkConfiguration.getMyId();
     int x = myId == 1 ? 1 : 10;
@@ -97,12 +97,13 @@ public class DistanceDemo implements Application<BigInteger, ProtocolBuilderNume
     matrixLog.startTask("Evaluation");
     BigInteger bigInteger = sce.runApplication(distDemo, resourcePool, cmdUtil.getNetwork());
     matrixLog.endTask("Evaluation");
-    matrixLog.startTask("Teardown");
     double dist = Math.sqrt(bigInteger.doubleValue());
     log.info("Distance between party 1 and 2 is: " + dist);
+    matrixLog.startTask("Teardown");
     cmdUtil.closeNetwork();
     sce.shutdownSCE();
     matrixLog.endTask("Teardown");
-    (new MatrixLogPrinter("distance-demo_" + myId)).printPerformanceLog(matrixLog);
+    (new MatrixLogPrinter("distance-demo_" + myId, networkConfiguration.noOfParties()))
+    .printPerformanceLog(matrixLog);
   }
 }

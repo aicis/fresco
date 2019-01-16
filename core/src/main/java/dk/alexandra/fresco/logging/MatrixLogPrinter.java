@@ -14,9 +14,11 @@ public class MatrixLogPrinter implements PerformancePrinter {
   private static final String MATRIX_LOG_DIR = "MATRIX/logs/";
   private static final String MATRIX_LOG_EXTENTION = ".log";
   private final String experimentName;
+  private final int numberOfParties;
 
-  public MatrixLogPrinter(String experimentName) {
+  public MatrixLogPrinter(String experimentName, int numberOfParties) {
     this.experimentName = experimentName;
+    this.numberOfParties = numberOfParties;
   }
 
   @Override
@@ -24,6 +26,7 @@ public class MatrixLogPrinter implements PerformancePrinter {
     String fileName = MATRIX_LOG_DIR + experimentName + MATRIX_LOG_EXTENTION;
     (new File(MATRIX_LOG_DIR)).mkdirs();
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+      writer.write(numberOfParties + "\n");
       for (Entry<String, Long> e: logger.getLoggedValues().entrySet()) {
         writer.write(e.getKey() + ":" + e.getValue() + "," + "\n");
       }
