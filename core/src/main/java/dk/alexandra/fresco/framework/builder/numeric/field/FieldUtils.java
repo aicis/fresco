@@ -15,6 +15,13 @@ final class FieldUtils {
   private final Function<BigInteger, FieldElement> creator;
   private final Function<FieldElement, BigInteger> toBigInteger;
 
+  /**
+   * Creates a new utility class.
+   *
+   * @param modulusBitLength the modulus bit length - translates to byte length in serialization
+   * @param creator boot strap creator from open values and deserialization
+   * @param toBigInteger extraction method for serialization and openings
+   */
   FieldUtils(int modulusBitLength, Function<BigInteger, FieldElement> creator,
       Function<FieldElement, BigInteger> toBigInteger) {
     this.modulusLength = 1 + ((modulusBitLength - 1) / 8);
