@@ -17,7 +17,7 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
    *
    * @param myId id of this party
    * @param noOfPlayers number of parties in the participating
-   * @param fieldDefinition definition of the mathematical field
+   * @param fieldDefinition definition of the finite field in which arithmetic takes place
    */
   public DummyArithmeticResourcePoolImpl(int myId, int noOfPlayers,
       FieldDefinition fieldDefinition) {
