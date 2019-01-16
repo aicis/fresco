@@ -6,7 +6,7 @@ import java.math.BigInteger;
 
 /**
  * Describes a finite field.
- * Every element in the field is a positive number less than the modulus.
+ * The field is defined by a <i>modulus</i> (i.e., the order of the field) and each element is represented as a non-negative integer smaller than the modulus.
  */
 public interface FieldDefinition extends ByteSerializer<FieldElement> {
 
