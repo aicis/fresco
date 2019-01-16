@@ -15,6 +15,14 @@ final class MersennePrimeModulus implements Serializable {
   private final BigInteger precomputedBitMask;
   private final BigInteger prime;
 
+  /**
+   * Creates a modulus assuming a psuedo Mersenne prime in the form:
+   * <code>2<sup>bitLength</sup>-constant</code>. Users must choose constant adequately for
+   * the modulus to actually be a prime.
+   *
+   * @param bitLength the bitlength of the psuedo Mersenne
+   * @param constant the (small) constant
+   */
   MersennePrimeModulus(int bitLength, int constant) {
     if (bitLength <= 0) {
       throw new IllegalArgumentException("Negative bit length");
@@ -33,6 +41,11 @@ final class MersennePrimeModulus implements Serializable {
     }
   }
 
+  /**
+   * Gets the prime used for modulus as a BigInteger.
+   *
+   * @return the BigInteger equivalent
+   */
   BigInteger getPrime() {
     return prime;
   }

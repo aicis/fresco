@@ -29,9 +29,9 @@ import org.slf4j.LoggerFactory;
  * allows a client to pass secure sockets to the network such as {@link javax.net.ssl.SSLSocket}.
  * </p>
  * <p>
- * The implementation is similar to {@link AsyncNetwork}. I.e., two-threads a used for each external
- * party; one for sending and one for receiving messages. Sending is non-blocking but receiving may
- * block waiting for messages to arrive. A very simple message format is used where each message is
+ * Two threads are used for each external party; one for sending and one for receiving messages.
+ * Sending is non-blocking but receiving may block waiting for messages to arrive.
+ * A very simple message format is used where each message is
  * prefixed by an integer indicating the byte length of the message.
  * </p>
  */
@@ -97,6 +97,11 @@ public class SocketNetwork implements CloseableNetwork {
     }
   }
 
+  /**
+   * Default constructor using one minute timeout.
+   *
+   * @param conf the configuration to load the network from.
+   */
   public SocketNetwork(NetworkConfiguration conf) {
     this(conf, new Connector(conf, Duration.of(1, ChronoUnit.MINUTES)).getSocketMap());
   }
@@ -104,7 +109,7 @@ public class SocketNetwork implements CloseableNetwork {
   /**
    * Starts communication threads to handle incoming and outgoing messages.
    *
-   * @param channels a map from party ids to the associated communication channels
+   * @param sockets a map from party ids to the associated communication channels
    */
   private void startCommunication(Map<Integer, Socket> sockets) {
     for (Entry<Integer, Socket> entry : sockets.entrySet()) {
@@ -135,10 +140,10 @@ public class SocketNetwork implements CloseableNetwork {
   @Override
   public byte[] receive(final int partyId) {
     if (partyId == conf.getMyId()) {
-      return ExceptionConverter.safe(() -> selfQueue.take(), "Receiving from self failed");
+      return ExceptionConverter.safe(selfQueue::take, "Receiving from self failed");
     }
     inRange(partyId);
-    byte[] data = null;
+    byte[] data;
     data = receivers.get(partyId).pollMessage(RECEIVE_TIMEOUT);
     while (data == null) {
       if (!receivers.get(partyId).isRunning()) {
