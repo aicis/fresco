@@ -6,12 +6,14 @@ import java.math.BigInteger;
 
 /**
  * Describes a finite field.
- * The field is defined by a <i>modulus</i> (i.e., the order of the field) and each element is represented as a non-negative integer smaller than the modulus.
+ * The field is defined by a <i>modulus</i> (i.e., the order of the field) and each element is
+ * represented as a non-negative integer smaller than the modulus.
  */
 public interface FieldDefinition extends ByteSerializer<FieldElement> {
 
   /**
-   * Creates an element in the field from the supplied value.
+   * Creates an element in the field from the supplied value resulting in
+   * <code>value mod modulus</code>, where modulus taken from the field definition
    *
    * @param value the value to convert into the field
    * @return the created field element
@@ -19,7 +21,8 @@ public interface FieldDefinition extends ByteSerializer<FieldElement> {
   FieldElement createElement(long value);
 
   /**
-   * Creates an element in the field from the supplied value.
+   * Creates an element in the field from the supplied value resulting in
+   * <code>value mod modulus</code>, where modulus taken from the field definition
    *
    * @param value the value to convert into the field
    * @return the created field element
@@ -27,7 +30,8 @@ public interface FieldDefinition extends ByteSerializer<FieldElement> {
   FieldElement createElement(String value);
 
   /**
-   * Creates an element in the field from the supplied value.
+   * Creates an element in the field from the supplied value resulting in
+   * <code>value mod modulus</code>, where modulus taken from the field definition
    *
    * @param value the value to convert into the field
    * @return the created field element
