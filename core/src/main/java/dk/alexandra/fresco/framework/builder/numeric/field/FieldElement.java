@@ -33,7 +33,7 @@ public interface FieldElement extends Serializable, Addable<FieldElement> {
   FieldElement multiply(FieldElement other);
 
   /**
-   * Computes the modular inverse of this element..
+   * Computes the multiplicative inverse of this element..
    *
    * @return x, where <code>x*x = this</code>
    */
