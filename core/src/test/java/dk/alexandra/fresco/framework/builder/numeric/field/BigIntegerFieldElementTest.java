@@ -34,7 +34,7 @@ public class BigIntegerFieldElementTest {
 
   @Test(expected = NullPointerException.class)
   public void nullValue() {
-    BigIntegerFieldElement.create(null, BigInteger.ZERO);
+    BigIntegerFieldElement.create((BigInteger) null, modulus);
   }
 
   @Test
