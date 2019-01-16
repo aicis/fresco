@@ -5,26 +5,57 @@ import static org.junit.Assert.assertThat;
 import java.math.BigInteger;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.StringContains;
+import org.junit.Before;
 import org.junit.Test;
 
 public class MersennePrimeFieldElementTest {
 
-  //prime=113
-  private MersennePrimeModulus modulus = new MersennePrimeModulus(7, 15);
-  //prime=340282366920938463463374607431768211283
-  private MersennePrimeModulus bigModulus = new MersennePrimeModulus(128, 173);
-  private FieldElement element1 = MersennePrimeFieldElement.create(9, modulus);
-  private FieldElement element2 = MersennePrimeFieldElement.create(25, modulus);
-  private FieldElement element3 = MersennePrimeFieldElement.create(49, modulus);
+  private MersennePrimeModulus modulus;
+  private MersennePrimeModulus bigModulus;
+  private FieldElement element1;
+  private FieldElement element2;
+  private FieldElement element3;
+
+  @Before
+  public void setUp() {
+    //prime=113
+    modulus = new MersennePrimeModulus(7, 15);
+    //prime=340282366920938463463374607431768211283
+    bigModulus = new MersennePrimeModulus(128, 173);
+    element1 = MersennePrimeFieldElement.create(9, modulus);
+    element2 = MersennePrimeFieldElement.create(25, modulus);
+    element3 = MersennePrimeFieldElement.create(49, modulus);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void nullModulus() {
+    BigIntegerFieldElement.create(BigInteger.ZERO, null);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void nullValue() {
+    BigIntegerFieldElement.create(BigInteger.ZERO, null);
+  }
 
   @Test
   public void creators() {
-    FieldElement element1 = MersennePrimeFieldElement.create(27, modulus);
-    FieldElement element2 = MersennePrimeFieldElement.create("27", modulus);
-    FieldElement element3 = MersennePrimeFieldElement.create(BigInteger.valueOf(27), modulus);
-    assertThat(MersennePrimeFieldElement.extractValue(element1), Is.is(BigInteger.valueOf(27)));
-    assertThat(MersennePrimeFieldElement.extractValue(element2), Is.is(BigInteger.valueOf(27)));
-    assertThat(MersennePrimeFieldElement.extractValue(element3), Is.is(BigInteger.valueOf(27)));
+    testCreation(27, 27, modulus);
+    testCreation(27 + 113, 27, modulus);
+    testCreation(27 - 113, 27, modulus);
+    testCreation(-1, 113 - 1, modulus);
+    testCreation(0, 0, modulus);
+  }
+
+  private void testCreation(int value, int expected, MersennePrimeModulus modulus) {
+    FieldElement element1 = MersennePrimeFieldElement.create(value, modulus);
+    FieldElement element2 = MersennePrimeFieldElement.create("" + value, modulus);
+    FieldElement element3 = MersennePrimeFieldElement.create(BigInteger.valueOf(value), modulus);
+    assertThat(MersennePrimeFieldElement.extractValue(element1),
+        Is.is(BigInteger.valueOf(expected)));
+    assertThat(MersennePrimeFieldElement.extractValue(element2),
+        Is.is(BigInteger.valueOf(expected)));
+    assertThat(MersennePrimeFieldElement.extractValue(element3),
+        Is.is(BigInteger.valueOf(expected)));
   }
 
   @Test

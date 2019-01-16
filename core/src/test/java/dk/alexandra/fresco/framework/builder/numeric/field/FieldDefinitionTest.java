@@ -25,6 +25,11 @@ public final class FieldDefinitionTest {
       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 82
   };
 
+  /**
+   * Creates a list of constants 0, modulusHalf, modulus-1 in the given field.
+   *
+   * @param definition the definition to load into.
+   */
   private List<FieldElement> getElements(FieldDefinition definition) {
     return Arrays.asList(
         definition.createElement(0),
@@ -42,6 +47,9 @@ public final class FieldDefinitionTest {
         MersennePrimeFieldElement::extractValue);
   }
 
+  /**
+   * Runs the test on two field definitions, simple and mersenne
+   */
   private void testDefinition(Consumer<FieldDefinition> test) {
     test.accept(new BigIntegerFieldDefinition(modulusValue));
     test.accept(new MersennePrimeFieldDefinition(bitLength, constant));
