@@ -20,7 +20,7 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
    * Construct a new field definition for a pseudo Mersenne prime.
    *
    * @param bitLength the bitlength of the prime
-   * @param constant the constant subtracted from 2^bitlength
+   * @param constant the constant subtracted from 2^bitLength
    */
   public MersennePrimeFieldDefinition(int bitLength, int constant) {
     this.modulus = new MersennePrimeModulus(bitLength, constant);
