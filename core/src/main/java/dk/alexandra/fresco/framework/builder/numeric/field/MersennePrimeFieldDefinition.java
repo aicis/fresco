@@ -4,6 +4,11 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.math.BigInteger;
 import java.util.List;
 
+/**
+ * A finite field where the modulus is known to be pseudo Mersenne prime. This class
+ * enables the use of tailored mod computation utilising the knowledge about
+ * the modulus structure.
+ */
 public final class MersennePrimeFieldDefinition implements FieldDefinition {
 
   private final MersennePrimeModulus modulus;
@@ -12,7 +17,7 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
   private final FieldUtils utils;
 
   /**
-   * Construct a new field definition for a pseudo mersenne prime.
+   * Construct a new field definition for a pseudo Mersenne prime.
    *
    * @param bitLength the bitlength of the prime
    * @param constant the constant subtracted from 2^bitlength

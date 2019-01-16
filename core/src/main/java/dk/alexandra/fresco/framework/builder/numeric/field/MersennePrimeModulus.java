@@ -3,7 +3,12 @@ package dk.alexandra.fresco.framework.builder.numeric.field;
 import java.io.Serializable;
 import java.math.BigInteger;
 
+/**
+ * An implementation of modulus assuming the prime is a psuedo Mersenne prime.
+ */
 final class MersennePrimeModulus implements Serializable {
+
+  private static final long serialVersionUID = 7869304549721103721L;
 
   private final int bitLength;
   private final BigInteger constant;
@@ -11,11 +16,21 @@ final class MersennePrimeModulus implements Serializable {
   private final BigInteger prime;
 
   MersennePrimeModulus(int bitLength, int constant) {
+    if (bitLength <= 0) {
+      throw new IllegalArgumentException("Negative bit length");
+    }
+    if (constant <= 0) {
+      throw new IllegalArgumentException("Negative constant");
+    }
     this.bitLength = bitLength;
     this.constant = BigInteger.valueOf(constant);
     BigInteger shifted = BigInteger.ONE.shiftLeft(bitLength);
     this.precomputedBitMask = shifted.subtract(BigInteger.ONE);
     this.prime = shifted.subtract(BigInteger.valueOf(constant));
+    if (prime.compareTo(BigInteger.ZERO) <= 0) {
+      throw new IllegalArgumentException(
+          "Constant is too large, the prime is now less than or equal to zero");
+    }
   }
 
   BigInteger getPrime() {
