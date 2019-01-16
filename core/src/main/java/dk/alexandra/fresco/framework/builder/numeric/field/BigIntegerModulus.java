@@ -15,7 +15,7 @@ final class BigIntegerModulus implements Serializable {
   private final BigInteger value;
 
   /**
-   * Creates a new modulus object.
+   * Creates a new modulus object. The bid integer must be larger than 0.
    *
    * @param value the underlying value to use as modulus.
    */
