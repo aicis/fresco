@@ -44,7 +44,15 @@ final class MersennePrimeModulus implements Serializable {
         + '}';
   }
 
-  BigInteger mod(BigInteger value) {
+  /**
+   * Takes the value and computes the equivalent value in
+   * <i>0, ..., p - 1</i> for modulus <i>p</i>. This is used to sanitize the values after each
+   * operation that could bring the value outside these bounds.
+   *
+   * @param value the value to make sure is in the correct interval.
+   * @return <code>value mod this</code>
+   */
+  BigInteger ensureInField(BigInteger value) {
     int comparison = value.compareTo(prime);
     if (comparison < 0) {
       return value;

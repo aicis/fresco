@@ -10,10 +10,10 @@ final class MersennePrimeFieldElement implements FieldElement {
 
   private MersennePrimeFieldElement(BigInteger value, MersennePrimeModulus modulus) {
     if (value.signum() < 0) {
-      BigInteger positiveValue = modulus.mod(value.abs());
+      BigInteger positiveValue = modulus.ensureInField(value.abs());
       this.value = modulus.getPrime().subtract(positiveValue);
     } else {
-      this.value = modulus.mod(value);
+      this.value = modulus.ensureInField(value);
     }
     this.modulus = modulus;
   }
