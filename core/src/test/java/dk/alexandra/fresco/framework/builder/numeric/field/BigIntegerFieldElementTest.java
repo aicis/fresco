@@ -5,25 +5,54 @@ import static org.junit.Assert.assertThat;
 import java.math.BigInteger;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.StringContains;
+import org.junit.Before;
 import org.junit.Test;
 
 public class BigIntegerFieldElementTest {
 
-  private BigIntegerModulus modulus = new BigIntegerModulus(BigInteger.valueOf(113));
-  private BigIntegerModulus bigModulus = new BigIntegerModulus(
-      new BigInteger("340282366920938463463374607431768211283"));
-  private FieldElement element1 = BigIntegerFieldElement.create(9, modulus);
-  private FieldElement element2 = BigIntegerFieldElement.create(25, modulus);
-  private FieldElement element3 = BigIntegerFieldElement.create(49, modulus);
+  private BigIntegerModulus modulus;
+  private BigIntegerModulus bigModulus;
+  private FieldElement element1;
+  private FieldElement element2;
+  private FieldElement element3;
+
+  @Before
+  public void setUp() throws Exception {
+    modulus = new BigIntegerModulus(BigInteger.valueOf(113));
+    bigModulus =
+        new BigIntegerModulus(
+            new BigInteger("340282366920938463463374607431768211283"));
+    element1 = BigIntegerFieldElement.create(9, modulus);
+    element2 = BigIntegerFieldElement.create(25, modulus);
+    element3 = BigIntegerFieldElement.create(49, modulus);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void nullModulus() {
+    BigIntegerFieldElement.create(BigInteger.ZERO, null);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void nullValue() {
+    BigIntegerFieldElement.create(BigInteger.ZERO, null);
+  }
 
   @Test
   public void creators() {
-    FieldElement element1 = BigIntegerFieldElement.create(27, modulus);
-    FieldElement element2 = BigIntegerFieldElement.create("27", modulus);
-    FieldElement element3 = BigIntegerFieldElement.create(BigInteger.valueOf(27), modulus);
-    assertThat(BigIntegerFieldElement.extractValue(element1), Is.is(BigInteger.valueOf(27)));
-    assertThat(BigIntegerFieldElement.extractValue(element2), Is.is(BigInteger.valueOf(27)));
-    assertThat(BigIntegerFieldElement.extractValue(element3), Is.is(BigInteger.valueOf(27)));
+    testCreation(27, 27, modulus);
+    testCreation(27 + 113, 27, modulus);
+    testCreation(27 - 113, 27, modulus);
+    testCreation(-1, 113 - 1, modulus);
+    testCreation(0, 0, modulus);
+  }
+
+  private void testCreation(int value, int expected, BigIntegerModulus modulus) {
+    FieldElement element1 = BigIntegerFieldElement.create(value, modulus);
+    FieldElement element2 = BigIntegerFieldElement.create("" + value, modulus);
+    FieldElement element3 = BigIntegerFieldElement.create(BigInteger.valueOf(value), modulus);
+    assertThat(BigIntegerFieldElement.extractValue(element1), Is.is(BigInteger.valueOf(expected)));
+    assertThat(BigIntegerFieldElement.extractValue(element2), Is.is(BigInteger.valueOf(expected)));
+    assertThat(BigIntegerFieldElement.extractValue(element3), Is.is(BigInteger.valueOf(expected)));
   }
 
   @Test

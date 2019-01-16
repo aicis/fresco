@@ -20,6 +20,12 @@ public class BigIntegerModulusTest {
     new BigIntegerModulus(modulus);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void getZeroModulus() {
+    BigInteger modulus = BigInteger.ZERO;
+    new BigIntegerModulus(modulus);
+  }
+
   @Test
   public void testOfToString() {
     BigInteger modulus = new BigInteger("13");

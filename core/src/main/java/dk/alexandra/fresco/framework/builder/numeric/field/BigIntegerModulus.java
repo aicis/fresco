@@ -14,7 +14,7 @@ final class BigIntegerModulus implements Serializable {
   private final BigInteger value;
 
   BigIntegerModulus(BigInteger value) {
-    if (value.compareTo(BigInteger.ZERO) < 0) {
+    if (value.compareTo(BigInteger.ZERO) <= 0) {
       throw new IllegalArgumentException("Only positive modulus is acceptable");
     }
     this.value = Objects.requireNonNull(value);
