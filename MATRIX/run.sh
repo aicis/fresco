@@ -8,7 +8,7 @@ PARTY_ID=`expr $1 + 1`
 # MATRIX seems to put the party configurarion here
 PARTIES_FILE=$MAIN_DIR"/parties.conf"
 # Unwrap the MATRIX parties configuration file
-PARTIES_STR="-i $1 "
+PARTIES_STR="-i $PARTY_ID "
 NUM_LINES=$(wc -l < $PARTIES_FILE)
 NUM_PARTIES=`expr $NUM_LINES / 2`
 for i in $(seq $NUM_PARTIES)
