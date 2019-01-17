@@ -36,6 +36,7 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownRight;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzTruncationPairProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzXorKnownBatchedProtocol;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -260,6 +261,12 @@ class SpdzBuilder implements BuilderFactoryNumeric {
     @Override
     public DRes<List<DRes<SInt>>> batchedNot(DRes<List<DRes<SInt>>> bits) {
       return builder.append(new SpdzNotBatchedProtocol(bits));
+    }
+
+    @Override
+    public DRes<List<DRes<SInt>>> pairWiseXorKnown(DRes<List<OInt>> knownBits,
+        DRes<List<DRes<SInt>>> secretBits) {
+      return builder.append(new SpdzXorKnownBatchedProtocol(knownBits, secretBits));
     }
 
     @Override
