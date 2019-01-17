@@ -32,7 +32,7 @@ public class MostSignBitSpdz2k<PlainT extends CompUInt<?, ?, PlainT>> implements
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     OIntArithmetic arithmetic = builder.getOIntArithmetic();
     DRes<OInt> twoTo2k1 = arithmetic.twoTo(k - 1);
-    return builder.seq(seq -> seq.advancedNumeric().randomBitMask(k - 2))
+    return builder.seq(seq -> seq.advancedNumeric().randomBitMask(k - 1))
         .seq((seq, mask) -> {
           Numeric numeric = seq.numeric();
           DRes<SInt> rPrime = mask.getValue();
