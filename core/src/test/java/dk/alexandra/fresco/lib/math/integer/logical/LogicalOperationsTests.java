@@ -269,10 +269,11 @@ public class LogicalOperationsTests {
         public void test() {
           Application<List<DRes<BigInteger>>, ProtocolBuilderNumeric> app =
               root -> {
-                DRes<SInt> notOne = root.logical().not(root.numeric().known(BigInteger.ONE));
-                DRes<SInt> notZero = root.logical().not(root.numeric().known(BigInteger.ZERO));
-                List<DRes<SInt>> notted = Arrays.asList(notOne, notZero);
-                return root.collections().openList(() -> notted);
+                DRes<List<DRes<SInt>>> bits = root.numeric().knownAsDRes(
+                    Arrays.asList(BigInteger.ONE, BigInteger.ZERO)
+                );
+                DRes<List<DRes<SInt>>> notted = root.logical().batchedNot(bits);
+                return root.collections().openList(notted);
               };
           List<BigInteger> actual = runApplication(app).stream().map(DRes::out)
               .collect(Collectors.toList());
