@@ -21,7 +21,6 @@ do
     PARTIES_STR=$PARTIES_STR"-p $i:$IP:$PORT "
 done
 shift
-PARAMS=$@
-java -jar $JAR -e SEQUENTIAL_BATCHED $PARTIES_STR -s spdz -Dspdz.preprocessingStrategy=DUMMY $PARAMS > log.txt 2>&1
-
-#java -jar $JAR -e SEQUENTIAL_BATCHED -i 1 -p 1:localhost:8081 -p 2:localhost:8082 -s spdz -Dspdz.preprocessingStrategy=DUMMY > log.txt 2>&1
+# Handle the fact that MATRIX breaks when configuration arguments include equals sign
+PARAMS=$(echo "$@" | sed 's/%/=/')
+java -jar $JAR $PARTIES_STR $PARAMS > log.txt 2>&1
