@@ -29,3 +29,4 @@ suite/spdz/spdz/
 
 # PMD
 *.pmd
+/bin/
