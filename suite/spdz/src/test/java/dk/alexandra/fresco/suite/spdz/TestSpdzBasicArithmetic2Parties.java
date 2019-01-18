@@ -118,6 +118,12 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
   }
 
   @Test
+  public void test_Lots_() {
+    runTest(new BasicArithmeticTests.TestLotsMult<>(),
+        PreprocessingStrategy.DUMMY, 2, 64, 32, 16);
+  }
+
+  @Test
   public void testOpenWithConversionMascot() {
     runTest(new BasicArithmeticTests.TestOpenWithConversion<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.MASCOT, 2, 16, 16, 16);

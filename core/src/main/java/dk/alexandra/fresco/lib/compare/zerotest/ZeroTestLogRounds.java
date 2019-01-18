@@ -34,26 +34,16 @@ public class ZeroTestLogRounds implements Computation<SInt, ProtocolBuilderNumer
       final Pair<DRes<List<DRes<SInt>>>, DRes<OInt>> bitsAndC = new Pair<>(r.getBits(), c);
       return () -> bitsAndC;
     }).seq((seq, pair) -> {
-      final List<DRes<SInt>> first = pair.getFirst().out();
       List<OInt> cbits = seq.getOIntArithmetic().toBits(pair.getSecond().out(), maxBitlength);
       // Reverse the bits of c as they are stored in big endian whereas the
       // composed r values from random bit mask will be in little endian as
       // it is based on a list of bits
       Collections.reverse(cbits);
-      return () -> new Pair<>(first, cbits);
-    }).par((par, pair) -> {
-      List<DRes<SInt>> d = new ArrayList<>(maxBitlength);
-      for (int i = 0; i < maxBitlength; i++) {
-        DRes<SInt> ri = pair.getFirst().get(i);
-        DRes<OInt> ci = pair.getSecond().get(i);
-        DRes<SInt> di = par.logical().xorKnown(ci, ri);
-        d.add(di);
-      }
-      return () -> d;
-    }).seq((seq, d) -> {
+      DRes<List<DRes<SInt>>> d = seq
+          .par(par -> par.logical().pairWiseXorKnown(() -> cbits, pair.getFirst()));
       // return 1 - OR-list(d)
       return seq.numeric().subFromOpen(seq.getOIntArithmetic().one(), seq
-          .logical().orOfList(() -> d));
+          .logical().orOfList(d));
     });
   }
 }

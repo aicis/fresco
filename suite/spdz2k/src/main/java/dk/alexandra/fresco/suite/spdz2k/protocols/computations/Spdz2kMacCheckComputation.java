@@ -22,11 +22,13 @@ import java.util.stream.Collectors;
 /**
  * Computation for performing batched mac-check on all currently opened, unchecked values.
  */
-public class MacCheckComputationSpdz2k<
+public class Spdz2kMacCheckComputation<
     HighT extends UInt<HighT>,
     LowT extends UInt<LowT>,
     PlainT extends CompUInt<HighT, LowT, PlainT>>
     implements Computation<Void, ProtocolBuilderNumeric> {
+
+  private static int COUNT = 0;
 
   private final CompUIntConverter<HighT, LowT, PlainT> converter;
   private final ByteSerializer<PlainT> serializer;
@@ -37,20 +39,18 @@ public class MacCheckComputationSpdz2k<
   private ByteSerializer<HashBasedCommitment> commitmentSerializer;
   private final int noOfParties;
   private final Drbg localDrbg;
-  private long then;
 
   /**
-   * Creates new {@link MacCheckComputationSpdz2k}.
+   * Creates new {@link Spdz2kMacCheckComputation}.
    *
    * @param toCheck authenticated elements and open values that must be checked
    * @param resourcePool resources for running Spdz2k
    * @param converter utility class for converting between {@link HighT} and {@link PlainT}, {@link
    * LowT} and {@link PlainT}
    */
-  public MacCheckComputationSpdz2k(Pair<List<Spdz2kSIntArithmetic<PlainT>>, List<PlainT>> toCheck,
+  public Spdz2kMacCheckComputation(Pair<List<Spdz2kSIntArithmetic<PlainT>>, List<PlainT>> toCheck,
       Spdz2kResourcePool<PlainT> resourcePool,
       CompUIntConverter<HighT, LowT, PlainT> converter) {
-    this.then = System.currentTimeMillis();
     this.authenticatedElements = toCheck.getFirst();
     this.openValues = toCheck.getSecond();
     this.converter = converter;
@@ -60,11 +60,6 @@ public class MacCheckComputationSpdz2k<
         resourcePool.getRandomGenerator(),
         resourcePool.getFactory(),
         authenticatedElements.size());
-//    System.out.println("Done sampling " + (System.currentTimeMillis() - then));
-//    then = System.currentTimeMillis();
-//    if (resourcePool.getMyId() == 1) {
-//      System.out.println(authenticatedElements.size());
-//    }
     this.commitmentSerializer = resourcePool.getCommitmentSerializer();
     this.noOfParties = resourcePool.getNoOfParties();
     this.localDrbg = resourcePool.getLocalRandomGenerator();
@@ -73,9 +68,7 @@ public class MacCheckComputationSpdz2k<
   @Override
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
     PlainT macKeyShare = supplier.getSecretSharedKey();
-    long thenthen = System.currentTimeMillis();
     PlainT y = UInt.innerProduct(openValues, randomCoefficients);
-//    System.out.println("Inner product " + (System.currentTimeMillis() - thenthen));
     Spdz2kSIntArithmetic<PlainT> r = supplier.getNextRandomElementShare();
     return builder
         .seq(seq -> {
@@ -100,8 +93,6 @@ public class MacCheckComputationSpdz2k<
           }
           authenticatedElements.clear();
           openValues.clear();
-//          System.out.println("Done mac-check " + (System.currentTimeMillis() - then));
-          then = System.currentTimeMillis();
           return null;
         });
   }

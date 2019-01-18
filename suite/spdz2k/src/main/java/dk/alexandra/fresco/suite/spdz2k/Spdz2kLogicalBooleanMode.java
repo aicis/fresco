@@ -69,8 +69,6 @@ public class Spdz2kLogicalBooleanMode<PlainT extends CompUInt<?, ?, PlainT>> ext
     return builder.append(new Spdz2kAndKnownBatchedProtocol<>(knownBits, secretBits));
   }
 
-
-
   @Override
   public DRes<List<DRes<SInt>>> pairWiseAnd(DRes<List<DRes<SInt>>> bitsA,
       DRes<List<DRes<SInt>>> bitsB) {

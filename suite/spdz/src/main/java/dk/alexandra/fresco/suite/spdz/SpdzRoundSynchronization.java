@@ -26,7 +26,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
   private final int openValueThreshold;
   private final SpdzProtocolSuite spdzProtocolSuite;
   private final SecureRandom secRand;
-  private boolean isCheckRequired = false;
+  private boolean isCheckRequired;
   private final int batchSize;
 
   /**
@@ -45,6 +45,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
     this.secRand = new SecureRandom();
     this.openValueThreshold = openValueThreshold;
     this.batchSize = batchSize;
+    this.isCheckRequired = false;
   }
 
   public SpdzRoundSynchronization(SpdzProtocolSuite spdzProtocolSuite) {
@@ -74,9 +75,11 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
   public void finishedBatch(int gatesEvaluated, SpdzResourcePool resourcePool, Network network) {
     OpenedValueStore<SpdzSInt, BigInteger> store = resourcePool.getOpenedValueStore();
     if (isCheckRequired) {
+//      System.out.println("Because required finished batch");
       doMacCheck(resourcePool, network);
       isCheckRequired = false;
     } else if (store.exceedsThreshold(openValueThreshold)) {
+//      System.out.println("Because exceeds ");
       doMacCheck(resourcePool, network);
       isCheckRequired = false;
     }
@@ -86,6 +89,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
   public void finishedEval(SpdzResourcePool resourcePool, Network network) {
     OpenedValueStore<SpdzSInt, BigInteger> store = resourcePool.getOpenedValueStore();
     if (store.hasPendingValues()) {
+//      System.out.println("Because eval finished");
       doMacCheck(resourcePool, network);
     }
   }
@@ -94,15 +98,13 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
   public void beforeBatch(
       ProtocolCollection<SpdzResourcePool> protocols, SpdzResourcePool resourcePool,
       Network network) {
-//    isCheckRequired = StreamSupport.stream(nativeProtocols.spliterator(), false)
-//        .anyMatch(p -> p instanceof RequiresMacCheck);
-//    OpenedValueStore<Spdz2kSIntArithmetic<PlainT>, PlainT> store = resourcePool.getOpenedValueStore();
-//    if (store.hasPendingValues() && isCheckRequired) {
-//      doMacCheck(resourcePool, network);
-    isCheckRequired = StreamSupport.stream(protocols.spliterator(), false)
+    final boolean outputFound = StreamSupport.stream(protocols.spliterator(), false)
         .anyMatch(p -> p instanceof SpdzOutputProtocol);
+//    System.out.println(outputFound);
+    this.isCheckRequired = outputFound;
     OpenedValueStore<SpdzSInt, BigInteger> store = resourcePool.getOpenedValueStore();
-    if (store.hasPendingValues() && isCheckRequired) {
+    if (store.hasPendingValues() && this.isCheckRequired) {
+//      System.out.println("Because of output");
       doMacCheck(resourcePool, network);
     }
   }

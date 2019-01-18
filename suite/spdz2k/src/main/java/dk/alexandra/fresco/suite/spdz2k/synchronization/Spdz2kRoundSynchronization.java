@@ -14,7 +14,7 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntConverter;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.UInt;
-import dk.alexandra.fresco.suite.spdz2k.protocols.computations.MacCheckComputationSpdz2k;
+import dk.alexandra.fresco.suite.spdz2k.protocols.computations.Spdz2kMacCheckComputation;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.RequiresMacCheck;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import java.util.stream.StreamSupport;
@@ -63,7 +63,7 @@ public class Spdz2kRoundSynchronization<
         protocolSuite,
         batchSize);
     OpenedValueStore<Spdz2kSIntArithmetic<PlainT>, PlainT> store = resourcePool.getOpenedValueStore();
-    MacCheckComputationSpdz2k<HighT, LowT, PlainT> macCheck = new MacCheckComputationSpdz2k<>(
+    Spdz2kMacCheckComputation<HighT, LowT, PlainT> macCheck = new Spdz2kMacCheckComputation<>(
         store.popValues(),
         resourcePool, converter);
     ProtocolBuilderNumeric sequential = builder.createSequential();
@@ -75,7 +75,12 @@ public class Spdz2kRoundSynchronization<
   public void finishedBatch(int gatesEvaluated, Spdz2kResourcePool<PlainT> resourcePool,
       Network network) {
     OpenedValueStore<Spdz2kSIntArithmetic<PlainT>, PlainT> store = resourcePool.getOpenedValueStore();
-    if (isCheckRequired || store.exceedsThreshold(openValueThreshold)) {
+    if (isCheckRequired) {
+//      System.out.println("Because required finished batch");
+      doMacCheck(resourcePool, network);
+      isCheckRequired = false;
+    } else if (store.exceedsThreshold(openValueThreshold)) {
+//      System.out.println("Because exceeds ");
       doMacCheck(resourcePool, network);
       isCheckRequired = false;
     }
@@ -85,6 +90,7 @@ public class Spdz2kRoundSynchronization<
   public void finishedEval(Spdz2kResourcePool<PlainT> resourcePool, Network network) {
     OpenedValueStore<Spdz2kSIntArithmetic<PlainT>, PlainT> store = resourcePool.getOpenedValueStore();
     if (store.hasPendingValues()) {
+//      System.out.println("Because eval finished");
       doMacCheck(resourcePool, network);
     }
   }
@@ -93,10 +99,13 @@ public class Spdz2kRoundSynchronization<
   public void beforeBatch(
       ProtocolCollection<Spdz2kResourcePool<PlainT>> nativeProtocols,
       Spdz2kResourcePool<PlainT> resourcePool, Network network) {
-    isCheckRequired = StreamSupport.stream(nativeProtocols.spliterator(), false)
+    final boolean outputFound = StreamSupport.stream(nativeProtocols.spliterator(), false)
         .anyMatch(p -> p instanceof RequiresMacCheck);
+//    System.out.println(outputFound);
+    this.isCheckRequired = outputFound;
     OpenedValueStore<Spdz2kSIntArithmetic<PlainT>, PlainT> store = resourcePool.getOpenedValueStore();
-    if (store.hasPendingValues() && isCheckRequired) {
+    if (store.hasPendingValues() && this.isCheckRequired) {
+//      System.out.println("Because of output");
       doMacCheck(resourcePool, network);
     }
   }

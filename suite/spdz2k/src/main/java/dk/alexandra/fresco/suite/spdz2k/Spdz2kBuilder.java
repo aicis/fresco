@@ -21,6 +21,7 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.InputComputationSpdz2k;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAddKnownProtocol;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAddProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kKnownSIntProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kMultKnownProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kMultiplyProtocol;
@@ -29,6 +30,7 @@ import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOutputToAll;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomBitProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomElementProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kSubtractFromKnownProtocol;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kSubtractProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kTwoPartyInputProtocol;
 import java.math.BigInteger;
 
@@ -91,7 +93,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
     return new Numeric() {
       @Override
       public DRes<SInt> add(DRes<SInt> a, DRes<SInt> b) {
-        return () -> factory.toSpdz2kSIntArithmetic(a).add(factory.toSpdz2kSIntArithmetic(b));
+        return builder.append(new Spdz2kAddProtocol<>(a, b));
       }
 
       @Override
@@ -106,8 +108,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, DRes<SInt> b) {
-        return () -> (factory.toSpdz2kSIntArithmetic(a))
-            .subtract(factory.toSpdz2kSIntArithmetic(b));
+        return builder.append(new Spdz2kSubtractProtocol<>(a, b));
       }
 
       @Override
