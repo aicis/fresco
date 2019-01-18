@@ -111,7 +111,7 @@ public class DistanceDemo implements Application<BigInteger, ProtocolBuilderNume
       matrixLog.endTask("Teardown");
       loggers.add(matrixLog);
     }
-    (new MatrixIterationLogPrinter("distance-demo_" + myId, networkConfiguration.noOfParties()))
+    (new MatrixIterationLogPrinter(String.join("-", args), networkConfiguration.noOfParties()))
     .printPerformanceLog(loggers);
   }
 }
