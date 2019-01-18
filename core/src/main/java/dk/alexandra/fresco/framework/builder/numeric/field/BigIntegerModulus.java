@@ -5,7 +5,7 @@ import java.math.BigInteger;
 import java.util.Objects;
 
 /**
- * A naïve implementation that does restrict the value of the modulus used. Alternative
+ * A naïve implementation that does not restrict the value of the modulus used. Alternative
  * implementations (e.g. {@link MersennePrimeModulus}) may impose special restrictions on the
  * modulus value.
  */
