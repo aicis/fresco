@@ -10,10 +10,14 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.logging.MatrixIterationLogPrinter;
 import dk.alexandra.fresco.logging.MatrixLogPrinter;
 import dk.alexandra.fresco.logging.MatrixLogger;
+import dk.alexandra.fresco.logging.PerformanceLogger;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,15 +85,16 @@ public class DistanceDemo implements Application<BigInteger, ProtocolBuilderNume
    */
   public static <ResourcePoolT extends ResourcePool> void main(String[] args) throws IOException {
     int iterations = 10;
+    CmdLineUtil<ResourcePoolT, ProtocolBuilderNumeric> cmdUtil = new CmdLineUtil<>();
+    cmdUtil.parse(args);
+    NetworkConfiguration networkConfiguration = cmdUtil.getNetworkConfiguration();
+    int myId = networkConfiguration.getMyId();
+    int x = myId == 1 ? 1 : 10;
+    int y = myId == 1 ? 2 : 20;
+    List<PerformanceLogger> loggers = new ArrayList<>(iterations);
     for (int i = 0; i < iterations; i++) {
       MatrixLogger matrixLog = new MatrixLogger();
       matrixLog.startTask("Setup");
-      CmdLineUtil<ResourcePoolT, ProtocolBuilderNumeric> cmdUtil = new CmdLineUtil<>();
-      cmdUtil.parse(args);
-      NetworkConfiguration networkConfiguration = cmdUtil.getNetworkConfiguration();
-      int myId = networkConfiguration.getMyId();
-      int x = myId == 1 ? 1 : 10;
-      int y = myId == 1 ? 2 : 20;
       DistanceDemo distDemo = new DistanceDemo(networkConfiguration.getMyId(), x, y);
       SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce = cmdUtil.getSce();
       cmdUtil.startNetwork();
@@ -104,8 +109,9 @@ public class DistanceDemo implements Application<BigInteger, ProtocolBuilderNume
       cmdUtil.closeNetwork();
       sce.shutdownSCE();
       matrixLog.endTask("Teardown");
-      (new MatrixLogPrinter("distance-demo_" + myId, networkConfiguration.noOfParties()))
-          .printPerformanceLog(matrixLog);
+      loggers.add(matrixLog);
     }
+    (new MatrixIterationLogPrinter("distance-demo_" + myId, networkConfiguration.noOfParties()))
+    .printPerformanceLog(loggers);
   }
 }
