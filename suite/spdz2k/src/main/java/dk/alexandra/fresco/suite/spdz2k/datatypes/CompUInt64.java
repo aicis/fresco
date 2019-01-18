@@ -81,7 +81,7 @@ public class CompUInt64 implements CompUInt<UInt32, UInt32, CompUInt64> {
 
   @Override
   public CompUInt64 toBitRep() {
-    return new CompUInt64Bit(value << 31);
+    return new CompUInt64Bit(value);
   }
 
   @Override

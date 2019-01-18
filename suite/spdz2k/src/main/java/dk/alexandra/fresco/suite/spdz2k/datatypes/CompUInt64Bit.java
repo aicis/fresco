@@ -9,10 +9,6 @@ public class CompUInt64Bit extends CompUInt64 {
   }
 
   public CompUInt64Bit(long value) {
-    super(value >>> 31);
-  }
-
-  public CompUInt64Bit(long value, boolean shift) {
     super(value);
   }
 
@@ -33,12 +29,12 @@ public class CompUInt64Bit extends CompUInt64 {
 
   @Override
   public CompUInt64 multiply(CompUInt64 other) {
-    return new CompUInt64Bit(value * other.value, false);
+    return new CompUInt64Bit(value * other.value);
   }
 
   @Override
   public CompUInt64 add(CompUInt64 other) {
-    return new CompUInt64Bit(value + other.value, false);
+    return new CompUInt64Bit(value + other.value);
   }
 
   @Override
@@ -68,7 +64,7 @@ public class CompUInt64Bit extends CompUInt64 {
 
   @Override
   public CompUInt64 multiplyByBit(int bitValue) {
-    return new CompUInt64Bit(value * UInt.toUnLong(bitValue), false);
+    return new CompUInt64Bit(value * UInt.toUnLong(bitValue));
   }
 
 }
