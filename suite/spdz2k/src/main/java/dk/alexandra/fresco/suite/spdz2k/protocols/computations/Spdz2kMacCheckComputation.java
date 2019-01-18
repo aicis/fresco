@@ -52,7 +52,7 @@ public class Spdz2kMacCheckComputation<
     this.authenticatedElements = toCheck.getFirst();
     this.openValues = toCheck.getSecond();
     this.converter = converter;
-    this.serializer = resourcePool.getPlainSerializer();
+    this.serializer = resourcePool.getFactory().getSerializer();
     this.supplier = resourcePool.getDataSupplier();
     this.randomCoefficients = sampleCoefficients(
         resourcePool.getRandomGenerator(),
@@ -141,7 +141,7 @@ public class Spdz2kMacCheckComputation<
     for (int i = 0; i < numCoefficients; i++) {
       byte[] bytes = new byte[factory.getHighBitLength() / Byte.SIZE];
       drbg.nextBytes(bytes);
-      randomCoefficients.add(factory.createFromBytes(bytes));
+      randomCoefficients.add(factory.deserialize(bytes));
     }
     return randomCoefficients;
   }

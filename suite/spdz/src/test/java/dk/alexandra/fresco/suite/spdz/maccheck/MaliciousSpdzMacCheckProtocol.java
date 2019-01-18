@@ -3,6 +3,8 @@ package dk.alexandra.fresco.suite.spdz.maccheck;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -24,13 +26,13 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
   private MessageDigest digest;
   private int round = 0;
   private ProtocolProducer pp;
-  private Map<Integer, BigInteger> commitments;
-  private BigInteger modulus;
+  private Map<Integer, FieldElement> commitments;
+  private FieldDefinition definition;
   private MaliciousSpdzCommitProtocol comm;
   private MaliciousSpdzOpenCommitProtocol openComm;
   private final List<SpdzSInt> closedValues;
-  private final List<BigInteger> openedValues;
-  private final BigInteger alpha;
+  private final List<FieldElement> openedValues;
+  private final FieldElement alpha;
   private final Drbg jointDrbg;
 
   public static boolean corruptCommitRound = false;
@@ -39,44 +41,50 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
   MaliciousSpdzMacCheckProtocol(
       final SecureRandom rand,
       final MessageDigest digest,
-      final Pair<List<SpdzSInt>, List<BigInteger>> toCheck,
-      final BigInteger modulus,
+      final Pair<List<SpdzSInt>, List<FieldElement>> toCheck,
+      final FieldDefinition definition,
       final Drbg jointDrbg,
-      final BigInteger alpha) {
+      final FieldElement alpha) {
     this.rand = rand;
     this.digest = digest;
     this.closedValues = toCheck.getFirst();
     this.openedValues = toCheck.getSecond();
-    this.modulus = modulus;
+    this.definition = definition;
     this.alpha = alpha;
     this.jointDrbg = jointDrbg;
   }
-
 
   @Override
   public <ResourcePoolT extends ResourcePool> void getNextProtocols(
       ProtocolCollection<ResourcePoolT> protocolCollection) {
     if (pp == null) {
+      BigInteger modulusBigInteger = definition.getModulus();
       if (round == 0) {
-        BigInteger[] rs = sampleRandomCoefficients(openedValues.size(), jointDrbg, modulus);
+        BigInteger[] rs = sampleRandomCoefficients(openedValues.size(), jointDrbg,
+            modulusBigInteger);
         BigInteger a = BigInteger.ZERO;
         int index = 0;
-        for (BigInteger openedValue : openedValues) {
-          a = a.add(openedValue.multiply(rs[index++])).mod(modulus);
+        for (FieldElement openedValue : openedValues) {
+          a = a.add(rs[index++].multiply(definition.convertToUnsigned(openedValue)))
+              .mod(modulusBigInteger);
         }
 
         // compute gamma_i as the sum of all MAC's on the opened values times r_j.
         BigInteger gamma = BigInteger.ZERO;
         index = 0;
         for (SpdzSInt c : closedValues) {
-          gamma = gamma.add(rs[index++].multiply(c.getMac())).mod(modulus);
+          gamma = gamma.add(rs[index++].multiply(definition.convertToUnsigned(c.getMac())))
+              .mod(modulusBigInteger);
         }
 
         // compute delta_i as: gamma_i - alpha_i*a
-        BigInteger delta = gamma.subtract(alpha.multiply(a)).mod(modulus);
+        BigInteger delta = gamma.subtract(definition.convertToUnsigned(alpha).multiply(a))
+            .mod(modulusBigInteger);
         // Commit to delta and open it afterwards
-        SpdzCommitment commitment = new SpdzCommitment(digest, delta, rand);
-        Map<Integer, BigInteger> comms = new HashMap<>();
+        SpdzCommitment commitment = new SpdzCommitment(digest,
+            definition.createElement(delta),
+            rand, modulusBigInteger.bitLength());
+        Map<Integer, byte[]> comms = new HashMap<>();
         comm = new MaliciousSpdzCommitProtocol(commitment, comms, corruptCommitRound);
         commitments = new HashMap<>();
         openComm = new MaliciousSpdzOpenCommitProtocol(commitment, comms, commitments,
@@ -93,12 +101,12 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         if (!openComm.out()) {
           throw new MaliciousException("Malicious activity detected: Opening commitments failed.");
         }
-        BigInteger deltaSum = BigInteger.ZERO;
-        for (BigInteger d : commitments.values()) {
-          deltaSum = deltaSum.add(d);
-        }
-        deltaSum = deltaSum.mod(modulus);
-        if (!deltaSum.equals(BigInteger.ZERO)) {
+        FieldElement deltaSum =
+            commitments.values()
+                .stream()
+                .reduce(definition.createElement(0), FieldElement::add);
+
+        if (!BigInteger.ZERO.equals(definition.convertToUnsigned(deltaSum))) {
           throw new MaliciousException(
               "The sum of delta's was not 0. Someone was corrupting something amongst "
                   + openedValues.size()

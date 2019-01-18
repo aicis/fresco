@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import java.io.Closeable;
@@ -85,13 +86,13 @@ public class TestRuntime {
    */
   public Map<Integer, MascotTestContext> initializeContexts(
       int noOfParties, int instanceId,
-      MascotSecurityParameters securityParameters) {
+      MascotSecurityParameters securityParameters, FieldDefinition fieldDefinition) {
     initializeExecutor(noOfParties);
     List<Callable<Pair<Integer, MascotTestContext>>> initializationTasks = new LinkedList<>();
     for (int partyId = 1; partyId <= noOfParties; partyId++) {
       int finalPartyId = partyId;
       initializationTasks.add(() -> initializeContext(finalPartyId, noOfParties,
-          instanceId, securityParameters));
+          instanceId, securityParameters, fieldDefinition));
     }
     for (Pair<Integer, MascotTestContext> pair : safeInvokeAll(initializationTasks)) {
       contexts.put(pair.getFirst(), pair.getSecond());
@@ -117,9 +118,10 @@ public class TestRuntime {
    * Initializes a single context for a party.
    */
   private Pair<Integer, MascotTestContext> initializeContext(int myId, int noOfParties,
-      int instanceId, MascotSecurityParameters securityParameters) {
+      int instanceId, MascotSecurityParameters securityParameters,
+      FieldDefinition fieldDefinition) {
     MascotTestContext ctx = new MascotTestContext(myId, noOfParties, instanceId,
-        securityParameters);
+        securityParameters, fieldDefinition);
     return new Pair<>(myId, ctx);
   }
 

@@ -1,13 +1,13 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
-
+import java.math.BigInteger;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-
 import org.hamcrest.collection.IsCollectionWithSize;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
@@ -20,11 +20,12 @@ public class CustomAsserts {
    * @param expected expected matrix
    * @param actual actual matrix
    */
-  public static void assertMatrixEquals(List<List<FieldElement>> expected,
+  public static void assertMatrixEquals(FieldDefinition definition,
+      List<List<FieldElement>> expected,
       List<List<FieldElement>> actual) {
     Assert.assertThat(expected, IsCollectionWithSize.hasSize(actual.size()));
     for (int i = 0; i < expected.size(); i++) {
-      assertEquals(expected.get(i), actual.get(i));
+      assertEquals(definition, expected.get(i), actual.get(i));
     }
   }
 
@@ -34,9 +35,10 @@ public class CustomAsserts {
    * @param expected expected list
    * @param actual actual list
    */
-  public static void assertEquals(List<FieldElement> expected, List<FieldElement> actual) {
+  public static void assertEquals(FieldDefinition definition, List<FieldElement> expected,
+      List<FieldElement> actual) {
     Function<Integer, BiConsumer<FieldElement, FieldElement>> innerAssert =
-        (idx) -> (l, r) -> assertEqualsMessaged(" - at index " + idx, l, r);
+        (idx) -> (l, r) -> assertEqualsMessaged(" - at index " + idx, definition, l, r);
     assertEquals(expected, actual, innerAssert);
   }
 
@@ -48,12 +50,14 @@ public class CustomAsserts {
     }
   }
 
-  public static void assertEquals(FieldElement expected, FieldElement actual) {
-    assertEqualsMessaged("", expected, actual);
+  public static void assertEquals(FieldDefinition definition, FieldElement expected,
+      FieldElement actual) {
+    assertEqualsMessaged("", definition, expected, actual);
   }
 
-  public static void assertEquals(AuthenticatedElement expected, AuthenticatedElement actual) {
-    assertEqualsMessaged("", expected, actual);
+  public static void assertEquals(FieldDefinition definition, AuthenticatedElement expected,
+      AuthenticatedElement actual) {
+    assertEqualsMessaged("", definition, expected, actual);
   }
 
   /**
@@ -62,10 +66,11 @@ public class CustomAsserts {
    * @param expected expected list
    * @param actual actual list
    */
-  public static void assertEqualsAuth(List<AuthenticatedElement> expected,
+  public static void assertEqualsAuth(FieldDefinition definition,
+      List<AuthenticatedElement> expected,
       List<AuthenticatedElement> actual) {
     Function<Integer, BiConsumer<AuthenticatedElement, AuthenticatedElement>> innerAssert =
-        (idx) -> (l, r) -> assertEqualsMessaged(" - at index " + idx, l, r);
+        (idx) -> (l, r) -> assertEqualsMessaged(" - at index " + idx, definition, l, r);
     assertEquals(expected, actual, innerAssert);
   }
 
@@ -75,12 +80,13 @@ public class CustomAsserts {
    * @param expected expected authenticated element
    * @param actual actual authenticated element
    */
-  private static void assertEqualsMessaged(String message, AuthenticatedElement expected,
+  private static void assertEqualsMessaged(String message, FieldDefinition definition,
+      AuthenticatedElement expected,
       AuthenticatedElement actual) {
-    assertEqualsMessaged(" share mismatch " + message, expected.getShare(), actual.getShare());
-    assertEqualsMessaged(" mac mismatch " + message, expected.getMac(), actual.getMac());
-    Assert.assertEquals(" modulus mismatch " + message + " in " + actual, expected.getModulus(),
-        actual.getModulus());
+    assertEqualsMessaged(" share mismatch " + message, definition, expected.getShare(),
+        actual.getShare());
+    assertEqualsMessaged(" mac mismatch " + message, definition, expected.getMac(),
+        actual.getMac());
   }
 
   /**
@@ -90,12 +96,12 @@ public class CustomAsserts {
    * @param expected expected field element
    * @param actual actual field element
    */
-  private static void assertEqualsMessaged(String message, FieldElement expected,
+  private static void assertEqualsMessaged(String message, FieldDefinition definition,
+      FieldElement expected,
       FieldElement actual) {
-    Assert.assertThat("Modulus mismatch" + message + " in " + actual, expected.getModulus(),
-        Is.is(actual.getModulus()));
-    Assert.assertThat("Value mismatch" + message + " in " + actual, expected.getValue(),
-        Is.is(actual.getValue()));
+    Assert.assertThat("Value mismatch" + message + " in " + actual,
+        definition.convertToUnsigned(expected),
+        Is.is(definition.convertToUnsigned(actual)));
   }
 
   /**
@@ -104,7 +110,8 @@ public class CustomAsserts {
    * @param triple triple to check
    * @param macKey recombined mac key
    */
-  public static void assertTripleIsValid(MultiplicationTriple triple, FieldElement macKey) {
+  public static void assertTripleIsValid(FieldDefinition definition, MultiplicationTriple triple,
+      FieldElement macKey) {
     AuthenticatedElement left = triple.getLeft();
     AuthenticatedElement right = triple.getRight();
     AuthenticatedElement product = triple.getProduct();
@@ -112,24 +119,24 @@ public class CustomAsserts {
     FieldElement leftValue = left.getShare();
     FieldElement rightValue = right.getShare();
     FieldElement productValue = product.getShare();
-    assertEqualsMessaged("Shares of product do not equal product ", productValue,
+    assertEqualsMessaged("Shares of product do not equal product ", definition, productValue,
         leftValue.multiply(rightValue));
 
     FieldElement leftMac = left.getMac();
     FieldElement rightMac = right.getMac();
     FieldElement productMac = product.getMac();
-    assertEqualsMessaged("Mac check failed for left ", leftValue.multiply(macKey), leftMac);
-    assertEqualsMessaged("Mac check failed for right ", rightValue.multiply(macKey), rightMac);
-    assertEqualsMessaged("Mac check failed for product", productValue.multiply(macKey), productMac);
+    assertEqualsMessaged("Mac check failed for left ", definition, leftValue.multiply(macKey),
+        leftMac);
+    assertEqualsMessaged("Mac check failed for right ", definition, rightValue.multiply(macKey),
+        rightMac);
+    assertEqualsMessaged("Mac check failed for product", definition, productValue.multiply(macKey),
+        productMac);
   }
 
-  public static void assertFieldElementIsBit(FieldElement actualBit) {
-    // compute b * (1 - b), which is 0 iff b is a bit
-    FieldElement bitCheck = actualBit
-        .multiply(new FieldElement(1, actualBit.getModulus())
-            .subtract(actualBit));
+  public static void assertFieldElementIsBit(
+      FieldDefinition fieldDefinition, FieldElement actualBit) {
+    BigInteger output = fieldDefinition.convertToUnsigned(actualBit);
     String message = "Not a bit " + actualBit;
-    Assert.assertTrue(message, bitCheck.isZero());
+    Assert.assertTrue(message, output.equals(BigInteger.ZERO) || output.equals(BigInteger.ONE));
   }
-
 }

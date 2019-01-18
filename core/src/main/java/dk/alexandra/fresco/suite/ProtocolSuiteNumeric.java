@@ -3,7 +3,6 @@ package dk.alexandra.fresco.suite;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.Network;
 
 /**
  * Marker interface for numeric protocol suite with the builder bound to the type of numeric.
@@ -16,5 +15,5 @@ public interface ProtocolSuiteNumeric<ResourcePoolT extends NumericResourcePool>
     ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric> {
 
   @Override
-  BuilderFactoryNumeric init(ResourcePoolT resourcePool, Network network);
+  BuilderFactoryNumeric init(ResourcePoolT resourcePool);
 }

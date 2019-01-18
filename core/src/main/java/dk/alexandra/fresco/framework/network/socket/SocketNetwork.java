@@ -1,11 +1,11 @@
 package dk.alexandra.fresco.framework.network.socket;
 
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.network.CloseableNetwork;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import java.net.Socket;
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,9 +29,9 @@ import org.slf4j.LoggerFactory;
  * allows a client to pass secure sockets to the network such as {@link javax.net.ssl.SSLSocket}.
  * </p>
  * <p>
- * The implementation is similar to {@link AsyncNetwork}. I.e., two-threads a used for each external
- * party; one for sending and one for receiving messages. Sending is non-blocking but receiving may
- * block waiting for messages to arrive. A very simple message format is used where each message is
+ * Two threads are used for each external party; one for sending and one for receiving messages.
+ * Sending is non-blocking but receiving may block waiting for messages to arrive.
+ * A very simple message format is used where each message is
  * prefixed by an integer indicating the byte length of the message.
  * </p>
  */
@@ -56,11 +56,10 @@ public class SocketNetwork implements CloseableNetwork {
    * </p>
    *
    * @param conf the network configuration
-   * @param socketMap a mapping from party ids to the socket to be used for communicating with the
-   *        given party.
-   *
-   * @throws IllegalArgumentException if {@code socketMap} and {@code conf} are inconsistent or the
-   *         sockets are not open and connected.
+   * @param socketMap a mapping from party ids to the socket to be used for communicating with
+   *     the given party.
+   * @throws IllegalArgumentException if {@code socketMap} and {@code conf} are inconsistent or
+   *     the sockets are not open and connected.
    */
   public SocketNetwork(NetworkConfiguration conf, Map<Integer, Socket> socketMap) {
     Objects.requireNonNull(conf);
@@ -79,10 +78,10 @@ public class SocketNetwork implements CloseableNetwork {
       if (!s.isConnected()) {
         throw new IllegalArgumentException("Unconnected socket for P" + i);
       }
-        ExceptionConverter.safe(() -> {
-          s.setTcpNoDelay(true);
-          return null;
-        }, "Could not set delayless TCP connection");
+      ExceptionConverter.safe(() -> {
+        s.setTcpNoDelay(true);
+        return null;
+      }, "Could not set delayless TCP connection");
     }
     this.conf = conf;
     int externalParties = conf.noOfParties() - 1;
@@ -99,9 +98,18 @@ public class SocketNetwork implements CloseableNetwork {
   }
 
   /**
+   * Default constructor using one minute timeout.
+   *
+   * @param conf the configuration to load the network from.
+   */
+  public SocketNetwork(NetworkConfiguration conf) {
+    this(conf, new Connector(conf, Duration.of(1, ChronoUnit.MINUTES)).getSocketMap());
+  }
+
+  /**
    * Starts communication threads to handle incoming and outgoing messages.
    *
-   * @param channels a map from party ids to the associated communication channels
+   * @param sockets a map from party ids to the associated communication channels
    */
   private void startCommunication(Map<Integer, Socket> sockets) {
     for (Entry<Integer, Socket> entry : sockets.entrySet()) {
@@ -132,10 +140,10 @@ public class SocketNetwork implements CloseableNetwork {
   @Override
   public byte[] receive(final int partyId) {
     if (partyId == conf.getMyId()) {
-      return ExceptionConverter.safe(() -> selfQueue.take(), "Receiving from self failed");
+      return ExceptionConverter.safe(selfQueue::take, "Receiving from self failed");
     }
     inRange(partyId);
-    byte[] data = null;
+    byte[] data;
     data = receivers.get(partyId).pollMessage(RECEIVE_TIMEOUT);
     while (data == null) {
       if (!receivers.get(partyId).isRunning()) {
@@ -203,5 +211,4 @@ public class SocketNetwork implements CloseableNetwork {
   public int getNoOfParties() {
     return this.conf.noOfParties();
   }
-
 }

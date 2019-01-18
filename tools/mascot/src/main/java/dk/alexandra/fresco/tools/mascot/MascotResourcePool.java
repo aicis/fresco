@@ -3,18 +3,24 @@ package dk.alexandra.fresco.tools.mascot;
 import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.commitment.HashBasedCommitmentSerializer;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import java.security.MessageDigest;
 
 public interface MascotResourcePool extends NumericResourcePool {
+
+  /**
+   * Gets the field definition.
+   *
+   * @return field defintion
+   */
+  FieldDefinition getFieldDefinition();
 
   /**
    * Returns the instance ID which is unique for this particular resource pool object, but only in
@@ -25,7 +31,7 @@ public interface MascotResourcePool extends NumericResourcePool {
   int getInstanceId();
 
   /**
-   * {@link MascotSecurityParameters#getModBitLength()}.
+   * {@link FieldDefinition#getBitLength()}.
    */
   int getModBitLength();
 
@@ -50,15 +56,6 @@ public interface MascotResourcePool extends NumericResourcePool {
    * @return PRG
    */
   FieldElementPrg getLocalSampler();
-
-  /**
-   * Gets serializer for {@link FieldElement}.
-   *
-   * @return serializer
-   */
-  default ByteSerializer<FieldElement> getFieldElementSerializer() {
-    return new FieldElementSerializer(getModulus());
-  }
 
   /**
    * Gets serializer for {@link StrictBitVector}.
@@ -103,5 +100,4 @@ public interface MascotResourcePool extends NumericResourcePool {
    * @return An instance of a DRBG.
    */
   Drbg getRandomGenerator();
-
 }

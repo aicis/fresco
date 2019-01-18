@@ -31,7 +31,7 @@ public class TestSpdz2kBasicArithmetic128 extends Spdz2kTestSuite<Spdz2kResource
 
   @Override
   protected ProtocolSuiteNumeric<Spdz2kResourcePool<CompUInt128>> createProtocolSuite() {
-    return new Spdz2kProtocolSuite128();
+    return new Spdz2kProtocolSuiteK64();
   }
 
 }

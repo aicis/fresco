@@ -9,8 +9,8 @@ import java.math.BigInteger;
 
 public class SpdzAddProtocolKnownLeft extends SpdzNativeProtocol<SInt> {
 
-  private BigInteger left;
-  private DRes<SInt> right;
+  private final BigInteger left;
+  private final DRes<SInt> right;
   private SpdzSInt out;
 
   public SpdzAddProtocolKnownLeft(BigInteger left, DRes<SInt> right) {

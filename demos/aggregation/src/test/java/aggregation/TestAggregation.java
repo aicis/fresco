@@ -7,14 +7,17 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialStrategy;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -22,6 +25,7 @@ import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,11 +44,13 @@ public class TestAggregation {
         NetworkUtil.getNetworkConfigurations(ports);
     Map<Integer, TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
+    BigInteger modulus = ModulusFinder.findSuitableModulus(512);
+    FieldDefinition definition = new BigIntegerFieldDefinition(modulus);
     for (int i : netConf.keySet()) {
       ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
       SpdzResourcePool rp =
           new SpdzResourcePoolImpl(i, n, new SpdzOpenedValueStoreImpl(),
-              new SpdzDummyDataSupplier(i, n), new AesCtrDrbg(new byte[32]));
+              new SpdzDummyDataSupplier(i, n, definition, modulus), new AesCtrDrbg(new byte[32]));
       ProtocolEvaluator<SpdzResourcePool> evaluator =
           new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
@@ -53,7 +59,7 @@ public class TestAggregation {
           new TestThreadConfiguration<>(
               sce,
               () -> rp,
-              () -> new AsyncNetwork(netConf.get(i)));
+              () -> new SocketNetwork(netConf.get(i)));
       conf.put(i, ttc);
     }
     TestThreadRunner.run(test, conf);

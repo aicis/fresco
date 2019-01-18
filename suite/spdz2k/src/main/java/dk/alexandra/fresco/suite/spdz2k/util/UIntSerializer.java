@@ -43,7 +43,7 @@ public class UIntSerializer<PlainT extends CompUInt<?, ?, PlainT>> implements
 
   @Override
   public PlainT deserialize(byte[] bytes) {
-    return factory.createFromBytes(bytes);
+    return factory.deserialize(bytes);
   }
 
   @Override

@@ -15,6 +15,7 @@ public interface Numeric extends ComputationDirectory {
 
   /**
    * Adds two secret values and returns the result.
+   *
    * @param a Secret value 1
    * @param b Secret value 2
    * @return A deferred result computing a+b
@@ -23,6 +24,7 @@ public interface Numeric extends ComputationDirectory {
 
   /**
    * Adds a secret value with a public value and returns the result.
+   *
    * @param a Public value
    * @param b Secret value
    * @return A deferred result computing a+b
@@ -30,7 +32,15 @@ public interface Numeric extends ComputationDirectory {
   DRes<SInt> add(BigInteger a, DRes<SInt> b);
 
   /**
+   * Convenience implementation of {@link #add(BigInteger, DRes)}
+   */
+  default DRes<SInt> add(long a, DRes<SInt> b) {
+    return add(BigInteger.valueOf(a), b);
+  }
+
+  /**
    * Subtracts two secret values and returns the result.
+   *
    * @param a Secret value 1
    * @param b Secret value 2
    * @return A deferred result computing a-b
@@ -39,6 +49,7 @@ public interface Numeric extends ComputationDirectory {
 
   /**
    * Subtracts a public value and a secret value and returns the result.
+   *
    * @param a Public value
    * @param b Secret value
    * @return A deferred result computing a-b
@@ -46,7 +57,15 @@ public interface Numeric extends ComputationDirectory {
   DRes<SInt> sub(BigInteger a, DRes<SInt> b);
 
   /**
+   * Convenience implementation of {@link #sub(BigInteger, DRes)}
+   */
+  default DRes<SInt> sub(long a, DRes<SInt> b) {
+    return sub(BigInteger.valueOf(a), b);
+  }
+
+  /**
    * Subtracts a secret value and a public value and returns the result.
+   *
    * @param a Secret value
    * @param b Public value
    * @return A deferred result computing a-b
@@ -54,7 +73,15 @@ public interface Numeric extends ComputationDirectory {
   DRes<SInt> sub(DRes<SInt> a, BigInteger b);
 
   /**
+   * Convenience implementation of {@link #sub(DRes, BigInteger)}
+   */
+  default DRes<SInt> sub(DRes<SInt> a, long b) {
+    return sub(a, BigInteger.valueOf(b));
+  }
+
+  /**
    * Multiplies two secret values and returns the result.
+   *
    * @param a Secret value 1
    * @param b Secret value 2
    * @return A deferred result computing a*b
@@ -63,6 +90,7 @@ public interface Numeric extends ComputationDirectory {
 
   /**
    * Multiplies a public value onto a secret value and returns the result.
+   *
    * @param a Public value
    * @param b Secret value
    * @return A deferred result computing a*b
@@ -70,9 +98,16 @@ public interface Numeric extends ComputationDirectory {
   DRes<SInt> mult(BigInteger a, DRes<SInt> b);
 
   /**
+   * Convenience implementation of {@link #mult(BigInteger, DRes)}
+   */
+  default DRes<SInt> mult(long a, DRes<SInt> b) {
+    return mult(BigInteger.valueOf(a), b);
+  }
+
+  /**
    * Returns a deferred result which creates a secret shared random bit. (This should be computed
    * beforehand to increase the speed of the application)
-   * 
+   *
    * @return A secret value representing either 0 or 1.
    */
   DRes<SInt> randomBit();
@@ -80,7 +115,7 @@ public interface Numeric extends ComputationDirectory {
   /**
    * Returns a deferred result which creates a secret shared random element within the field of
    * operation. (This should be computed beforehand to increase the speed of the application)
-   * 
+   *
    * @return A random element within the field of operation (i.e. the modulus)
    */
   DRes<SInt> randomElement();
@@ -88,16 +123,23 @@ public interface Numeric extends ComputationDirectory {
   /**
    * Creates a known secret value from a public value. This is primarily a helper function in order
    * to use public values within the FRESCO functions.
-   * 
+   *
    * @param value The public value.
    * @return A secret value which represents the given public value.
    */
   DRes<SInt> known(BigInteger value);
 
   /**
+   * Convenience implementation of {@link #known(BigInteger)}
+   */
+  default DRes<SInt> known(long value) {
+    return known(BigInteger.valueOf(value));
+  }
+
+  /**
    * Closes a public value. If the MPC party calling this method is not providing input, just use
    * null as the input value.
-   * 
+   *
    * @param value The value to input or null if no input should be given.
    * @param inputParty The ID of the MPC party.
    * @return The closed input value.
@@ -105,7 +147,15 @@ public interface Numeric extends ComputationDirectory {
   DRes<SInt> input(BigInteger value, int inputParty);
 
   /**
+   * Convenience implementation of {@link #input(BigInteger, int)}
+   */
+  default DRes<SInt> input(long value, int inputParty) {
+    return input(BigInteger.valueOf(value), inputParty);
+  }
+
+  /**
    * Opens a value to all MPC parties.
+   *
    * @param secretShare The value to open.
    * @return The opened value represented by the closed value.
    */
@@ -113,6 +163,7 @@ public interface Numeric extends ComputationDirectory {
 
   /**
    * Opens a value to a single given party.
+   *
    * @param secretShare The value to open.
    * @param outputParty The party to receive the opened value.
    * @return The opened value if you are the outputParty, or null otherwise.

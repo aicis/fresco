@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -9,12 +11,10 @@ import dk.alexandra.fresco.suite.spdz.NetManager;
 import dk.alexandra.fresco.tools.mascot.Mascot;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePoolImpl;
 import dk.alexandra.fresco.tools.mascot.MascotSecurityParameters;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
-import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,9 +40,9 @@ public class TestParallelMascots {
   private MascotSecurityParameters mascotSecurityParameters;
   private List<Integer> ports;
   private int noOfParties;
-  private BigInteger modulus;
   private int iterations;
   private Logger logger = LoggerFactory.getLogger(TestParallelMascots.class);
+  private BigIntegerFieldDefinition definition;
 
   @Before
   public void setUp() {
@@ -53,8 +53,8 @@ public class TestParallelMascots {
     }
     executorService = Executors.newCachedThreadPool();
     mascotSecurityParameters = new MascotSecurityParameters();
-    modulus = ModulusFinder.findSuitableModulus(mascotSecurityParameters.getModBitLength());
     iterations = 3;
+    definition = new BigIntegerFieldDefinition(ModulusFinder.findSuitableModulus(128));
   }
 
   @After
@@ -103,7 +103,7 @@ public class TestParallelMascots {
     Map<Integer, FieldElement> macKeyShares = new HashMap<>();
     for (int myId = 1; myId <= noOfParties; myId++) {
       FieldElement ssk = SpdzMascotDataSupplier
-          .createRandomSsk(modulus, mascotSecurityParameters.getPrgSeedLength());
+          .createRandomSsk(definition, mascotSecurityParameters.getPrgSeedLength());
       macKeyShares.put(myId, ssk);
     }
     return macKeyShares;
@@ -130,7 +130,7 @@ public class TestParallelMascots {
         Map<Integer, RotList> seedOt = seedOts.get(finalMyId - 1);
         mascotCreators.add(() -> new Mascot(
             new MascotResourcePoolImpl(finalMyId, noOfParties,
-              finalInstanceId, getDrbg(), seedOt, mascotSecurityParameters),
+                finalInstanceId, getDrbg(), seedOt, mascotSecurityParameters, definition),
             normalManager.createExtraNetwork(finalMyId),
             randomSsk));
       }
@@ -154,7 +154,7 @@ public class TestParallelMascots {
         mascotCreators.add(() -> {
           Mascot mascot = new Mascot(
               new MascotResourcePoolImpl(finalMyId, noOfParties, finalInstanceId,
-                  getDrbg(), seedOt, mascotSecurityParameters),
+                  getDrbg(), seedOt, mascotSecurityParameters, definition),
               normalManager.createExtraNetwork(finalMyId), randomSsk);
           return mascot.getTriples(16);
         });
@@ -188,6 +188,5 @@ public class TestParallelMascots {
       Thread.sleep(1000);
       logger.info("Testing the remaining " + futures.size() + " futures");
     }
-
   }
 }

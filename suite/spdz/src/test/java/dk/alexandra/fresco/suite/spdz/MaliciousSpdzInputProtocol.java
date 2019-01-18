@@ -1,8 +1,9 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -17,7 +18,7 @@ public class MaliciousSpdzInputProtocol extends SpdzNativeProtocol<SInt> {
 
   private SpdzInputMask inputMask; // is opened by this gate.
   protected BigInteger input;
-  private BigInteger valueMasked;
+  private FieldElement valueMasked;
   protected SpdzSInt out;
   private int inputter;
   private byte[] digest;
@@ -30,33 +31,31 @@ public class MaliciousSpdzInputProtocol extends SpdzNativeProtocol<SInt> {
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool, Network network) {
     int myId = spdzResourcePool.getMyId();
-    BigInteger modulus = spdzResourcePool.getModulus();
     SpdzDataSupplier dataSupplier = spdzResourcePool.getDataSupplier();
-    ByteSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
+    FieldDefinition definition = spdzResourcePool.getFieldDefinition();
     if (round == 0) {
       this.inputMask = dataSupplier.getNextInputMask(this.inputter);
       if (myId == this.inputter) {
-        BigInteger bcValue = this.input.subtract(this.inputMask.getRealValue());
-        bcValue = bcValue.mod(modulus);
-        network.sendToAll(serializer.serialize(bcValue));
+        FieldElement inputElement = spdzResourcePool.getFieldDefinition().createElement(this.input);
+        FieldElement bcValue = inputElement.subtract(this.inputMask.getRealValue());
+        network.sendToAll(definition.serialize(bcValue));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
-      this.valueMasked = serializer.deserialize(network.receive(inputter));
+      this.valueMasked = definition.deserialize(network.receive(inputter));
       this.digest = sendMaliciousBroadcastValidation(spdzResourcePool.getMessageDigest(), network,
-          valueMasked);
+          valueMasked, spdzResourcePool.getFieldDefinition());
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       boolean validated = receiveMaliciousBroadcastValidation(network, digest);
       if (!validated) {
         throw new MaliciousException("Broadcast digests did not match");
       }
-      SpdzSInt valueMaskedElm = new SpdzSInt(valueMasked,
-          dataSupplier.getSecretSharedKey().multiply(valueMasked).mod(modulus), modulus);
+      FieldElement maskedValue = dataSupplier.getSecretSharedKey().multiply(valueMasked);
+      SpdzSInt valueMaskedElm = new SpdzSInt(valueMasked, maskedValue);
       this.out = this.inputMask.getMask().add(valueMaskedElm, myId);
       return EvaluationStatus.IS_DONE;
     }
-
   }
 
   @Override
@@ -65,8 +64,8 @@ public class MaliciousSpdzInputProtocol extends SpdzNativeProtocol<SInt> {
   }
 
   private byte[] sendMaliciousBroadcastValidation(MessageDigest dig, Network network,
-      BigInteger b) {
-    dig.update(b.toByteArray());
+      FieldElement b, FieldDefinition fieldDefinition) {
+    dig.update(fieldDefinition.serialize(b));
     return sendAndReset(dig, network);
   }
 

@@ -1,12 +1,12 @@
 package dk.alexandra.fresco.tools.mascot.utils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
 import java.math.BigInteger;
@@ -16,18 +16,18 @@ import org.junit.Test;
 
 public class TestPaddingPrg {
 
-  private final BigInteger modulus = new BigInteger("340282366920938463463374607431768211297");
+  private final BigInteger modulus = new BigInteger(
+      "340282366920938463463374607431768211297");
+  private BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(modulus);
 
   @Test
   public void testGetNextProducesFieldElement() {
     byte[] seedBytes = new byte[32];
     new Random().nextBytes(seedBytes);
     StrictBitVector seed = new StrictBitVector(seedBytes);
-    FieldElementPrg prg = new FieldElementPrgImpl(seed);
-    FieldElement el = prg.getNext(modulus);
-    assertEquals(modulus, el.getModulus());
-    int modBitLength = 128;
-    assertEquals(modBitLength, el.getBitLength());
+    FieldElementPrg prg = new FieldElementPrgImpl(seed, definition);
+    FieldElement el = prg.getNext();
+    assertNotNull(el);
   }
 
   @Test
@@ -35,9 +35,10 @@ public class TestPaddingPrg {
     byte[] seedBytes = new byte[32];
     new Random().nextBytes(seedBytes);
     StrictBitVector seed = new StrictBitVector(seedBytes);
-    FieldElementPrg prg = new FieldElementPrgImpl(seed);
-    FieldElement el = prg.getNext(modulus);
-    assertFalse(el.isZero());
+    FieldElementPrg prg = new FieldElementPrgImpl(seed, definition);
+    FieldElement el = prg.getNext();
+    BigInteger open = definition.convertToUnsigned(el);
+    assertNotEquals(BigInteger.ZERO, open);
   }
 
   @Test
@@ -45,11 +46,10 @@ public class TestPaddingPrg {
     byte[] seedBytes = new byte[32];
     new Random().nextBytes(seedBytes);
     StrictBitVector seed = new StrictBitVector(seedBytes);
-    FieldElementPrg prg = new FieldElementPrgImpl(seed);
-    FieldElement elOne = prg.getNext(modulus);
-    FieldElement elTwo = prg.getNext(modulus);
-    // not equals, without actually using equals
-    assertFalse(elOne.subtract(elTwo).isZero());
+    FieldElementPrg prg = new FieldElementPrgImpl(seed, definition);
+    FieldElement elOne = prg.getNext();
+    FieldElement elTwo = prg.getNext();
+    assertNotEquals(elOne, elTwo);
   }
 
   @Test
@@ -58,11 +58,11 @@ public class TestPaddingPrg {
     new Random().nextBytes(seedBytes);
     StrictBitVector seed = new StrictBitVector(seedBytes);
     StrictBitVector seedOther = new StrictBitVector(seedBytes);
-    FieldElementPrg prgOne = new FieldElementPrgImpl(seed);
-    FieldElementPrg prgTwo = new FieldElementPrgImpl(seedOther);
-    FieldElement elOne = prgOne.getNext(modulus);
-    FieldElement elTwo = prgTwo.getNext(modulus);
-    CustomAsserts.assertEquals(elOne, elTwo);
+    FieldElementPrg prgOne = new FieldElementPrgImpl(seed, definition);
+    FieldElementPrg prgTwo = new FieldElementPrgImpl(seedOther, definition);
+    FieldElement elOne = prgOne.getNext();
+    FieldElement elTwo = prgTwo.getNext();
+    CustomAsserts.assertEquals(definition, elOne, elTwo);
   }
 
   @Test
@@ -71,17 +71,16 @@ public class TestPaddingPrg {
     new Random().nextBytes(seedBytesOne);
     seedBytesOne[0] = (byte) 0x01;
     StrictBitVector seedOne = new StrictBitVector(seedBytesOne);
-    FieldElementPrg prgOne = new FieldElementPrgImpl(seedOne);
+    FieldElementPrg prgOne = new FieldElementPrgImpl(seedOne, definition);
 
     // make sure other seed is different
     byte[] seedBytesTwo = Arrays.copyOf(seedBytesOne, 32);
     seedBytesTwo[0] = (byte) 0x02;
     StrictBitVector seedTwo = new StrictBitVector(seedBytesTwo);
-    FieldElementPrg prgTwo = new FieldElementPrgImpl(seedTwo);
+    FieldElementPrg prgTwo = new FieldElementPrgImpl(seedTwo, definition);
 
-    FieldElement elOne = prgOne.getNext(modulus);
-    FieldElement elTwo = prgTwo.getNext(modulus);
+    FieldElement elOne = prgOne.getNext();
+    FieldElement elTwo = prgTwo.getNext();
     assertNotEquals(elOne, elTwo);
   }
-
 }

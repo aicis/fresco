@@ -2,6 +2,7 @@ package dk.alexandra.fresco.lib.real.fixed;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.real.RealNumeric;
 import dk.alexandra.fresco.lib.real.SReal;
@@ -26,9 +27,9 @@ public class FixedNumeric implements RealNumeric {
    * Creates a new fixed point based RealNumeric ComputationDirectory
    *
    * @param builder a ProtocolBuilder for the numeric computations which will be used to implement
-   *        the fixed point operations.
+   *     the fixed point operations.
    * @param precision the precision used for the fixed point numbers. The precision must be in the
-   *        range <i>0 ... <code>builder.getMaxBitLength</code> / 4</i>.
+   *     range <i>0 ... <code>builder.getMaxBitLength</code> / 4</i>.
    */
   public FixedNumeric(ProtocolBuilderNumeric builder, int precision) {
     this.builder = builder;
@@ -66,9 +67,12 @@ public class FixedNumeric implements RealNumeric {
    * @param scale The scale
    * @return the value <i>unscaled * 2<sup>-scale</sup></i>.
    */
-  private BigDecimal scaled(BigInteger unscaled, int scale) {
-    return new BigDecimal(unscaled).setScale(scale).divide(new BigDecimal(BASE.pow(scale)),
-        RoundingMode.HALF_UP);
+  private BigDecimal scaled(
+      FieldDefinition fieldDefinition,
+      BigInteger unscaled, int scale) {
+    return new BigDecimal(fieldDefinition.convertToSigned(unscaled))
+        .setScale(scale, RoundingMode.UNNECESSARY)
+        .divide(new BigDecimal(BASE.pow(scale)), RoundingMode.HALF_UP);
   }
 
   /**
@@ -239,7 +243,8 @@ public class FixedNumeric implements RealNumeric {
       DRes<SInt> unscaled = floatX.getSInt();
       DRes<BigInteger> unscaledOpen = seq.numeric().open(unscaled);
       int precision = floatX.getPrecision();
-      return () -> scaled(unscaledOpen.out(), precision);
+      return () -> scaled(builder.getBasicNumericContext().getFieldDefinition(), unscaledOpen.out(),
+          precision);
     });
   }
 
@@ -252,7 +257,8 @@ public class FixedNumeric implements RealNumeric {
       int precision = floatX.getPrecision();
       return () -> {
         if (unscaledOpen.out() != null) {
-          return scaled(unscaledOpen.out(), precision);
+          return scaled(builder.getBasicNumericContext().getFieldDefinition(), unscaledOpen.out(),
+              precision);
         } else {
           return null;
         }

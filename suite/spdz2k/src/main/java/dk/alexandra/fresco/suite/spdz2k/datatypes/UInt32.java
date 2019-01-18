@@ -31,7 +31,7 @@ public class UInt32 implements UInt<UInt32> {
   }
 
   @Override
-  public UInt32 negate() {
+  public UInt32 negateUInt() {
     return new UInt32(-value);
   }
 

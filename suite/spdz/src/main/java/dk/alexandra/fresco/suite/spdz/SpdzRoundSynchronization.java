@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
@@ -11,7 +12,6 @@ import dk.alexandra.fresco.suite.ProtocolSuite.RoundSynchronization;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMacCheckProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputProtocol;
-import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.stream.StreamSupport;
 
@@ -33,10 +33,11 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
    * Creates new {@link SpdzRoundSynchronization}.
    *
    * @param spdzProtocolSuite the spdz protocol suite which we will use for the mac-check
-   * computation
-   * @param openValueThreshold number of open values we accumulating before forcing mac-check (the
-   * mac-check will always run if there are output gates but in order to reduce memory usage we will
-   * run the mac-check even when there are no output gates yet but the threshold is exceeded)
+   *     computation
+   * @param openValueThreshold number of open values we accumulating before forcing mac-check
+   *     (the mac-check will always run if there are output gates but in order to reduce memory
+   *     usage we will run the mac-check even when there are no output gates yet but the threshold
+   *     is exceeded)
    * @param batchSize batch size for mac-check protocol
    */
   public SpdzRoundSynchronization(SpdzProtocolSuite spdzProtocolSuite, int openValueThreshold,
@@ -58,7 +59,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
     BatchEvaluationStrategy<SpdzResourcePool> batchStrategy = new BatchedStrategy<>();
     BatchedProtocolEvaluator<SpdzResourcePool> evaluator =
         new BatchedProtocolEvaluator<>(batchStrategy, spdzProtocolSuite, batchSize);
-    OpenedValueStore<SpdzSInt, BigInteger> store = resourcePool.getOpenedValueStore();
+    OpenedValueStore<SpdzSInt, FieldElement> store = resourcePool.getOpenedValueStore();
     SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(secRand,
         resourcePool.getMessageDigest(),
         store.popValues(),
@@ -72,7 +73,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
 
   @Override
   public void finishedBatch(int gatesEvaluated, SpdzResourcePool resourcePool, Network network) {
-    OpenedValueStore<SpdzSInt, BigInteger> store = resourcePool.getOpenedValueStore();
+    OpenedValueStore<SpdzSInt, FieldElement> store = resourcePool.getOpenedValueStore();
     if (isCheckRequired) {
       doMacCheck(resourcePool, network);
       isCheckRequired = false;
@@ -84,7 +85,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
 
   @Override
   public void finishedEval(SpdzResourcePool resourcePool, Network network) {
-    OpenedValueStore<SpdzSInt, BigInteger> store = resourcePool.getOpenedValueStore();
+    OpenedValueStore<SpdzSInt, FieldElement> store = resourcePool.getOpenedValueStore();
     if (store.hasPendingValues()) {
       doMacCheck(resourcePool, network);
     }
@@ -96,7 +97,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
       Network network) {
     isCheckRequired = StreamSupport.stream(protocols.spliterator(), false)
         .anyMatch(p -> p instanceof SpdzOutputProtocol);
-    OpenedValueStore<SpdzSInt, BigInteger> store = resourcePool.getOpenedValueStore();
+    OpenedValueStore<SpdzSInt, FieldElement> store = resourcePool.getOpenedValueStore();
     if (store.hasPendingValues() && isCheckRequired) {
       doMacCheck(resourcePool, network);
     }
@@ -105,5 +106,4 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
   public int getBatchSize() {
     return batchSize;
   }
-
 }

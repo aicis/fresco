@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.maccheck;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
@@ -10,7 +11,6 @@ import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzRoundSynchronization;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import java.math.BigInteger;
 import java.security.SecureRandom;
 
 public class MaliciousSpdzRoundSynchronization extends SpdzRoundSynchronization {
@@ -23,11 +23,11 @@ public class MaliciousSpdzRoundSynchronization extends SpdzRoundSynchronization 
   protected void doMacCheck(SpdzResourcePool resourcePool, Network network) {
     NetworkBatchDecorator networkBatchDecorator =
         new NetworkBatchDecorator(resourcePool.getNoOfParties(), network);
-    OpenedValueStore<SpdzSInt, BigInteger> store = resourcePool.getOpenedValueStore();
+    OpenedValueStore<SpdzSInt, FieldElement> store = resourcePool.getOpenedValueStore();
     MaliciousSpdzMacCheckProtocol macCheck = new MaliciousSpdzMacCheckProtocol(new SecureRandom(),
         resourcePool.getMessageDigest(),
         store.popValues(),
-        resourcePool.getModulus(),
+        resourcePool.getFieldDefinition(),
         resourcePool.getRandomGenerator(),
         resourcePool.getDataSupplier().getSecretSharedKey());
     do {

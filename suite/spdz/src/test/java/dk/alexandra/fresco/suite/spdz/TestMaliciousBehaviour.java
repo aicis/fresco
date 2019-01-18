@@ -6,16 +6,17 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.AsyncNetwork;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
@@ -25,6 +26,7 @@ import dk.alexandra.fresco.suite.spdz.maccheck.MaliciousSpdzMacCheckProtocol;
 import dk.alexandra.fresco.suite.spdz.maccheck.MaliciousSpdzRoundSynchronization;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -120,15 +122,17 @@ public class TestMaliciousBehaviour {
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> createResourcePool(playerId, noOfParties),
-              () -> new AsyncNetwork(netConf.get(playerId)));
+              () -> new SocketNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
   }
 
   private SpdzResourcePool createResourcePool(int myId, int size) {
+    BigInteger modulus = ModulusFinder.findSuitableModulus(512);
     return new SpdzResourcePoolImpl(myId, size, new SpdzOpenedValueStoreImpl(),
-        new SpdzDummyDataSupplier(myId, size),
+        new SpdzDummyDataSupplier(myId, size,
+            new BigIntegerFieldDefinition(modulus), modulus),
         new AesCtrDrbg(new byte[32]));
   }
 
@@ -152,7 +156,7 @@ public class TestMaliciousBehaviour {
     }
 
     @Override
-    public BuilderFactoryNumeric init(SpdzResourcePool resourcePool, Network network) {
+    public BuilderFactoryNumeric init(SpdzResourcePool resourcePool) {
       BasicNumericContext spdzFactory = createNumericContext(resourcePool);
       RealNumericContext realNumericContext = createRealNumericContext();
       if (resourcePool.getMyId() == 1 && corrupt.compareTo(Corrupt.INPUT) == 0) {

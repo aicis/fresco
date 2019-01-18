@@ -130,7 +130,7 @@ public class MiscBigIntegerGenerators {
 
   /**
    * Generates the sequence: [value, value^2, value^3, ..., value^maxBitSize-1]
-   * 
+   *
    * @param value The base of the exponentiation sequence
    * @param maxBitSize The length of the sequence
    * @return [value, value^2, value^3, ..., value^maxBitSize-1]

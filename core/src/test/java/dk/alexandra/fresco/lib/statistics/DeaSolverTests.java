@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.lp.LPSolver.PivotRule;
@@ -97,7 +98,6 @@ public class DeaSolverTests {
       outputs = buildOutputs(dataset);
     }
 
-
     public TestDeaFixed2(AnalysisType type) {
       super(inputs, outputs, inputs, outputs, type, 50, false);
     }
@@ -147,7 +147,6 @@ public class DeaSolverTests {
       this.willBreak = willBreak;
     }
 
-
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
@@ -183,7 +182,11 @@ public class DeaSolverTests {
                 List<DRes<OpenDeaResult>> result =
                     new ArrayList<>();
                 for (DeaResult deaResult : deaResults) {
-                  result.add(OpenDeaResult.createOpenDeaResult(numeric, deaResult));
+                  FieldDefinition fieldDefinition =
+                      producer.getBasicNumericContext().getFieldDefinition();
+                  result.add(
+                      OpenDeaResult.createOpenDeaResult(numeric, deaResult, fieldDefinition)
+                  );
                 }
                 return () -> result.stream().map(DRes::out).collect(Collectors.toList());
               };
@@ -283,7 +286,7 @@ public class DeaSolverTests {
     }
 
     private BigInteger[][] asArray(List<List<BigInteger>> lists) {
-      return lists.stream().map(list -> list.toArray(new BigInteger[list.size()]))
+      return lists.stream().map(list -> list.toArray(new BigInteger[0]))
           .toArray(BigInteger[][]::new);
     }
 
@@ -308,7 +311,8 @@ public class DeaSolverTests {
         this.peerValues = peerValues;
       }
 
-      static DRes<OpenDeaResult> createOpenDeaResult(Numeric numeric, DeaResult deaResult) {
+      static DRes<OpenDeaResult> createOpenDeaResult(
+          Numeric numeric, DeaResult deaResult, FieldDefinition fieldDefinition) {
         DRes<BigInteger> optimal = numeric.open(deaResult.optimal);
         DRes<BigInteger> numerator = numeric.open(deaResult.numerator);
         DRes<BigInteger> denominator = numeric.open(deaResult.denominator);
@@ -317,11 +321,13 @@ public class DeaSolverTests {
         List<DRes<BigInteger>> peerValues =
             deaResult.peerValues.stream().map(numeric::open).collect(Collectors.toList());
         return () -> new OpenDeaResult(
-            optimal.out(),
-            numerator.out(),
-            denominator.out(),
-            peers.stream().map(DRes::out).collect(Collectors.toList()),
-            peerValues.stream().map(DRes::out).collect(Collectors.toList())
+            fieldDefinition.convertToSigned(optimal.out()),
+            fieldDefinition.convertToSigned(numerator.out()),
+            fieldDefinition.convertToSigned(denominator.out()),
+            peers.stream().map(DRes::out).map(fieldDefinition::convertToSigned)
+                .collect(Collectors.toList()),
+            peerValues.stream().map(DRes::out).map(fieldDefinition::convertToSigned)
+                .collect(Collectors.toList())
         );
       }
     }
@@ -370,7 +376,7 @@ public class DeaSolverTests {
     BigInteger two = BigInteger.valueOf(2);
     BigInteger uv = innerproduct(u, v);
     BigInteger vv = innerproduct(v, v);
-    BigInteger uu = innerproduct(u, u);
+    BigInteger uu;
     do {
       BigInteger[] q = uv.divideAndRemainder(vv);
       boolean negRes = q[1].signum() == -1;
@@ -397,5 +403,4 @@ public class DeaSolverTests {
   private static BigInteger innerproduct(BigInteger[] u, BigInteger[] v) {
     return u[0].multiply(v[0]).add(u[1].multiply(v[1]));
   }
-
 }

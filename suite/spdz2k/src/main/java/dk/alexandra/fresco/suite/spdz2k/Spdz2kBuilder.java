@@ -54,7 +54,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> add(BigInteger a, DRes<SInt> b) {
-        return builder.append(new Spdz2kAddKnownProtocol<>(factory.createFromBigInteger(a), b));
+        return builder.append(new Spdz2kAddKnownProtocol<>(factory.createElement(a), b));
       }
 
       @Override
@@ -65,13 +65,13 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
       @Override
       public DRes<SInt> sub(BigInteger a, DRes<SInt> b) {
         return builder.append(
-            new Spdz2kSubtractFromKnownProtocol<>(factory.createFromBigInteger(a), b));
+            new Spdz2kSubtractFromKnownProtocol<>(factory.createElement(a), b));
       }
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, BigInteger b) {
         return builder.append(
-            new Spdz2kAddKnownProtocol<>(factory.createFromBigInteger(b).negate(), a));
+            new Spdz2kAddKnownProtocol<>(factory.createElement(b).negateUInt(), a));
       }
 
       @Override
@@ -81,7 +81,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> mult(BigInteger a, DRes<SInt> b) {
-        return () -> toSpdz2kSInt(b).multiply(factory.createFromBigInteger(a));
+        return () -> toSpdz2kSInt(b).multiply(factory.createElement(a));
       }
 
       @Override
@@ -96,13 +96,13 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> known(BigInteger value) {
-        return builder.append(new Spdz2kKnownSIntProtocol<>(factory.createFromBigInteger(value)));
+        return builder.append(new Spdz2kKnownSIntProtocol<>(factory.createElement(value)));
       }
 
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
         return builder.seq(
-            new Spdz2kInputComputation<>(factory.createFromBigInteger(value), inputParty)
+            new Spdz2kInputComputation<>(factory.createElement(value), inputParty)
         );
       }
 

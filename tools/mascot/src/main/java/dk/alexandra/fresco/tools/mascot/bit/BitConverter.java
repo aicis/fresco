@@ -1,8 +1,9 @@
 package dk.alexandra.fresco.tools.mascot.bit;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.online.OnlinePhase;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,14 +48,14 @@ public class BitConverter {
       AuthenticatedElement randomElement = randomElements.get(b);
       AuthenticatedElement oneOrNegativeOne =
           randomElement.multiply(root.modInverse()); // division
-      FieldElement two =
-          new FieldElement(2, resourcePool.getModulus());
-      FieldElement one = new FieldElement(1, resourcePool.getModulus());
-      AuthenticatedElement bit = oneOrNegativeOne.add(one, resourcePool.getMyId(), macKeyShare)
-          .multiply(two.modInverse());
+      FieldDefinition definition = resourcePool.getFieldDefinition();
+      FieldElement two = definition.createElement(2);
+      FieldElement one = definition.createElement(1);
+      AuthenticatedElement bit = oneOrNegativeOne.add(
+          definition, one, resourcePool.getMyId(), macKeyShare
+      ).multiply(two.modInverse());
       bits.add(bit);
     }
     return bits;
   }
-
 }

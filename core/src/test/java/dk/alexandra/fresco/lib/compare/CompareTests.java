@@ -225,7 +225,6 @@ public class CompareTests {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
             Numeric input = builder.numeric();
             Comparison comparison = builder.comparison();
-            BigInteger modulus = builder.getBasicNumericContext().getModulus();
             int maxBitLength = builder.getBasicNumericContext().getMaxBitLength();
 
             List<DRes<SInt>> comps = Arrays.asList(

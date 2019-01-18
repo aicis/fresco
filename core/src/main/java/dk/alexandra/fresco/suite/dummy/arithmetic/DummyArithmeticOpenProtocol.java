@@ -17,7 +17,7 @@ public class DummyArithmeticOpenProtocol extends DummyArithmeticNativeProtocol<B
 
   /**
    * Constructs a native protocol to open a closed integer towards a spcecific player.
-   * 
+   *
    * @param c a computation supplying the {@link SInt} to open
    * @param target the id of party to open towards
    */
@@ -32,7 +32,8 @@ public class DummyArithmeticOpenProtocol extends DummyArithmeticNativeProtocol<B
   public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
       Network network) {
     if (resourcePool.getMyId() == target) {
-      this.open = ((DummyArithmeticSInt) this.closed.out()).getValue();
+      DummyArithmeticSInt out = (DummyArithmeticSInt) this.closed.out();
+      this.open = resourcePool.getFieldDefinition().convertToUnsigned(out.getValue());
     } else {
       this.open = null;
     }
@@ -43,5 +44,4 @@ public class DummyArithmeticOpenProtocol extends DummyArithmeticNativeProtocol<B
   public BigInteger out() {
     return this.open;
   }
-
 }

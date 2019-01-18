@@ -136,7 +136,6 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
         new SecureComputationEngineImpl<>(psConf, util.getEvaluator());
 
     List<List<Boolean>> psiResult;
-    util.startNetwork();
     T resourcePool = util.getResourcePool();
     psiResult = sce.runApplication(privateSetDemo, resourcePool, util.getNetwork());
     util.closeNetwork();

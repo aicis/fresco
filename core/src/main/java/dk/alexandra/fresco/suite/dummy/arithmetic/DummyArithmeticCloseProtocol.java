@@ -1,10 +1,8 @@
-
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
-import java.math.BigInteger;
 
 /**
  * Implements closing a value in the Dummy Arithmetic suite where all operations are done in the
@@ -14,16 +12,16 @@ import java.math.BigInteger;
 public class DummyArithmeticCloseProtocol extends DummyArithmeticNativeProtocol<SInt> {
 
   private int targetId;
-  private DRes<BigInteger> open;
+  private FieldElement open;
   private DummyArithmeticSInt closed;
 
   /**
    * Constructs a protocol to close an open value.
    *
-   * @param targetId id of the party supplying the open value.
    * @param open a computation output the value to close.
+   * @param targetId id of the party supplying the open value.
    */
-  public DummyArithmeticCloseProtocol(int targetId, DRes<BigInteger> open) {
+  public DummyArithmeticCloseProtocol(FieldElement open, int targetId) {
     this.targetId = targetId;
     this.open = open;
   }
@@ -32,12 +30,12 @@ public class DummyArithmeticCloseProtocol extends DummyArithmeticNativeProtocol<
   public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool rp, Network network) {
     if (round == 0) {
       if (targetId == rp.getMyId()) {
-        network.sendToAll(rp.getSerializer().serialize(open.out().mod(rp.getModulus())));
+        network.sendToAll(rp.getFieldDefinition().serialize(open));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else { //if (round == 1) {
       byte[] bin = network.receive(targetId);
-      closed = new DummyArithmeticSInt(rp.getSerializer().deserialize(bin));
+      closed = new DummyArithmeticSInt(rp.getFieldDefinition().deserialize(bin));
       return EvaluationStatus.IS_DONE;
     }
   }
@@ -46,5 +44,4 @@ public class DummyArithmeticCloseProtocol extends DummyArithmeticNativeProtocol<
   public SInt out() {
     return closed;
   }
-
 }

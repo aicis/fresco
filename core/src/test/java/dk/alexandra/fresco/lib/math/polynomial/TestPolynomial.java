@@ -3,6 +3,8 @@ package dk.alexandra.fresco.lib.math.polynomial;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.lib.real.RealNumericContext;
@@ -19,13 +21,14 @@ public class TestPolynomial {
 
   @Test(expected = IndexOutOfBoundsException.class)
   public void testPolynomial() {
-    BasicNumericContext dummyFact = new BasicNumericContext(8, BigInteger.valueOf(1001), 1, 1);
+    BasicNumericContext dummyFact = new BasicNumericContext(8, 1, 1,
+        new BigIntegerFieldDefinition(ModulusFinder.findSuitableModulus(8)));
     RealNumericContext realNumericContext = new RealNumericContext(2);
     BuilderFactoryNumeric builderFactory =
         new DummyArithmeticBuilderFactory(dummyFact, realNumericContext);
     Numeric numeric = builderFactory.createNumeric(builderFactory.createSequential());
 
-    int[] coefficients = new int[] {1, 2, 3, 4};
+    int[] coefficients = new int[]{1, 2, 3, 4};
 
     List<DRes<SInt>> secretCoefficients = Arrays.stream(coefficients).mapToObj(BigInteger::valueOf)
         .map(numeric::known).collect(Collectors.toList());
@@ -43,6 +46,5 @@ public class TestPolynomial {
 
     p.getCoefficient(5);
   }
-
 }
 

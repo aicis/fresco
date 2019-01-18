@@ -20,7 +20,6 @@ import java.util.stream.Stream;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
 
-
 /**
  * Generic test cases for basic finite field operations.
  *
@@ -129,7 +128,7 @@ public class BasicArithmeticTests {
             return numeric.open(result);
           };
           BigInteger output = runApplication(app);
-          Assert.assertEquals(leftValue.add(rightValue), output);
+          Assert.assertEquals(BigInteger.valueOf(14), output);
         }
       };
     }
@@ -153,14 +152,11 @@ public class BasicArithmeticTests {
             DRes<SInt> result = numeric.add(left, right);
             return numeric.open(result);
           };
-          ResourcePoolT resourcePool = conf.getResourcePool();
           BigInteger output = runApplication(app);
-          Assert
-              .assertEquals(resourcePool.convertRepresentation(leftValue.add(rightValue)), output);
+          Assert.assertEquals(BigInteger.valueOf(3), output);
         }
       };
     }
-
   }
 
   public static class TestMultiply<ResourcePoolT extends ResourcePool>
@@ -229,14 +225,13 @@ public class BasicArithmeticTests {
             DRes<SInt> result = numeric.mult(left, right);
             return numeric.open(result);
           };
-          ResourcePoolT resourcePool = conf.getResourcePool();
           BigInteger output = runApplication(app);
-          Assert.assertEquals(resourcePool.convertRepresentation(leftValue.multiply(rightValue)),
-              output);
+          BigInteger result = conf.getResourcePool().getModulus().add(BigInteger.valueOf(-2));
+
+          Assert.assertEquals(result, output);
         }
       };
     }
-
   }
 
   public static class TestSubtract<ResourcePoolT extends NumericResourcePool>
@@ -256,11 +251,8 @@ public class BasicArithmeticTests {
             DRes<SInt> result = numeric.sub(leftClosed, rightClosed);
             return numeric.open(result);
           };
-          ResourcePoolT resourcePool = conf.getResourcePool();
-          BigInteger expected = resourcePool
-              .convertRepresentation(left.subtract(right).mod(resourcePool.getModulus()));
           BigInteger actual = runApplication(app);
-          Assert.assertEquals(expected, actual);
+          Assert.assertEquals(BigInteger.valueOf(6), actual);
         }
       };
     }
@@ -283,11 +275,9 @@ public class BasicArithmeticTests {
             DRes<SInt> result = numeric.sub(leftClosed, rightClosed);
             return numeric.open(result);
           };
-          ResourcePoolT resourcePool = conf.getResourcePool();
-          BigInteger expected = resourcePool
-              .convertRepresentation(left.subtract(right).mod(resourcePool.getModulus()));
           BigInteger actual = runApplication(app);
-          Assert.assertEquals(expected, actual);
+          BigInteger subtract = conf.getResourcePool().getModulus().add(BigInteger.valueOf(-6));
+          Assert.assertEquals(subtract, actual);
         }
       };
     }
@@ -299,7 +289,7 @@ public class BasicArithmeticTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigInteger left = BigInteger.valueOf(4);
-      BigInteger right = BigInteger.valueOf(10);
+      long right = 10L;
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() {
@@ -309,11 +299,9 @@ public class BasicArithmeticTests {
             DRes<SInt> result = numeric.sub(leftClosed, right);
             return numeric.open(result);
           };
-          ResourcePoolT resourcePool = conf.getResourcePool();
-          BigInteger expected = resourcePool
-              .convertRepresentation(left.subtract(right).mod(resourcePool.getModulus()));
           BigInteger actual = runApplication(app);
-          Assert.assertEquals(expected, actual);
+          BigInteger subtract = conf.getResourcePool().getModulus().add(BigInteger.valueOf(-6));
+          Assert.assertEquals(subtract, actual);
         }
       };
     }
@@ -324,7 +312,7 @@ public class BasicArithmeticTests {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      BigInteger left = BigInteger.valueOf(4);
+      long left = 4L;
       BigInteger right = BigInteger.valueOf(10);
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
@@ -335,11 +323,9 @@ public class BasicArithmeticTests {
             DRes<SInt> result = numeric.sub(left, rightClosed);
             return numeric.open(result);
           };
-          ResourcePoolT resourcePool = conf.getResourcePool();
-          BigInteger expected = resourcePool
-              .convertRepresentation(left.subtract(right).mod(resourcePool.getModulus()));
           BigInteger actual = runApplication(app);
-          Assert.assertEquals(expected, actual);
+          BigInteger subtract = conf.getResourcePool().getModulus().add(BigInteger.valueOf(-6));
+          Assert.assertEquals(subtract, actual);
         }
       };
     }
@@ -350,8 +336,8 @@ public class BasicArithmeticTests {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      BigInteger value = BigInteger.valueOf(10);
-      BigInteger add = BigInteger.valueOf(4);
+      long value = 10L;
+      long add = 4L;
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() {
@@ -364,7 +350,7 @@ public class BasicArithmeticTests {
           };
           BigInteger output = runApplication(app);
 
-          Assert.assertEquals(value.add(add), output);
+          Assert.assertEquals(BigInteger.valueOf(14), output);
         }
       };
     }
@@ -376,7 +362,7 @@ public class BasicArithmeticTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigInteger value = BigInteger.valueOf(10);
-      BigInteger constant = BigInteger.valueOf(4);
+      long constant = 4L;
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() {
@@ -388,7 +374,7 @@ public class BasicArithmeticTests {
           };
           BigInteger output = runApplication(app);
 
-          Assert.assertEquals(value.multiply(constant), output);
+          Assert.assertEquals(BigInteger.valueOf(40), output);
         }
       };
     }
@@ -452,7 +438,7 @@ public class BasicArithmeticTests {
     }
   }
 
-  public static class TestOpenWithConversion<ResourcePoolT extends ResourcePool>
+  public static class TestOpenNoConversionByDefault<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
@@ -466,8 +452,7 @@ public class BasicArithmeticTests {
             Numeric numeric = producer.numeric();
             DRes<SInt> closed = numeric.input(input, 1);
             DRes<BigInteger> opened = numeric.open(closed);
-            BigInteger expected = input.subtract(modulus);
-            return () -> new Pair<>(opened.out(), expected);
+            return () -> new Pair<>(opened.out(), input);
           };
           Pair<BigInteger, BigInteger> actualAndExpected = runApplication(app);
           Assert.assertEquals(actualAndExpected.getSecond(), actualAndExpected.getFirst());
@@ -505,7 +490,6 @@ public class BasicArithmeticTests {
       };
     }
   }
-
 
   public static class TestSumAndMult<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
@@ -653,7 +637,6 @@ public class BasicArithmeticTests {
                   } else {
                     computations.add(numeric1.add(firstClosed, secondClosed));
                   }
-
                 }
                 return () -> computations;
               }).seq((seq, computations) -> {
@@ -674,7 +657,6 @@ public class BasicArithmeticTests {
             } else {
               Assert.assertEquals(add, result);
             }
-
           }
         }
       };

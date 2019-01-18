@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import java.math.BigInteger;
 import java.util.Map;
@@ -11,18 +13,31 @@ public abstract class NetworkedTest {
   protected Map<Integer, MascotTestContext> contexts;
   protected TestRuntime testRuntime;
 
-  private final MascotSecurityParameters defaultParameters = new MascotSecurityParameters(16, 16,
+  private final MascotSecurityParameters defaultParameters = new MascotSecurityParameters(16,
       256, 3);
-  private BigInteger modulus = ModulusFinder.findSuitableModulus(16);
+  private FieldDefinition fieldDefinition = new BigIntegerFieldDefinition(
+      ModulusFinder.findSuitableModulus(16));
 
   public void initContexts(int noOfParties) {
-    initContexts(noOfParties, defaultParameters);
+    initContexts(noOfParties, 16, defaultParameters);
   }
 
   public void initContexts(int noOfParties, MascotSecurityParameters securityParameters) {
-    modulus = ModulusFinder.findSuitableModulus(securityParameters.getModBitLength());
-    contexts = testRuntime.initializeContexts(noOfParties, 1,
-        securityParameters);
+    initContexts(noOfParties, 16, securityParameters);
+  }
+
+  public void initContexts(int noOfParties, int bitLength,
+      MascotSecurityParameters securityParameters) {
+    contexts = testRuntime.initializeContexts(
+        noOfParties, 1, securityParameters,
+        new BigIntegerFieldDefinition(ModulusFinder.findSuitableModulus(bitLength)));
+  }
+
+  public void initContexts(int noOfParties, FieldDefinition fieldDefinition,
+      MascotSecurityParameters securityParameters) {
+    this.fieldDefinition = fieldDefinition;
+    contexts = testRuntime.initializeContexts(noOfParties, 1, securityParameters,
+        fieldDefinition);
   }
 
   @Before
@@ -42,11 +57,14 @@ public abstract class NetworkedTest {
   }
 
   protected BigInteger getModulus() {
-    return modulus;
+    return getFieldDefinition().getModulus();
+  }
+
+  protected FieldDefinition getFieldDefinition() {
+    return fieldDefinition;
   }
 
   protected MascotSecurityParameters getDefaultParameters() {
     return defaultParameters;
   }
-
 }

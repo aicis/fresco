@@ -1,19 +1,17 @@
 package dk.alexandra.fresco.tools.mascot.cope;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotSecurityParameters;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
 import org.junit.Test;
 
 public class TestCope extends NetworkedTest {
@@ -36,10 +34,10 @@ public class TestCope extends NetworkedTest {
     initContexts(2);
 
     // left parties input (can be multiple)
-    FieldElement macKeyShare = new FieldElement(new BigInteger("11231"), getModulus());
+    FieldElement macKeyShare = getFieldDefinition().createElement("11231");
 
     // single right party input element
-    FieldElement input = new FieldElement(7, getModulus());
+    FieldElement input = getFieldDefinition().createElement(7);
     List<FieldElement> inputs = Collections.singletonList(input);
 
     // define task each party will run
@@ -56,20 +54,20 @@ public class TestCope extends NetworkedTest {
 
     FieldElement expected = macKeyShare.multiply(input);
     FieldElement actual = leftResults.get(0).add(rightResults.get(0));
-    CustomAsserts.assertEquals(expected, actual);
+    CustomAsserts.assertEquals(getFieldDefinition(), expected, actual);
   }
 
   private void testBatchedExtend(int lambdaSecurityParam) {
     initContexts(2,
-        new MascotSecurityParameters(getDefaultParameters().getModBitLength(), lambdaSecurityParam,
-            getDefaultParameters().getPrgSeedLength(), getDefaultParameters().getNumCandidatesPerTriple()));
+        new MascotSecurityParameters(lambdaSecurityParam, getDefaultParameters().getPrgSeedLength(),
+            getDefaultParameters().getNumCandidatesPerTriple()));
 
     // left parties input (can be multiple)
-    FieldElement macKeyShare = new FieldElement(new BigInteger("11231"), getModulus());
+    FieldElement macKeyShare = getFieldDefinition().createElement("11231");
 
     // multiple input elements
     int[] inputArr = {7, 444, 112, 11};
-    List<FieldElement> inputs = MascotTestUtils.generateSingleRow(inputArr, getModulus());
+    List<FieldElement> inputs = MascotTestUtils.generateSingleRow(inputArr, getFieldDefinition());
 
     // define task each party will run
     Callable<List<FieldElement>> partyOneTask =
@@ -84,16 +82,17 @@ public class TestCope extends NetworkedTest {
     List<FieldElement> leftResults = results.get(0);
     List<FieldElement> rightResults = results.get(1);
 
-    int[] expectedArr = {7 * 11231 % getModulus().intValue(), 444 * 11231 % getModulus().intValue(),
-        112 * 11231 % getModulus().intValue(), 11 * 11231 % getModulus().intValue()};
+    int modulusInt = getModulus().intValue();
+    int[] expectedArr = {7 * 11231 % modulusInt, 444 * 11231 % modulusInt,
+        112 * 11231 % modulusInt, 11 * 11231 % modulusInt};
     List<FieldElement> expected =
-        MascotTestUtils.generateSingleRow(expectedArr, getModulus());
+        MascotTestUtils.generateSingleRow(expectedArr, getFieldDefinition());
 
     List<FieldElement> actual = IntStream.range(0, expected.size())
         .mapToObj(idx -> leftResults.get(idx).add(rightResults.get(idx)))
         .collect(Collectors.toList());
 
-    CustomAsserts.assertEquals(expected, actual);
+    CustomAsserts.assertEquals(getFieldDefinition(), expected, actual);
   }
 
   @Test
@@ -105,5 +104,4 @@ public class TestCope extends NetworkedTest {
   public void testUnequalSecParamAndBitLength() {
     testBatchedExtend(24);
   }
-
 }

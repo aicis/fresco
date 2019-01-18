@@ -10,10 +10,10 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
  * builder to use of the specified type. This builder can then be used to construct the application.
  * 
  * @param <OutputT> The output type
- * @param <Builder> The builder type (i.e. currently either binary or arithmetic)
+ * @param <BuilderT> The builder type (i.e. currently either binary or arithmetic)
  */
-public interface Application<OutputT, Builder extends ProtocolBuilder>
-    extends Computation<OutputT, Builder> {
+public interface Application<OutputT, BuilderT extends ProtocolBuilder>
+    extends Computation<OutputT, BuilderT> {
 
   /**
    * Closes the application and allows the output to be produced and allocated resources to be

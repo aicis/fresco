@@ -402,7 +402,6 @@ public class LpBuildingBlockTests {
                 + "0, 1, 0, 0, 1, 0, \n"
                 + "0, 0, 1, 0, 0, 1,");
             assertDebugInfoContains(debugOutput, "B", "1, 2, 3, ");
-            assertDebugInfoContains(debugOutput, "F", "-1, -1, -1, 0, 0, 0, ");
             assertDebugInfoContains(debugOutput, "z", "0");
             assertDebugInfoContains(debugOutput, "Basis [0]", "4, 5, 6,");
             assertDebugInfoContains(debugOutput, "Basis [3]", "1, 2, 3,");

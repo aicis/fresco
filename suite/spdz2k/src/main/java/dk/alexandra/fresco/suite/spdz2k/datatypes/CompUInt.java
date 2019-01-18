@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 /**
  * An unsigned integer conceptually composed of two other unsigned integers. <p>Composite integers
  * have a bit length of t = s + k, where the s most significant bits can be viewed as a s-bit
@@ -9,7 +10,7 @@ package dk.alexandra.fresco.suite.spdz2k.datatypes;
 public interface CompUInt<
     HighT extends UInt<HighT>,
     LowT extends UInt<LowT>,
-    CompT extends UInt<CompT>> extends UInt<CompT> {
+    CompT extends UInt<CompT> & FieldElement> extends UInt<CompT>, FieldElement {
 
   /**
    * Get the s most significant bits as an unsigned integer of type {@link HighT}.
@@ -51,6 +52,36 @@ public interface CompUInt<
   @Override
   default int getBitLength() {
     return getCompositeBitLength();
+  }
+
+  @Override
+  default FieldElement sqrt() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  default FieldElement modInverse() {
+    throw new IllegalStateException("Can't invert ring element");
+  }
+
+  @Override
+  default FieldElement add(FieldElement other) {
+    return add((CompT) other);
+  }
+
+  @Override
+  default FieldElement subtract(FieldElement other) {
+    return subtract((CompT) other);
+  }
+
+  @Override
+  default FieldElement multiply(FieldElement other) {
+    return multiply((CompT) other);
+  }
+
+  @Override
+  default FieldElement negate() {
+    return negateUInt();
   }
 
   /**

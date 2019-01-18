@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.tools.mascot.arithm;
+package dk.alexandra.fresco.framework.builder.numeric;
 
 import static org.junit.Assert.assertEquals;
 

@@ -1,10 +1,11 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import org.hamcrest.core.Is;
@@ -18,6 +19,8 @@ public class RandomDataDeaTest {
   private List<List<DRes<SInt>>> outputValues = new ArrayList<>();
   private List<List<DRes<SInt>>> inputBasis = new ArrayList<>();
   private List<List<DRes<SInt>>> outputBasis = new ArrayList<>();
+  private BigIntegerFieldDefinition definition =
+      new BigIntegerFieldDefinition(ModulusFinder.findSuitableModulus(8));
 
   @Before
   public void setup() {
@@ -72,9 +75,9 @@ public class RandomDataDeaTest {
 
   @Test
   public void testInputMismatchWithBasis() {
-    inputValues.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
-    inputBasis.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
-    inputBasis.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
+    inputValues.get(0).add(getValue());
+    inputBasis.get(0).add(getValue());
+    inputBasis.get(0).add(getValue());
 
     try {
       new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis,
@@ -85,11 +88,15 @@ public class RandomDataDeaTest {
     }
   }
 
+  private DummyArithmeticSInt getValue() {
+    return new DummyArithmeticSInt(definition.createElement(1));
+  }
+
   @Test
   public void testOutputMismatchWithBasis() {
-    outputValues.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
-    outputBasis.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
-    outputBasis.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
+    outputValues.get(0).add(getValue());
+    outputBasis.get(0).add(getValue());
+    outputBasis.get(0).add(getValue());
 
     try {
       new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis,
@@ -103,14 +110,14 @@ public class RandomDataDeaTest {
   @Test
   public void testInconsistentInputBasis() {
     outputBasis.add(new ArrayList<>());
-    inputValues.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
-    inputValues.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
+    inputValues.get(0).add(getValue());
+    inputValues.get(0).add(getValue());
     inputBasis.add(new ArrayList<>());
-    inputBasis.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
-    inputBasis.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
-    inputBasis.get(1).add(new DummyArithmeticSInt(BigInteger.ONE));
-    inputBasis.get(1).add(new DummyArithmeticSInt(BigInteger.ONE));
-    inputBasis.get(1).add(new DummyArithmeticSInt(BigInteger.ONE));
+    inputBasis.get(0).add(getValue());
+    inputBasis.get(0).add(getValue());
+    inputBasis.get(1).add(getValue());
+    inputBasis.get(1).add(getValue());
+    inputBasis.get(1).add(getValue());
 
     try {
       new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis,
@@ -124,14 +131,14 @@ public class RandomDataDeaTest {
   @Test
   public void testInconsistentOutputBasis() {
     inputBasis.add(new ArrayList<>());
-    outputValues.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
-    outputValues.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
+    outputValues.get(0).add(getValue());
+    outputValues.get(0).add(getValue());
     outputBasis.add(new ArrayList<>());
-    outputBasis.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
-    outputBasis.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
-    outputBasis.get(1).add(new DummyArithmeticSInt(BigInteger.ONE));
-    outputBasis.get(1).add(new DummyArithmeticSInt(BigInteger.ONE));
-    outputBasis.get(1).add(new DummyArithmeticSInt(BigInteger.ONE));
+    outputBasis.get(0).add(getValue());
+    outputBasis.get(0).add(getValue());
+    outputBasis.get(1).add(getValue());
+    outputBasis.get(1).add(getValue());
+    outputBasis.get(1).add(getValue());
 
     try {
       new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
@@ -145,11 +152,11 @@ public class RandomDataDeaTest {
 
   @Test
   public void testIncosistentOutputValues() {
-    outputBasis.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
-    outputBasis.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
-    outputValues.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
-    outputValues.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
-    outputValues.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
+    outputBasis.get(0).add(getValue());
+    outputBasis.get(0).add(getValue());
+    outputValues.get(0).add(getValue());
+    outputValues.get(0).add(getValue());
+    outputValues.get(0).add(getValue());
 
     try {
       new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis,
@@ -170,8 +177,8 @@ public class RandomDataDeaTest {
     //  outputBasis.add(new ArrayList<SInt>()); //changed
     inputValues.add(new ArrayList<>());
     outputValues.add(new ArrayList<>());
-    outputValues.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
-    inputValues.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
+    outputValues.get(0).add(getValue());
+    inputValues.get(0).add(getValue());
     try {
       new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis,
           outputBasis);
@@ -191,8 +198,8 @@ public class RandomDataDeaTest {
     outputBasis.add(new ArrayList<>());
     inputValues.add(new ArrayList<>()); //Changed
     outputValues.add(new ArrayList<>()); //changed
-    outputBasis.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
-    inputBasis.get(0).add(new DummyArithmeticSInt(BigInteger.ONE));
+    outputBasis.get(0).add(getValue());
+    inputBasis.get(0).add(getValue());
     try {
       new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis,
           outputBasis);

@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.framework;
 
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -23,8 +25,6 @@ public class TestThreadRunner {
   public abstract static class TestThread<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder>
       extends Thread {
 
-    private boolean finished = false;
-
     protected TestThreadConfiguration<ResourcePoolT, Builder> conf;
 
     Throwable setupException;
@@ -35,6 +35,14 @@ public class TestThreadRunner {
 
     void setConfiguration(TestThreadConfiguration<ResourcePoolT, Builder> conf) {
       this.conf = conf;
+    }
+
+    protected FieldDefinition getFieldDefinition() {
+      ResourcePoolT resourcePool = conf.getResourcePool();
+      if (resourcePool instanceof NumericResourcePool) {
+        return ((NumericResourcePool) resourcePool).getFieldDefinition();
+      }
+      return null;
     }
 
     protected <OutputT> OutputT runApplication(Application<OutputT, Builder> app) {
@@ -69,17 +77,19 @@ public class TestThreadRunner {
         if (conf.network != null) {
           if (conf.network instanceof Closeable) {
             try {
+              try {
+                Thread.sleep(1000);
+              } catch (InterruptedException ignored) {
+              }
               ((Closeable) conf.network).close();
             } catch (IOException ignored) {
               // Cannot do anything about this.
             }
           }
         }
-        Thread.currentThread().interrupt();
       } catch (AssertionError e) {
         this.testException = e;
         logger.error("Test assertion failed in " + this + ": ", e);
-        Thread.currentThread().interrupt();
       }
     }
 
@@ -90,7 +100,6 @@ public class TestThreadRunner {
           conf.sce.shutdownSCE();
         }
         tearDown();
-        finished = true;
       } catch (Exception e) {
         logger.error("" + this + " threw exception during tear down:", e);
         this.teardownException = e;
@@ -98,11 +107,11 @@ public class TestThreadRunner {
       }
     }
 
-    public void setUp() throws Exception {
+    public void setUp() {
       // Override this if test fixture setup needed.
     }
 
-    public void tearDown() throws Exception {
+    public void tearDown() {
       // Override this if actions needed to tear down test fixture.
     }
 
@@ -159,14 +168,6 @@ public class TestThreadRunner {
   public static <ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> void run(
       TestThreadFactory<ResourcePoolT, Builder> f,
       Map<Integer, TestThreadConfiguration<ResourcePoolT, Builder>> confs) {
-    int randSeed = 3457878;
-    run(f, confs, randSeed);
-  }
-
-  private static <ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> void run(
-      TestThreadFactory<ResourcePoolT, Builder> f,
-      Map<Integer, TestThreadConfiguration<ResourcePoolT, Builder>> confs, int randSeed)
-      throws TestFrameworkException {
     final Set<TestThread<ResourcePoolT, Builder>> threads = new HashSet<>();
 
     for (TestThreadConfiguration<ResourcePoolT, Builder> c : confs.values()) {
