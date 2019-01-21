@@ -11,6 +11,7 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SpdzCarryProtocol extends SpdzNativeProtocol<List<SIntPair>> {
 
@@ -59,17 +60,14 @@ public class SpdzCarryProtocol extends SpdzNativeProtocol<List<SIntPair>> {
         epsilons.add(epsilonP2G1);
         final SpdzSInt deltaP2G1 = g1.subtract(p2g1Triple.getB());
         deltas.add(deltaP2G1);
-        network.sendToAll(serializer.serialize(epsilonP2G1.getShare()));
-        network.sendToAll(serializer.serialize(deltaP2G1.getShare()));
 
         // p1 * p2
         final SpdzSInt epsilonP1P2 = p1.subtract(p1p2Triple.getA());
         epsilons.add(epsilonP1P2);
         final SpdzSInt deltaP1P2 = p2.subtract(p1p2Triple.getB());
         deltas.add(deltaP1P2);
-        network.sendToAll(serializer.serialize(epsilonP1P2.getShare()));
-        network.sendToAll(serializer.serialize(deltaP1P2.getShare()));
       }
+      serializeAndSend(network, serializer);
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       OpenedValueStore<SpdzSInt, BigInteger> openedValueStore = spdzResourcePool
@@ -89,12 +87,12 @@ public class SpdzCarryProtocol extends SpdzNativeProtocol<List<SIntPair>> {
         BigInteger p2g1D = openDeltas.get(2 * i);
         openedValueStore.pushOpenedValue(deltas.get(2 * i), p2g1D);
 
-        SpdzSInt p = computeProduct(spdzResourcePool.getMyId(), p1p2E, p1p2D,
+        SpdzSInt p = SpdzAndBatchedProtocol.computeProduct(spdzResourcePool.getMyId(), p1p2E, p1p2D,
             spdzResourcePool.getModulus(), p1p2Triple, dataSupplier.getSecretSharedKey());
 
         SpdzSInt g2 = (SpdzSInt) bits.get(2 * i).getSecond().out();
 
-        SpdzSInt g = computeProduct(spdzResourcePool.getMyId(), p2g1E, p2g1D,
+        SpdzSInt g = SpdzAndBatchedProtocol.computeProduct(spdzResourcePool.getMyId(), p2g1E, p2g1D,
             spdzResourcePool.getModulus(), p2g1Triple, dataSupplier.getSecretSharedKey())
             .add(g2);
         carried.add(new SIntPair(p, g));
@@ -107,40 +105,37 @@ public class SpdzCarryProtocol extends SpdzNativeProtocol<List<SIntPair>> {
     }
   }
 
-  private SpdzSInt computeProduct(int myId, BigInteger e, BigInteger d, BigInteger modulus,
-      SpdzTriple triple, BigInteger key) {
-    BigInteger product = e.multiply(d).mod(modulus);
-    SpdzSInt ed = new SpdzSInt(
-        product,
-        key.multiply(product).mod(modulus),
-        modulus);
-    SpdzSInt res = triple.getC();
-    return res.add(triple.getB().multiply(e))
-        .add(triple.getA().multiply(d))
-        .add(ed, myId);
+  private void serializeAndSend(Network network, ByteSerializer<BigInteger> serializer) {
+    byte[] epsilonBytes = serializer.serialize(
+        epsilons.stream().map(SpdzSInt::getShare).collect(Collectors.toList()));
+    byte[] deltaBytes = serializer.serialize(
+        deltas.stream().map(SpdzSInt::getShare).collect(Collectors.toList()));
+    network.sendToAll(epsilonBytes);
+    network.sendToAll(deltaBytes);
   }
 
   private void receiveAndReconstruct(Network network, ByteSerializer<BigInteger> serializer,
       int noOfParties, BigInteger modulus) {
-    for (int i = 0; i < epsilons.size(); i++) {
-      BigInteger[] epsilonShares = new BigInteger[noOfParties];
-      BigInteger[] deltaShares = new BigInteger[noOfParties];
-      for (int p = 0; p < noOfParties; p++) {
-        epsilonShares[p] = serializer.deserialize(network.receive(p + 1));
-        deltaShares[p] = serializer.deserialize(network.receive(p + 1));
-      }
+    byte[] rawEpsilons = network.receive(1);
+    byte[] rawDeltas = network.receive(1);
+    openEpsilons = serializer.deserializeList(rawEpsilons);
+    openDeltas = serializer.deserializeList(rawDeltas);
 
-      BigInteger e = epsilonShares[0];
-      BigInteger d = deltaShares[0];
-      for (int p = 1; p < epsilonShares.length; p++) {
-        e = e.add(epsilonShares[p]);
-        d = d.add(deltaShares[p]);
-      }
-      e = e.mod(modulus);
-      d = d.mod(modulus);
+    for (int i = 2; i <= noOfParties; i++) {
+      rawEpsilons = network.receive(i);
+      rawDeltas = network.receive(i);
 
-      openEpsilons.add(e);
-      openDeltas.add(d);
+      List<BigInteger> innerEpsilons = serializer.deserializeList(rawEpsilons);
+      List<BigInteger> innerDeltas = serializer.deserializeList(rawDeltas);
+      for (int j = 0; j < epsilons.size(); j++) {
+        openEpsilons.set(j, openEpsilons.get(j).add(innerEpsilons.get(j)));
+        openDeltas.set(j, openDeltas.get(j).add(innerDeltas.get(j)));
+      }
+    }
+
+    for (int j = 0; j < epsilons.size(); j++) {
+      openEpsilons.set(j, openEpsilons.get(j).mod(modulus));
+      openDeltas.set(j, openDeltas.get(j).mod(modulus));
     }
   }
 
