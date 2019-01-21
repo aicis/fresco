@@ -3,6 +3,7 @@ package dk.alexandra.fresco.lib.compare.lt;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.Comparison.Algorithm;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -12,6 +13,7 @@ import java.math.BigInteger;
 import java.util.List;
 
 public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeric> {
+
   // params etc
   private final int bitLength;
   private final DRes<SInt> x;
@@ -45,7 +47,8 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
           List<DRes<SInt>> rBottomBits = bits.subList(0, bitLengthBottom);
           List<BigInteger> twoPowsBottom =
               seq.getBigIntegerHelper().getTwoPowersList(bitLengthBottom);
-          return Pair.lazy(mask.random, seq.advancedNumeric().innerProductWithPublicPart(twoPowsBottom, rBottomBits));
+          return Pair.lazy(mask.random,
+              seq.advancedNumeric().innerProductWithPublicPart(twoPowsBottom, rBottomBits));
         }, (seq, mask) -> {
           List<DRes<SInt>> rTopBits =
               mask.bits.subList(bitLengthBottom, bitLengthBottom + bitLengthTop);
@@ -75,7 +78,7 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
           DRes<SInt> mS = numeric.add(z, () -> r);
           DRes<BigInteger> mO = seq.numeric().open(mS);
 
-          return () -> new Object[] {mO, rBottom, rTop, rBar, z};
+          return () -> new Object[]{mO, rBottom, rTop, rBar, z};
         }).seq((ProtocolBuilderNumeric seq, Object[] input) -> {
           BigInteger mO = ((DRes<BigInteger>) input[0]).out();
           DRes<SInt> rBottom = (DRes<SInt>) input[1];
@@ -94,8 +97,9 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
           DRes<SInt> dif = numeric.sub(mTop, rTop);
 
           // eqResult <- execute eq.test
-          DRes<SInt> eqResult = seq.comparison().compareZero(dif, bitLengthTop);
-          return () -> new Object[] {eqResult, rBottom, rTop, mBot, mTop, mBar, rBar, z};
+          DRes<SInt> eqResult = seq.comparison()
+              .compareZero(dif, bitLengthTop, Algorithm.CONST_ROUNDS);
+          return () -> new Object[]{eqResult, rBottom, rTop, mBot, mTop, mBar, rBar, z};
         }).seq((ProtocolBuilderNumeric seq, Object[] input) -> {
           DRes<SInt> eqResult = (DRes<SInt>) input[0];
           DRes<SInt> rBottom = (DRes<SInt>) input[1];
@@ -132,7 +136,7 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
             subComparisonResult =
                 seq.seq(new LessThanOrEquals(nextBitLength, rPrime, mPrime));
           }
-          return () -> new Object[] {subComparisonResult, mBar, rBar, z};
+          return () -> new Object[]{subComparisonResult, mBar, rBar, z};
         }).seq((ProtocolBuilderNumeric seq, Object[] input) -> {
           DRes<SInt> subComparisonResult = (DRes<SInt>) input[0];
           BigInteger mBar = (BigInteger) input[1];

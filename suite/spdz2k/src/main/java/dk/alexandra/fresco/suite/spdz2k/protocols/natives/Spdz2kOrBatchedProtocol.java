@@ -48,6 +48,9 @@ public class Spdz2kOrBatchedProtocol<PlainT extends CompUInt<?, ?, PlainT>> exte
     CompUIntFactory<PlainT> factory = resourcePool.getFactory();
     List<DRes<SInt>> bitsA = bitsADef.out();
     List<DRes<SInt>> bitsB = bitsBDef.out();
+    if (bitsA.size() != bitsB.size()) {
+      throw new IllegalArgumentException("Lists must be same size");
+    }
     if (round == 0) {
       triples = new ArrayList<>(bitsA.size());
       epsilons = new ArrayList<>(bitsA.size());

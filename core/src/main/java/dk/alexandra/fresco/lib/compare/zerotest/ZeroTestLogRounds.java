@@ -39,8 +39,9 @@ public class ZeroTestLogRounds implements Computation<SInt, ProtocolBuilderNumer
       // composed r values from random bit mask will be in little endian as
       // it is based on a list of bits
       Collections.reverse(cbits);
+      List<DRes<SInt>> secretBits = pair.getFirst().out().subList(0, maxBitlength);
       DRes<List<DRes<SInt>>> d = seq
-          .par(par -> par.logical().pairWiseXorKnown(() -> cbits, pair.getFirst()));
+          .par(par -> par.logical().pairWiseXorKnown(() -> cbits, () -> secretBits));
       // return 1 - OR-list(d)
       return seq.numeric().subFromOpen(seq.getOIntArithmetic().one(), seq
           .logical().orOfList(d));

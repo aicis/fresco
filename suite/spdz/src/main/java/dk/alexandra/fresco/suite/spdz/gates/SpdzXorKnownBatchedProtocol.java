@@ -28,6 +28,9 @@ public class SpdzXorKnownBatchedProtocol extends SpdzNativeProtocol<List<DRes<SI
   public EvaluationStatus evaluate(int round, SpdzResourcePool resourcePool, Network network) {
     List<OInt> leftOut = left.out();
     List<DRes<SInt>> rightOut = right.out();
+    if (leftOut.size() != rightOut.size()) {
+      throw new IllegalArgumentException("Lists must be same size");
+    }
     this.result = new ArrayList<>(leftOut.size());
     for (int i = 0; i < leftOut.size(); i++) {
       BigInteger leftEl = ((BigIntegerOInt) leftOut.get(i)).getValue();

@@ -41,6 +41,9 @@ public class SpdzOrBatchedProtocol extends SpdzNativeProtocol<List<DRes<SInt>>> 
     ByteSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
     final List<DRes<SInt>> leftFactors = leftDef.out();
     final List<DRes<SInt>> rightFactors = rightDef.out();
+    if (leftFactors.size() != rightFactors.size()) {
+      throw new IllegalArgumentException("Lists must be same size");
+    }
     if (round == 0) {
       triples = new ArrayList<>(leftFactors.size());
       epsilons = new ArrayList<>(leftFactors.size());

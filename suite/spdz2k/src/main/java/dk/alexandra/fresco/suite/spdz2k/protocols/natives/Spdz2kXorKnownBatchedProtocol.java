@@ -32,6 +32,9 @@ public class Spdz2kXorKnownBatchedProtocol<PlainT extends CompUInt<?, ?, PlainT>
     PlainT secretSharedKey = resourcePool.getDataSupplier().getSecretSharedKey();
     List<OInt> leftOut = left.out();
     List<DRes<SInt>> rightOut = right.out();
+    if (leftOut.size() != rightOut.size()) {
+      throw new IllegalArgumentException("Lists must be same size");
+    }
     this.result = new ArrayList<>(leftOut.size());
     for (int i = 0; i < leftOut.size(); i++) {
       PlainT knownBit = factory.fromOInt(leftOut.get(i)).toBitRep();
