@@ -1,21 +1,20 @@
 package dk.alexandra.fresco.lib.real;
 
+import static dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticRunner.run;
+import static org.junit.Assert.assertTrue;
+
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.MatrixUtils;
-import org.junit.Test;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 import java.util.stream.Collectors;
-
-import static dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticRunner.run;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 public class LinearAlgebraTest {
 
