@@ -661,7 +661,6 @@ public class TestLogicalOperationsSpdz2k extends
     }
   }
 
-
   private static List<BigInteger> randomBits(int num, int seed) {
     Random random = new Random(seed);
     List<BigInteger> bits = new ArrayList<>(num);
