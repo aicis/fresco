@@ -326,7 +326,6 @@ public class LinearAlgebraTest {
       return () -> new MatrixUtils().unwrapMatrix(opened);
     };
     Matrix<BigDecimal> output = run(testApplication);
-    System.out.println(output);
     for (int i = 0; i < input.getHeight(); i++) {
       RealTestUtils.assertEqual(output.getColumn(i), input.getRow(i), 15);
     }
