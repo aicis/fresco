@@ -5,9 +5,14 @@ import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStor
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.compare.CompareTests.TestLessThanLogRounds;
+import dk.alexandra.fresco.lib.compare.lt.CarryOutTests;
+import dk.alexandra.fresco.lib.compare.lt.CarryOutTests.TestCarryOut;
+import dk.alexandra.fresco.lib.compare.lt.PreCarryTests.TestPreCarryBits;
 import dk.alexandra.fresco.lib.list.EliminateDuplicatesTests.TestFindDuplicatesOne;
+import dk.alexandra.fresco.suite.dummy.arithmetic.AbstractDummyArithmeticTest.TestParameters;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
+import java.util.Random;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -23,6 +28,38 @@ public class TestSpdzComparison extends AbstractSpdzTest {
   @Test
   public void test_compareLTEdge_Sequential() {
     runTest(new CompareTests.TestCompareLTEdgeCases<>(),
+        PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void testPreCarry() {
+    runTest(new TestPreCarryBits<>(),
+        PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void testCarryOutZero() {
+    runTest(new TestCarryOut<>(0x00000000, 0x00000000), PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void testCarryOutOne() {
+    runTest(new TestCarryOut<>(0x80000000, 0x80000000), PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void testCarryOutAllOnes() {
+    runTest(new TestCarryOut<>(0xffffffff, 0xffffffff), PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void testCarryOutOneFromCarry() {
+    runTest(new TestCarryOut<>(0x40000000, 0xc0000000), PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void testCarryOutRandom() {
+    runTest(new TestCarryOut<>(new Random(42).nextInt(), new Random(1).nextInt()),
         PreprocessingStrategy.DUMMY, 2);
   }
 

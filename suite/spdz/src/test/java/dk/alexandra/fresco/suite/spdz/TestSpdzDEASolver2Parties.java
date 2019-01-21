@@ -7,12 +7,14 @@ import dk.alexandra.fresco.lib.statistics.DeaSolverTests.TestDeaFixed1;
 import dk.alexandra.fresco.lib.statistics.DeaSolverTests.TestDeaFixed2;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import java.util.Random;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
 /**
  * Tests for the DEASolver.
  */
+@Ignore
 public class TestSpdzDEASolver2Parties extends AbstractSpdzTest {
 
   @Test

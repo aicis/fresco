@@ -3,13 +3,16 @@ package dk.alexandra.fresco.suite.spdz;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.Comparison;
 import dk.alexandra.fresco.framework.builder.numeric.Conversion;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultAdvancedNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.DefaultComparison;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultLogical;
 import dk.alexandra.fresco.framework.builder.numeric.Logical;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.PreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.framework.value.BigIntegerOIntArithmetic;
 import dk.alexandra.fresco.framework.value.BigIntegerOIntFactory;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -23,6 +26,7 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAndBatchedProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAndKnownBatchedProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzCarryProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputTwoPartyProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
@@ -77,6 +81,11 @@ class SpdzBuilder implements BuilderFactoryNumeric {
           new SpdzExponentiationPipeProtocol(pipeLength);
       return protocolBuilder.append(spdzExpPipeProtocol);
     };
+  }
+
+  @Override
+  public Comparison createComparison(ProtocolBuilderNumeric builder) {
+    return new SpdzComparison(this, builder);
   }
 
   @Override
@@ -238,6 +247,20 @@ class SpdzBuilder implements BuilderFactoryNumeric {
   @Override
   public OIntArithmetic getOIntArithmetic() {
     return oIntArithmetic;
+  }
+
+  class SpdzComparison extends DefaultComparison {
+
+    public SpdzComparison(
+        BuilderFactoryNumeric factoryNumeric,
+        ProtocolBuilderNumeric builder) {
+      super(factoryNumeric, builder);
+    }
+
+    @Override
+    public DRes<List<SIntPair>> carry(List<SIntPair> bitPairs) {
+      return builder.append(new SpdzCarryProtocol(bitPairs));
+    }
   }
 
   class SpdzLogical extends DefaultLogical {
