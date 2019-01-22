@@ -14,13 +14,13 @@ move:
 
 runPrePro:
 	cd server1 && java -jar fresco-demo-aes.jar -e SEQUENTIAL_BATCHED -i 1 -p 1:localhost:8081 -p 2:localhost:8082 -s tinytablesprepro -in 000102030405060708090a0b0c0d0e0f > log.txt 2>&1 &
-	cd server2 && java -jar fresco-demo-aes.jar -e SEQUENTIAL_BATCHED -i 2 -p 1:localhost:8081 -p 2:localhost:8082 -s tinytablesprepro -in 00112233445566778899aabbccddeeff > log.txt 2>&1 &
+	cd server2 && java -jar fresco-demo-aes.jar -e SEQUENTIAL_BATCHED -i 2 -p 1:localhost:8081 -p 2:localhost:8082 -s tinytablesprepro -in 00112233445566778899aabbccddeeff 2>&1 | tee log.txt
 
 
 run:
 	cd server1 && java -jar fresco-demo-aes.jar -e SEQUENTIAL_BATCHED -i 1 -p 1:localhost:8081 -p 2:localhost:8082 -s tinytables -in 000102030405060708090a0b0c0d0e0f > log.txt 2>&1 &
-	cd server2 && java -jar fresco-demo-aes.jar -e SEQUENTIAL_BATCHED -i 2 -p 1:localhost:8081 -p 2:localhost:8082 -s tinytables -in 00112233445566778899aabbccddeeff > log.txt 2>&1 &
+	cd server2 && java -jar fresco-demo-aes.jar -e SEQUENTIAL_BATCHED -i 2 -p 1:localhost:8081 -p 2:localhost:8082 -s tinytables -in 00112233445566778899aabbccddeeff 2>&1 | tee log.txt
 
 runDummy:
 	cd server1 && java -jar fresco-demo-aes.jar -e SEQUENTIAL_BATCHED -i 1 -p 1:localhost:8081 -p 2:localhost:8082 -s dummyBool -in 000102030405060708090a0b0c0d0e0f > log.txt 2>&1 &
-	cd server2 && java -jar fresco-demo-aes.jar -e SEQUENTIAL_BATCHED -i 2 -p 1:localhost:8081 -p 2:localhost:8082 -s dummyBool -in 00112233445566778899aabbccddeeff > log.txt 2>&1 &
+	cd server2 && java -jar fresco-demo-aes.jar -e SEQUENTIAL_BATCHED -i 2 -p 1:localhost:8081 -p 2:localhost:8082 -s dummyBool -in 00112233445566778899aabbccddeeff 2>&1 | tee log.txt
