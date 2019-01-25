@@ -24,18 +24,21 @@ public class Spdz2kDummyDataSupplier<
   private final int myId;
   private final ArithmeticDummyDataSupplier supplier;
   private final PlainT secretSharedKey;
+  private final PlainT myKeyShare;
   private final CompUIntFactory<PlainT> factory;
 
   public Spdz2kDummyDataSupplier(int myId, int noOfParties, PlainT secretSharedKey,
       CompUIntFactory<PlainT> factory) {
     this.myId = myId;
-    this.secretSharedKey = secretSharedKey;
     this.factory = factory;
     this.supplier = new ArithmeticDummyDataSupplier(
         myId,
         noOfParties,
         BigInteger.ONE.shiftLeft(factory.getCompositeBitLength()),
         BigInteger.ONE.shiftLeft(factory.getLowBitLength() - 1));
+    final Pair<BigInteger, BigInteger> keyPair = supplier.getRandomElementShare();
+    this.secretSharedKey = factory.createFromBigInteger(keyPair.getFirst());
+    this.myKeyShare = factory.createFromBigInteger(keyPair.getSecond());
   }
 
   @Override
@@ -74,7 +77,7 @@ public class Spdz2kDummyDataSupplier<
 
   @Override
   public PlainT getSecretSharedKey() {
-    return secretSharedKey;
+    return myKeyShare;
   }
 
   @Override
@@ -91,14 +94,14 @@ public class Spdz2kDummyDataSupplier<
   private Spdz2kSIntArithmetic<PlainT> toSpdz2kSInt(Pair<BigInteger, BigInteger> raw) {
     PlainT openValue = factory.createFromBigInteger(raw.getFirst());
     PlainT share = factory.createFromBigInteger(raw.getSecond());
-    PlainT macShare = openValue.multiply(secretSharedKey);
+    PlainT macShare = share.multiply(secretSharedKey);
     return new Spdz2kSIntArithmetic<>(share, macShare);
   }
 
   private Spdz2kSIntBoolean<PlainT> toSpdz2kSIntBool(Pair<BigInteger, BigInteger> raw) {
     PlainT openValue = factory.createFromBigInteger(raw.getFirst()).toBitRep();
     PlainT share = factory.createFromBigInteger(raw.getSecond()).toBitRep();
-    PlainT macShare = openValue.toArithmeticRep().multiply(secretSharedKey);
+    PlainT macShare = share.toArithmeticRep().multiply(secretSharedKey);
     return new Spdz2kSIntBoolean<>(share, macShare);
   }
 

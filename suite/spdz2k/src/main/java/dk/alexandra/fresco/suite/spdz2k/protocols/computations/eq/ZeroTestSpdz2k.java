@@ -57,6 +57,7 @@ public class ZeroTestSpdz2k<PlainT extends CompUInt<?, ?, PlainT>> implements
           List<OInt> cBits = arithmetic.toBits(pair.getSecond().out(), k);
           DRes<List<DRes<SInt>>> rBitsBoolean = conversion.toBooleanBatch(() -> rBits);
           DRes<List<DRes<SInt>>> xored = logical.pairWiseXorKnown(() -> cBits, rBitsBoolean);
+          final long then = System.currentTimeMillis();
           DRes<SInt> or = logical.orOfList(xored);
           return conversion.toArithmetic(logical.not(or));
         });

@@ -55,7 +55,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
   @Override
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
 //    System.out.println("SPDZ Mac Check: " + COUNT++ + " " + openedValues.size());
-
+//    System.out.println("SPDZ Mac Check " + COUNT++ + " " + openedValues.size());
     return builder
         .seq(seq -> {
           BigInteger[] rs = sampleRandomCoefficients(openedValues.size(), jointDrbg, modulus);

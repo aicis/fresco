@@ -34,6 +34,7 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzNotBatchedProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOrBatchedProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzOrOfListProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputSingleProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol;
@@ -297,6 +298,11 @@ class SpdzBuilder implements BuilderFactoryNumeric {
     public DRes<List<DRes<SInt>>> pairWiseAndKnown(DRes<List<OInt>> knownBits,
         DRes<List<DRes<SInt>>> secretBits) {
       return builder.append(new SpdzAndKnownBatchedProtocol(knownBits, secretBits));
+    }
+
+    @Override
+    public DRes<SInt> orOfList(DRes<List<DRes<SInt>>> bits) {
+      return builder.append(new SpdzOrOfListProtocol(bits));
     }
 
     @Override

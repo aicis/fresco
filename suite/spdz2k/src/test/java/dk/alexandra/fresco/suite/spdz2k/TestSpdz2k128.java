@@ -18,12 +18,13 @@ public class TestSpdz2k128 extends Spdz2kTestSuite<Spdz2kResourcePool<CompUInt12
   protected Spdz2kResourcePool<CompUInt128> createResourcePool(int playerId, int noOfParties,
       Supplier<Network> networkSupplier) {
     CompUIntFactory<CompUInt128> factory = new CompUInt128Factory();
+    final CompUInt128 key = factory.createRandom();
     Spdz2kResourcePool<CompUInt128> resourcePool =
         new Spdz2kResourcePoolImpl<>(
             playerId,
             noOfParties, null,
             new Spdz2kOpenedValueStoreImpl<>(),
-            new Spdz2kDummyDataSupplier<>(playerId, noOfParties, factory.createRandom(), factory),
+            new Spdz2kDummyDataSupplier<>(playerId, noOfParties, key, factory),
             factory);
     resourcePool.initializeJointRandomness(networkSupplier, AesCtrDrbg::new, 32);
     return resourcePool;

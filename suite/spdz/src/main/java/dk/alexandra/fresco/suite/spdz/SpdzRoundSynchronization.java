@@ -7,12 +7,14 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.util.OpenedValueStore;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.ProtocolSuite.RoundSynchronization;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMacCheckProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputProtocol;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.stream.StreamSupport;
 
 /**
@@ -53,6 +55,9 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
   }
 
   protected void doMacCheck(SpdzResourcePool resourcePool, Network network) {
+//    Pair<List<SpdzSInt>, List<BigInteger>> bar = resourcePool.getOpenedValueStore().popValues();
+//    bar.getFirst().clear();
+//    bar.getSecond().clear();
     SpdzBuilder spdzBuilder = new SpdzBuilder(
         spdzProtocolSuite.createNumericContext(resourcePool),
         spdzProtocolSuite.createRealNumericContext());

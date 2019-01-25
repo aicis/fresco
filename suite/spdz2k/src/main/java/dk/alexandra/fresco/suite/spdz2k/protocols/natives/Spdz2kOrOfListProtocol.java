@@ -37,6 +37,8 @@ public class Spdz2kOrOfListProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
       Network network) {
     PlainT macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
     CompUIntFactory<PlainT> factory = resourcePool.getFactory();
+//    System.out.println("Running round " + round);
+
     if (round % 2 == 0) {
       if (nextRound == null) {
         nextRound = bitsDef.out();

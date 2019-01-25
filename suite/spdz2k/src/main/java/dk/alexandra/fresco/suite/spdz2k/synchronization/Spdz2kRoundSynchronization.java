@@ -7,16 +7,20 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.util.OpenedValueStore;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.ProtocolSuite.RoundSynchronization;
 import dk.alexandra.fresco.suite.spdz2k.Spdz2kBuilder;
 import dk.alexandra.fresco.suite.spdz2k.Spdz2kProtocolSuite;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntConverter;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.UInt;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.Spdz2kMacCheckComputation;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.RequiresMacCheck;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
+import java.math.BigInteger;
+import java.util.List;
 import java.util.stream.StreamSupport;
 
 /**
@@ -53,6 +57,9 @@ public class Spdz2kRoundSynchronization<
   }
 
   private void doMacCheck(Spdz2kResourcePool<PlainT> resourcePool, Network network) {
+//    Pair<List<Spdz2kSIntArithmetic<PlainT>>, List<PlainT>> bar = resourcePool.getOpenedValueStore().popValues();
+//    bar.getFirst().clear();
+//    bar.getSecond().clear();
     Spdz2kBuilder<PlainT> builder = new Spdz2kBuilder<>(resourcePool.getFactory(),
         protocolSuite.createBasicNumericContext(resourcePool),
         protocolSuite.createRealNumericContext(),

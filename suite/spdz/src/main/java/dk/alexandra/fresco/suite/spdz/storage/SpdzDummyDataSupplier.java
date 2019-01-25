@@ -20,7 +20,8 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   private final int myId;
   private final ArithmeticDummyDataSupplier supplier;
   private final BigInteger modulus;
-  private final BigInteger secretSharedKey;
+  private final BigInteger wholeKey;
+  private final BigInteger myKeyShare;
   private final int expPipeLength;
   private final int maxBitLength;
 
@@ -49,11 +50,13 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
       BigInteger secretSharedKey, int expPipeLength, int maxBitLength) {
     this.myId = myId;
     this.modulus = modulus;
-    this.secretSharedKey = secretSharedKey;
     this.expPipeLength = expPipeLength;
     this.maxBitLength = maxBitLength;
     this.supplier = new ArithmeticDummyDataSupplier(myId, noOfPlayers, modulus,
         BigInteger.ONE.shiftLeft(maxBitLength - 1));
+    final Pair<BigInteger, BigInteger> keyPair = supplier.getRandomElementShare();
+    this.wholeKey = keyPair.getFirst();
+    this.myKeyShare = keyPair.getSecond();
   }
 
   @Override
@@ -95,7 +98,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
 
   @Override
   public BigInteger getSecretSharedKey() {
-    return secretSharedKey;
+    return myKeyShare;
   }
 
   @Override
@@ -112,7 +115,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   private SpdzSInt toSpdzSInt(Pair<BigInteger, BigInteger> raw) {
     return new SpdzSInt(
         raw.getSecond(),
-        raw.getFirst().multiply(secretSharedKey).mod(modulus),
+        raw.getSecond().multiply(wholeKey).mod(modulus),
         modulus
     );
   }

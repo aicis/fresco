@@ -70,6 +70,7 @@ public class Spdz2kMacCheckComputation<
     PlainT macKeyShare = supplier.getSecretSharedKey();
     PlainT y = UInt.innerProduct(openValues, randomCoefficients);
     Spdz2kSIntArithmetic<PlainT> r = supplier.getNextRandomElementShare();
+//    System.out.println("SPDZ2k Mac Check " + COUNT++ + " "+ openValues.size());
     return builder
         .seq(seq -> {
           if (noOfParties > 2) {
