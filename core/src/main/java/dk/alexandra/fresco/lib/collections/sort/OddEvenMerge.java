@@ -8,14 +8,23 @@ import dk.alexandra.fresco.framework.value.SBool;
 import java.util.List;
 
 /**
- * An implementation of the OddEvenMergeProtocol. We use batchers algorithm. For now, this
- * implementation only supports lists where the size is a power of 2. (i.e. 4, 8, 16 etc.)
+ * An implementation of the OddEvenMergeSortProtocol.
+ * We use Batcher's algorithm to sort a list of boolean key/value pairs in descending order.
+ * This sorting algorithm runs in O(n(log(n))^2) time.
+ *
+ * You can set the mergePresortedHalves flag to `true` to merge a list where the sequence of the first n / 2 elements
+ * is sorted in descending order and the sequence of the remaining n / 2 elements is also sorted in descending order.
+ * The protocol can then "merge" the two presorted halves into a (descending order) sorted list in O(nlog(n)) time.
+ * Note, it is not currently known whether it is possible to obliviously merge two lists in O(n) time.
+ *
+ * For now, this implementation only supports lists where the size is a power of 2 (i.e., 4, 8, 16, etc.).
  *
  */
 public class OddEvenMerge implements
     Computation<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>, ProtocolBuilderBinary> {
 
   private List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> numbers;
+  private boolean mergePresortedHalves = false;
 
   public OddEvenMerge(
       List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unsortedNumbers) {
@@ -23,22 +32,32 @@ public class OddEvenMerge implements
     this.numbers = unsortedNumbers;
   }
 
+  public OddEvenMerge(
+          List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unsortedNumbers,
+          boolean mergePresortedHalves) {
+    super();
+    this.numbers = unsortedNumbers;
+    this.mergePresortedHalves = mergePresortedHalves;
+  }
+
   @Override
   public DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> buildComputation(
       ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
-      sort(0, numbers.size() - 1, seq);
+      if (!this.mergePresortedHalves) {
+        sort(0, numbers.size(), seq);
+      } else {
+        merge(0, numbers.size(), 1, seq);
+      }
       return () -> numbers;
     });
   }
 
   private void sort(int i, int j, ProtocolBuilderBinary builder) {
-    if (j - i > 1) {
+    if (j > 1) {
       sort(i, j / 2, builder);
-      sort(j / 2 + 1, j, builder);
-      merge(i, (j - i + 1), 1, builder);
-    } else {
-      compareAndSwapAtIndices(i, j, builder);
+      sort(j / 2 + i, j / 2, builder);
+      merge(i, j, 1, builder);
     }
   }
 
@@ -54,15 +73,12 @@ public class OddEvenMerge implements
 
   private void merge(int first, int length, int step, ProtocolBuilderBinary builder) {
     int doubleStep = step * 2;
-    if (length > 2) {
+    if (doubleStep < length) {
       builder.seq((seq) -> {
-        int newLength = length / 2;
-        merge(first, newLength, doubleStep, seq);
-        merge(first + step, length - newLength, doubleStep, seq);
-        for (int i = 1; i < length - 2; i += 2) {
-          int low = first + i * step;
-          int high = low + step;
-          compareAndSwapAtIndices(low, high, seq);
+        merge(first, length, doubleStep, seq);
+        merge(first + step, length, doubleStep, seq);
+        for (int idx = first + step; idx + step < first + length; idx += doubleStep) {
+          compareAndSwapAtIndices(idx, idx + step, seq);
         }
         return null;
       });
