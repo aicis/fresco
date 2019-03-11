@@ -34,9 +34,9 @@ public class TestSpdzDummyDataSupplier {
       BigInteger modulus, int expPipeLength) {
     List<SpdzDummyDataSupplier> suppliers = new ArrayList<>(noOfParties);
     Random random = new Random();
+    BigInteger macKey = new BigInteger(modulus.bitLength(), random).mod(modulus);
     for (int i = 0; i < noOfParties; i++) {
-      BigInteger macKeyShare = new BigInteger(modulus.bitLength(), random).mod(modulus);
-      suppliers.add(new SpdzDummyDataSupplier(i + 1, noOfParties, modulus, macKeyShare,
+      suppliers.add(new SpdzDummyDataSupplier(i + 1, noOfParties, modulus, macKey,
           expPipeLength));
     }
     return suppliers;
@@ -202,10 +202,14 @@ public class TestSpdzDummyDataSupplier {
 
   @Test
   public void testGetters() {
-    SpdzDummyDataSupplier supplier = new SpdzDummyDataSupplier(1, 2, moduli.get(0),
+    final BigInteger mod = moduli.get(0);
+    SpdzDummyDataSupplier supplier = new SpdzDummyDataSupplier(1, 2, mod,
         BigInteger.ONE);
-    assertEquals(moduli.get(0), supplier.getModulus());
-    assertEquals(BigInteger.ONE, supplier.getSecretSharedKey());
+    SpdzDummyDataSupplier supplierTwo = new SpdzDummyDataSupplier(2, 2, mod,
+        BigInteger.ONE);
+    assertEquals(mod, supplier.getModulus());
+    assertEquals(BigInteger.ONE,
+        supplier.getSecretSharedKey().add(supplierTwo.getSecretSharedKey()).mod(mod));
   }
 
   private SpdzSInt recombine(List<SpdzSInt> shares) {

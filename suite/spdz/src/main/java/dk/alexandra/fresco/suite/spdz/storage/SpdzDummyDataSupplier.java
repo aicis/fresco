@@ -23,7 +23,6 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   private final BigInteger wholeKey;
   private final BigInteger myKeyShare;
   private final int expPipeLength;
-  private final int maxBitLength;
 
   public SpdzDummyDataSupplier(int myId, int noOfPlayers) {
     // TODO kill this
@@ -37,8 +36,8 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   }
 
   public SpdzDummyDataSupplier(int myId, int noOfPlayers, BigInteger modulus,
-      BigInteger secretSharedKey) {
-    this(myId, noOfPlayers, modulus, secretSharedKey, 200);
+      BigInteger macKey) {
+    this(myId, noOfPlayers, modulus, macKey, 200);
   }
 
   public SpdzDummyDataSupplier(int myId, int noOfPlayers, BigInteger modulus,
@@ -47,16 +46,14 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   }
 
   public SpdzDummyDataSupplier(int myId, int noOfPlayers, BigInteger modulus,
-      BigInteger secretSharedKey, int expPipeLength, int maxBitLength) {
+      BigInteger macKey, int expPipeLength, int maxBitLength) {
     this.myId = myId;
     this.modulus = modulus;
     this.expPipeLength = expPipeLength;
-    this.maxBitLength = maxBitLength;
     this.supplier = new ArithmeticDummyDataSupplier(myId, noOfPlayers, modulus,
         BigInteger.ONE.shiftLeft(maxBitLength - 1));
-    final Pair<BigInteger, BigInteger> keyPair = supplier.getRandomElementShare();
-    this.wholeKey = keyPair.getFirst();
-    this.myKeyShare = keyPair.getSecond();
+    this.wholeKey = macKey;
+    this.myKeyShare = supplier.secretShare(wholeKey);
   }
 
   @Override
@@ -121,7 +118,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   }
 
   static private BigInteger getSsk(BigInteger modulus) {
-    return new BigInteger(modulus.bitLength(), new Random()).mod(modulus);
+    return new BigInteger(modulus.bitLength(), new Random(1)).mod(modulus);
   }
 
 }

@@ -107,6 +107,16 @@ public class ArithmeticDummyDataSupplier {
         .collect(Collectors.toList());
   }
 
+  /**
+   * Returns this party's share of given secret.
+   *
+   * @param value secret to share
+   * @return this party's secret share
+   */
+  public BigInteger secretShare(BigInteger value) {
+    return sharer.share(value, noOfParties).get(myId - 1);
+  }
+
   private BigInteger sampleRandomBigInteger() {
     return sampleRandomBigInteger(modulus);
   }
