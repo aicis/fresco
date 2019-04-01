@@ -11,6 +11,7 @@ import java.util.List;
 public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric {
 
   protected final ProtocolBuilderNumeric builder;
+  private static final BigDecimal TWO = BigDecimal.valueOf(2);
 
   protected DefaultAdvancedRealNumeric(ProtocolBuilderNumeric builder) {
     this.builder = builder;
@@ -95,7 +96,7 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
        * We approximate the exponential function by calculating the first terms of the Taylor
        * expansion. By letting all terms in the series have common denominator, we only need to do
        * one division.
-       * 
+       *
        * TODO: In the current implementation we compute 16 terms, which seems to give decent
        * percision for small inputs. If we want full precision for all possible inputs, we need to
        * calculate many more terms, since the error after n terms is approx x^{n+1}/(n+1)!), and
@@ -124,7 +125,7 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
     /*
      * We use a fast converging series for the natural logarithm. The number of terms, 12, is a bit
      * arbitrary but gives decent precision for small inputs.
-     * 
+     *
      * The approximation is based on the series ln(x) = 2t * \sum_{k=0}^\infty 1 / (2k + 1) t^{2k}
      * for t = (x-1) / (x+1).
      */
@@ -146,7 +147,7 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
       return () -> new Pair<>(powers, t);
     }).par((par, v) -> {
 
-      DRes<SReal> s = par.realNumeric().mult(BigDecimal.valueOf(2), v.getSecond());
+      DRes<SReal> s = par.realNumeric().mult(TWO, v.getSecond());
 
       List<DRes<SReal>> terms = new ArrayList<>();
       terms.add(par.realNumeric().known(BigDecimal.ONE));
@@ -154,9 +155,7 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
         terms.add(par.realNumeric().div(v.getFirst().get(i - 1), BigDecimal.valueOf(2 * i + 1)));
       }
       return () -> new Pair<>(terms, s);
-    }).seq((seq, v) -> {
-      return seq.realNumeric().mult(v.getSecond(), seq.realAdvanced().sum(v.getFirst()));
-    });
+    }).seq((seq, v) -> seq.realNumeric().mult(v.getSecond(), seq.realAdvanced().sum(v.getFirst())));
 
   }
 
