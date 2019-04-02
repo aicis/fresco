@@ -127,9 +127,9 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
    * t = (x-1) / (x+1).
    * 
    * The approximation is best for small inputs (the error is bounded by 0.0014 for 0.1 < x < 10 and
-   * by -0.24 for x < 50, but for larger inputs, the error term is rather big but can be
-   * approximated (and compensated for) using one of the polynomials (constant term first, optimised
-   * for x < 1000):
+   * by 0.24 for 0.1 < x < 50, but for larger inputs the error term is rather big. To compensate,
+   * the error term can be approximated bye one of the following polynomials (constant term first,
+   * optimised for x < 1000):
    * 
    * Linear [-0.02771369259544744, -0.0030294386027190858]
    * 
