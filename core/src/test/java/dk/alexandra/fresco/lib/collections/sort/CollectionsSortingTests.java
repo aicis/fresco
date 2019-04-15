@@ -17,25 +17,22 @@ import java.util.stream.Collectors;
 import org.junit.Assert;
 
 /**
- * Test class for the DEASolver. Will generate a random data sample and perform a Data Envelopment
- * Analysis on it. The TestDEADSolver takes the size of the problem as inputs (i.e. the number of
- * input and output variables, the number of rows in the basis and the number of queries to perform.
- * The MPC result is compared with the result of a plaintext DEA solver.
- *
+ * Test class for the sorting-related computations for binary suites.
  */
 public class CollectionsSortingTests {
 
   public static class TestKeyedCompareAndSwap<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
-    public TestKeyedCompareAndSwap() {}
+    public TestKeyedCompareAndSwap() {
+    }
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
-        public void test() throws Exception {
+        public void test() {
 
           List<Boolean> rawLeftKey = Arrays.asList(ByteAndBitConverter.toBoolean("49"));
           List<Boolean> rawLeftValue = Arrays.asList(ByteAndBitConverter.toBoolean("00"));
@@ -43,52 +40,50 @@ public class CollectionsSortingTests {
           List<Boolean> rawRightValue = Arrays.asList(ByteAndBitConverter.toBoolean("ee"));
 
           Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary> app =
-              builder -> {
+              builder -> builder.seq(seq -> {
+                List<DRes<SBool>> leftKey =
+                    rawLeftKey.stream().map(builder.binary()::known).collect(Collectors.toList());
+                List<DRes<SBool>> rightKey =
+                    rawRightKey.stream().map(builder.binary()::known)
+                        .collect(Collectors.toList());
+                List<DRes<SBool>> leftValue =
+                    rawLeftValue.stream().map(builder.binary()::known)
+                        .collect(Collectors.toList());
+                List<DRes<SBool>> rightValue =
+                    rawRightValue.stream().map(builder.binary()::known)
+                        .collect(Collectors.toList());
 
-            ProtocolBuilderBinary seqBuilder = (ProtocolBuilderBinary) builder;
+                return seq.advancedBinary().keyedCompareAndSwap(new Pair<>(leftKey, leftValue),
+                    new Pair<>(rightKey, rightValue));
+              }).seq((seq, data) -> {
+                List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> open = new ArrayList<>();
 
-            return seqBuilder.seq(seq -> {
-              List<DRes<SBool>> leftKey =
-                  rawLeftKey.stream().map(builder.binary()::known).collect(Collectors.toList());
-              List<DRes<SBool>> rightKey =
-                  rawRightKey.stream().map(builder.binary()::known).collect(Collectors.toList());
-              List<DRes<SBool>> leftValue =
-                  rawLeftValue.stream().map(builder.binary()::known).collect(Collectors.toList());
-              List<DRes<SBool>> rightValue =
-                  rawRightValue.stream().map(builder.binary()::known).collect(Collectors.toList());
+                for (Pair<List<DRes<SBool>>, List<DRes<SBool>>> o : data) {
 
-              return seq.advancedBinary().keyedCompareAndSwap(new Pair<>(leftKey, leftValue),
-                  new Pair<>(rightKey, rightValue));
-            }).seq((seq, data) -> {
-              List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> open = new ArrayList<>();
+                  List<DRes<Boolean>> first =
+                      o.getFirst().stream().map(seq.binary()::open).collect(Collectors.toList());
+                  List<DRes<Boolean>> second =
+                      o.getSecond().stream().map(seq.binary()::open).collect(Collectors.toList());
 
-              for (Pair<List<DRes<SBool>>, List<DRes<SBool>>> o : data) {
+                  Pair<List<DRes<Boolean>>, List<DRes<Boolean>>> pair = new Pair<>(first, second);
+                  open.add(pair);
+                }
+                return () -> open;
+              }).seq((seq, data) -> {
+                List<Pair<List<Boolean>, List<Boolean>>> out = new ArrayList<>();
+                for (Pair<List<DRes<Boolean>>, List<DRes<Boolean>>> o : data) {
+                  List<Boolean> first =
+                      o.getFirst().stream().map(DRes::out).collect(Collectors.toList());
+                  List<Boolean> second =
+                      o.getSecond().stream().map(DRes::out).collect(Collectors.toList());
 
-                List<DRes<Boolean>> first =
-                    o.getFirst().stream().map(seq.binary()::open).collect(Collectors.toList());
-                List<DRes<Boolean>> second =
-                    o.getSecond().stream().map(seq.binary()::open).collect(Collectors.toList());
+                  Pair<List<Boolean>, List<Boolean>> pair = new Pair<>(first, second);
+                  out.add(pair);
 
-                Pair<List<DRes<Boolean>>, List<DRes<Boolean>>> pair = new Pair<>(first, second);
-                open.add(pair);
-              }
-              return () -> open;
-            }).seq((seq, data) -> {
-              List<Pair<List<Boolean>, List<Boolean>>> out = new ArrayList<>();
-              for (Pair<List<DRes<Boolean>>, List<DRes<Boolean>>> o : data) {
-                List<Boolean> first =
-                    o.getFirst().stream().map(DRes::out).collect(Collectors.toList());
-                List<Boolean> second =
-                    o.getSecond().stream().map(DRes::out).collect(Collectors.toList());
+                }
 
-                Pair<List<Boolean>, List<Boolean>> pair = new Pair<>(first, second);
-                out.add(pair);
-
-              }
-
-              return () -> out;
-            });
-          };
+                return () -> out;
+              });
 
           List<Pair<List<Boolean>, List<Boolean>>> result = runApplication(app);
 
@@ -107,13 +102,14 @@ public class CollectionsSortingTests {
   public static class TestOddEvenMerge<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
-    public TestOddEvenMerge() {}
+    public TestOddEvenMerge() {
+    }
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
-        public void test() throws Exception {
+        public void test() {
 
           Boolean[] left11 = ByteAndBitConverter.toBoolean("01");
           Boolean[] left12 = ByteAndBitConverter.toBoolean("08");
@@ -135,46 +131,57 @@ public class CollectionsSortingTests {
 
           // Test sorting without using the mergePresortedHalves flag
           Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary> appSort =
-              new Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary>() {
-
-            @Override
-            public DRes<List<Pair<List<Boolean>, List<Boolean>>>> buildComputation(
-                ProtocolBuilderBinary producer) {
-              return producer.seq(seq -> {
+              producer -> producer.seq(seq -> {
                 Binary builder = seq.binary();
                 List<DRes<SBool>> l11 =
-                    Arrays.asList(left11).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left11).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l12 =
-                    Arrays.asList(left12).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left12).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l21 =
-                    Arrays.asList(left21).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left21).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l22 =
-                    Arrays.asList(left22).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left22).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l31 =
-                    Arrays.asList(left31).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left31).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l32 =
-                    Arrays.asList(left32).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left32).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l41 =
-                    Arrays.asList(left41).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left41).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l42 =
-                    Arrays.asList(left42).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left42).map(builder::known)
+                        .collect(Collectors.toList());
 
                 List<DRes<SBool>> l51 =
-                    Arrays.asList(left51).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left51).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l52 =
-                    Arrays.asList(left52).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left52).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l61 =
-                    Arrays.asList(left61).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left61).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l62 =
-                    Arrays.asList(left62).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left62).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l71 =
-                    Arrays.asList(left71).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left71).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l72 =
-                    Arrays.asList(left72).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left72).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l81 =
-                    Arrays.asList(left81).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left81).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l82 =
-                    Arrays.asList(left82).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left82).map(builder::known)
+                        .collect(Collectors.toList());
 
                 List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unSorted = new ArrayList<>();
 
@@ -187,10 +194,7 @@ public class CollectionsSortingTests {
                 unSorted.add(new Pair<>(l71, l72));
                 unSorted.add(new Pair<>(l81, l82));
 
-
-                DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> sorted =
-                    new OddEvenMerge(unSorted).buildComputation(seq);
-                return sorted;
+                return seq.seq(new OddEvenMerge(unSorted));
               }).seq((seq, sorted) -> {
                 Binary builder = seq.binary();
                 List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> opened = new ArrayList<>();
@@ -206,18 +210,13 @@ public class CollectionsSortingTests {
                   opened.add(new Pair<>(oKeys, oValues));
                 }
                 return () -> opened;
-              }).seq((seq, opened) -> {
-                return () -> opened.stream().map((p) -> {
-                  List<Boolean> key =
-                      p.getFirst().stream().map(DRes::out).collect(Collectors.toList());
-                  List<Boolean> value =
-                      p.getSecond().stream().map(DRes::out).collect(Collectors.toList());
-                  return new Pair<>(key, value);
-                }).collect(Collectors.toList());
-              });
-            }
-
-          };
+              }).seq((seq, opened) -> () -> opened.stream().map((p) -> {
+                List<Boolean> key =
+                    p.getFirst().stream().map(DRes::out).collect(Collectors.toList());
+                List<Boolean> value =
+                    p.getSecond().stream().map(DRes::out).collect(Collectors.toList());
+                return new Pair<>(key, value);
+              }).collect(Collectors.toList()));
 
           List<Pair<List<Boolean>, List<Boolean>>> resultsSort = runApplication(appSort);
 
@@ -239,51 +238,62 @@ public class CollectionsSortingTests {
           Assert.assertEquals(Arrays.asList(left31), resultsSort.get(7).getFirst());
           Assert.assertEquals(Arrays.asList(left32), resultsSort.get(7).getSecond());
 
-
           // Test using the mergePresortedHalves flag
           Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary> appMergeOnly =
-              new Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary>() {
-            @Override
-            public DRes<List<Pair<List<Boolean>, List<Boolean>>>> buildComputation(
-                    ProtocolBuilderBinary producer) {
-              return producer.seq(seq -> {
+              producer -> producer.seq(seq -> {
                 Binary builder = seq.binary();
                 List<DRes<SBool>> l11 =
-                        Arrays.asList(left11).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left11).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l12 =
-                        Arrays.asList(left12).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left12).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l21 =
-                        Arrays.asList(left21).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left21).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l22 =
-                        Arrays.asList(left22).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left22).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l31 =
-                        Arrays.asList(left31).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left31).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l32 =
-                        Arrays.asList(left32).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left32).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l41 =
-                        Arrays.asList(left41).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left41).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l42 =
-                        Arrays.asList(left42).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left42).map(builder::known)
+                        .collect(Collectors.toList());
 
                 List<DRes<SBool>> l51 =
-                        Arrays.asList(left51).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left51).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l52 =
-                        Arrays.asList(left52).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left52).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l61 =
-                        Arrays.asList(left61).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left61).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l62 =
-                        Arrays.asList(left62).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left62).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l71 =
-                        Arrays.asList(left71).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left71).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l72 =
-                        Arrays.asList(left72).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left72).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l81 =
-                        Arrays.asList(left81).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left81).map(builder::known)
+                        .collect(Collectors.toList());
                 List<DRes<SBool>> l82 =
-                        Arrays.asList(left82).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.stream(left82).map(builder::known)
+                        .collect(Collectors.toList());
 
                 List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unSorted = new ArrayList<>();
-                
+
                 // Keep in mind that the first n / 2 keys need to be sorted, as do the second n / 2 keys.
                 // With the way comparisons work currently, we need the two halves to be sorted in descending order.
                 unSorted.add(new Pair<>(l21, l22));
@@ -295,9 +305,7 @@ public class CollectionsSortingTests {
                 unSorted.add(new Pair<>(l81, l82));
                 unSorted.add(new Pair<>(l51, l52));
 
-                DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> sorted =
-                        new OddEvenMerge(unSorted, true).buildComputation(seq);
-                return sorted;
+                return seq.seq(new OddEvenMerge(unSorted, true));
               }).seq((seq, sorted) -> {
                 Binary builder = seq.binary();
                 List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> opened = new ArrayList<>();
@@ -313,18 +321,13 @@ public class CollectionsSortingTests {
                   opened.add(new Pair<>(oKeys, oValues));
                 }
                 return () -> opened;
-              }).seq((seq, opened) -> {
-                return () -> opened.stream().map((p) -> {
-                  List<Boolean> key =
-                          p.getFirst().stream().map(DRes::out).collect(Collectors.toList());
-                  List<Boolean> value =
-                          p.getSecond().stream().map(DRes::out).collect(Collectors.toList());
-                  return new Pair<>(key, value);
-                }).collect(Collectors.toList());
-              });
-            }
-
-          };
+              }).seq((seq, opened) -> () -> opened.stream().map((p) -> {
+                List<Boolean> key =
+                    p.getFirst().stream().map(DRes::out).collect(Collectors.toList());
+                List<Boolean> value =
+                    p.getSecond().stream().map(DRes::out).collect(Collectors.toList());
+                return new Pair<>(key, value);
+              }).collect(Collectors.toList()));
 
           List<Pair<List<Boolean>, List<Boolean>>> resultsMergeOnly = runApplication(appMergeOnly);
 
