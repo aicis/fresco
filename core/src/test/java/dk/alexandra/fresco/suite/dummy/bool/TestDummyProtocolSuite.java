@@ -7,6 +7,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
 import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.collections.sort.CollectionsSortingTests;
+import dk.alexandra.fresco.lib.collections.sort.CollectionsSortingTests.TestOddEvenMerge;
 import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.crypto.BadBristolCryptoTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
@@ -202,9 +203,16 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
   }
 
   // collections.sort
+
   @Test
   public void test_Uneven_Odd_Even_Merge_2_parties() {
-    runTest(new CollectionsSortingTests.TestOddEvenMerge<>(),
+    runTest(new TestOddEvenMerge<>(false),
+        EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void test_Uneven_Odd_Even_Merge_presorted_2_parties() {
+    runTest(new TestOddEvenMerge<>(true),
         EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 

@@ -102,7 +102,10 @@ public class CollectionsSortingTests {
   public static class TestOddEvenMerge<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
-    public TestOddEvenMerge() {
+    private final boolean presorted;
+
+    public TestOddEvenMerge(boolean presorted) {
+      this.presorted = presorted;
     }
 
     @Override
@@ -129,8 +132,7 @@ public class CollectionsSortingTests {
           Boolean[] left81 = ByteAndBitConverter.toBoolean("12");
           Boolean[] left82 = ByteAndBitConverter.toBoolean("15");
 
-          // Test sorting without using the mergePresortedHalves flag
-          Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary> appSort =
+          Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary> app =
               producer -> producer.seq(seq -> {
                 Binary builder = seq.binary();
                 List<DRes<SBool>> l11 =
@@ -183,18 +185,31 @@ public class CollectionsSortingTests {
                     Arrays.stream(left82).map(builder::known)
                         .collect(Collectors.toList());
 
-                List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unSorted = new ArrayList<>();
+                List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> toSort = new ArrayList<>();
 
-                unSorted.add(new Pair<>(l11, l12));
-                unSorted.add(new Pair<>(l21, l22));
-                unSorted.add(new Pair<>(l31, l32));
-                unSorted.add(new Pair<>(l41, l42));
-                unSorted.add(new Pair<>(l51, l52));
-                unSorted.add(new Pair<>(l61, l62));
-                unSorted.add(new Pair<>(l71, l72));
-                unSorted.add(new Pair<>(l81, l82));
+                if (presorted) {
+                  // Keep in mind that the first n / 2 keys need to be sorted, as do the second n / 2 keys.
+                  // With the way comparisons work currently, we need the two halves to be sorted in descending order.
+                  toSort.add(new Pair<>(l21, l22));
+                  toSort.add(new Pair<>(l41, l42));
+                  toSort.add(new Pair<>(l11, l12));
+                  toSort.add(new Pair<>(l31, l32));
+                  toSort.add(new Pair<>(l71, l72));
+                  toSort.add(new Pair<>(l61, l62));
+                  toSort.add(new Pair<>(l81, l82));
+                  toSort.add(new Pair<>(l51, l52));
+                } else {
+                  toSort.add(new Pair<>(l11, l12));
+                  toSort.add(new Pair<>(l21, l22));
+                  toSort.add(new Pair<>(l31, l32));
+                  toSort.add(new Pair<>(l41, l42));
+                  toSort.add(new Pair<>(l51, l52));
+                  toSort.add(new Pair<>(l61, l62));
+                  toSort.add(new Pair<>(l71, l72));
+                  toSort.add(new Pair<>(l81, l82));
+                }
 
-                return seq.seq(new OddEvenMerge(unSorted));
+                return seq.seq(new OddEvenMerge(toSort, presorted));
               }).seq((seq, sorted) -> {
                 Binary builder = seq.binary();
                 List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> opened = new ArrayList<>();
@@ -218,118 +233,7 @@ public class CollectionsSortingTests {
                 return new Pair<>(key, value);
               }).collect(Collectors.toList()));
 
-          List<Pair<List<Boolean>, List<Boolean>>> resultsSort = runApplication(appSort);
-
-          Assert.assertEquals(Arrays.asList(left71), resultsSort.get(0).getFirst());
-          Assert.assertEquals(Arrays.asList(left72), resultsSort.get(0).getSecond());
-          Assert.assertEquals(Arrays.asList(left61), resultsSort.get(1).getFirst());
-          Assert.assertEquals(Arrays.asList(left62), resultsSort.get(1).getSecond());
-          Assert.assertEquals(Arrays.asList(left81), resultsSort.get(2).getFirst());
-          Assert.assertEquals(Arrays.asList(left82), resultsSort.get(2).getSecond());
-          Assert.assertEquals(Arrays.asList(left51), resultsSort.get(3).getFirst());
-          Assert.assertEquals(Arrays.asList(left52), resultsSort.get(3).getSecond());
-
-          Assert.assertEquals(Arrays.asList(left21), resultsSort.get(4).getFirst());
-          Assert.assertEquals(Arrays.asList(left22), resultsSort.get(4).getSecond());
-          Assert.assertEquals(Arrays.asList(left41), resultsSort.get(5).getFirst());
-          Assert.assertEquals(Arrays.asList(left42), resultsSort.get(5).getSecond());
-          Assert.assertEquals(Arrays.asList(left11), resultsSort.get(6).getFirst());
-          Assert.assertEquals(Arrays.asList(left12), resultsSort.get(6).getSecond());
-          Assert.assertEquals(Arrays.asList(left31), resultsSort.get(7).getFirst());
-          Assert.assertEquals(Arrays.asList(left32), resultsSort.get(7).getSecond());
-
-          // Test using the mergePresortedHalves flag
-          Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary> appMergeOnly =
-              producer -> producer.seq(seq -> {
-                Binary builder = seq.binary();
-                List<DRes<SBool>> l11 =
-                    Arrays.stream(left11).map(builder::known)
-                        .collect(Collectors.toList());
-                List<DRes<SBool>> l12 =
-                    Arrays.stream(left12).map(builder::known)
-                        .collect(Collectors.toList());
-                List<DRes<SBool>> l21 =
-                    Arrays.stream(left21).map(builder::known)
-                        .collect(Collectors.toList());
-                List<DRes<SBool>> l22 =
-                    Arrays.stream(left22).map(builder::known)
-                        .collect(Collectors.toList());
-                List<DRes<SBool>> l31 =
-                    Arrays.stream(left31).map(builder::known)
-                        .collect(Collectors.toList());
-                List<DRes<SBool>> l32 =
-                    Arrays.stream(left32).map(builder::known)
-                        .collect(Collectors.toList());
-                List<DRes<SBool>> l41 =
-                    Arrays.stream(left41).map(builder::known)
-                        .collect(Collectors.toList());
-                List<DRes<SBool>> l42 =
-                    Arrays.stream(left42).map(builder::known)
-                        .collect(Collectors.toList());
-
-                List<DRes<SBool>> l51 =
-                    Arrays.stream(left51).map(builder::known)
-                        .collect(Collectors.toList());
-                List<DRes<SBool>> l52 =
-                    Arrays.stream(left52).map(builder::known)
-                        .collect(Collectors.toList());
-                List<DRes<SBool>> l61 =
-                    Arrays.stream(left61).map(builder::known)
-                        .collect(Collectors.toList());
-                List<DRes<SBool>> l62 =
-                    Arrays.stream(left62).map(builder::known)
-                        .collect(Collectors.toList());
-                List<DRes<SBool>> l71 =
-                    Arrays.stream(left71).map(builder::known)
-                        .collect(Collectors.toList());
-                List<DRes<SBool>> l72 =
-                    Arrays.stream(left72).map(builder::known)
-                        .collect(Collectors.toList());
-                List<DRes<SBool>> l81 =
-                    Arrays.stream(left81).map(builder::known)
-                        .collect(Collectors.toList());
-                List<DRes<SBool>> l82 =
-                    Arrays.stream(left82).map(builder::known)
-                        .collect(Collectors.toList());
-
-                List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unSorted = new ArrayList<>();
-
-                // Keep in mind that the first n / 2 keys need to be sorted, as do the second n / 2 keys.
-                // With the way comparisons work currently, we need the two halves to be sorted in descending order.
-                unSorted.add(new Pair<>(l21, l22));
-                unSorted.add(new Pair<>(l41, l42));
-                unSorted.add(new Pair<>(l11, l12));
-                unSorted.add(new Pair<>(l31, l32));
-                unSorted.add(new Pair<>(l71, l72));
-                unSorted.add(new Pair<>(l61, l62));
-                unSorted.add(new Pair<>(l81, l82));
-                unSorted.add(new Pair<>(l51, l52));
-
-                return seq.seq(new OddEvenMerge(unSorted, true));
-              }).seq((seq, sorted) -> {
-                Binary builder = seq.binary();
-                List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> opened = new ArrayList<>();
-                for (Pair<List<DRes<SBool>>, List<DRes<SBool>>> p : sorted) {
-                  List<DRes<Boolean>> oKeys = new ArrayList<>();
-                  for (DRes<SBool> key : p.getFirst()) {
-                    oKeys.add(builder.open(key));
-                  }
-                  List<DRes<Boolean>> oValues = new ArrayList<>();
-                  for (DRes<SBool> value : p.getSecond()) {
-                    oValues.add(builder.open(value));
-                  }
-                  opened.add(new Pair<>(oKeys, oValues));
-                }
-                return () -> opened;
-              }).seq((seq, opened) -> () -> opened.stream().map((p) -> {
-                List<Boolean> key =
-                    p.getFirst().stream().map(DRes::out).collect(Collectors.toList());
-                List<Boolean> value =
-                    p.getSecond().stream().map(DRes::out).collect(Collectors.toList());
-                return new Pair<>(key, value);
-              }).collect(Collectors.toList()));
-
-          List<Pair<List<Boolean>, List<Boolean>>> resultsMergeOnly = runApplication(appMergeOnly);
+          List<Pair<List<Boolean>, List<Boolean>>> resultsMergeOnly = runApplication(app);
 
           Assert.assertEquals(Arrays.asList(left71), resultsMergeOnly.get(0).getFirst());
           Assert.assertEquals(Arrays.asList(left72), resultsMergeOnly.get(0).getSecond());
