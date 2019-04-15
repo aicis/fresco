@@ -198,6 +198,7 @@ public class CollectionsSortingTests {
                   toSort.add(new Pair<>(l61, l62));
                   toSort.add(new Pair<>(l81, l82));
                   toSort.add(new Pair<>(l51, l52));
+                  return seq.seq(new OddEvenMerge(toSort, presorted));
                 } else {
                   toSort.add(new Pair<>(l11, l12));
                   toSort.add(new Pair<>(l21, l22));
@@ -207,9 +208,9 @@ public class CollectionsSortingTests {
                   toSort.add(new Pair<>(l61, l62));
                   toSort.add(new Pair<>(l71, l72));
                   toSort.add(new Pair<>(l81, l82));
+                  // make code-cov happy
+                  return seq.seq(new OddEvenMerge(toSort));
                 }
-
-                return seq.seq(new OddEvenMerge(toSort, presorted));
               }).seq((seq, sorted) -> {
                 Binary builder = seq.binary();
                 List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> opened = new ArrayList<>();
