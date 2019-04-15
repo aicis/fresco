@@ -23,33 +23,42 @@ import java.util.List;
 public class OddEvenMerge implements
     Computation<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>, ProtocolBuilderBinary> {
 
-  private List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> numbers;
-  private boolean mergePresortedHalves = false;
+  private final List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> keyValuePairs;
+  private final boolean halvesPresorted;
 
-  OddEvenMerge(
-      List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unsortedNumbers) {
-    super();
-    this.numbers = unsortedNumbers;
-  }
-
+  /**
+   * Sorts a list of key-value pairs by key (first entry in pair).
+   *
+   * @param unsortedNumbers key-value pairs to sort
+   * @param halvesPresorted true if first half and second half of tuples are already sorted in which
+   * case we only need to merge
+   */
   OddEvenMerge(
       List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unsortedNumbers,
-      boolean mergePresortedHalves) {
-    super();
-    this.numbers = unsortedNumbers;
-    this.mergePresortedHalves = mergePresortedHalves;
+      boolean halvesPresorted) {
+    this.keyValuePairs = unsortedNumbers;
+    this.halvesPresorted = halvesPresorted;
+  }
+
+  /**
+   * Default call to {@link #OddEvenMerge(List, boolean)}}. <p>By default we assume tuples are
+   * completely unsorted.</p>
+   */
+  OddEvenMerge(
+      List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unsortedNumbers) {
+    this(unsortedNumbers, false);
   }
 
   @Override
   public DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> buildComputation(
       ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
-      if (!this.mergePresortedHalves) {
-        sort(0, numbers.size(), seq);
+      if (!this.halvesPresorted) {
+        sort(0, keyValuePairs.size(), seq);
       } else {
-        merge(0, numbers.size(), 1, seq);
+        merge(0, keyValuePairs.size(), 1, seq);
       }
-      return () -> numbers;
+      return () -> keyValuePairs;
     });
   }
 
@@ -62,10 +71,11 @@ public class OddEvenMerge implements
   }
 
   private void compareAndSwapAtIndices(int i, int j, ProtocolBuilderBinary builder) {
-    builder.seq(seq -> seq.advancedBinary().keyedCompareAndSwap(numbers.get(i), numbers.get(j)))
+    builder.seq(
+        seq -> seq.advancedBinary().keyedCompareAndSwap(keyValuePairs.get(i), keyValuePairs.get(j)))
         .seq((seq, res) -> {
-          numbers.set(i, res.get(0));
-          numbers.set(j, res.get(1));
+          keyValuePairs.set(i, res.get(0));
+          keyValuePairs.set(j, res.get(1));
           return null;
         });
   }

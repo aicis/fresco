@@ -235,23 +235,29 @@ public class CollectionsSortingTests {
 
           List<Pair<List<Boolean>, List<Boolean>>> resultsMergeOnly = runApplication(app);
 
-          Assert.assertEquals(Arrays.asList(left71), resultsMergeOnly.get(0).getFirst());
-          Assert.assertEquals(Arrays.asList(left72), resultsMergeOnly.get(0).getSecond());
-          Assert.assertEquals(Arrays.asList(left61), resultsMergeOnly.get(1).getFirst());
-          Assert.assertEquals(Arrays.asList(left62), resultsMergeOnly.get(1).getSecond());
-          Assert.assertEquals(Arrays.asList(left81), resultsMergeOnly.get(2).getFirst());
-          Assert.assertEquals(Arrays.asList(left82), resultsMergeOnly.get(2).getSecond());
-          Assert.assertEquals(Arrays.asList(left51), resultsMergeOnly.get(3).getFirst());
-          Assert.assertEquals(Arrays.asList(left52), resultsMergeOnly.get(3).getSecond());
+          Assert.assertEquals("19", ByteAndBitConverter.toHex(resultsMergeOnly.get(0).getFirst()));
+          Assert.assertEquals("16", ByteAndBitConverter.toHex(resultsMergeOnly.get(0).getSecond()));
 
-          Assert.assertEquals(Arrays.asList(left21), resultsMergeOnly.get(4).getFirst());
-          Assert.assertEquals(Arrays.asList(left22), resultsMergeOnly.get(4).getSecond());
-          Assert.assertEquals(Arrays.asList(left41), resultsMergeOnly.get(5).getFirst());
-          Assert.assertEquals(Arrays.asList(left42), resultsMergeOnly.get(5).getSecond());
-          Assert.assertEquals(Arrays.asList(left11), resultsMergeOnly.get(6).getFirst());
-          Assert.assertEquals(Arrays.asList(left12), resultsMergeOnly.get(6).getSecond());
-          Assert.assertEquals(Arrays.asList(left31), resultsMergeOnly.get(7).getFirst());
-          Assert.assertEquals(Arrays.asList(left32), resultsMergeOnly.get(7).getSecond());
+          Assert.assertEquals("13", ByteAndBitConverter.toHex(resultsMergeOnly.get(1).getFirst()));
+          Assert.assertEquals("17", ByteAndBitConverter.toHex(resultsMergeOnly.get(1).getSecond()));
+
+          Assert.assertEquals("12", ByteAndBitConverter.toHex(resultsMergeOnly.get(2).getFirst()));
+          Assert.assertEquals("15", ByteAndBitConverter.toHex(resultsMergeOnly.get(2).getSecond()));
+
+          Assert.assertEquals("11", ByteAndBitConverter.toHex(resultsMergeOnly.get(3).getFirst()));
+          Assert.assertEquals("10", ByteAndBitConverter.toHex(resultsMergeOnly.get(3).getSecond()));
+
+          Assert.assertEquals("03", ByteAndBitConverter.toHex(resultsMergeOnly.get(4).getFirst()));
+          Assert.assertEquals("07", ByteAndBitConverter.toHex(resultsMergeOnly.get(4).getSecond()));
+
+          Assert.assertEquals("02", ByteAndBitConverter.toHex(resultsMergeOnly.get(5).getFirst()));
+          Assert.assertEquals("05", ByteAndBitConverter.toHex(resultsMergeOnly.get(5).getSecond()));
+
+          Assert.assertEquals("01", ByteAndBitConverter.toHex(resultsMergeOnly.get(6).getFirst()));
+          Assert.assertEquals("08", ByteAndBitConverter.toHex(resultsMergeOnly.get(6).getSecond()));
+
+          Assert.assertEquals("00", ByteAndBitConverter.toHex(resultsMergeOnly.get(7).getFirst()));
+          Assert.assertEquals("06", ByteAndBitConverter.toHex(resultsMergeOnly.get(7).getSecond()));
         }
       };
     }
