@@ -8,17 +8,17 @@ import dk.alexandra.fresco.framework.value.SBool;
 import java.util.List;
 
 /**
- * An implementation of the OddEvenMergeSortProtocol.
- * We use Batcher's algorithm to sort a list of boolean key/value pairs in descending order.
- * This sorting algorithm runs in O(n(log(n))^2) time.
+ * An implementation of the OddEvenMergeSortProtocol. We use Batcher's algorithm to sort a list of
+ * boolean key/value pairs in descending order. This sorting algorithm runs in O(n(log(n))^2) time.
  *
- * You can set the mergePresortedHalves flag to `true` to merge a list where the sequence of the first n / 2 elements
- * is sorted in descending order and the sequence of the remaining n / 2 elements is also sorted in descending order.
- * The protocol can then "merge" the two presorted halves into a (descending order) sorted list in O(nlog(n)) time.
- * Note, it is not currently known whether it is possible to obliviously merge two lists in O(n) time.
+ * You can set the mergePresortedHalves flag to `true` to merge a list where the sequence of the
+ * first n / 2 elements is sorted in descending order and the sequence of the remaining n / 2
+ * elements is also sorted in descending order. The protocol can then "merge" the two presorted
+ * halves into a (descending order) sorted list in O(nlog(n)) time. Note, it is not currently known
+ * whether it is possible to obliviously merge two lists in O(n) time.
  *
- * For now, this implementation only supports lists where the size is a power of 2 (i.e., 4, 8, 16, etc.).
- *
+ * For now, this implementation only supports lists where the size is a power of 2 (i.e., 4, 8, 16,
+ * etc.).
  */
 public class OddEvenMerge implements
     Computation<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>, ProtocolBuilderBinary> {
@@ -26,15 +26,15 @@ public class OddEvenMerge implements
   private List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> numbers;
   private boolean mergePresortedHalves = false;
 
-  public OddEvenMerge(
+  OddEvenMerge(
       List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unsortedNumbers) {
     super();
     this.numbers = unsortedNumbers;
   }
 
-  public OddEvenMerge(
-          List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unsortedNumbers,
-          boolean mergePresortedHalves) {
+  OddEvenMerge(
+      List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unsortedNumbers,
+      boolean mergePresortedHalves) {
     super();
     this.numbers = unsortedNumbers;
     this.mergePresortedHalves = mergePresortedHalves;
@@ -62,13 +62,12 @@ public class OddEvenMerge implements
   }
 
   private void compareAndSwapAtIndices(int i, int j, ProtocolBuilderBinary builder) {
-    builder.seq(seq -> {
-      return seq.advancedBinary().keyedCompareAndSwap(numbers.get(i), numbers.get(j));
-    }).seq((seq, res) -> {
-      numbers.set(i, res.get(0));
-      numbers.set(j, res.get(1));
-      return null;
-    });
+    builder.seq(seq -> seq.advancedBinary().keyedCompareAndSwap(numbers.get(i), numbers.get(j)))
+        .seq((seq, res) -> {
+          numbers.set(i, res.get(0));
+          numbers.set(j, res.get(1));
+          return null;
+        });
   }
 
   private void merge(int first, int length, int step, ProtocolBuilderBinary builder) {
