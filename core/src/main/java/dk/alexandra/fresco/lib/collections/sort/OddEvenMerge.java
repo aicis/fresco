@@ -86,10 +86,12 @@ public class OddEvenMerge implements
       builder.seq((seq) -> {
         merge(first, length, doubleStep, seq);
         merge(first + step, length, doubleStep, seq);
-        for (int idx = first + step; idx + step < first + length; idx += doubleStep) {
-          compareAndSwapAtIndices(idx, idx + step, seq);
-        }
-        return null;
+        return seq.par(par -> {
+          for (int idx = first + step; idx + step < first + length; idx += doubleStep) {
+            compareAndSwapAtIndices(idx, idx + step, par);
+          }
+          return null;
+        });
       });
     } else {
       compareAndSwapAtIndices(first, first + step, builder);
