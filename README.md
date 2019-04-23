@@ -21,7 +21,7 @@ email at fresco@alexandra.dk or use the FRESCO issue tracker at
 We will be happy to integrate code that fits into the overall design
 of FRESCO.
 
-If you are using FRESCO in a research project, please cite it as (setting the date accordingly):
+If you are using FRESCO in a research project, please cite it as (setting the `date` field accordingly):
 
 ```
 @software{FRESCO,
