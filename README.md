@@ -20,3 +20,14 @@ email at fresco@alexandra.dk or use the FRESCO issue tracker at
 [http://github.com/aicis/fresco/issues](http://github.com/aicis/fresco/issues/).
 We will be happy to integrate code that fits into the overall design
 of FRESCO.
+
+If you are using FRESCO in a research project, please cite it as (setting the date accordingly):
+
+```
+@software{FRESCO,
+  author = {{Alexandra Institute}},
+  title = {{FRESCO} - A {FRamework} for {Efficient} {Secure} {COmputation}},
+  note = {\url{https://github.com/aicis/fresco}},
+  date = {},
+}
+```
