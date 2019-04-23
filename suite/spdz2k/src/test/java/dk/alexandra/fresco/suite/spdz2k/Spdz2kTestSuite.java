@@ -115,6 +115,12 @@ public abstract class Spdz2kTestSuite<Spdz2kResourcePoolT extends Spdz2kResource
   }
 
   @Test
+  public void testOpenNoConversionByDefault() {
+    runTest(new BasicArithmeticTests.TestOpenNoConversionByDefault<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
   public void testRandomBit() {
     runTest(new BasicArithmeticTests.TestRandomBit<>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED);

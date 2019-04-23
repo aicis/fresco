@@ -1,7 +1,9 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Interface for representing unsigned integers.
@@ -28,7 +30,7 @@ public interface UInt<T extends UInt> {
    * around mod 2^bitLength since the value is unsigned. Equivalent to computing unsigned result of
    * (this * (2^bitLength - 1)).</p>
    */
-  T negate();
+  T negateUInt();
 
   /**
    * Check if values is zero.
@@ -64,8 +66,13 @@ public interface UInt<T extends UInt> {
    * Compute sum of elements.
    */
   static <S extends UInt<S>> S sum(List<S> elements) {
-    return elements.stream().reduce(UInt::add).orElse(elements.get(0));
+    return sum(elements.stream());
   }
+
+  static <S extends UInt<S>> S sum(Stream<S> elements) {
+    return elements.reduce(UInt::add).get();
+  }
+
 
   /**
    * Compute inner product of elements.

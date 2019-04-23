@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.Objects;
@@ -14,24 +15,15 @@ import java.util.Objects;
  */
 public class DummyArithmeticSInt implements SInt {
 
-  private final BigInteger value;
+  private final FieldElement value;
 
   /**
    * Constructs an SInt with a given value.
    *
    * @param value the given value
    */
-  public DummyArithmeticSInt(BigInteger value) {
+  public DummyArithmeticSInt(FieldElement value) {
     this.value = Objects.requireNonNull(value);
-  }
-
-  /**
-   * Constructs an SInt with a given value.
-   *
-   * @param value the given value
-   */
-  public DummyArithmeticSInt(int value) {
-    this(BigInteger.valueOf(value));
   }
 
   /**
@@ -39,7 +31,7 @@ public class DummyArithmeticSInt implements SInt {
    *
    * @return the value
    */
-  public BigInteger getValue() {
+  public FieldElement getValue() {
     return value;
   }
 
@@ -51,24 +43,5 @@ public class DummyArithmeticSInt implements SInt {
   @Override
   public SInt out() {
     return this;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    DummyArithmeticSInt that = (DummyArithmeticSInt) o;
-
-    return value.equals(that.value);
-  }
-
-  @Override
-  public int hashCode() {
-    return value.hashCode();
   }
 }

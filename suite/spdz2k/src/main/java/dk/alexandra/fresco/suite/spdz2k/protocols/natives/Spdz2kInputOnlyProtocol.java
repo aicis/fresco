@@ -42,13 +42,12 @@ public class Spdz2kInputOnlyProtocol<PlainT extends CompUInt<?, ?, PlainT>>
       Network network) {
     CompUIntFactory<PlainT> factory = resourcePool.getFactory();
     int myId = resourcePool.getMyId();
-    ByteSerializer<PlainT> serializer = resourcePool.getPlainSerializer();
     Spdz2kDataSupplier<PlainT> dataSupplier = resourcePool.getDataSupplier();
     if (round == 0) {
       inputMask = dataSupplier.getNextInputMask(inputPartyId);
       if (myId == inputPartyId) {
         PlainT bcValue = this.input.subtract(inputMask.getOpenValue());
-        network.sendToAll(serializer.serialize(bcValue));
+        network.sendToAll(factory.serialize(bcValue));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
@@ -56,7 +55,7 @@ public class Spdz2kInputOnlyProtocol<PlainT extends CompUInt<?, ?, PlainT>>
       PlainT macKeyShare = dataSupplier.getSecretSharedKey();
       Spdz2kSInt<PlainT> maskShare = inputMask.getMaskShare();
       Spdz2kSInt<PlainT> out = maskShare.addConstant(
-          serializer.deserialize(inputMaskBytes),
+          factory.deserialize(inputMaskBytes),
           macKeyShare,
           factory.zero(),
           myId == 1);

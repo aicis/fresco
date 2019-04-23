@@ -1,11 +1,14 @@
 package dk.alexandra.fresco.demo.cli;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
@@ -27,10 +30,9 @@ import dk.alexandra.fresco.suite.tinytables.util.Util;
 import dk.alexandra.fresco.tools.ot.base.DhParameters;
 import java.io.File;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Properties;
-import org.apache.commons.cli.ParseException;
+import java.util.function.Supplier;
 
 /**
  * Utility for reading all configuration from command line. <p> A set of default configurations are
@@ -49,20 +51,21 @@ public class CmdLineProtocolSuite {
   }
 
   CmdLineProtocolSuite(String protocolSuiteName, Properties properties, int myId,
-      int noOfPlayers) throws ParseException, NoSuchAlgorithmException {
+      int noOfParties, Supplier<Network> network) {
     this.myId = myId;
-    this.noOfPlayers = noOfPlayers;
+    this.noOfPlayers = noOfParties;
     if (protocolSuiteName.equals("dummybool")) {
       this.protocolSuite = new DummyBooleanProtocolSuite();
       this.resourcePool =
           new ResourcePoolImpl(myId, noOfPlayers);
     } else if (protocolSuiteName.equals("dummyarithmetic")) {
       this.protocolSuite = dummyArithmeticFromCmdLine(properties);
-      BigInteger mod = new BigInteger(properties.getProperty("modulus",
+      String mod = properties.getProperty("modulus",
           "67039039649712985497870124991238141152738485774711365274259660130265015367064643"
-              + "54255445443244279389455058889493431223951165286470575994074291745908195329"));
+              + "54255445443244279389455058889493431223951165286470575994074291745908195329");
       this.resourcePool =
-          new DummyArithmeticResourcePoolImpl(myId, noOfPlayers, mod);
+          new DummyArithmeticResourcePoolImpl(myId, noOfPlayers,
+              new BigIntegerFieldDefinition(mod));
     } else if (protocolSuiteName.equals("spdz")) {
       this.protocolSuite = getSpdzProtocolSuite(properties);
       this.resourcePool =
@@ -74,14 +77,13 @@ public class CmdLineProtocolSuite {
       Drbg random = new AesCtrDrbg();
       TinyTablesOt baseOt = new TinyTablesNaorPinkasOt(Util.otherPlayerId(myId), random,
           DhParameters
-          .getStaticDhParams());
-      this.resourcePool =
-          new TinyTablesPreproResourcePool(myId, baseOt, random, 128, 40, 16000, new File(
-              tinyTablesFilePath));
+              .getStaticDhParams());
+      this.resourcePool = new TinyTablesPreproResourcePool(myId, baseOt,
+          random, 128, 40, 16000, new File(
+          tinyTablesFilePath), network);
     } else {
       this.protocolSuite = tinyTablesFromCmdLine(properties);
-      this.resourcePool =
-          new ResourcePoolImpl(myId, noOfPlayers);
+      this.resourcePool = new ResourcePoolImpl(myId, noOfPlayers);
     }
   }
 
@@ -93,14 +95,14 @@ public class CmdLineProtocolSuite {
     return this.protocolSuite;
   }
 
-
   private ProtocolSuite<?, ?> dummyArithmeticFromCmdLine(Properties properties) {
-    BigInteger mod = new BigInteger(properties.getProperty("modulus",
+    String mod = properties.getProperty("modulus",
         "67039039649712985497870124991238141152738485774711365274259660130265015367064643"
-            + "54255445443244279389455058889493431223951165286470575994074291745908195329"));
+            + "54255445443244279389455058889493431223951165286470575994074291745908195329");
     int maxBitLength = Integer.parseInt(properties.getProperty("maxbitlength", "150"));
     int fixedPointPrecision = Integer.parseInt(properties.getProperty("fixedPointPrecision", "16"));
-    return new DummyArithmeticProtocolSuite(mod, maxBitLength, fixedPointPrecision);
+    return new DummyArithmeticProtocolSuite(new BigIntegerFieldDefinition(mod), maxBitLength,
+        fixedPointPrecision);
   }
 
   private ProtocolSuite<?, ?> getSpdzProtocolSuite(Properties properties) {
@@ -122,12 +124,13 @@ public class CmdLineProtocolSuite {
     final PreprocessingStrategy strategy = PreprocessingStrategy.valueOf(strat);
     SpdzDataSupplier supplier = null;
     if (strategy == PreprocessingStrategy.DUMMY) {
-      supplier = new SpdzDummyDataSupplier(myId, noOfPlayers);
+      BigInteger modulus = ModulusFinder.findSuitableModulus(512);
+      supplier = new SpdzDummyDataSupplier(myId, noOfPlayers,
+          new BigIntegerFieldDefinition(modulus), modulus);
     }
     if (strategy == PreprocessingStrategy.STATIC) {
       int noOfThreadsUsed = 1;
-      String storageName = properties.getProperty("spdz.storage");
-      storageName =
+      String storageName =
           SpdzStorageDataSupplier.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
               + "_";
       supplier = new SpdzStorageDataSupplier(

@@ -23,8 +23,7 @@ public class SpdzAddProtocol extends SpdzNativeProtocol<SInt> {
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
-      Network network) {
+  public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool, Network network) {
     SpdzSInt left = (SpdzSInt) this.left.out();
     SpdzSInt right = (SpdzSInt) this.right.out();
     this.out = left.add(right);

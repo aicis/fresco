@@ -15,7 +15,7 @@ import java.math.BigInteger;
  * result will be one larger than the exact result with some non-negligible propability. If you need
  * the exact result you need to use {@link RightShift} instead, but this will be at a significant
  * performance cost.
- * 
+ *
  * The protocol is similar to protocol 3.1 in Catrina O., Saxena A. (2010) Secure Computation with
  * Fixed-Point Numbers. In: Sion R. (eds) Financial Cryptography and Data Security. FC 2010. Lecture
  * Notes in Computer Science, vol 6052. Springer, Berlin, Heidelberg.

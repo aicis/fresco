@@ -1,10 +1,11 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestBruteforce;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
-import java.math.BigInteger;
 
 public interface SpdzDataSupplier {
 
@@ -41,11 +42,11 @@ public interface SpdzDataSupplier {
   SpdzSInt getNextBit();
 
   /**
-   * The modulus used for this instance of SPDZ.
+   * The field definition used for this instance of SPDZ.
    *
-   * @return a modulus
+   * @return a field definition
    */
-  BigInteger getModulus();
+  FieldDefinition getFieldDefinition();
 
   /**
    * Returns the Players share of the Shared Secret Key (alpha). This is never to be send to anyone
@@ -53,7 +54,7 @@ public interface SpdzDataSupplier {
    *
    * @return a share of the key
    */
-  BigInteger getSecretSharedKey();
+  FieldElement getSecretSharedKey();
 
   /**
    * Returns the next random field element.
@@ -61,5 +62,4 @@ public interface SpdzDataSupplier {
    * @return A SpdzSInt representing a random secret shared field element.
    */
   SpdzSInt getNextRandomFieldElement();
-
 }

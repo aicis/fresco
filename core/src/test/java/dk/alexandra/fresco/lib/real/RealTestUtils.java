@@ -33,5 +33,4 @@ class RealTestUtils {
   static int ceilLog2(BigDecimal value) {
     return (int) Math.ceil(Math.log(value.doubleValue()) / Math.log(2.0));
   }
-
 }

@@ -1,9 +1,12 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.math.BigInteger;
 import org.slf4j.Logger;
@@ -19,7 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SpdzStorageDataSupplier implements SpdzDataSupplier {
 
-  private final static Logger logger = LoggerFactory.getLogger(SpdzStorageDataSupplier.class);
+  private static final Logger logger = LoggerFactory.getLogger(SpdzStorageDataSupplier.class);
   public static final String STORAGE_FOLDER = "spdz/";
   public static final String SSK_KEY = "SSK";
   public static final String MODULUS_KEY = "MOD_P";
@@ -44,8 +47,8 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
   private int[] inputMaskCounters;
   private int bitCounter = 0;
 
-  private BigInteger ssk;
-  private BigInteger mod;
+  private FieldElement ssk;
+  private FieldDefinition definition;
 
   /**
    * Creates a new supplier which takes preprocessed data from the native
@@ -66,8 +69,7 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
   public SpdzTriple getNextTriple() {
     SpdzTriple trip;
     try {
-      trip = this.storage.getNext(storageName
-          + TRIPLE_STORAGE);
+      trip = this.storage.getNext(storageName + TRIPLE_STORAGE);
     } catch (NoMoreElementsException e) {
       logger.error("Triple no. " + tripleCounter + " was not present in the storage: "
           + storageName + TRIPLE_STORAGE);
@@ -130,28 +132,27 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
-  public BigInteger getModulus() {
-    if (this.mod != null) {
-      return this.mod;
+  public FieldDefinition getFieldDefinition() {
+    if (this.definition != null) {
+      return this.definition;
     }
     try {
-      this.mod = this.storage.getNext(storageName
-          + MODULUS_KEY);
+      this.definition = new BigIntegerFieldDefinition(
+          this.storage.<BigInteger>getNext(storageName + MODULUS_KEY));
     } catch (NoMoreElementsException e) {
       throw new IllegalArgumentException("Modulus was not present in the storage "
           + storageName + MODULUS_KEY);
     }
-    return this.mod;
+    return this.definition;
   }
 
   @Override
-  public BigInteger getSecretSharedKey() {
+  public FieldElement getSecretSharedKey() {
     if (this.ssk != null) {
       return this.ssk;
     }
     try {
-      this.ssk = this.storage.getNext(storageName
-          + SSK_KEY);
+      this.ssk = this.storage.getNext(storageName + SSK_KEY);
     } catch (NoMoreElementsException e) {
       throw new IllegalArgumentException("SSK was not present in the storage "
           + storageName + SSK_KEY);

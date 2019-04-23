@@ -27,7 +27,6 @@ public interface ByteSerializer<T> {
    */
   byte[] serialize(List<T> objects);
 
-
   /**
    * Reads an element of type T from a byte array.
    *

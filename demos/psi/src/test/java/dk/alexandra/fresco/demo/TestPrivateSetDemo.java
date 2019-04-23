@@ -10,8 +10,9 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
@@ -34,14 +35,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-
 public class TestPrivateSetDemo {
+
   private static final int OT_BATCH_SIZE = 16000;
   private static final int COMPUTATIONAL_SECURITY = 128;
   private static final int STATISTICAL_SECURITY = 40;
@@ -71,13 +73,12 @@ public class TestPrivateSetDemo {
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
               () -> new ResourcePoolImpl(playerId, noPlayers),
-              () -> new AsyncNetwork(netConf.get(playerId)));
+              () -> new SocketNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
     String[] result = this.setIntersectionDemo(conf);
     Assert.assertTrue(verifyResult(result));
   }
-
 
   /**
    * TinyTables requires a preprocessing phase as well as the actual computation phase.
@@ -104,12 +105,15 @@ public class TestPrivateSetDemo {
       // More generic configuration
       ProtocolEvaluator<ResourcePoolImpl> evaluator =
           new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
+      NetworkSupplier networkSupplier = new NetworkSupplier(playerId, netConf);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
-              () -> new TinyTablesPreproResourcePool(playerId, baseOt, random,
-                  COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE, getTinyTablesFile(playerId)),
-              () -> new AsyncNetwork(netConf.get(playerId)));
+              () -> new TinyTablesPreproResourcePool(
+                  playerId, baseOt, random,
+                  COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE,
+                  getTinyTablesFile(playerId), networkSupplier),
+              networkSupplier);
       conf.put(playerId, ttc);
     }
 
@@ -134,7 +138,7 @@ public class TestPrivateSetDemo {
             new TestThreadConfiguration<>(
                 new SecureComputationEngineImpl<>(suite, evaluator),
                 () -> new ResourcePoolImpl(playerId, noPlayers),
-                () -> new AsyncNetwork(secondConf.get(playerId)));
+                () -> new SocketNetwork(secondConf.get(playerId)));
         conf.put(playerId, ttc);
       }
 
@@ -155,7 +159,6 @@ public class TestPrivateSetDemo {
     }
   }
 
-
   private boolean verifyResult(String[] result) {
     // Expected ciphers
     String[] expected = {"c5cf1e6421d3302430b4c1e1258e23dc", "2f512cbe2004159f2a9f432aa23074fe",
@@ -170,7 +173,6 @@ public class TestPrivateSetDemo {
     }
     return true;
   }
-
 
   public String[] setIntersectionDemo(
       Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf) {
@@ -198,7 +200,7 @@ public class TestPrivateSetDemo {
 
                 List<List<Boolean>> psiResult = runApplication(app);
                 System.out.println(
-                    "Result Dimentions: " + psiResult.size() + ", " + psiResult.get(0).size());
+                    "Result Dimensions: " + psiResult.size() + ", " + psiResult.get(0).size());
                 boolean[][] actualBoolean = new boolean[psiResult.size()][psiResult.get(0).size()];
 
                 for (int j = 0; j < psiResult.size(); j++) {
@@ -297,4 +299,22 @@ public class TestPrivateSetDemo {
     fail();
   }
 
+  private static class NetworkSupplier implements Supplier<Network> {
+
+    private final int playerId;
+    private final Map<Integer, NetworkConfiguration> netConf;
+    private final Map<Integer, Network> nets;
+
+    public NetworkSupplier(int playerId, Map<Integer, NetworkConfiguration> netConf) {
+      this.playerId = playerId;
+      this.netConf = netConf;
+      this.nets = new ConcurrentHashMap<>();
+    }
+
+    @Override
+    public Network get() {
+      return nets
+          .computeIfAbsent(playerId, integer -> new SocketNetwork(netConf.get(playerId)));
+    }
+  }
 }

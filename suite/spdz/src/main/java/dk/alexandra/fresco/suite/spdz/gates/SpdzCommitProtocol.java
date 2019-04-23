@@ -1,19 +1,19 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SpdzCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigInteger>> {
+public class SpdzCommitProtocol extends SpdzNativeProtocol<Map<Integer, byte[]>> {
 
   private SpdzCommitment commitment;
-  private Map<Integer, BigInteger> comms;
+  private Map<Integer, byte[]> comms;
   private byte[] broadcastDigest;
 
   public SpdzCommitProtocol(SpdzCommitment commitment) {
@@ -22,7 +22,7 @@ public class SpdzCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigInteg
   }
 
   @Override
-  public Map<Integer, BigInteger> out() {
+  public Map<Integer, byte[]> out() {
     return comms;
   }
 
@@ -30,17 +30,15 @@ public class SpdzCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigInteg
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       Network network) {
     int players = spdzResourcePool.getNoOfParties();
-    ByteSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
-
+    ByteSerializer<FieldElement> definition = spdzResourcePool.getFieldDefinition();
     if (round == 0) {
-      network.sendToAll(serializer
-          .serialize(commitment.computeCommitment(spdzResourcePool.getModulus())));
+      network.sendToAll(commitment.computeCommitment(definition));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
 
       List<byte[]> commitments = network.receiveFromAll();
       for (int i = 0; i < commitments.size(); i++) {
-        comms.put(i + 1, serializer.deserialize(commitments.get(i)));
+        comms.put(i + 1, commitments.get(i));
       }
       if (players < 3) {
         return EvaluationStatus.IS_DONE;

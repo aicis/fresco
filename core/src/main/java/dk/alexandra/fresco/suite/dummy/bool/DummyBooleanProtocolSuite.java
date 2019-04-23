@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.dummy.bool;
 
 import dk.alexandra.fresco.framework.builder.binary.BuilderFactoryBinary;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.suite.ProtocolSuiteBinary;
 
@@ -20,8 +19,7 @@ public class DummyBooleanProtocolSuite
   }
 
   @Override
-  public BuilderFactoryBinary init(ResourcePoolImpl resourcePool,
-      Network network) {
+  public BuilderFactoryBinary init(ResourcePoolImpl resourcePool) {
     return new DummyBooleanBuilderFactory();
   }
 

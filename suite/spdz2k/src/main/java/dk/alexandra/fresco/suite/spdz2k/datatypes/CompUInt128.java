@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import java.math.BigInteger;
 
 /**
@@ -124,11 +125,11 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
 
   @Override
   public CompUInt128 subtract(CompUInt128 other) {
-    return this.add(other.negate());
+    return this.add(other.negateUInt());
   }
 
   @Override
-  public CompUInt128 negate() {
+  public CompUInt128 negateUInt() {
     return new CompUInt128(~high, ~mid, ~low).add(ONE);
   }
 
@@ -194,6 +195,10 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
     toByteArray(bytes, 4, mid);
     toByteArrayLong(bytes, 8, high);
     return bytes;
+  }
+
+  static BigInteger extractValue(FieldElement element) {
+    return ((CompUInt128) element).toBigInteger();
   }
 
   private void toByteArrayLong(byte[] bytes, int start, long value) {

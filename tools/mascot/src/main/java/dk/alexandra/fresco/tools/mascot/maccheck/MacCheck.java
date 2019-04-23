@@ -1,11 +1,12 @@
 package dk.alexandra.fresco.tools.mascot.maccheck;
 
 import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.builder.numeric.Addable;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import dk.alexandra.fresco.tools.mascot.commit.CommitmentBasedInput;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -19,7 +20,7 @@ public class MacCheck extends CommitmentBasedInput<FieldElement> {
    * Constructs new mac checker.
    */
   public MacCheck(MascotResourcePool resourcePool, Network network) {
-    super(resourcePool, network, resourcePool.getFieldElementSerializer());
+    super(resourcePool, network, resourcePool.getFieldDefinition());
   }
 
   /**
@@ -31,7 +32,8 @@ public class MacCheck extends CommitmentBasedInput<FieldElement> {
    * @param macShare this party's share of the mac
    * @throws MaliciousException if mac-check fails
    */
-  public void check(FieldElement opened, FieldElement macKeyShare, FieldElement macShare) {
+  public void check(
+      FieldElement opened, FieldElement macKeyShare, FieldElement macShare) {
     // we will check that all sigmas together add up to 0
     FieldElement sigma = macShare.subtract(opened.multiply(macKeyShare));
 
@@ -40,8 +42,9 @@ public class MacCheck extends CommitmentBasedInput<FieldElement> {
     // add up all sigmas
     FieldElement sigmaSum = Addable.sum(sigmas);
 
+    BigInteger outputSum = getResourcePool().getFieldDefinition().convertToUnsigned(sigmaSum);
     // sum of sigmas must be 0
-    if (!sigmaSum.isZero()) {
+    if (outputSum.signum() != 0) {
       throw new MaliciousException("Malicious mac forging detected");
     }
   }

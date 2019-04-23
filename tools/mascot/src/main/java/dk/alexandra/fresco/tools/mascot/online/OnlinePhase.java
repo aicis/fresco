@@ -1,9 +1,9 @@
 package dk.alexandra.fresco.tools.mascot.online;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.mascot.triple.TripleGeneration;
 import java.util.ArrayList;
@@ -69,7 +69,8 @@ public class OnlinePhase {
       // [c] + epsilon * [b] + delta * [a] + epsilon * delta
       AuthenticatedElement product = triple.getProduct().add(right.multiply(epsilon))
           .add(left.multiply(delta))
-          .add(epsilonDeltaProd, resourcePool.getMyId(), macKeyShare);
+          .add(resourcePool.getFieldDefinition(), epsilonDeltaProd, resourcePool.getMyId(),
+              macKeyShare);
       products.add(product);
     }
     return products;

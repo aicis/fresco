@@ -34,13 +34,11 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
         return protocolBuilder.append(spdzAddProtocol);
       }
 
-
       @Override
       public DRes<SInt> add(BigInteger a, DRes<SInt> b) {
         SpdzAddProtocolKnownLeft spdzAddProtocolKnownLeft = new SpdzAddProtocolKnownLeft(a, b);
         return protocolBuilder.append(spdzAddProtocolKnownLeft);
       }
-
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, DRes<SInt> b) {
@@ -72,7 +70,6 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
       public DRes<SInt> mult(BigInteger a, DRes<SInt> b) {
         SpdzMultProtocolKnownLeft spdzMultProtocol4 = new SpdzMultProtocolKnownLeft(a, b);
         return protocolBuilder.append(spdzMultProtocol4);
-
       }
 
       @Override
@@ -109,5 +106,4 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
       }
     };
   }
-
 }

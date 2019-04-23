@@ -40,7 +40,7 @@ public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
   public EvaluationStatus evaluate(int round, Spdz2kResourcePool<PlainT> resourcePool,
       Network network) {
     final PlainT macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
-    ByteSerializer<PlainT> serializer = resourcePool.getPlainSerializer();
+    CompUIntFactory<PlainT> serializer = resourcePool.getFactory();
     if (round == 0) {
       triple = resourcePool.getDataSupplier().getNextTripleShares();
       epsilon = toSpdz2kSInt(left).subtract(triple.getLeft());
@@ -51,8 +51,7 @@ public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
     } else {
       Pair<PlainT, PlainT> epsilonAndDelta = receiveAndReconstruct(network,
           resourcePool.getFactory(),
-          resourcePool.getNoOfParties(),
-          serializer);
+          resourcePool.getNoOfParties());
       // compute [prod] = [c] + epsilon * [b] + delta * [a] + epsilon * delta
       PlainT e = epsilonAndDelta.getFirst();
       PlainT d = epsilonAndDelta.getSecond();
@@ -80,13 +79,12 @@ public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
    * Retrieves shares for epsilon and delta and reconstructs each.
    */
   private Pair<PlainT, PlainT> receiveAndReconstruct(Network network,
-      CompUIntFactory<PlainT> factory, int noOfParties,
-      ByteSerializer<PlainT> serializer) {
+      CompUIntFactory<PlainT> factory, int noOfParties) {
     PlainT e = factory.zero();
     PlainT d = factory.zero();
     for (int i = 1; i <= noOfParties; i++) {
-      e = e.add(serializer.deserialize(network.receive(i)));
-      d = d.add(serializer.deserialize(network.receive(i)));
+      e = e.add(factory.deserialize(network.receive(i)));
+      d = d.add(factory.deserialize(network.receive(i)));
     }
     return new Pair<>(e, d);
   }

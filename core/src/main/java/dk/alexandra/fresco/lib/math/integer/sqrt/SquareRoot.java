@@ -33,6 +33,7 @@ public class SquareRoot implements Computation<SInt, ProtocolBuilderNumeric> {
      * assuming we have at least one digit correct after first iteration, we need at about
      * log2(maxInputLength) iterations in total.
      */
+    
     int iterations = log2(maxInputLength) + 1;
 
     /*

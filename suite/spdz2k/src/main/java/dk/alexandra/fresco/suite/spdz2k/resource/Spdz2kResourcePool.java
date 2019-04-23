@@ -12,7 +12,6 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDataSupplier;
-import java.math.BigInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -20,7 +19,7 @@ import java.util.function.Supplier;
  * Common resources for {@link Spdz2kProtocolSuite}.
  *
  * @param <PlainT> the type of the core arithmetic data type, in this case an instance of {@link
- * CompUInt}.
+ *     CompUInt}.
  */
 public interface Spdz2kResourcePool<PlainT extends CompUInt<?, ?, PlainT>>
     extends NumericResourcePool {
@@ -43,11 +42,6 @@ public interface Spdz2kResourcePool<PlainT extends CompUInt<?, ?, PlainT>>
   CompUIntFactory<PlainT> getFactory();
 
   /**
-   * Returns serializer for instances of {@link PlainT}.
-   */
-  ByteSerializer<PlainT> getPlainSerializer();
-
-  /**
    * Initializes deterministic joint randomness source. <p>Must be called before any protocols
    * relying on joint randomness are used. Requires a network since a coin tossing protocol is
    * executed to establish a joint random seed. It is guaranteed that the supplied network will be
@@ -61,9 +55,10 @@ public interface Spdz2kResourcePool<PlainT extends CompUInt<?, ?, PlainT>>
       Function<byte[], Drbg> drbgGenerator, int seedLength);
 
   /**
-   * The DRBG is useful for protocols which needs a form of shared randomness where the random bytes
-   * are not easily guessed by an adversary. This generator will provide exactly that. For explicit
-   * security guarantees, we refer to implementations of {@link dk.alexandra.fresco.framework.util.Drbg}.
+   * The DRBG is useful for protocols which needs a form of shared randomness where the random
+   * bytes are not easily guessed by an adversary. This generator will provide exactly that. For
+   * explicit security guarantees, we refer to implementations of
+   * {@link dk.alexandra.fresco.framework.util.Drbg}.
    *
    * @return An instance of a DRBG.
    */
@@ -82,23 +77,9 @@ public interface Spdz2kResourcePool<PlainT extends CompUInt<?, ?, PlainT>>
   int getMaxBitLength();
 
   /**
-   * Converts opened value of underlying arithmetic type to a BigInteger. <p>This may convert the
-   * value to a negative value depending on the semantics of the plain text type.</p>
-   */
-  default BigInteger convertRepresentation(PlainT value) {
-    return value.getLeastSignificant().toBigInteger();
-  }
-
-  /**
    * Returns serializer for {@link HashBasedCommitment}.
    */
   default ByteSerializer<HashBasedCommitment> getCommitmentSerializer() {
     return new HashBasedCommitmentSerializer();
   }
-
-  @Override
-  default BigInteger convertRepresentation(BigInteger value) {
-    return convertRepresentation(getFactory().createFromBigInteger(value));
-  }
-
 }

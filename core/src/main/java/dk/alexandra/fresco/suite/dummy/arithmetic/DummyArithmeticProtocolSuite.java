@@ -3,14 +3,12 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
-import java.math.BigInteger;
-
 
 /**
  * The {@link ProtocolSuite} of the Dummy Arithmetic suite. Uses a
@@ -20,24 +18,21 @@ import java.math.BigInteger;
 public class DummyArithmeticProtocolSuite
     implements ProtocolSuiteNumeric<DummyArithmeticResourcePool> {
 
-  private final BigInteger modulus;
+  private final FieldDefinition fieldDefinition;
   private final int maxBitLength;
   private final int precision;
 
-  public DummyArithmeticProtocolSuite() {
-    this(ModulusFinder.findSuitableModulus(128), 32, 4);
-  }
-
-  public DummyArithmeticProtocolSuite(BigInteger modulus, int maxBitLength, int precision) {
-    this.modulus = modulus;
+  public DummyArithmeticProtocolSuite(FieldDefinition fieldDefinition, int maxBitLength,
+      int precision) {
+    this.fieldDefinition = fieldDefinition;
     this.maxBitLength = maxBitLength;
     this.precision = precision;
   }
 
   @Override
-  public BuilderFactoryNumeric init(DummyArithmeticResourcePool resourcePool, Network network) {
-    BasicNumericContext basicNumericContext = new BasicNumericContext(maxBitLength, modulus,
-        resourcePool.getMyId(), resourcePool.getNoOfParties());
+  public BuilderFactoryNumeric init(DummyArithmeticResourcePool resourcePool) {
+    BasicNumericContext basicNumericContext = new BasicNumericContext(maxBitLength,
+        resourcePool.getMyId(), resourcePool.getNoOfParties(), fieldDefinition);
     RealNumericContext realNumericContext = new RealNumericContext(precision);
     return new DummyArithmeticBuilderFactory(basicNumericContext, realNumericContext);
   }
@@ -48,10 +43,12 @@ public class DummyArithmeticProtocolSuite
 
       @Override
       public void finishedBatch(int gatesEvaluated, DummyArithmeticResourcePool resourcePool,
-          Network network) {}
+          Network network) {
+      }
 
       @Override
-      public void finishedEval(DummyArithmeticResourcePool resourcePool, Network network) {}
+      public void finishedEval(DummyArithmeticResourcePool resourcePool, Network network) {
+      }
 
       @Override
       public void beforeBatch(ProtocolCollection<DummyArithmeticResourcePool> protocols,

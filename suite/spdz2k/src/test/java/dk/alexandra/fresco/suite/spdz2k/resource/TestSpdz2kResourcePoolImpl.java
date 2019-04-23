@@ -13,11 +13,6 @@ public class TestSpdz2kResourcePoolImpl {
       new Spdz2kDummyDataSupplier<>(1, 2, null, new CompUInt128Factory()),
       new CompUInt128Factory());
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testGetSerializer() {
-    resourcePool.getSerializer();
-  }
-
   @Test(expected = IllegalStateException.class)
   public void testGetDrbgBeforeInit() {
     resourcePool.getRandomGenerator();

@@ -1,7 +1,6 @@
 Babel==2.1.1
-Jinja2==2.8
+Jinja2==2.10.1
 MarkupSafe==0.23
-MySQL-python==1.2.3
 Pygments==2.0.2
 Sphinx==1.6.6
 docutils==0.12

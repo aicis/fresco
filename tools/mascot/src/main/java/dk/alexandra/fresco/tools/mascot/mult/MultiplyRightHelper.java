@@ -1,10 +1,10 @@
 package dk.alexandra.fresco.tools.mascot.mult;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class MultiplyRightHelper {
 
   public MultiplyRightHelper(MascotResourcePool resourcePool, Network network, int otherId) {
     this.resourcePool = resourcePool;
-    this.fieldElementUtils = new FieldElementUtils(resourcePool.getModulus());
+    this.fieldElementUtils = new FieldElementUtils(resourcePool.getFieldDefinition());
     this.rot = resourcePool.createRot(otherId, network);
   }
 
@@ -103,5 +103,4 @@ public class MultiplyRightHelper {
     FieldElement right = feSeedPair.getSecond();
     return left.subtract(right).add(factor);
   }
-
 }

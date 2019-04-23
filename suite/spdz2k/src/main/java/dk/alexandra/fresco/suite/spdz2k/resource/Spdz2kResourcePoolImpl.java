@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
@@ -21,7 +22,7 @@ import dk.alexandra.fresco.suite.spdz2k.Spdz2kBuilder;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
-import dk.alexandra.fresco.suite.spdz2k.protocols.computations.CoinTossingComputation;
+import dk.alexandra.fresco.lib.generic.CoinTossingComputation;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDataSupplier;
 import java.io.Closeable;
 import java.math.BigInteger;
@@ -39,7 +40,6 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     implements Spdz2kResourcePool<PlainT> {
 
   private final int effectiveBitLength;
-  private final BigInteger modulus;
   private final OpenedValueStore<Spdz2kSInt<PlainT>, PlainT> storage;
   private final Spdz2kDataSupplier<PlainT> supplier;
   private final CompUIntFactory<PlainT> factory;
@@ -58,11 +58,10 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     Objects.requireNonNull(supplier);
     Objects.requireNonNull(factory);
     this.effectiveBitLength = factory.getLowBitLength();
-    this.modulus = BigInteger.ONE.shiftLeft(effectiveBitLength);
     this.storage = storage;
     this.supplier = supplier;
     this.factory = factory;
-    this.rawSerializer = factory.createSerializer();
+    this.rawSerializer = factory.getSerializer();
     this.drbg = drbg;
     this.localDrbg = new AesCtrDrbg();
   }
@@ -88,11 +87,6 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
   }
 
   @Override
-  public ByteSerializer<PlainT> getPlainSerializer() {
-    return rawSerializer;
-  }
-
-  @Override
   public void initializeJointRandomness(Supplier<Network> networkSupplier,
       Function<byte[], Drbg> drbgGenerator, int seedLength) {
     Network network = networkSupplier.get();
@@ -108,13 +102,13 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
   }
 
   @Override
-  public BigInteger getModulus() {
-    return modulus;
+  public FieldDefinition getFieldDefinition() {
+    return factory;
   }
 
   @Override
-  public ByteSerializer<BigInteger> getSerializer() {
-    throw new UnsupportedOperationException("This suite does not support serializing big integers");
+  public BigInteger getModulus() {
+    return BigInteger.ONE.shiftLeft(effectiveBitLength);
   }
 
   @Override
@@ -140,8 +134,7 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
             this.getNoOfParties(),
             network);
     BuilderFactoryNumeric builderFactory = new Spdz2kBuilder<>(factory,
-        new BasicNumericContext(effectiveBitLength, modulus,
-            getMyId(), getNoOfParties()));
+        new BasicNumericContext(effectiveBitLength, getMyId(), getNoOfParties(), null));
     ProtocolBuilderNumeric root = builderFactory.createSequential();
     DRes<byte[]> jointSeed = coinTossing
         .buildComputation(root);
@@ -156,5 +149,4 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     } while (coinTossingProducer.hasNextProtocols());
     return jointSeed.out();
   }
-
 }

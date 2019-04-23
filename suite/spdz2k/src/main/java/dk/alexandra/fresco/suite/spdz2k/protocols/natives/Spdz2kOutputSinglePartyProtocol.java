@@ -46,15 +46,22 @@ public class Spdz2kOutputSinglePartyProtocol<PlainT extends CompUInt<?, ?, Plain
     if (round == 0) {
       this.inputMask = supplier.getNextInputMask(outputParty);
       inMinusMask = toSpdz2kSInt(share).subtract(this.inputMask.getMaskShare());
-      network.sendToAll(inMinusMask.getShare().getLeastSignificant().toByteArray());
+      network.sendToAll(inMinusMask
+          .getShare()
+          .getLeastSignificant()
+          .toByteArray());
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
-      List<PlainT> shares = resourcePool.getPlainSerializer()
+      List<PlainT> shares = resourcePool
+          .getFactory()
+          .getSerializer()
           .deserializeList(network.receiveFromAll());
       PlainT recombined = UInt.sum(shares);
       openedValueStore.pushOpenedValue(inMinusMask, recombined);
       if (outputParty == resourcePool.getMyId()) {
-        this.opened = resourcePool.convertRepresentation(recombined.add(inputMask.getOpenValue()));
+        this.opened = recombined.add(inputMask.getOpenValue())
+            .getLeastSignificant()
+            .toBigInteger();
       }
       return EvaluationStatus.IS_DONE;
     }
@@ -64,5 +71,4 @@ public class Spdz2kOutputSinglePartyProtocol<PlainT extends CompUInt<?, ?, Plain
   public BigInteger out() {
     return opened;
   }
-
 }

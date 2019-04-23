@@ -1,41 +1,37 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
-import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.arithm.Addable;
+import dk.alexandra.fresco.framework.builder.numeric.Addable;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class FieldElementUtils {
+public final class FieldElementUtils {
 
-  private final BigInteger modulus;
-  private final int modBitLength;
+  private final FieldDefinition definition;
   private final List<FieldElement> generators;
 
   /**
    * Creates new {@link FieldElementUtils}.
    *
-   * @param modulus modulus for underlying field element operations
+   * @param definition field definition for underlying field element operations
    */
-  public FieldElementUtils(BigInteger modulus) {
-    super();
-    this.modulus = modulus;
-    this.modBitLength = modulus.bitLength();
+  public FieldElementUtils(FieldDefinition definition) {
+    this.definition = definition;
     this.generators = precomputeGenerators();
   }
 
   private List<FieldElement> precomputeGenerators() {
-    List<FieldElement> generators = new ArrayList<>(modBitLength);
-    BigInteger two = new BigInteger("2");
+    List<FieldElement> generators = new ArrayList<>(definition.getBitLength());
     BigInteger current = BigInteger.ONE;
-    for (int i = 0; i < modBitLength; i++) {
-      generators.add(new FieldElement(current, modulus));
-      current = current.multiply(two).mod(modulus);
+    for (int i = 0; i < definition.getBitLength(); i++) {
+      generators.add(definition.createElement(current));
+      current = current.shiftLeft(1);
     }
     return generators;
   }
@@ -93,7 +89,7 @@ public class FieldElementUtils {
    * @return list of products
    */
   public List<FieldElement> scalarMultiply(List<FieldElement> values, FieldElement scalar) {
-    return values.stream().map(value -> value.multiply(scalar)).collect(Collectors.toList());
+    return values.stream().map(scalar::multiply).collect(Collectors.toList());
   }
 
   /**
@@ -104,12 +100,8 @@ public class FieldElementUtils {
    * @return recombined elements
    */
   public FieldElement recombine(List<FieldElement> elements) {
-    if (elements.size() > modBitLength) {
+    if (elements.size() > definition.getBitLength()) {
       throw new IllegalArgumentException("Number of elements cannot exceed bit-length");
-    }
-    BigInteger elementModulus = elements.get(0).getModulus();
-    if (!elementModulus.equals(modulus)) {
-      throw new IllegalArgumentException("Wrong modulus " + elementModulus);
     }
     return innerProduct(elements, generators.subList(0, elements.size()));
   }
@@ -125,9 +117,7 @@ public class FieldElementUtils {
   public List<FieldElement> stretch(List<FieldElement> elements, int stretchBy) {
     List<FieldElement> stretched = new ArrayList<>(elements.size() * stretchBy);
     for (FieldElement element : elements) {
-      for (int c = 0; c < stretchBy; c++) {
-        stretched.add(new FieldElement(element));
-      }
+      stretched.addAll(Collections.nCopies(stretchBy, element));
     }
     return stretched;
   }
@@ -146,44 +136,4 @@ public class FieldElementUtils {
     copy.addAll(Collections.nCopies(numPads, padElement));
     return copy;
   }
-
-  /**
-   * Converts field elements to bit vectors and concatenates the result.
-   *
-   * @param elements field elements to pack
-   * @param reverse indicator whether to reverse the order of bytes
-   * @return concatenated field elements in bit representation
-   */
-  public StrictBitVector pack(List<FieldElement> elements, boolean reverse) {
-    StrictBitVector[] bitVecs =
-        elements.stream().map(FieldElement::toBitVector).toArray(StrictBitVector[]::new);
-    if (reverse) {
-      Collections.reverse(Arrays.asList(bitVecs));
-    }
-    return StrictBitVector.concat(bitVecs);
-  }
-
-  /**
-   * Unpacks a bit string into a list of field elements.
-   *
-   * @param packed concatenated bits representing field elements
-   * @return field elements
-   */
-  public List<FieldElement> unpack(byte[] packed) {
-    int packedBitLength = packed.length * 8;
-    if ((packedBitLength % modBitLength) != 0) {
-      throw new IllegalArgumentException(
-          "Packed bit length must be multiple of single element bit length");
-    }
-    int numElements = packedBitLength / modBitLength;
-    int byteLength = modBitLength / 8;
-    List<FieldElement> unpacked = new ArrayList<>(numElements);
-    for (int i = 0; i < numElements; i++) {
-      byte[] b = Arrays.copyOfRange(packed, i * byteLength, (i + 1) * byteLength);
-      FieldElement el = new FieldElement(b, modulus);
-      unpacked.add(el);
-    }
-    return unpacked;
-  }
-
 }

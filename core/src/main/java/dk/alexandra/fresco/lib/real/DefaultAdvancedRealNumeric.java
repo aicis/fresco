@@ -7,11 +7,11 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric {
 
   protected final ProtocolBuilderNumeric builder;
+  private static final BigDecimal TWO = BigDecimal.valueOf(2);
 
   protected DefaultAdvancedRealNumeric(ProtocolBuilderNumeric builder) {
     this.builder = builder;
@@ -96,7 +96,7 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
        * We approximate the exponential function by calculating the first terms of the Taylor
        * expansion. By letting all terms in the series have common denominator, we only need to do
        * one division.
-       * 
+       *
        * TODO: In the current implementation we compute 16 terms, which seems to give decent
        * percision for small inputs. If we want full precision for all possible inputs, we need to
        * calculate many more terms, since the error after n terms is approx x^{n+1}/(n+1)!), and
@@ -119,40 +119,69 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
     });
   }
 
+  /**
+   * We use a fast converging series for the natural logarithm. The number of terms, 12, is a bit
+   * arbitrary but gives decent precision for small inputs.
+   *
+   * The approximation is based on the series ln(x) = 2t * \sum_{k=0}^\infty 1 / (2k + 1) t^{2k} for
+   * t = (x-1) / (x+1).
+   * 
+   * The approximation is best for small inputs (the error is bounded by 0.0014 for 0.1 < x < 10 and
+   * by 0.24 for 0.1 < x < 50, but for larger inputs the error term is rather big. To compensate,
+   * the error term can be approximated bye one of the following polynomials (constant term first,
+   * optimised for x < 1000):
+   * 
+   * Linear [-0.02771369259544744, -0.0030294386027190858]
+   * 
+   * Quadratic [0.05195678095575384, -0.005443079020109276, 3.0571652211820656E-6]
+   * 
+   * Cubic [0.08080174700015502, -0.006644457297258054, 6.849009473279065E-6,
+   * -2.8055166996698435E-9]
+   * 
+   * Quartic [0.07313345035356501, -0.0062624966485768045, 4.556408175523062E-6,
+   * 1.3107035589962076E-9, -2.243237315197184E-12]
+   * 
+   * @param x The input value.
+   * @returns A deferred result approximating the natural logarithm of x.
+   */
   @Override
   public DRes<SReal> log(DRes<SReal> x) {
-    int numberOfTerms = 16;
 
     /*
-     * The logarithm is calculated as the Taylor expansion based on the identity log(x) = 2
-     * artanh((x-1)/(x+1)). See https://en.wikipedia.org/wiki/Logarithm#Power_series.
-     * 
-     * It works okay for small inputs (< 40), but the convergence rate is too slow for larger inputs
-     * to get precise results.
+     * We use a fast converging series for the natural logarithm. The number of terms, 12, is a bit
+     * arbitrary but gives decent precision for small inputs.
+     *
+     * The approximation is based on the series ln(x) = 2t * \sum_{k=0}^\infty 1 / (2k + 1) t^{2k}
+     * for t = (x-1) / (x+1).
      */
-
+    int iterations = 12;
     return builder.seq(seq -> {
-      DRes<SReal> y = seq.realNumeric().div(seq.realNumeric().sub(x, BigDecimal.ONE),
-          seq.realNumeric().add(BigDecimal.ONE, x));
-      DRes<SReal> ySquared = seq.realNumeric().mult(y, y);
 
-      List<DRes<SReal>> powers = new ArrayList<>(numberOfTerms);
-      powers.add(y);
-      DRes<SReal> currentPower = y;
-      for (int i = 1; i < numberOfTerms; i++) {
-        currentPower = seq.realNumeric().mult(currentPower, ySquared);
-        powers.add(currentPower);
+      DRes<SReal> t = seq.realNumeric().div(seq.realNumeric().sub(x, BigDecimal.ONE),
+          seq.realNumeric().add(BigDecimal.ONE, x));
+      DRes<SReal> tSquared = seq.realNumeric().mult(t, t);
+
+      List<DRes<SReal>> powers = new ArrayList<>();
+
+      DRes<SReal> tp = tSquared;
+      powers.add(tp);
+      for (int i = 0; i < iterations - 2; i++) {
+        tp = seq.realNumeric().mult(tp, tSquared);
+        powers.add(tp);
       }
-      return () -> powers;
-    }).par((par, powers) -> {
-      List<DRes<SReal>> terms = powers.stream()
-          .map(
-              e -> par.realNumeric().mult(new BigDecimal(1.0 / (2 * powers.indexOf(e) + 1)), e))
-          .collect(Collectors.toList());
-      return () -> terms;
-    }).seq((seq, terms) -> {
-      return seq.realNumeric().mult(BigDecimal.valueOf(2.0), seq.realAdvanced().sum(terms));
-    });
+      return () -> new Pair<>(powers, t);
+    }).par((par, v) -> {
+
+      DRes<SReal> s = par.realNumeric().mult(TWO, v.getSecond());
+
+      List<DRes<SReal>> terms = new ArrayList<>();
+      terms.add(par.realNumeric().known(BigDecimal.ONE));
+      for (int i = 1; i < iterations; i++) {
+        terms.add(par.realNumeric().div(v.getFirst().get(i - 1), BigDecimal.valueOf(2 * i + 1)));
+      }
+      return () -> new Pair<>(terms, s);
+    }).seq((seq, v) -> seq.realNumeric().mult(v.getSecond(), seq.realAdvanced().sum(v.getFirst())));
+
   }
 
 }

@@ -8,6 +8,8 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.lib.generic.BroadcastComputation;
+import dk.alexandra.fresco.lib.generic.CommitmentComputation;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntConverter;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
@@ -52,7 +54,7 @@ public class Spdz2kMacCheckComputation<
     this.authenticatedElements = toCheck.getFirst();
     this.openValues = toCheck.getSecond();
     this.converter = converter;
-    this.serializer = resourcePool.getPlainSerializer();
+    this.serializer = resourcePool.getFactory().getSerializer();
     this.supplier = resourcePool.getDataSupplier();
     this.randomCoefficients = sampleCoefficients(
         resourcePool.getRandomGenerator(),
@@ -74,7 +76,7 @@ public class Spdz2kMacCheckComputation<
             List<byte[]> sharesLowBits = authenticatedElements.stream()
                 .map(element -> element.getShare().getLeastSignificant().toByteArray())
                 .collect(Collectors.toList());
-            return new BroadcastComputation<ProtocolBuilderNumeric>(sharesLowBits)
+            return new BroadcastComputation<ProtocolBuilderNumeric>(sharesLowBits, true)
                 .buildComputation(seq);
           } else {
             return () -> null;
@@ -128,7 +130,7 @@ public class Spdz2kMacCheckComputation<
         .subtract(mj)
         .subtract(p.multiply(macKeyShare).shiftLowIntoHigh())
         .add(r.getMacShare().shiftLowIntoHigh());
-    return new Spdz2kCommitmentComputation(commitmentSerializer, serializer.serialize(zj),
+    return new CommitmentComputation(commitmentSerializer, serializer.serialize(zj),
         noOfParties, localDrbg).buildComputation(builder);
   }
 
@@ -141,7 +143,7 @@ public class Spdz2kMacCheckComputation<
     for (int i = 0; i < numCoefficients; i++) {
       byte[] bytes = new byte[factory.getHighBitLength() / Byte.SIZE];
       drbg.nextBytes(bytes);
-      randomCoefficients.add(factory.createFromBytes(bytes));
+      randomCoefficients.add(factory.deserialize(bytes));
     }
     return randomCoefficients;
   }

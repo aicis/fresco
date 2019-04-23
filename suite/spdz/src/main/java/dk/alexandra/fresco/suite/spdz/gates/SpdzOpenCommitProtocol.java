@@ -1,39 +1,43 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigInteger>> {
+public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, FieldElement>> {
 
-  private SpdzCommitment commitment;
-  private Map<Integer, BigInteger> ss;
-  private Map<Integer, BigInteger> commitments;
+  private final FieldElement value;
+  private final byte[] randomness;
+  private final Map<Integer, FieldElement> ss;
+  private final Map<Integer, byte[]> commitments;
   private byte[] digest;
 
   /**
    * Protocol which opens a number of commitments and checks the validity of those.
    *
-   * @param commitment My own commitment.
+   * @param value My own value commitment.
+   * @param randomness My own commitment randomness.
    * @param commitments Other parties commitments.
    */
-  public SpdzOpenCommitProtocol(SpdzCommitment commitment,
-      Map<Integer, BigInteger> commitments) {
-    this.commitment = commitment;
+  public SpdzOpenCommitProtocol(
+      FieldElement value,
+      byte[] randomness,
+      Map<Integer, byte[]> commitments) {
+    this.value = value;
+    this.randomness = randomness;
     this.commitments = commitments;
     this.ss = new HashMap<>();
   }
 
   @Override
-  public Map<Integer, BigInteger> out() {
+  public Map<Integer, FieldElement> out() {
     return ss;
   }
 
@@ -41,13 +45,11 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       Network network) {
     int players = spdzResourcePool.getNoOfParties();
-    ByteSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
+    ByteSerializer<FieldElement> serializer = spdzResourcePool.getFieldDefinition();
     if (round == 0) {
       // Send your opening to all players
-      BigInteger value = this.commitment.getValue();
       network.sendToAll(serializer.serialize(value));
-      BigInteger randomness = this.commitment.getRandomness();
-      network.sendToAll(serializer.serialize(randomness));
+      network.sendToAll(randomness);
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
       // Receive openings from all parties and check they are valid
@@ -55,15 +57,15 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
       List<byte[]> randomnesses = network.receiveFromAll();
 
       boolean openingValidated = true;
-      BigInteger[] broadcastMessages = new BigInteger[2 * players];
+      byte[][] broadcastMessages = new byte[2 * players][];
       for (int i = 0; i < players; i++) {
-        BigInteger commitment = commitments.get(i + 1);
-        BigInteger open0 = serializer.deserialize(values.get(i));
-        BigInteger open1 = serializer.deserialize(randomnesses.get(i));
+        byte[] commitment = commitments.get(i + 1);
+        byte[] open0 = values.get(i);
+        byte[] open1 = randomnesses.get(i);
         boolean validate = checkCommitment(
             spdzResourcePool, commitment, open0, open1);
         openingValidated = openingValidated && validate;
-        ss.put(i, open0);
+        ss.put(i, serializer.deserialize(open0));
         broadcastMessages[i * 2] = open0;
         broadcastMessages[i * 2 + 1] = open1;
       }
@@ -90,13 +92,12 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
     }
   }
 
-  private boolean checkCommitment(SpdzResourcePool numericResourcePool, BigInteger commitment,
-      BigInteger value, BigInteger randomness) {
-    MessageDigest messageDigest = numericResourcePool.getMessageDigest();
-    messageDigest.update(value.toByteArray());
-    messageDigest.update(randomness.toByteArray());
-    BigInteger testSubject = new BigInteger(messageDigest.digest())
-        .mod(numericResourcePool.getModulus());
-    return commitment.equals(testSubject);
+  private boolean checkCommitment(SpdzResourcePool resourcePool, byte[] commitment,
+      byte[] value, byte[] randomness) {
+    MessageDigest messageDigest = resourcePool.getMessageDigest();
+    messageDigest.update(value);
+    messageDigest.update(randomness);
+    byte[] testSubject = messageDigest.digest();
+    return Arrays.equals(commitment, testSubject);
   }
 }

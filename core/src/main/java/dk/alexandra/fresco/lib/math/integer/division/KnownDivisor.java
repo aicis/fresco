@@ -4,10 +4,10 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import java.math.BigInteger;
-
 
 /**
  * This protocol is an implementation Euclidean division (finding quotient and remainder) on
@@ -32,20 +32,9 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
     this.divisor = divisor;
   }
 
-  private BigInteger convertRepresentation(BigInteger modulus, BigInteger modulusHalf,
-      BigInteger b) {
-    BigInteger actual = b.mod(modulus);
-    if (actual.compareTo(modulusHalf) > 0) {
-      actual = actual.subtract(modulus);
-    }
-    return actual;
-  }
-
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     BasicNumericContext basicNumericContext = builder.getBasicNumericContext();
-    BigInteger modulus = basicNumericContext.getModulus();
-    BigInteger modulusHalf = modulus.divide(BigInteger.valueOf(2));
     /*
      * We use the fact that if 2^{N+l} \leq m * d \leq 2^{N+l} + 2^l, then floor(x/d) = floor(x * m
      * >> N+l) for all x of length <= N (see Thm 4.2 of
@@ -62,7 +51,8 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
      * TODO: This should be handled differently because it will not necessarily work with another
      * arithmetic protocol suite.
      */
-    BigInteger signedDivisor = convertRepresentation(modulus, modulusHalf, divisor);
+    FieldDefinition fieldDefinition = basicNumericContext.getFieldDefinition();
+    BigInteger signedDivisor = fieldDefinition.convertToSigned(divisor);
     int divisorSign = signedDivisor.signum();
     BigInteger divisorAbs = signedDivisor.abs();
     int maxDivisorBitLength = basicNumericContext.getMaxBitLength() - 3;

@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.maccheck;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
@@ -9,15 +9,21 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.AbstractSpdzTest;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import java.math.BigInteger;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.Test;
 
 public class TestSpdzMacCheckTamperWithValues extends AbstractSpdzTest {
+
+  private static BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(
+      ModulusFinder.findSuitableModulus(8));
 
   @Test
   public void testModifyShare() {
@@ -57,7 +63,7 @@ public class TestSpdzMacCheckTamperWithValues extends AbstractSpdzTest {
             return producer.seq(seq -> {
               SInt value = input.out();
               if (seq.getBasicNumericContext().getMyId() == cheatingPartyId) {
-                value = ((SpdzSInt) value).multiply(BigInteger.valueOf(2));
+                value = ((SpdzSInt) value).multiply(definition.createElement(2));
               }
               final SInt finalSInt = value;
               return seq.numeric().open(() -> finalSInt);
@@ -66,11 +72,10 @@ public class TestSpdzMacCheckTamperWithValues extends AbstractSpdzTest {
           try {
             runApplication(app);
           } catch (Exception e) {
-            assertTrue(e.getCause() instanceof MaliciousException);
+            assertThat(e.getCause(), IsInstanceOf.instanceOf(MaliciousException.class));
           }
         }
       };
     }
   }
-
 }

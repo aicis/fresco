@@ -61,7 +61,6 @@ public class InputSumExample {
         new SecureComputationEngineImpl<>(psConf, util.getEvaluator());
 
     ResourcePoolT resourcePool = util.getResourcePool();
-    util.startNetwork();
     new InputSumExample().runApplication(sce, resourcePool, util.getNetwork());
     
     util.closeNetwork();

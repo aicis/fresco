@@ -1,8 +1,7 @@
 package dk.alexandra.fresco.framework.network.serializers;
 
-import java.util.List;
-
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import java.util.List;
 
 public class StrictBitVectorSerializer implements ByteSerializer<StrictBitVector> {
 
@@ -25,5 +24,4 @@ public class StrictBitVectorSerializer implements ByteSerializer<StrictBitVector
   public List<StrictBitVector> deserializeList(byte[] data) {
     throw new UnsupportedOperationException();
   }
-
 }

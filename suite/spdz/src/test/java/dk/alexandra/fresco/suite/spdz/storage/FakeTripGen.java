@@ -1,7 +1,10 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,13 +28,13 @@ import java.util.Random;
 /**
  * Generates "fake" offline data for SPDZ. I.e. correct offline data generated locally to increase
  * performance.
- * 
  */
 public class FakeTripGen {
 
   public static int EXP_PIPE_SIZE = 200 + 1; // R^-1, R, R^2, ..., R^200
 
-  private static BigInteger mod, alpha;
+  private static FieldDefinition definition;
+  private static FieldElement alpha;
   private static Random rand;
   private static boolean randKeyPresent = false;
   private static int size;
@@ -55,15 +58,15 @@ public class FakeTripGen {
   /**
    * Generates a byte representation of a SpdzSInt (i.e. a share and mac pair), that is
    * understood by the SpdzByteDataRetreiver.
-   * 
+   *
    * @param element the element to be converted.
    * @return a byte representation of the element.
    */
   public static ByteBuffer elementToBytes(SpdzSInt element, int size) {
-    BigInteger share = element.getShare();
-    byte[] shareBytes = share.toByteArray();
-    BigInteger mac = element.getMac();
-    byte[] macBytes = mac.toByteArray();
+    FieldElement share = element.getShare();
+    byte[] shareBytes = definition.convertToUnsigned(share).toByteArray();
+    FieldElement mac = element.getMac();
+    byte[] macBytes = definition.convertToUnsigned(mac).toByteArray();
     byte[] bytes = new byte[size * 2];
     if (shareBytes.length > size) {
       if (shareBytes.length == size + 1) {
@@ -90,13 +93,13 @@ public class FakeTripGen {
   }
 
   /**
-   * Generates a byte representation of a BigInteger as understood by the DataRetreiver.
-   * 
+   * Generates a byte representation of a FieldElement as understood by the DataRetreiver.
+   *
    * @param b a BigInteger.
    * @return a byte representation.
    */
-  public static ByteBuffer bigIntToBytes(BigInteger b, int size) {
-    byte[] bBytes = b.toByteArray();
+  public static ByteBuffer bigIntToBytes(FieldElement b, int size) {
+    byte[] bBytes = definition.convertToUnsigned(b).toByteArray();
     byte[] bytes = new byte[size];
     if (bBytes.length > size) {
       if (bBytes.length == size + 1) {
@@ -115,31 +118,26 @@ public class FakeTripGen {
   /**
    * Generates the given amount of triples. The list contains an array of size noOfParties - one
    * share for each party
-   * 
-   * @param amount
-   * @param noOfParties
-   * @param modulus
-   * @param alpha
-   * @return
    */
-  public static List<SpdzTriple[]> generateTriples(int amount, int noOfParties, BigInteger modulus,
-      BigInteger alpha) {
+  public static List<SpdzTriple[]> generateTriples(int amount, int noOfParties,
+      FieldDefinition definition,
+      FieldElement alpha) {
     FakeTripGen.rand = new Random();
     FakeTripGen.alpha = alpha;
-    FakeTripGen.mod = modulus;
+    FakeTripGen.definition = definition;
 
-    List<SpdzTriple[]> triples = new ArrayList<SpdzTriple[]>(amount);
+    List<SpdzTriple[]> triples = new ArrayList<>(amount);
     for (int i = 0; i < amount; i++) {
-      BigInteger a = sample();
-      BigInteger macA = getMac(a);
+      FieldElement a = sample();
+      FieldElement macA = getMac(a);
       List<SpdzSInt> elementsA = toShares(a, macA, noOfParties);
 
-      BigInteger b = sample();
-      BigInteger macB = getMac(b);
+      FieldElement b = sample();
+      FieldElement macB = getMac(b);
       List<SpdzSInt> elementsB = toShares(b, macB, noOfParties);
 
-      BigInteger c = b.multiply(a).mod(mod);
-      BigInteger macC = getMac(c);
+      FieldElement c = b.multiply(a);
+      FieldElement macC = getMac(c);
       List<SpdzSInt> elementsC = toShares(c, macC, noOfParties);
 
       SpdzTriple[] arr = new SpdzTriple[noOfParties];
@@ -154,33 +152,28 @@ public class FakeTripGen {
   /**
    * Generates the given amount of triples times however many streams are contained in the first
    * list. This method writes the triples directly to the given streams.
-   * 
-   * @param amount
-   * @param noOfParties
-   * @param modulus
-   * @param alpha
+   *
    * @param streams the streams to write to. Innermost list should have size of parties, while
-   *        outermost is per thread used online.
-   * @throws IOException
+   *     outermost is per thread used online.
    */
-  public void generateTripleStream(int amount, int noOfParties, BigInteger modulus,
-      BigInteger alpha, Random rand, List<List<ObjectOutputStream>> streams) throws IOException {
+  public void generateTripleStream(int amount, int noOfParties, FieldDefinition definition,
+      FieldElement alpha, Random rand, List<List<ObjectOutputStream>> streams) throws IOException {
     FakeTripGen.rand = rand;
     FakeTripGen.alpha = alpha;
-    FakeTripGen.mod = modulus;
+    FakeTripGen.definition = definition;
 
     for (List<ObjectOutputStream> ooss : streams) {
       for (int i = 0; i < amount; i++) {
-        BigInteger a = sample();
-        BigInteger macA = getMac(a);
+        FieldElement a = sample();
+        FieldElement macA = getMac(a);
         List<SpdzSInt> elementsA = toShares(a, macA, noOfParties);
 
-        BigInteger b = sample();
-        BigInteger macB = getMac(b);
+        FieldElement b = sample();
+        FieldElement macB = getMac(b);
         List<SpdzSInt> elementsB = toShares(b, macB, noOfParties);
 
-        BigInteger c = b.multiply(a).mod(mod);
-        BigInteger macC = getMac(c);
+        FieldElement c = b.multiply(a);
+        FieldElement macC = getMac(c);
         List<SpdzSInt> elementsC = toShares(c, macC, noOfParties);
 
         for (int j = 0; j < elementsA.size(); j++) {
@@ -202,24 +195,18 @@ public class FakeTripGen {
    * and contains a sharing of a single inputMask where player i has the real value. i changes in
    * the outer loop (list). This means that the inner list contains amount of inputMasks where he
    * knows the real value
-   * 
-   * @param amount
-   * @param noOfParties
-   * @param modulus
-   * @param alpha
-   * @return
    */
   public static List<List<SpdzInputMask[]>> generateInputMasks(int amount, int noOfParties,
-      BigInteger modulus, BigInteger alpha) {
+      FieldDefinition definition, FieldElement alpha) {
     FakeTripGen.rand = new Random(0);
     FakeTripGen.alpha = alpha;
-    FakeTripGen.mod = modulus;
+    FakeTripGen.definition = definition;
 
-    List<List<SpdzInputMask[]>> res = new ArrayList<List<SpdzInputMask[]>>(noOfParties);
+    List<List<SpdzInputMask[]>> res = new ArrayList<>(noOfParties);
     for (int currPId = 0; currPId < noOfParties; currPId++) {
-      List<SpdzInputMask[]> inputs = new ArrayList<SpdzInputMask[]>(amount);
+      List<SpdzInputMask[]> inputs = new ArrayList<>(amount);
       for (int i = 0; i < amount; i++) {
-        BigInteger mask = sample();
+        FieldElement mask = sample();
         List<SpdzSInt> elements = toShares(mask, getMac(mask), noOfParties);
         SpdzInputMask[] inputMasks = new SpdzInputMask[noOfParties];
         for (int pId = 0; pId < noOfParties; pId++) {
@@ -243,23 +230,18 @@ public class FakeTripGen {
    * Returns a list of a list of inputmasks. The innermost array is as large as noOfParties and
    * contains a sharing of a single inputMask where player {@code towardsPartyId} has the real
    * value.
-   * 
-   * @param amount
+   *
    * @param towardsPartyId Id starting from index 1.
-   * @param noOfParties
-   * @param modulus
-   * @param alpha
-   * @return
    */
   public static List<SpdzInputMask[]> generateInputMasks(int amount, int towardsPartyId,
-      int noOfParties, BigInteger modulus, BigInteger alpha) {
+      int noOfParties, FieldDefinition definition, FieldElement alpha) {
     FakeTripGen.rand = new Random(0);
     FakeTripGen.alpha = alpha;
-    FakeTripGen.mod = modulus;
+    FakeTripGen.definition = definition;
 
-    List<SpdzInputMask[]> inputs = new ArrayList<SpdzInputMask[]>(amount);
+    List<SpdzInputMask[]> inputs = new ArrayList<>(amount);
     for (int i = 0; i < amount; i++) {
-      BigInteger mask = sample();
+      FieldElement mask = sample();
       List<SpdzSInt> elements = toShares(mask, getMac(mask), noOfParties);
       SpdzInputMask[] inputMasks = new SpdzInputMask[noOfParties];
       for (int pId = 0; pId < noOfParties; pId++) {
@@ -281,27 +263,27 @@ public class FakeTripGen {
    * Generates input masks which can be used only if the party inputting has the same ID as the
    * inputterId in this method. This streams the data and writes directly to the given object output
    * stream.
-   * 
+   *
    * @param amount The amount of input masks to generate
    * @param noOfParties The number of parties in the MPC computation
    * @param inputterId The ID of the party inputting data
-   * @param modulus The modulus used
+   * @param definition The field definition
    * @param alpha The secret key used
    * @param rand The randomness used
    * @param streams The streams to write to. Innermost list should have size of parties, while
-   *        outermost is per thread used online.
-   * @throws IOException
+   *     outermost is per thread used online.
    */
   public void generateInputMaskStream(int amount, int noOfParties, int inputterId,
-      BigInteger modulus, BigInteger alpha, Random rand, List<List<ObjectOutputStream>> streams)
-          throws IOException {
+      FieldDefinition definition, FieldElement alpha, Random rand,
+      List<List<ObjectOutputStream>> streams)
+      throws IOException {
     FakeTripGen.rand = rand;
     FakeTripGen.alpha = alpha;
-    FakeTripGen.mod = modulus;
+    FakeTripGen.definition = definition;
 
     for (List<ObjectOutputStream> ooss : streams) {
       for (int i = 0; i < amount; i++) {
-        BigInteger mask = sample();
+        FieldElement mask = sample();
         List<SpdzSInt> elements = toShares(mask, getMac(mask), noOfParties);
         for (int pId = 0; pId < noOfParties; pId++) {
           SpdzSInt elm = elements.get(pId);
@@ -317,17 +299,18 @@ public class FakeTripGen {
     }
   }
 
-  public static List<SpdzSInt[]> generateBits(int amount, int noOfParties, BigInteger modulus,
-      BigInteger alpha) {
+  public static List<SpdzSInt[]> generateBits(int amount, int noOfParties,
+      FieldDefinition definition,
+      FieldElement alpha) {
     FakeTripGen.rand = new Random();
     FakeTripGen.alpha = alpha;
-    FakeTripGen.mod = modulus;
+    FakeTripGen.definition = definition;
 
-    BigInteger bit;
-    List<SpdzSInt[]> res = new ArrayList<SpdzSInt[]>();
+    FieldElement bit;
+    List<SpdzSInt[]> res = new ArrayList<>();
     for (int i = 0; i < amount; i++) {
-      bit = new BigInteger(1, rand);
-      BigInteger mac = getMac(bit);
+      bit = sampleRandomBits(1, rand);
+      FieldElement mac = getMac(bit);
       List<SpdzSInt> elements = toShares(bit, mac, noOfParties);
       SpdzSInt[] shares = new SpdzSInt[noOfParties];
       for (int j = 0; j < noOfParties; j++) {
@@ -340,27 +323,22 @@ public class FakeTripGen {
 
   /**
    * Writes secret shared bits directly to the given streams.
-   * 
-   * @param amount
-   * @param noOfParties
-   * @param modulus
-   * @param alpha
-   * @param rand
+   *
    * @param streams the streams to write to. Innermost list should have size of parties, while
-   *        outermost is per thread used online.
-   * @throws IOException
+   *     outermost is per thread used online.
    */
-  public void generateBitStream(int amount, int noOfParties, BigInteger modulus, BigInteger alpha,
+  public void generateBitStream(int amount, int noOfParties, FieldDefinition definition,
+      FieldElement alpha,
       Random rand, List<List<ObjectOutputStream>> streams) throws IOException {
     FakeTripGen.rand = rand;
     FakeTripGen.alpha = alpha;
-    FakeTripGen.mod = modulus;
+    FakeTripGen.definition = definition;
 
-    BigInteger bit;
+    FieldElement bit;
     for (List<ObjectOutputStream> ooss : streams) {
       for (int i = 0; i < amount; i++) {
-        bit = new BigInteger(1, rand);
-        BigInteger mac = getMac(bit);
+        bit = sampleRandomBits(1, rand);
+        FieldElement mac = getMac(bit);
         List<SpdzSInt> elements = toShares(bit, mac, noOfParties);
         for (int j = 0; j < noOfParties; j++) {
           ooss.get(j).writeObject(elements.get(j));
@@ -378,33 +356,29 @@ public class FakeTripGen {
   /**
    * Returns a list of double-arrays where the first array contains the expPipe for that player.
    * i.e. list.get(0)[0] contains the expPipe no. 1 for player 1.
-   * 
-   * @param amount
-   * @param noOfParties
-   * @param modulus
-   * @param alpha
-   * @return
    */
-  public static List<SpdzSInt[][]> generateExpPipes(int amount, int noOfParties, BigInteger modulus,
-      BigInteger alpha) {
+  public static List<SpdzSInt[][]> generateExpPipes(int amount, int noOfParties,
+      FieldDefinition definition,
+      FieldElement alpha) {
     FakeTripGen.rand = new Random(0);
     FakeTripGen.alpha = alpha;
-    FakeTripGen.mod = modulus;
+    FakeTripGen.definition = definition;
 
-    List<SpdzSInt[][]> res = new ArrayList<SpdzSInt[][]>();
+    List<SpdzSInt[][]> res = new ArrayList<>();
     for (int j = 0; j < amount; j++) {
       SpdzSInt[][] expPipe = new SpdzSInt[noOfParties][EXP_PIPE_SIZE];
-      BigInteger r = sample();
-      BigInteger rInv = r.modInverse(mod);
-      BigInteger mac = getMac(rInv);
+      FieldElement r = sample();
+      FieldElement rInv = definition.createElement(
+          definition.convertToUnsigned(r).modInverse(definition.getModulus()));
+      FieldElement mac = getMac(rInv);
       List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
       for (int i = 0; i < noOfParties; i++) {
         expPipe[i][0] = elements.get(i);
       }
 
-      BigInteger exp = BigInteger.ONE;
+      FieldElement exp = definition.createElement(1);
       for (int i = 1; i < EXP_PIPE_SIZE; i++) {
-        exp = exp.multiply(r).mod(mod);
+        exp = exp.multiply(r);
         mac = getMac(exp);
         elements = toShares(exp, mac, noOfParties);
         for (int p = 0; p < noOfParties; p++) {
@@ -416,26 +390,27 @@ public class FakeTripGen {
     return res;
   }
 
-  public void generateExpPipeStream(int amount, int noOfParties, BigInteger modulus,
-      BigInteger alpha, Random rand, List<List<ObjectOutputStream>> streams) throws IOException {
+  public void generateExpPipeStream(int amount, int noOfParties, FieldDefinition definition,
+      FieldElement alpha, Random rand, List<List<ObjectOutputStream>> streams) throws IOException {
     FakeTripGen.rand = rand;
     FakeTripGen.alpha = alpha;
-    FakeTripGen.mod = modulus;
+    FakeTripGen.definition = definition;
 
     for (List<ObjectOutputStream> ooss : streams) {
       for (int j = 0; j < amount; j++) {
         SpdzSInt[][] expPipe = new SpdzSInt[noOfParties][EXP_PIPE_SIZE];
-        BigInteger r = sample();
-        BigInteger rInv = r.modInverse(mod);
-        BigInteger mac = getMac(rInv);
+        FieldElement r = sample();
+        FieldElement rInv = definition.createElement(
+            definition.convertToUnsigned(r).modInverse(definition.getModulus()));
+        FieldElement mac = getMac(rInv);
         List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
         for (int i = 0; i < noOfParties; i++) {
           expPipe[i][0] = elements.get(i);
         }
 
-        BigInteger exp = BigInteger.ONE;
+        FieldElement exp = definition.createElement(1);
         for (int i = 1; i < EXP_PIPE_SIZE; i++) {
-          exp = exp.multiply(r).mod(mod);
+          exp = exp.multiply(r);
           mac = getMac(exp);
           elements = toShares(exp, mac, noOfParties);
           for (int p = 0; p < noOfParties; p++) {
@@ -455,13 +430,14 @@ public class FakeTripGen {
     }
   }
 
-  public static List<BigInteger> generateAlphaShares(int noOfParties, BigInteger modulus) {
+  public static List<FieldElement> generateAlphaShares(int noOfParties,
+      FieldDefinition definition) {
     FakeTripGen.rand = new Random();
-    FakeTripGen.mod = modulus;
+    FakeTripGen.definition = definition;
 
-    List<BigInteger> alphaShares = new ArrayList<BigInteger>();
-    BigInteger alphaShare;
-    BigInteger lastShare = sample();
+    List<FieldElement> alphaShares = new ArrayList<>();
+    FieldElement alphaShare;
+    FieldElement lastShare = sample();
     for (int i = 0; i < noOfParties; i++) {
       // Share stuff
       alphaShare = sample();
@@ -470,7 +446,7 @@ public class FakeTripGen {
       } else {
         alphaShares.add(lastShare);
       }
-      lastShare = lastShare.subtract(alphaShare).mod(mod);
+      lastShare = lastShare.subtract(alphaShare);
     }
     return alphaShares;
   }
@@ -479,7 +455,7 @@ public class FakeTripGen {
    * Generates offline data and writes it to a file according to the given arguments. The needed
    * arguments should be explained by running the method without any arguments. (They included the
    * number of data items to be produced, where to write the corresponding files and so on).
-   * 
+   *
    * @param args arguments to the offline data generator
    * @throws IOException If something goes wrong during writing to disk.
    */
@@ -492,12 +468,12 @@ public class FakeTripGen {
       }
       alpha = sample();
       size = 0;
-      byte[] bytes = mod.toByteArray();
+      byte[] bytes = definition.getModulus().toByteArray();
 
       if (bytes[0] == 0) {
-        size = mod.toByteArray().length - 1;
+        size = definition.getModulus().toByteArray().length - 1;
       } else {
-        size = mod.toByteArray().length;
+        size = definition.getModulus().toByteArray().length;
       }
 
       bytes = null;
@@ -521,7 +497,7 @@ public class FakeTripGen {
 
   /**
    * Handles arguments and writes helpful messages if the arguments are insufficient.
-   * 
+   *
    * @param args the arguments given to the main method.
    * @return true if the arguments could be parsed, false otherwise.
    */
@@ -553,7 +529,7 @@ public class FakeTripGen {
       String key = arg.substring(0, 3);
       String value = arg.substring(3);
       if (key.equals(primeKey)) {
-        mod = new BigInteger(value);
+        definition = new BigIntegerFieldDefinition(value);
         primePresent = true;
       } else if (key.equals(tripKey)) {
         numberOfTriples = Integer.parseInt(value);
@@ -618,12 +594,10 @@ public class FakeTripGen {
 
   /**
    * Generates triples and writes them the appropriate file.
-   * 
-   * @throws IOException
    */
   public static void writeTriples() throws IOException {
-    BigInteger a, b, c;
-    List<FileChannel> channels = new LinkedList<FileChannel>();
+    FieldElement a, b, c;
+    List<FileChannel> channels = new LinkedList<>();
     for (int i = 0; i < numberOfParties; i++) {
       File f = new File(triplesFilename + i);
       if (!f.exists()) {
@@ -637,7 +611,7 @@ public class FakeTripGen {
     for (int i = 0; i < numberOfTriples; i++) {
       a = sample();
       b = sample();
-      c = b.multiply(a).mod(mod);
+      c = b.multiply(a);
       writeAsShared(a, channels);
       writeAsShared(b, channels);
       writeAsShared(c, channels);
@@ -648,28 +622,27 @@ public class FakeTripGen {
   }
 
   /**
-   * Generates a SPDZ sharing (with macs) of a BigInteger value. Then writes each generated element
+   * Generates a SPDZ sharing (with macs) of a FieldElement value. Then writes each generated
+   * element
    * to a separate file (i.e. one for each party).
-   * 
+   *
    * @param b a BigInteger
-   * @param channels a FileChannel for each file to write to. This should include a channel for each
-   *        party.
-   * @throws IOException
+   * @param channels a FileChannel for each file to write to. This should include a channel for
+   *     each
+   *     party.
    */
-  private static void writeAsShared(BigInteger b, List<FileChannel> channels) throws IOException {
-    BigInteger mac = getMac(b);
+  private static void writeAsShared(FieldElement b, List<FileChannel> channels) throws IOException {
+    FieldElement mac = getMac(b);
     List<SpdzSInt> elements = toShares(b, mac, numberOfParties);
     writeElements(elements, channels);
   }
 
   /**
    * Generates SPDZ sharing of bits and writes them to the appropriate files.
-   * 
-   * @throws IOException
    */
   public static void writeBits() throws IOException {
-    BigInteger bit;
-    List<FileChannel> channels = new LinkedList<FileChannel>();
+    FieldElement bit;
+    List<FileChannel> channels = new LinkedList<>();
     for (int i = 0; i < numberOfParties; i++) {
       File f = new File(bitsFilename + i);
       @SuppressWarnings("resource")
@@ -678,7 +651,7 @@ public class FakeTripGen {
       channels.add(fc);
     }
     for (int i = 0; i < numberOfBits; i++) {
-      bit = new BigInteger(1, rand);
+      bit = sampleRandomBits(1, rand);
       writeAsShared(bit, channels);
     }
     for (FileChannel fc : channels) {
@@ -688,14 +661,12 @@ public class FakeTripGen {
 
   /**
    * Generates SPDZ sharing of input masks and writes them to the appropriate files.
-   * 
-   * @throws IOException
    */
   public static void writeInputs() throws IOException {
-    BigInteger mask;
+    FieldElement mask;
     for (int j = 0; j < numberOfParties; j++) {
       FileChannel selfChannel = null;
-      List<FileChannel> channels = new LinkedList<FileChannel>();
+      List<FileChannel> channels = new LinkedList<>();
       for (int i = 0; i < numberOfParties; i++) {
         File f = new File(inputsFilename + i + '-' + j);
         @SuppressWarnings("resource")
@@ -730,49 +701,46 @@ public class FakeTripGen {
   /**
    * Generates the SPDZ global information (modulus and key-share) and writes to a file. Note: these
    * are in text, not byte format.
-   * 
-   * @throws IOException
    */
   public static void writeGlobal() throws IOException {
-    BigInteger alphaShare;
-    BigInteger lastShare = alpha;
+    FieldElement alphaShare;
+    FieldElement lastShare = alpha;
     for (int i = 0; i < numberOfParties; i++) {
       // File stuff
       File f = new File(globalFilename + i);
       FileWriter fw = new FileWriter(f);
       // Share stuff
       alphaShare = sample();
-      fw.write(mod.toString());
+      fw.write(definition.getModulus().toString());
       fw.write(" ");
       if (i != numberOfParties - 1) {
         fw.write(alphaShare.toString());
       } else {
         fw.write(lastShare.toString());
       }
-      lastShare = lastShare.subtract(alphaShare).mod(mod);
+      lastShare = lastShare.subtract(alphaShare);
       fw.close();
     }
   }
 
   /**
    * Generates SPDZ sharings of the exp pipes and writes to the appropriate files.
-   * 
-   * @throws IOException
    */
   public static void writeExp() throws IOException {
-    List<FileChannel> channels = new LinkedList<FileChannel>();
+    List<FileChannel> channels = new LinkedList<>();
     for (int i = 0; i < numberOfParties; i++) {
       Path expPath = Paths.get(expPipeFilename + i);
       FileChannel fc = FileChannel.open(expPath, WRITE, CREATE);
       channels.add(fc);
     }
     for (int j = 0; j < numberOfExps; j++) {
-      BigInteger r = sample();
-      BigInteger rInv = r.modInverse(mod);
+      FieldElement r = sample();
+      FieldElement rInv = definition.createElement(
+          definition.convertToUnsigned(r).modInverse(definition.getModulus()));
       writeAsShared(rInv, channels);
-      BigInteger exp = BigInteger.ONE;
+      FieldElement exp = definition.createElement(1);
       for (int i = 1; i < EXP_PIPE_SIZE; i++) {
-        exp = exp.multiply(r).mod(mod);
+        exp = exp.multiply(r);
         writeAsShared(exp, channels);
       }
     }
@@ -783,10 +751,9 @@ public class FakeTripGen {
 
   /**
    * Writes the SpdzElements associated with a SPDZ sharing to the appropriate files.
-   * 
+   *
    * @param elements elements of a SPDZ sharing
    * @param channels channels to the appropriate files (i.e. one for each player)
-   * @throws IOException
    */
   private static void writeElements(List<SpdzSInt> elements, List<FileChannel> channels)
       throws IOException {
@@ -799,50 +766,55 @@ public class FakeTripGen {
 
   /**
    * Generates the SPDZ sharing of a value and its mac
-   * 
+   *
    * @param value the value to share
    * @param mac the mac on the value
    * @param numberOfParties the number of parties
    * @return a list of SpdzElements giving the SPDZ sharing
    */
-  private static List<SpdzSInt> toShares(BigInteger value, BigInteger mac, int numberOfParties) {
-    List<SpdzSInt> elements = new ArrayList<SpdzSInt>(numberOfParties);
-    BigInteger valShare;
-    BigInteger macShare;
+  private static List<SpdzSInt> toShares(FieldElement value, FieldElement mac,
+      int numberOfParties) {
+    List<SpdzSInt> elements = new ArrayList<>(numberOfParties);
+    FieldElement valShare;
+    FieldElement macShare;
     for (int i = 0; i < numberOfParties - 1; i++) {
       valShare = sample();
       macShare = sample();
-      value = value.subtract(valShare).mod(mod);
-      mac = mac.subtract(macShare).mod(mod);
-      elements.add(new SpdzSInt(valShare, macShare, FakeTripGen.mod));
+
+      value = value.subtract(valShare);
+      mac = mac.subtract(macShare);
+      elements.add(new SpdzSInt(valShare, macShare));
     }
-    elements.add(new SpdzSInt(value, mac, FakeTripGen.mod));
+    elements.add(new SpdzSInt(value, mac));
     return elements;
   }
 
   /**
    * Get a SPDZ mac on a given value
-   * 
+   *
    * @param value the value to be maced
    * @return the mac
    */
-  private static BigInteger getMac(BigInteger value) {
-    return value.multiply(alpha).mod(mod);
+  private static FieldElement getMac(FieldElement value) {
+    return value.multiply(alpha);
   }
 
   /**
    * Sample a uniformly random integer in the range {0 ... mod}.
-   * 
+   *
    * @return a random integer.
    */
-  private static BigInteger sample() {
-    BigInteger result = new BigInteger(mod.bitLength(), rand);
-    if (result.compareTo(mod) >= 0) {
-      result = null;
-      return sample();
-    } else {
+  private static FieldElement sample() {
+    FieldElement result = sampleRandomBits(definition.getModulus().bitLength(), rand);
+    if (definition.convertToUnsigned(result).compareTo(definition.getModulus()) < 0) {
       return result;
+    } else {
+      return sample();
     }
+  }
+
+  private static FieldElement sampleRandomBits(int bitLength, Random rand) {
+    return definition.createElement(new BigInteger(bitLength, rand));
   }
 
   public static void cleanup() throws IOException {

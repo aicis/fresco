@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.AsyncNetwork;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
@@ -98,7 +98,7 @@ public abstract class AbstractDummyBooleanTest {
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new ResourcePoolImpl(playerId, noOfParties), () -> {
             Network network;
-            network = new AsyncNetwork(partyNetConf);
+            network = new SocketNetwork(partyNetConf);
             if (logPerformance) {
               network = new NetworkLoggingDecorator(network);
               aggregate.add((PerformanceLogger) network);

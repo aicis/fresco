@@ -1,8 +1,9 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -23,22 +24,20 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger>
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       Network network) {
 
-    ByteSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
+    FieldDefinition definition = spdzResourcePool.getFieldDefinition();
     if (round == 0) {
       SpdzSInt out = (SpdzSInt) in.out();
-      network.sendToAll(serializer.serialize(out.getShare()));
+      network.sendToAll((out.serializeShare(definition)));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       List<byte[]> shares = network.receiveFromAll();
-      BigInteger openedVal = BigInteger.valueOf(0);
-      for (byte[] buffer : shares) {
-        openedVal = openedVal.add(serializer.deserialize(buffer));
+      FieldElement openedVal = definition.deserialize(shares.get(0));
+      for (int i = 1; i < shares.size(); i++) {
+        byte[] buffer = shares.get(i);
+        openedVal = openedVal.add(definition.deserialize(buffer));
       }
-      openedVal = openedVal.mod(spdzResourcePool.getModulus());
       spdzResourcePool.getOpenedValueStore().pushOpenedValue(((SpdzSInt) in.out()), openedVal);
-      BigInteger tmpOut = openedVal;
-      tmpOut = spdzResourcePool.convertRepresentation(tmpOut);
-      this.out = tmpOut;
+      this.out = definition.convertToUnsigned(openedVal);
       return EvaluationStatus.IS_DONE;
     }
   }

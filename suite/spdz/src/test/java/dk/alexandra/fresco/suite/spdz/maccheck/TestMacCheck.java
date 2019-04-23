@@ -5,15 +5,19 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestDivision;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
@@ -35,6 +39,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class TestMacCheck {
+
+  private BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(
+      ModulusFinder.findSuitableModulus(512));
 
   @Test
   public void testMacCorrupt() throws Exception {
@@ -85,7 +92,7 @@ public class TestMacCheck {
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce, () -> createResourcePool(playerId,
               noOfParties, new Random(), new SecureRandom(), corruptMac),
-              () -> new AsyncNetwork(netConf.get(playerId)));
+              () -> new SocketNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
@@ -93,11 +100,14 @@ public class TestMacCheck {
 
   private SpdzResourcePool createResourcePool(int myId, int size, Random rand, SecureRandom secRand,
       boolean corruptMac) {
+    BigInteger modulus = ModulusFinder.findSuitableModulus(512);
     SpdzDataSupplier supplier;
     if (myId == 1 && corruptMac) {
-      supplier = new DummyMaliciousDataSupplier(myId, size);
+      supplier = new DummyMaliciousDataSupplier(myId, size,
+          new BigIntegerFieldDefinition(modulus.toString()), modulus);
     } else {
-      supplier = new SpdzDummyDataSupplier(myId, size);
+      supplier = new SpdzDummyDataSupplier(myId, size,
+          new BigIntegerFieldDefinition(modulus), modulus);
     }
     return new SpdzResourcePoolImpl(myId, size, new SpdzOpenedValueStoreImpl(), supplier,
         new AesCtrDrbg(new byte[32]));
@@ -107,8 +117,9 @@ public class TestMacCheck {
 
     int maliciousCountdown = 10;
 
-    DummyMaliciousDataSupplier(int myId, int numberOfPlayers) {
-      super(myId, numberOfPlayers);
+    DummyMaliciousDataSupplier(int myId, int numberOfPlayers, FieldDefinition fieldDefinition,
+        BigInteger secretSharedKey) {
+      super(myId, numberOfPlayers, fieldDefinition, secretSharedKey);
     }
 
     @Override
@@ -116,13 +127,12 @@ public class TestMacCheck {
       maliciousCountdown--;
       SpdzTriple trip = super.getNextTriple();
       if (maliciousCountdown == 0) {
-        BigInteger share = trip.getA().getShare();
-        share = share.add(BigInteger.ONE);
-        SpdzSInt newA = new SpdzSInt(share, trip.getA().getMac(), getModulus());
+        FieldElement share = trip.getA().getShare();
+        share.add(definition.createElement(1));
+        SpdzSInt newA = new SpdzSInt(share, trip.getA().getMac());
         trip = new SpdzTriple(newA, trip.getB(), trip.getC());
       }
       return trip;
     }
-
   }
 }

@@ -9,8 +9,10 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialStrategy;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
@@ -23,6 +25,8 @@ import org.junit.Test;
 
 public class TestSecureComputationEngineImpl {
 
+  private final BigIntegerFieldDefinition fieldDefinition = new BigIntegerFieldDefinition(
+      ModulusFinder.findSuitableModulus(8));
   private SecureComputationEngineImpl<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce;
 
   /**
@@ -31,7 +35,7 @@ public class TestSecureComputationEngineImpl {
   @Before
   public void setup() {
     DummyArithmeticProtocolSuite suite =
-        new DummyArithmeticProtocolSuite(BigInteger.valueOf(101), 2, 0);
+        new DummyArithmeticProtocolSuite(fieldDefinition, 2, 0);
     ProtocolEvaluator<DummyArithmeticResourcePool> evaluator =
         new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
     sce = new SecureComputationEngineImpl<>(suite, evaluator);
@@ -53,7 +57,22 @@ public class TestSecureComputationEngineImpl {
           return builder.numeric().open(builder.numeric().add(a, b));
         };
     DummyArithmeticResourcePool rp =
-        new DummyArithmeticResourcePoolImpl(0, 1, BigInteger.valueOf(101));
+        new DummyArithmeticResourcePoolImpl(0, 1, fieldDefinition);
+
+    BigInteger b = sce.runApplication(app, rp, null);
+    assertThat(b, is(BigInteger.valueOf(20)));
+  }
+
+  @Test
+  public void testRunApplicationLong() {
+    Application<BigInteger, ProtocolBuilderNumeric> app =
+        builder -> {
+          DRes<SInt> a = builder.numeric().known(10L);
+          DRes<SInt> b = builder.numeric().known(10L);
+          return builder.numeric().open(builder.numeric().add(a, b));
+        };
+    DummyArithmeticResourcePool rp =
+        new DummyArithmeticResourcePoolImpl(0, 1, fieldDefinition);
 
     BigInteger b = sce.runApplication(app, rp, null);
     assertThat(b, is(BigInteger.valueOf(20)));
@@ -66,7 +85,7 @@ public class TestSecureComputationEngineImpl {
           throw new RuntimeException();
         };
     DummyArithmeticResourcePool rp =
-        new DummyArithmeticResourcePoolImpl(0, 1, BigInteger.valueOf(101));
+        new DummyArithmeticResourcePoolImpl(0, 1, fieldDefinition);
     sce.runApplication(app, rp, null);
     fail("Should not be reachable");
   }
@@ -80,7 +99,7 @@ public class TestSecureComputationEngineImpl {
           }
         };
     DummyArithmeticResourcePool rp =
-        new DummyArithmeticResourcePoolImpl(0, 1, BigInteger.valueOf(101));
+        new DummyArithmeticResourcePoolImpl(0, 1, fieldDefinition);
     sce.runApplication(app, rp, null, Duration.ofNanos(1));
     fail("Should not be reachable");
   }
@@ -92,5 +111,4 @@ public class TestSecureComputationEngineImpl {
   public void tearDown() {
     sce.shutdownSCE();
   }
-
 }

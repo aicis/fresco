@@ -1,11 +1,13 @@
 package dk.alexandra.fresco.tools.mascot.mult;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +25,7 @@ public class MultiplyLeftHelper {
 
   public MultiplyLeftHelper(MascotResourcePool resourcePool, Network network, int otherId) {
     this.resourcePool = resourcePool;
-    this.fieldElementUtils = new FieldElementUtils(resourcePool.getModulus());
+    this.fieldElementUtils = new FieldElementUtils(resourcePool.getFieldDefinition());
     this.rot = resourcePool.createRot(otherId, network);
   }
 
@@ -34,14 +36,21 @@ public class MultiplyLeftHelper {
    * @param seedLength the length of the seeds that the ROT produces
    * @return list of seeds to prgs
    */
-  public List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors,
-      int seedLength) {
-    StrictBitVector packedFactors = fieldElementUtils.pack(leftFactors,
-        true);
+  public List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors, int seedLength) {
+    FieldDefinition fieldDefinition = resourcePool.getFieldDefinition();
+    StrictBitVector packedFactors =
+        new StrictBitVector(fieldDefinition.serialize(reversed(leftFactors)));
     // use rot to get choice seeds
     List<StrictBitVector> seeds = rot.receive(packedFactors, seedLength);
     Collections.reverse(seeds);
     return seeds;
+  }
+
+  private List<FieldElement> reversed(List<FieldElement> leftFactors) {
+    List<FieldElement> elements = leftFactors;
+    elements = new ArrayList<>(elements);
+    Collections.reverse(elements);
+    return elements;
   }
 
   public List<StrictBitVector> generateSeeds(FieldElement leftFactor, int seedLength) {
@@ -58,15 +67,20 @@ public class MultiplyLeftHelper {
    */
   public List<FieldElement> computeProductShares(List<FieldElement> leftFactors,
       List<FieldElement> feSeeds, List<FieldElement> diffs) {
+    final FieldElement zeroElement =
+        resourcePool.getFieldDefinition().createElement(BigInteger.ZERO);
     List<FieldElement> result = new ArrayList<>(leftFactors.size());
     int diffIdx = 0;
     for (FieldElement leftFactor : leftFactors) {
+      StrictBitVector currentBits = resourcePool.getFieldDefinition()
+          .convertToBitVector(leftFactor);
       List<FieldElement> summands = new ArrayList<>(resourcePool.getModBitLength());
       for (int b = 0; b < resourcePool.getModBitLength(); b++) {
         FieldElement feSeed = feSeeds.get(diffIdx);
         FieldElement diff = diffs.get(diffIdx);
-        boolean bit = leftFactor.getBit(b);
-        FieldElement summand = diff.select(bit).add(feSeed);
+        boolean bit = currentBits.getBit(b, true);
+        FieldElement select = bit ? diff : zeroElement;
+        FieldElement summand = select.add(feSeed);
         summands.add(summand);
         diffIdx++;
       }
@@ -75,5 +89,4 @@ public class MultiplyLeftHelper {
     }
     return result;
   }
-
 }

@@ -26,7 +26,7 @@ public class TestUInt32 {
 
   @Test
   public void negate() {
-    Assert.assertEquals(-42, left.negate().toInt());
+    Assert.assertEquals(-42, left.negateUInt().toInt());
   }
 
   @Test

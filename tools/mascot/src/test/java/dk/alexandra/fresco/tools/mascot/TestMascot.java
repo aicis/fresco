@@ -1,14 +1,15 @@
 package dk.alexandra.fresco.tools.mascot;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 
-import dk.alexandra.fresco.tools.mascot.arithm.Addable;
+import dk.alexandra.fresco.framework.builder.numeric.Addable;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.InputMask;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,8 +18,8 @@ import org.junit.Test;
 
 public class TestMascot extends NetworkedTest {
 
-  private final FieldElement macKeyShareOne = new FieldElement(11231, getModulus());
-  private final FieldElement macKeyShareTwo = new FieldElement(7719, getModulus());
+  private final FieldElement macKeyShareOne = getFieldDefinition().createElement(11231);
+  private final FieldElement macKeyShareTwo = getFieldDefinition().createElement(7719);
 
   private List<MultiplicationTriple> runTripleGen(MascotTestContext ctx, FieldElement macKeyShare,
       int numTriples) {
@@ -71,7 +72,8 @@ public class TestMascot extends NetworkedTest {
     assertEquals(results.get(1).size(), 1);
     List<MultiplicationTriple> combined = Addable.sumRows(results);
     for (MultiplicationTriple triple : combined) {
-      CustomAsserts.assertTripleIsValid(triple, macKeyShareOne.add(macKeyShareTwo));
+      CustomAsserts
+          .assertTripleIsValid(getFieldDefinition(), triple, macKeyShareOne.add(macKeyShareTwo));
     }
   }
 
@@ -90,7 +92,8 @@ public class TestMascot extends NetworkedTest {
     assertEquals(results.get(1).size(), 1);
     AuthenticatedElement recombined = Addable.sumRows(results).get(0);
     // sanity check
-    assertFalse(recombined.getShare().isZero());
+    BigInteger opened = getFieldDefinition().convertToUnsigned(recombined.getShare());
+    assertNotEquals(BigInteger.ZERO, opened);
   }
 
   @Test
@@ -109,7 +112,7 @@ public class TestMascot extends NetworkedTest {
 
     AuthenticatedElement bit = results.get(0).get(0).add(results.get(1).get(0));
     FieldElement actualBit = bit.getShare();
-    CustomAsserts.assertFieldElementIsBit(actualBit);
+    CustomAsserts.assertFieldElementIsBit(getFieldDefinition(), actualBit);
   }
 
   @Test
@@ -133,11 +136,11 @@ public class TestMascot extends NetworkedTest {
     for (int i = 0; i < leftMasks.size(); i++) {
       InputMask left = leftMasks.get(i);
       InputMask right = rightMasks.get(i);
-      assertTrue(right.getOpenValue() == null);
+      assertNull(right.getOpenValue());
       AuthenticatedElement recombined = left.getMaskShare().add(right.getMaskShare());
       AuthenticatedElement expected = new AuthenticatedElement(left.getOpenValue(),
-          left.getOpenValue().multiply(macKey), getModulus());
-      CustomAsserts.assertEquals(expected, recombined);
+          left.getOpenValue().multiply(macKey));
+      CustomAsserts.assertEquals(getFieldDefinition(), expected, recombined);
     }
 
   }
@@ -147,7 +150,7 @@ public class TestMascot extends NetworkedTest {
     // set up runtime environment and get contexts
     initContexts(2);
 
-    FieldElement input = new FieldElement(12345, getModulus());
+    FieldElement input = getFieldDefinition().createElement(12345);
 
     // define per party task with params
     List<Callable<List<AuthenticatedElement>>> tasks = new ArrayList<>();
@@ -161,18 +164,18 @@ public class TestMascot extends NetworkedTest {
         Addable.sumRows(results);
     FieldElement actualRecombinedValue = combined.get(0).getShare();
     FieldElement actualRecombinedMac = combined.get(0).getMac();
-    CustomAsserts.assertEquals(input, actualRecombinedValue);
+    CustomAsserts.assertEquals(getFieldDefinition(), input, actualRecombinedValue);
     FieldElement expectedMac = input.multiply(macKeyShareOne.add(macKeyShareTwo));
-    CustomAsserts.assertEquals(expectedMac, actualRecombinedMac);
+    CustomAsserts.assertEquals(getFieldDefinition(), expectedMac, actualRecombinedMac);
   }
 
   @Test
   public void testTripleDifferentModBiLength() {
     // set up runtime environment and get contexts
-    initContexts(2, new MascotSecurityParameters(8, 8, 256, 3));
+    initContexts(2, 8, new MascotSecurityParameters(8, 256, 3));
 
-    FieldElement macKeyShareOne = new FieldElement(111, getModulus());
-    FieldElement macKeyShareTwo = new FieldElement(212, getModulus());
+    FieldElement macKeyShareOne = getFieldDefinition().createElement(111);
+    FieldElement macKeyShareTwo = getFieldDefinition().createElement(212);
 
     // define per party task with params
     List<Callable<List<MultiplicationTriple>>> tasks = new ArrayList<>();
@@ -184,7 +187,8 @@ public class TestMascot extends NetworkedTest {
     assertEquals(results.get(1).size(), 1);
     List<MultiplicationTriple> combined = Addable.sumRows(results);
     for (MultiplicationTriple triple : combined) {
-      CustomAsserts.assertTripleIsValid(triple, macKeyShareOne.add(macKeyShareTwo));
+      CustomAsserts
+          .assertTripleIsValid(getFieldDefinition(), triple, macKeyShareOne.add(macKeyShareTwo));
     }
   }
 

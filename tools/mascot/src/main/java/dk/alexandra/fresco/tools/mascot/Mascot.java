@@ -1,13 +1,13 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import dk.alexandra.fresco.framework.builder.numeric.Addable;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import dk.alexandra.fresco.tools.mascot.bit.BitConverter;
 import dk.alexandra.fresco.tools.mascot.cointossing.CoinTossingMpc;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.InputMask;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.mascot.online.OnlinePhase;
@@ -39,7 +39,8 @@ public class Mascot {
     // agree on joint seed
     StrictBitVector jointSeed = new CoinTossingMpc(resourcePool, network)
         .generateJointSeed(resourcePool.getPrgSeedLength());
-    FieldElementPrg jointSampler = new FieldElementPrgImpl(jointSeed);
+    FieldElementPrg jointSampler = new FieldElementPrgImpl(jointSeed,
+        resourcePool.getFieldDefinition());
     this.elementGeneration =
         new ElementGeneration(resourcePool, network, macKeyShare, jointSampler);
     this.tripleGeneration =
@@ -93,8 +94,7 @@ public class Mascot {
         resourcePool.getNoOfParties());
     for (int partyId = 1; partyId <= resourcePool.getNoOfParties(); partyId++) {
       if (partyId == resourcePool.getMyId()) {
-        List<FieldElement> randomElements = resourcePool.getLocalSampler()
-            .getNext(resourcePool.getModulus(), numElements);
+        List<FieldElement> randomElements = resourcePool.getLocalSampler().getNext(numElements);
         perPartyElements.add(elementGeneration.input(randomElements));
       } else {
         perPartyElements.add(elementGeneration.input(partyId, numElements));
@@ -112,8 +112,7 @@ public class Mascot {
    */
   public List<InputMask> getInputMasks(Integer maskerId, int numMasks) {
     if (maskerId.equals(resourcePool.getMyId())) {
-      List<FieldElement> randomMasks = resourcePool.getLocalSampler()
-          .getNext(resourcePool.getModulus(), numMasks);
+      List<FieldElement> randomMasks = resourcePool.getLocalSampler().getNext(numMasks);
       List<AuthenticatedElement> authenticated = input(randomMasks);
       return IntStream.range(0, numMasks)
           .mapToObj(idx -> new InputMask(randomMasks.get(idx), authenticated.get(idx)))
@@ -133,5 +132,4 @@ public class Mascot {
   public List<AuthenticatedElement> getRandomBits(int numBits) {
     return bitConverter.convertToBits(getRandomElements(numBits));
   }
-
 }

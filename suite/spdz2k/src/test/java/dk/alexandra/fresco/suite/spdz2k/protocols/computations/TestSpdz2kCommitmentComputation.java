@@ -10,9 +10,10 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.lib.generic.CommitmentComputation;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz2k.AbstractSpdz2kTest;
-import dk.alexandra.fresco.suite.spdz2k.Spdz2kProtocolSuite128;
+import dk.alexandra.fresco.suite.spdz2k.Spdz2kProtocolSuiteK64;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128Factory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
@@ -56,7 +57,7 @@ public class TestSpdz2kCommitmentComputation extends
 
   @Override
   protected ProtocolSuiteNumeric<Spdz2kResourcePool<CompUInt128>> createProtocolSuite() {
-    return new Spdz2kProtocolSuite128();
+    return new Spdz2kProtocolSuiteK64();
   }
 
   private static class TestCommitment<ResourcePoolT extends Spdz2kResourcePool<CompUInt128>>
@@ -76,7 +77,7 @@ public class TestSpdz2kCommitmentComputation extends
             inputs.add(bytes);
           }
           Application<List<byte[]>, ProtocolBuilderNumeric> testApplication =
-              root -> new Spdz2kCommitmentComputation(
+              root -> new CommitmentComputation(
                   conf.getResourcePool().getCommitmentSerializer(),
                   inputs.get(root.getBasicNumericContext().getMyId() - 1), noParties,
                   conf.getResourcePool().getLocalRandomGenerator())

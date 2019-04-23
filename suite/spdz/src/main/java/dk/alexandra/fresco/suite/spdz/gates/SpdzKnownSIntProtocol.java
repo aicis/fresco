@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -8,7 +9,7 @@ import java.math.BigInteger;
 
 public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
 
-  private BigInteger value;
+  private final BigInteger value;
   private SpdzSInt secretValue;
 
   /**
@@ -26,27 +27,22 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
   }
 
   @Override
-  public EvaluationStatus evaluate(
-      int round,
-      SpdzResourcePool spdzResourcePool,
-      Network network) {
+  public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool, Network network) {
     secretValue = createKnownSpdzElement(spdzResourcePool, value);
     return EvaluationStatus.IS_DONE;
   }
 
-  static SpdzSInt createKnownSpdzElement(
-      SpdzResourcePool spdzResourcePool,
-      BigInteger input) {
-    BigInteger modulus = spdzResourcePool.getModulus();
-    BigInteger value = input.mod(modulus);
+  static SpdzSInt createKnownSpdzElement(SpdzResourcePool spdzResourcePool, BigInteger input) {
     SpdzSInt elm;
-    BigInteger globalKeyShare = spdzResourcePool.getDataSupplier().getSecretSharedKey();
+    FieldElement value = spdzResourcePool.getFieldDefinition().createElement(input);
+    FieldElement globalKeyShare = spdzResourcePool.getDataSupplier().getSecretSharedKey();
+
+    FieldElement mac = value.multiply(globalKeyShare);
+
     if (spdzResourcePool.getMyId() == 1) {
-      elm = new SpdzSInt(value,
-          value.multiply(globalKeyShare).mod(modulus), modulus);
+      elm = new SpdzSInt(value, mac);
     } else {
-      elm = new SpdzSInt(BigInteger.ZERO,
-          value.multiply(globalKeyShare).mod(modulus), modulus);
+      elm = new SpdzSInt(spdzResourcePool.getFieldDefinition().createElement(0), mac);
     }
     return elm;
   }

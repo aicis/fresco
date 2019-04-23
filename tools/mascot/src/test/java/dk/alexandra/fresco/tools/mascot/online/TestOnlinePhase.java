@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.online;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
@@ -7,11 +8,9 @@ import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.triple.TripleGeneration;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
-import java.math.BigInteger;
+import dk.alexandra.fresco.tools.mascot.triple.TripleGeneration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -20,7 +19,7 @@ import org.junit.Test;
 public class TestOnlinePhase extends NetworkedTest {
 
   private FieldElementPrg getJointPrg(int prgSeedLength) {
-    return new FieldElementPrgImpl(new StrictBitVector(prgSeedLength));
+    return new FieldElementPrgImpl(new StrictBitVector(prgSeedLength), getFieldDefinition());
   }
 
   private List<FieldElement> runMultiply(MascotTestContext ctx, FieldElement macKeyShare,
@@ -53,17 +52,17 @@ public class TestOnlinePhase extends NetworkedTest {
     initContexts(2);
 
     // left party mac key share
-    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), getModulus());
+    FieldElement macKeyShareOne = getFieldDefinition().createElement("11231");
 
     // right party mac key share
-    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), getModulus());
+    FieldElement macKeyShareTwo = getFieldDefinition().createElement("7719");
 
     // party one inputs
     List<FieldElement> partyOneInputs =
-        MascotTestUtils.generateSingleRow(new int[]{12, 11, 1, 2}, getModulus());
+        MascotTestUtils.generateSingleRow(new int[]{12, 11, 1, 2}, getFieldDefinition());
     // party two inputs
     List<FieldElement> partyTwoInputs =
-        MascotTestUtils.generateSingleRow(new int[]{0, 3, 221, 65518}, getModulus());
+        MascotTestUtils.generateSingleRow(new int[]{0, 3, 221, 65518}, getFieldDefinition());
 
     // define task each party will run
     Callable<List<FieldElement>> partyOneTask =
@@ -77,12 +76,12 @@ public class TestOnlinePhase extends NetworkedTest {
     List<FieldElement> partyTwoOutput = results.get(1);
 
     // outputs should be same
-    CustomAsserts.assertEquals(partyOneOutput, partyTwoOutput);
+    CustomAsserts.assertEquals(getFieldDefinition(), partyOneOutput, partyTwoOutput);
 
     // outputs should be correct products
     List<FieldElement> expected = MascotTestUtils
-        .generateSingleRow(new int[]{0, 33, 221, 65517}, getModulus());
-    CustomAsserts.assertEquals(expected, partyOneOutput);
+        .generateSingleRow(new int[]{0, 33, 221, 65517}, getFieldDefinition());
+    CustomAsserts.assertEquals(getFieldDefinition(), expected, partyOneOutput);
   }
 
 }

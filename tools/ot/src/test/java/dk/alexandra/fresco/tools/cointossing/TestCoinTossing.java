@@ -5,8 +5,9 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import dk.alexandra.fresco.framework.network.AsyncNetwork;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
@@ -16,9 +17,16 @@ import dk.alexandra.fresco.tools.helper.HelperForTests;
 import dk.alexandra.fresco.tools.helper.RuntimeForTests;
 import dk.alexandra.fresco.tools.ot.otextension.CheatingNetworkDecorator;
 import java.io.Closeable;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +44,13 @@ public class TestCoinTossing {
       ctOne.initialize(netOne);
     } catch (Exception e) {
       return e;
+    } finally {
+      ExceptionConverter.safe(() -> {
+        if (netOne != null) {
+          ((Closeable) netOne).close();
+        }
+        return null;
+      }, "Error closing networks");
     }
     return null;
   }
@@ -45,6 +60,13 @@ public class TestCoinTossing {
       ctTwo.initialize(netTwo);
     } catch (Exception e) {
       return e;
+    } finally {
+      ExceptionConverter.safe(() -> {
+        if (netTwo != null) {
+          ((Closeable) netTwo).close();
+        }
+        return null;
+      }, "Error closing networks");
     }
     return null;
   }
@@ -62,9 +84,9 @@ public class TestCoinTossing {
     ctTwo = new CoinTossing(2, 1, randTwo);
     List<Callable<Network>> createNets = Arrays.asList(
         () -> new CheatingNetworkDecorator(
-            new AsyncNetwork(RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2)))),
+            new SocketNetwork(RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2)))),
         () -> new CheatingNetworkDecorator(
-            new AsyncNetwork(RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2))))
+            new SocketNetwork(RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2))))
     );
     List<Network> nets = this.testRuntime.runPerPartyTasks(createNets);
     this.netOne = nets.get(0);

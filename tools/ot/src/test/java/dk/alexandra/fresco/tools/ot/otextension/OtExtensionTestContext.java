@@ -1,7 +1,8 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import dk.alexandra.fresco.framework.network.AsyncNetwork;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -35,7 +36,7 @@ public class OtExtensionTestContext {
   public OtExtensionTestContext(int myId, int otherId, int kbitLength,
       int lambdaSecurityParam) {
     this.network = new CheatingNetworkDecorator(
-        new AsyncNetwork(RuntimeForTests.defaultNetworkConfiguration(myId, Arrays.asList(1, 2))));
+        new SocketNetwork(RuntimeForTests.defaultNetworkConfiguration(myId, Arrays.asList(1, 2))));
     DummyOt dummyOt = new DummyOt(otherId, network);
     Drbg rand = new AesCtrDrbg(HelperForTests.seedOne);
     this.seedOts = new RotList(rand, kbitLength);

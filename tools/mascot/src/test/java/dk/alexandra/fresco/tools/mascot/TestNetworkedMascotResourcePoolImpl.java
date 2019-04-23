@@ -30,7 +30,8 @@ public class TestNetworkedMascotResourcePoolImpl extends NetworkedTest {
     seedOtsMap.put(otherId, seedOts);
     MascotResourcePool resourcePool = new MascotResourcePoolImpl(ctx.getMyId(),
         ctx.getNoOfParties(),
-        1, new AesCtrDrbg(new byte[32]), seedOtsMap, new MascotSecurityParameters(8, 8, 8, 3));
+        1, new AesCtrDrbg(new byte[32]), seedOtsMap, new MascotSecurityParameters(8, 8, 3),
+        getFieldDefinition());
     return resourcePool.createRot(otherId, ctx.getNetwork());
   }
 

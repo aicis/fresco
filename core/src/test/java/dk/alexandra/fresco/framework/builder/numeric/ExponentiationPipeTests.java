@@ -7,7 +7,6 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
@@ -16,8 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.junit.Assert;
-
 
 /**
  * Test for the generic exponentiation pipe.
@@ -56,7 +53,7 @@ public class ExponentiationPipeTests {
                     .collect(Collectors.toList());
                 return () -> output;
               }).seq((seq, output) -> () ->
-              output.stream().map(DRes::out).collect(Collectors.toList()));
+                  output.stream().map(DRes::out).collect(Collectors.toList()));
           List<BigInteger> output = runApplication(app);
           int sumLengths = IntStream.range(0, lengths.length).map(i -> lengths[i]).sum();
           sumLengths += 2 * lengths.length;
@@ -77,5 +74,4 @@ public class ExponentiationPipeTests {
       };
     }
   }
-
 }

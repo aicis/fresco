@@ -1,10 +1,11 @@
 package dk.alexandra.fresco.tools.mascot;
 
 import dk.alexandra.fresco.framework.Party;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
-import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
@@ -27,8 +28,8 @@ public class MascotTestContext {
    * Creates new test context.
    */
   public MascotTestContext(int myId, int noOfParties, int instanceId,
-      MascotSecurityParameters securityParameters) {
-    this.network = new AsyncNetwork(defaultNetworkConfiguration(myId, noOfParties));
+      MascotSecurityParameters securityParameters, FieldDefinition fieldDefinition) {
+    this.network = new SocketNetwork(defaultNetworkConfiguration(myId, noOfParties));
     byte[] drbgSeed = new byte[securityParameters.getPrgSeedLength() / 8];
     new Random(myId).nextBytes(drbgSeed);
     Drbg drbg = AesCtrDrbgFactory.fromDerivedSeed(drbgSeed);
@@ -48,7 +49,7 @@ public class MascotTestContext {
       }
     }
     this.resourcePool = new MascotResourcePoolImpl(myId, noOfParties, instanceId, drbg, seedOts,
-        securityParameters);
+        securityParameters, fieldDefinition);
   }
 
   public MascotResourcePool getResourcePool() {

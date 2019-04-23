@@ -5,8 +5,8 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
-import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -25,6 +25,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -45,13 +46,14 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
   private Options appOptions;
   private CommandLine cmd;
   private NetworkConfiguration networkConfiguration;
-  private Network network;
+  private Supplier<Network> network;
   private boolean logPerformance;
   private ProtocolSuite<ResourcePoolT, BuilderT> protocolSuite;
   private ProtocolEvaluator<ResourcePoolT> evaluator;
 
   private ResourcePoolT resourcePool;
   private SecureComputationEngine<ResourcePoolT, BuilderT> sce;
+  private Network createdNetwork;
 
   public CmdLineUtil() {
     this.appOptions = new Options();
@@ -63,7 +65,10 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
   }
 
   public Network getNetwork() {
-    return this.network;
+    if (createdNetwork == null) {
+      createdNetwork = this.network.get();
+    }
+    return createdNetwork;
   }
 
   public ResourcePoolT getResourcePool() {
@@ -104,10 +109,10 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
     options.addOption(Option.builder("p")
         .desc(
             "Connection data for a party. Use -p multiple times to specify many players. "
-            + "You must always at least include yourself. Must be on the form "
-            + "[id]:[hostname]:[port]. "
-            + "id is a unique positive integer for the player, host and port is where to "
-            + "find the player")
+                + "You must always at least include yourself. Must be on the form "
+                + "[id]:[hostname]:[port]. "
+                + "id is a unique positive integer for the player, host and port is where to "
+                + "find the player")
         .longOpt("party").required(true).hasArgs().build());
 
     options.addOption(Option.builder("e")
@@ -119,7 +124,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
     options.addOption(Option.builder("b")
         .desc(
             "The maximum number of native protocols kept in memory at any point in time. "
-            + "Defaults to 4096")
+                + "Defaults to 4096")
         .longOpt("max-batch").required(false).hasArg(true).build());
 
     options.addOption(Option.builder("D").argName("property=value")
@@ -187,15 +192,10 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
     }
 
     this.networkConfiguration = new NetworkConfigurationImpl(myId, parties);
-  }
-
-  /**
-   * Create a network and connect to the other parties.
-   */
-  public void startNetwork() {
-    this.network = new AsyncNetwork(networkConfiguration);
     if (logPerformance) {
-      this.network = new NetworkLoggingDecorator(this.network);
+      this.network = () -> new NetworkLoggingDecorator(new SocketNetwork(networkConfiguration));
+    } else {
+      this.network = () -> new SocketNetwork(networkConfiguration);
     }
   }
 
@@ -221,6 +221,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
   /**
    * Parses the arguments. Also constructs various configuration objects such as ProtocolSuite
    * and ResourcePool.
+   *
    * @param args The arguments
    * @return CommandLine
    */
@@ -240,13 +241,13 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
         this.logPerformance = true;
       }
 
-
       String protocolSuiteName = validateAndGetProtocolSuite();
       parseAndSetupNetwork();
 
       CmdLineProtocolSuite protocolSuiteParser = new CmdLineProtocolSuite(protocolSuiteName,
           cmd.getOptionProperties("D"), this.networkConfiguration.getMyId(),
-          this.networkConfiguration.noOfParties());
+          networkConfiguration.noOfParties(), network
+      );
       protocolSuite = (ProtocolSuite<ResourcePoolT, BuilderT>)
           protocolSuiteParser.getProtocolSuite();
       resourcePool = (ResourcePoolT) protocolSuiteParser.getResourcePool();
@@ -256,13 +257,12 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
         batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
       }
       int maxBatchSize = getMaxBatchSize();
-      this.evaluator = new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite,
-          maxBatchSize);
+      this.evaluator = new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite, maxBatchSize);
     } catch (Exception e) {
       ExceptionConverter.safe(() -> {
-        closeNetwork();
-        return null;
-      },
+            closeNetwork();
+            return null;
+          },
           "Failed to close the network");
 
       System.err.println("Error while parsing arguments / instantiating protocol suite: "
@@ -316,11 +316,12 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
 
   /**
    * Attempts to close the network.
+   *
    * @throws IOException If the networks fails to close
    */
   public void closeNetwork() throws IOException {
-    if (this.network != null) {
-      ((Closeable) this.network).close();
+    if (this.createdNetwork != null) {
+      ((Closeable) this.createdNetwork).close();
     }
   }
 }
