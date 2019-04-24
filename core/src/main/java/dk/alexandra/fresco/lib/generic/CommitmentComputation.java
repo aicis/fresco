@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.lib.generic;
 
-import com.sun.org.apache.bcel.internal.generic.DREM;
 import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;

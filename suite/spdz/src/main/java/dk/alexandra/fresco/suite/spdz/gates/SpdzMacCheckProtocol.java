@@ -16,6 +16,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -27,10 +28,10 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
   private final SecureRandom rand;
   private final MessageDigest digest;
   private final BigInteger modulus;
-  private final Drbg jointDrbg;
   private final List<SpdzSInt> closedValues;
   private final List<FieldElement> openedValues;
   private final FieldElement alpha;
+  private Drbg jointDrbg;
 
   /**
    * Protocol which handles the MAC check internal to SPDZ. If this protocol reaches the end, no
@@ -58,12 +59,17 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
 
   @Override
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
-    return builder.seq(new CoinTossingComputation(
-        builder.getBasicNumericContext().getFieldDefinition().getBitLength(),
-        new HashBasedCommitmentSerializer(), builder.getBasicNumericContext().getNoOfParties(),
-        new AesCtrDrbg()))
+    final int noOfParties = builder.getBasicNumericContext().getNoOfParties();
+    final AesCtrDrbg localDrbg = new AesCtrDrbg();
+    final HashBasedCommitmentSerializer commitmentSerializer = new HashBasedCommitmentSerializer();
+
+    return builder.seq(new CoinTossingComputation(32,
+        commitmentSerializer,
+        noOfParties,
+        localDrbg))
         .seq((seq, seed) -> {
           FieldDefinition fieldDefinition = builder.getBasicNumericContext().getFieldDefinition();
+          this.jointDrbg = new AesCtrDrbg(seed);
           FieldElement[] rs = sampleRandomCoefficients(openedValues.size(), fieldDefinition);
           FieldElement a = fieldDefinition.createElement(0);
           int index = 0;
