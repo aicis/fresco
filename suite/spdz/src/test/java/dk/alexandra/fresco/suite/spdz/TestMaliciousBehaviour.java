@@ -22,7 +22,7 @@ import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
-import dk.alexandra.fresco.suite.spdz.maccheck.MaliciousSpdzMacCheckProtocol;
+import dk.alexandra.fresco.suite.spdz.maccheck.MaliciousSpdzMacCheckComputation;
 import dk.alexandra.fresco.suite.spdz.maccheck.MaliciousSpdzRoundSynchronization;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
@@ -46,8 +46,8 @@ public class TestMaliciousBehaviour {
    */
   @Before
   public void reset() {
-    MaliciousSpdzMacCheckProtocol.corruptCommitRound = false;
-    MaliciousSpdzMacCheckProtocol.corruptOpenCommitRound = false;
+    MaliciousSpdzMacCheckComputation.corruptCommitRound = false;
+    MaliciousSpdzMacCheckComputation.corruptOpenCommitRound = false;
   }
 
   @Test
@@ -145,10 +145,10 @@ public class TestMaliciousBehaviour {
       this.corrupt = corrupt;
       switch (corrupt) {
         case COMMIT_ROUND:
-          MaliciousSpdzMacCheckProtocol.corruptCommitRound = true;
+          MaliciousSpdzMacCheckComputation.corruptCommitRound = true;
           break;
         case OPEN_COMMIT_ROUND:
-          MaliciousSpdzMacCheckProtocol.corruptOpenCommitRound = true;
+          MaliciousSpdzMacCheckComputation.corruptOpenCommitRound = true;
           break;
         default:
           break;
@@ -157,18 +157,26 @@ public class TestMaliciousBehaviour {
 
     @Override
     public BuilderFactoryNumeric init(SpdzResourcePool resourcePool) {
-      BasicNumericContext spdzFactory = createNumericContext(resourcePool);
+      BasicNumericContext numericContext = createNumericContext(resourcePool);
       RealNumericContext realNumericContext = createRealNumericContext();
       if (resourcePool.getMyId() == 1 && corrupt.compareTo(Corrupt.INPUT) == 0) {
-        return new MaliciousSpdzBuilder(spdzFactory, realNumericContext);
+        return new MaliciousSpdzBuilder(numericContext, realNumericContext);
       } else {
-        return new SpdzBuilder(spdzFactory, realNumericContext);
+        return new SpdzBuilder(numericContext, realNumericContext);
       }
     }
 
     @Override
     public RoundSynchronization<SpdzResourcePool> createRoundSynchronization() {
-      return new MaliciousSpdzRoundSynchronization(this);
+      return new MaliciousSpdzRoundSynchronization(this, (resPool) -> {
+        BasicNumericContext numericContext = createNumericContext(resPool);
+        RealNumericContext realNumericContext = createRealNumericContext();
+        if (resPool.getMyId() == 1 && corrupt.compareTo(Corrupt.INPUT) == 0) {
+          return new MaliciousSpdzBuilder(numericContext, realNumericContext);
+        } else {
+          return new SpdzBuilder(numericContext, realNumericContext);
+        }
+      });
     }
   }
 }

@@ -103,7 +103,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
     }
   }
 
-  public int getBatchSize() {
+  protected int getBatchSize() {
     return batchSize;
   }
 }
