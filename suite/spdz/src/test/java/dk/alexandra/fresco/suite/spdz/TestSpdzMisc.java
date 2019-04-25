@@ -28,7 +28,7 @@ public class TestSpdzMisc {
     SpdzDummyDataSupplier supplier = new SpdzDummyDataSupplier(1, 2,
         new BigIntegerFieldDefinition("251"), new BigInteger("251"));
     SpdzResourcePool rp = new SpdzResourcePoolImpl(1, 2, new SpdzOpenedValueStoreImpl(), supplier,
-        new AesCtrDrbg(new byte[32]));
+        AesCtrDrbg::new);
     SpdzExponentiationPipeProtocol pro = new SpdzExponentiationPipeProtocol(
         FakeTripGen.EXP_PIPE_SIZE);
     pro.evaluate(0, rp, null);

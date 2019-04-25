@@ -137,7 +137,7 @@ public class CmdLineProtocolSuite {
           new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, noOfPlayers);
     }
     return new SpdzResourcePoolImpl(myId, noOfPlayers, new SpdzOpenedValueStoreImpl(), supplier,
-        new AesCtrDrbg(new byte[32]));
+        AesCtrDrbg::new);
   }
 
   private ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(Properties properties) {

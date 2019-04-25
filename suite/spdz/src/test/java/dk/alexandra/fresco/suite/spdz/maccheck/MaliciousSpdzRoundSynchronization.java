@@ -35,7 +35,7 @@ public class MaliciousSpdzRoundSynchronization extends SpdzRoundSynchronization 
         resourcePool.getMessageDigest(),
         store.popValues(),
         resourcePool.getFieldDefinition().getModulus(),
-        resourcePool.getRandomGenerator(),
+        resourcePool::createRandomGenerator,
         resourcePool.getDataSupplier().getSecretSharedKey());
     BatchEvaluationStrategy<SpdzResourcePool> batchStrategy = new BatchedStrategy<>();
     BatchedProtocolEvaluator<SpdzResourcePool> evaluator =

@@ -22,13 +22,16 @@ public interface SpdzResourcePool extends NumericResourcePool {
   MessageDigest getMessageDigest();
 
   /**
-   * The DRBG is useful for protocols which needs a form of shared randomness where the random bytes
-   * are not easily guessed by an adversary. This generator will provide exactly that. For explicit
-   * security guarantees, we refer to implementations of {@link dk.alexandra.fresco.framework.util.Drbg}.
+   * Creates new DRBG, given a seed.
+   *
+   * <p>The DRBG is useful for protocols which needs a form of shared randomness where the random
+   * bytes are not easily guessed by an adversary. This generator will provide exactly that. For
+   * explicit security guarantees, we refer to implementations of {@link
+   * dk.alexandra.fresco.framework.util.Drbg}.</p>
    *
    * @return An instance of a DRBG.
    */
-  Drbg getRandomGenerator();
+  Drbg createRandomGenerator(byte[] seed);
 
   /**
    * Returns instance of {@link OpenedValueStore} which tracks all opened, unchecked values.

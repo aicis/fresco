@@ -18,6 +18,7 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Protocol which handles the MAC check internal to SPDZ. If this protocol reaches the end, no
@@ -31,7 +32,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
   private final List<SpdzSInt> closedValues;
   private final List<FieldElement> openedValues;
   private final FieldElement alpha;
-  private Drbg jointDrbg;
+  private final Function<byte[], Drbg> jointDrbgSupplier;
 
   /**
    * Protocol which handles the MAC check internal to SPDZ. If this protocol reaches the end, no
@@ -46,14 +47,14 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
       final MessageDigest digest,
       final Pair<List<SpdzSInt>, List<FieldElement>> toCheck,
       final BigInteger modulus,
-      final Drbg jointDrbg,
+      final Function<byte[], Drbg> jointDrbgSupplier,
       final FieldElement alpha) {
     this.rand = rand;
     this.digest = digest;
     this.closedValues = toCheck.getFirst();
     this.openedValues = toCheck.getSecond();
     this.modulus = modulus;
-    this.jointDrbg = jointDrbg;
+    this.jointDrbgSupplier = jointDrbgSupplier;
     this.alpha = alpha;
   }
 
@@ -69,8 +70,9 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
         localDrbg))
         .seq((seq, seed) -> {
           FieldDefinition fieldDefinition = builder.getBasicNumericContext().getFieldDefinition();
-          this.jointDrbg = new AesCtrDrbg(seed);
-          FieldElement[] rs = sampleRandomCoefficients(openedValues.size(), fieldDefinition);
+          Drbg jointDrbg = jointDrbgSupplier.apply(seed);
+          FieldElement[] rs = sampleRandomCoefficients(openedValues.size(), fieldDefinition,
+              jointDrbg);
           FieldElement a = fieldDefinition.createElement(0);
           int index = 0;
           for (FieldElement openedValue : openedValues) {
@@ -118,7 +120,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
   }
 
   private FieldElement[] sampleRandomCoefficients(int numCoefficients,
-      FieldDefinition fieldDefinition) {
+      FieldDefinition fieldDefinition, Drbg jointDrbg) {
     FieldElement[] coefficients = new FieldElement[numCoefficients];
     for (int i = 0; i < numCoefficients; i++) {
       byte[] bytes = new byte[modulus.bitLength() / Byte.SIZE];

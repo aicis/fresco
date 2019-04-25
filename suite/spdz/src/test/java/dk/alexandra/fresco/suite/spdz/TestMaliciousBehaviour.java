@@ -133,7 +133,7 @@ public class TestMaliciousBehaviour {
     return new SpdzResourcePoolImpl(myId, size, new SpdzOpenedValueStoreImpl(),
         new SpdzDummyDataSupplier(myId, size,
             new BigIntegerFieldDefinition(modulus), modulus),
-        new AesCtrDrbg(new byte[32]));
+        AesCtrDrbg::new);
   }
 
   private class MaliciousSpdzProtocolSuite extends SpdzProtocolSuite {
