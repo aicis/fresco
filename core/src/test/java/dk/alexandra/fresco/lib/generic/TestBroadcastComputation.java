@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.spdz2k.protocols.computations;
+package dk.alexandra.fresco.lib.generic;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -13,31 +13,16 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.lib.generic.BroadcastComputation;
-import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
-import dk.alexandra.fresco.suite.spdz2k.AbstractSpdz2kTest;
-import dk.alexandra.fresco.suite.spdz2k.Spdz2kProtocolSuiteK64;
-import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128;
-import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128Factory;
-import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.lib.generic.InsecureBroadcastProtocol;
-import dk.alexandra.fresco.lib.generic.BroadcastValidationProtocol;
-import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
-import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePoolImpl;
-import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDummyDataSupplier;
-import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kOpenedValueStoreImpl;
+import dk.alexandra.fresco.suite.dummy.arithmetic.AbstractDummyArithmeticTest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.junit.Test;
 
-public class TestSpdz2kBroadcastComputation extends
-    AbstractSpdz2kTest<Spdz2kResourcePool<CompUInt128>> {
+public class TestBroadcastComputation extends AbstractDummyArithmeticTest {
 
   @Test
   public void testValidBroadcast() {
@@ -52,26 +37,6 @@ public class TestSpdz2kBroadcastComputation extends
   @Test
   public void testInvalidBroadcastThree() {
     runTest(new TestInvalidBroadcast<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3);
-  }
-
-  @Override
-  protected Spdz2kResourcePool<CompUInt128> createResourcePool(int playerId, int noOfParties,
-      Supplier<Network> networkSupplier) {
-    CompUIntFactory<CompUInt128> factory = new CompUInt128Factory();
-    Spdz2kResourcePool<CompUInt128> resourcePool =
-        new Spdz2kResourcePoolImpl<>(
-            playerId,
-            noOfParties, null,
-            new Spdz2kOpenedValueStoreImpl<>(),
-            new Spdz2kDummyDataSupplier<>(playerId, noOfParties, factory.createRandom(), factory),
-            factory);
-    resourcePool.initializeJointRandomness(networkSupplier, AesCtrDrbg::new, 32);
-    return resourcePool;
-  }
-
-  @Override
-  protected ProtocolSuiteNumeric<Spdz2kResourcePool<CompUInt128>> createProtocolSuite() {
-    return new Spdz2kProtocolSuiteK64();
   }
 
   private static class TestValidBroadcast<ResourcePoolT extends ResourcePool>
@@ -154,7 +119,7 @@ public class TestSpdz2kBroadcastComputation extends
       return builder.par(par -> {
         List<DRes<List<byte[]>>> broadcastValues = new LinkedList<>();
         for (byte[] singleInput : inputCopy) {
-          broadcastValues.add(par.append(new MaliciousAllBroadcast(singleInput)));
+          broadcastValues.add(par.append(new MaliciousAllBroadcast<>(singleInput)));
         }
         return () -> broadcastValues;
       }).seq((seq, lst) -> {
@@ -167,8 +132,8 @@ public class TestSpdz2kBroadcastComputation extends
     }
   }
 
-  private static class MaliciousAllBroadcast extends
-      InsecureBroadcastProtocol<Spdz2kResourcePool<CompUInt128>> {
+  private static class MaliciousAllBroadcast<ResourcePoolT extends ResourcePool> extends
+      InsecureBroadcastProtocol<ResourcePoolT> {
 
     private final byte[] inputCopy;
     private List<byte[]> resultCopy;
@@ -184,7 +149,7 @@ public class TestSpdz2kBroadcastComputation extends
     }
 
     @Override
-    public EvaluationStatus evaluate(int round, Spdz2kResourcePool<CompUInt128> resourcePool,
+    public EvaluationStatus evaluate(int round, ResourcePoolT resourcePool,
         Network network) {
       if (round == 0) {
         for (int i = 1; i <= resourcePool.getNoOfParties(); i++) {
