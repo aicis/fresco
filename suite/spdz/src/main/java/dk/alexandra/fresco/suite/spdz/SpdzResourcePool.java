@@ -43,4 +43,12 @@ public interface SpdzResourcePool extends NumericResourcePool {
    * multiplication triples.
    */
   SpdzDataSupplier getDataSupplier();
+
+  /**
+   * Returns the required bit length of seeds used for DRBGs.
+   *
+   * @return seed length
+   */
+  int getDrbgSeedBitLength();
+
 }

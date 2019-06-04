@@ -16,7 +16,6 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -33,6 +32,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
   private final List<FieldElement> openedValues;
   private final FieldElement alpha;
   private final Function<byte[], Drbg> jointDrbgSupplier;
+  private final int drbgSeedBitLength;
 
   /**
    * Protocol which handles the MAC check internal to SPDZ. If this protocol reaches the end, no
@@ -48,7 +48,8 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
       final Pair<List<SpdzSInt>, List<FieldElement>> toCheck,
       final BigInteger modulus,
       final Function<byte[], Drbg> jointDrbgSupplier,
-      final FieldElement alpha) {
+      final FieldElement alpha,
+      final int drbgSeedBitLength) {
     this.rand = rand;
     this.digest = digest;
     this.closedValues = toCheck.getFirst();
@@ -56,6 +57,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
     this.modulus = modulus;
     this.jointDrbgSupplier = jointDrbgSupplier;
     this.alpha = alpha;
+    this.drbgSeedBitLength = drbgSeedBitLength;
   }
 
   @Override
@@ -64,7 +66,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
     final AesCtrDrbg localDrbg = new AesCtrDrbg();
     final HashBasedCommitmentSerializer commitmentSerializer = new HashBasedCommitmentSerializer();
 
-    return builder.seq(new CoinTossingComputation(32,
+    return builder.seq(new CoinTossingComputation(drbgSeedBitLength / 8,
         commitmentSerializer,
         noOfParties,
         localDrbg))
