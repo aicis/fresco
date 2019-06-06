@@ -94,11 +94,14 @@ public class TestBroadcastComputation extends AbstractDummyArithmeticTest {
                 inputs.get(root.getBasicNumericContext().getMyId() - 1)).buildComputation(root);
           }
           // we need that new test framework...
+          boolean thrown = false;
           try {
             runApplication(testApplication);
           } catch (Exception e) {
             assertTrue(e.getCause() instanceof MaliciousException);
+            thrown = true;
           }
+          assertTrue("Should have caused malicious exception", thrown);
         }
       };
     }

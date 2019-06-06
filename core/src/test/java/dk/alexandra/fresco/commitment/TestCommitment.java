@@ -3,6 +3,7 @@ package dk.alexandra.fresco.commitment;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.MaliciousException;
@@ -11,23 +12,25 @@ import dk.alexandra.fresco.framework.util.Drbg;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 
 public class TestCommitment {
+
   HashBasedCommitment comm;
   Drbg rand;
 
   @Before
   public void setup() {
-    rand = AesCtrDrbgFactory.fromDerivedSeed((byte)0x42);
+    rand = AesCtrDrbgFactory.fromDerivedSeed((byte) 0x42);
     comm = new HashBasedCommitment();
   }
 
   /**** POSITIVE TESTS. ****/
   @Test
   public void testHonestExecution() {
-    byte[] msg = { (byte) 0x12, (byte) 0x42 };
+    byte[] msg = {(byte) 0x12, (byte) 0x42};
     byte[] openInfo = comm.commit(rand, msg);
     byte[] res = comm.open(openInfo);
     assertArrayEquals(res, msg);
@@ -43,7 +46,7 @@ public class TestCommitment {
 
   @Test
   public void testSerialization() {
-    byte[] msg1 = new byte[] { 0x42 };
+    byte[] msg1 = new byte[]{0x42};
     comm.commit(rand, msg1);
     HashBasedCommitmentSerializer serializer = new HashBasedCommitmentSerializer();
     byte[] serializedComm = serializer.serialize(comm);
@@ -54,10 +57,10 @@ public class TestCommitment {
 
   @Test
   public void testListSerialization() {
-    byte[] msg1 = new byte[] { 0x42 };
+    byte[] msg1 = new byte[]{0x42};
     HashBasedCommitment comm1 = new HashBasedCommitment();
     comm1.commit(rand, msg1);
-    byte[] msg2 = new byte[] { 0x56 };
+    byte[] msg2 = new byte[]{0x56};
     HashBasedCommitment comm2 = new HashBasedCommitment();
     comm2.commit(rand, msg2);
     List<HashBasedCommitment> list = new ArrayList<>(2);
@@ -90,13 +93,13 @@ public class TestCommitment {
     boolean thrown = false;
     try {
       // Randomness generator must not be null
-      byte[] val = new byte[] { 0x01 };
+      byte[] val = new byte[]{0x01};
       comm = new HashBasedCommitment();
       comm.commit(null, val);
     } catch (NullPointerException e) {
       thrown = true;
     }
-    assertEquals(thrown, true);
+    assertTrue(thrown);
   }
 
   @Test
@@ -111,7 +114,7 @@ public class TestCommitment {
       assertEquals("Already committed", e.getMessage());
       thrown = true;
     }
-    assertEquals(true, thrown);
+    assertTrue(thrown);
     // Check we can still open correctly
     String res = new String(comm.open(openInfo));
     assertEquals(firstMsg, res);
@@ -127,7 +130,7 @@ public class TestCommitment {
       assertEquals("No commitment to open", e.getMessage());
       thrown = true;
     }
-    assertEquals(true, thrown);
+    assertTrue(thrown);
   }
 
   @Test
@@ -143,7 +146,7 @@ public class TestCommitment {
           e.getMessage());
       thrown = true;
     }
-    assertEquals(true, thrown);
+    assertTrue(thrown);
   }
 
   @Test
@@ -160,7 +163,7 @@ public class TestCommitment {
           e.getMessage());
       thrown = true;
     }
-    assertEquals(true, thrown);
+    assertTrue(thrown);
     thrown = false;
     try {
       // Try to open using the opening info of another commitment
@@ -173,15 +176,34 @@ public class TestCommitment {
           "The opening info does not match the commitment.", e.getMessage());
       thrown = true;
     }
-    assertEquals(true, thrown);
+    assertTrue(thrown);
+  }
+
+  @Test
+  public void testSingleBitDiffBadOpening() {
+    Random random = new Random(42);
+    byte[] bytes = new byte[32];
+    random.nextBytes(bytes);
+    byte[] opening = comm.commit(rand, bytes);
+    boolean thrown = false;
+    try {
+      // flip bit
+      opening[1] = (byte) (opening[1] ^ 1);
+      comm.open(opening);
+    } catch (MaliciousException e) {
+      assertEquals("The opening info does not match the commitment.",
+          e.getMessage());
+      thrown = true;
+    }
+    assertTrue(thrown);
   }
 
   @SuppressWarnings("unlikely-arg-type")
   @Test
   public void testNotEqual() {
-    comm.commit(rand, new byte[] { 0x42 });
-    assertFalse(comm.equals(new HashBasedCommitment()));
-    assertFalse(comm.equals("something"));
+    comm.commit(rand, new byte[]{0x42});
+    assertNotEquals(comm, new HashBasedCommitment());
+    assertNotEquals("something", comm);
   }
 
   @Test
