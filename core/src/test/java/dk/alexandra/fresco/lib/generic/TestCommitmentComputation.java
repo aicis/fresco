@@ -34,7 +34,10 @@ public class TestCommitmentComputation extends AbstractDummyArithmeticTest {
 
   @Test
   public void testMaliciousCommitmentTwo() {
-    runTest(new TestMaliciousCommitment<>(1), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+    int noOfParties = 2;
+    for (int cheater = 1; cheater <= noOfParties; cheater++) {
+      runTest(new TestMaliciousCommitment<>(cheater), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+    }
   }
 
   @Test
@@ -44,7 +47,10 @@ public class TestCommitmentComputation extends AbstractDummyArithmeticTest {
 
   @Test
   public void testMaliciousCommitmentThree() {
-    runTest(new TestMaliciousCommitment<>(1), EvaluationStrategy.SEQUENTIAL_BATCHED, 3);
+    int noOfParties = 3;
+    for (int cheater = 1; cheater <= noOfParties; cheater++) {
+      runTest(new TestMaliciousCommitment<>(1), EvaluationStrategy.SEQUENTIAL_BATCHED, 3);
+    }
   }
 
   private static class TestCommitment<ResourcePoolT extends ResourcePool>
