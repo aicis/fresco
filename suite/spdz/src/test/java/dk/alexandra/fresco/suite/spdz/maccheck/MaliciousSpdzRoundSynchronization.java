@@ -31,8 +31,6 @@ public class MaliciousSpdzRoundSynchronization extends SpdzRoundSynchronization 
   protected void doMacCheck(SpdzResourcePool resourcePool, Network network) {
     OpenedValueStore<SpdzSInt, FieldElement> store = resourcePool.getOpenedValueStore();
     MaliciousSpdzMacCheckComputation macCheck = new MaliciousSpdzMacCheckComputation(
-        new SecureRandom(),
-        resourcePool.getMessageDigest(),
         store.popValues(),
         resourcePool.getFieldDefinition().getModulus(),
         resourcePool::createRandomGenerator,

@@ -44,7 +44,7 @@ public class TestMacCheck {
       ModulusFinder.findSuitableModulus(512));
 
   @Test
-  public void testMacCorrupt() throws Exception {
+  public void testMacCorrupt() {
     try {
       runTest(new TestDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2, true);
     } catch (RuntimeException e) {
@@ -56,7 +56,7 @@ public class TestMacCheck {
   }
 
   @Test
-  public void testClosedValuesIncorrectSize() throws Exception {
+  public void testClosedValuesIncorrectSize() {
     try {
       runTest(new TestDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2, false);
     } catch (RuntimeException e) {
@@ -69,7 +69,7 @@ public class TestMacCheck {
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy, int noOfParties, boolean corruptMac) throws Exception {
+      EvaluationStrategy evalStrategy, int noOfParties, boolean corruptMac) {
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -91,14 +91,14 @@ public class TestMacCheck {
 
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce, () -> createResourcePool(playerId,
-              noOfParties, new Random(), new SecureRandom(), corruptMac),
+              noOfParties, corruptMac),
               () -> new SocketNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
   }
 
-  private SpdzResourcePool createResourcePool(int myId, int size, Random rand, SecureRandom secRand,
+  private SpdzResourcePool createResourcePool(int myId, int size,
       boolean corruptMac) {
     BigInteger modulus = ModulusFinder.findSuitableModulus(512);
     SpdzDataSupplier supplier;

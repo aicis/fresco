@@ -54,7 +54,7 @@ public class TestMaliciousBehaviour {
   public void testCommitmentCorruptRound2() {
     try {
       runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
-          Corrupt.COMMIT_ROUND);
+          Corrupt.COMMIT_ROUND, 1);
       Assert.fail("Should not go well");
     } catch (RuntimeException e) {
       if (e.getCause().getCause() == null || !(e.getCause()
@@ -68,7 +68,7 @@ public class TestMaliciousBehaviour {
   public void testOpenCommitmentCorruptRound2() {
     try {
       runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
-          Corrupt.OPEN_COMMIT_ROUND);
+          Corrupt.OPEN_COMMIT_ROUND, 1);
       Assert.fail("Should not go well");
     } catch (RuntimeException e) {
       if (e.getCause().getCause() == null || !(e.getCause()
@@ -82,7 +82,7 @@ public class TestMaliciousBehaviour {
   public void testMaliciousInput() {
     try {
       runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
-          Corrupt.INPUT);
+          Corrupt.INPUT, 1);
       Assert.fail("Should not go well");
     } catch (RuntimeException e) {
       if (e.getCause().getCause() == null || !(e.getCause()
@@ -94,7 +94,7 @@ public class TestMaliciousBehaviour {
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy, int noOfParties, Corrupt corrupt) {
+      EvaluationStrategy evalStrategy, int noOfParties, Corrupt corrupt, int cheatingParty) {
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -106,8 +106,8 @@ public class TestMaliciousBehaviour {
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
       ProtocolSuiteNumeric<SpdzResourcePool> protocolSuite;
-      if (playerId == 1) {
-        protocolSuite = new MaliciousSpdzProtocolSuite(150, corrupt);
+      if (playerId == cheatingParty) {
+        protocolSuite = new MaliciousSpdzProtocolSuite(150, corrupt, cheatingParty);
       } else {
         protocolSuite = new SpdzProtocolSuite(150);
       }
@@ -139,10 +139,12 @@ public class TestMaliciousBehaviour {
   private class MaliciousSpdzProtocolSuite extends SpdzProtocolSuite {
 
     private Corrupt corrupt;
+    private final int cheatingParty;
 
-    MaliciousSpdzProtocolSuite(int maxBitLength, Corrupt corrupt) {
+    MaliciousSpdzProtocolSuite(int maxBitLength, Corrupt corrupt, int cheatingParty) {
       super(maxBitLength);
       this.corrupt = corrupt;
+      this.cheatingParty = cheatingParty;
       switch (corrupt) {
         case COMMIT_ROUND:
           MaliciousSpdzMacCheckComputation.corruptCommitRound = true;
@@ -159,7 +161,7 @@ public class TestMaliciousBehaviour {
     public BuilderFactoryNumeric init(SpdzResourcePool resourcePool) {
       BasicNumericContext numericContext = createNumericContext(resourcePool);
       RealNumericContext realNumericContext = createRealNumericContext();
-      if (resourcePool.getMyId() == 1 && corrupt.compareTo(Corrupt.INPUT) == 0) {
+      if (resourcePool.getMyId() == cheatingParty && corrupt.compareTo(Corrupt.INPUT) == 0) {
         return new MaliciousSpdzBuilder(numericContext, realNumericContext);
       } else {
         return new SpdzBuilder(numericContext, realNumericContext);
@@ -171,7 +173,7 @@ public class TestMaliciousBehaviour {
       return new MaliciousSpdzRoundSynchronization(this, (resPool) -> {
         BasicNumericContext numericContext = createNumericContext(resPool);
         RealNumericContext realNumericContext = createRealNumericContext();
-        if (resPool.getMyId() == 1 && corrupt.compareTo(Corrupt.INPUT) == 0) {
+        if (resPool.getMyId() == cheatingParty && corrupt.compareTo(Corrupt.INPUT) == 0) {
           return new MaliciousSpdzBuilder(numericContext, realNumericContext);
         } else {
           return new SpdzBuilder(numericContext, realNumericContext);
