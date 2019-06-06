@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Protocol for all parties to commit to a value and open it to the other parties.
+ * Protocol for all parties to commit to a value each and open it to the other parties.
  */
 public class CommitmentComputation implements
     Computation<List<byte[]>, ProtocolBuilderNumeric> {

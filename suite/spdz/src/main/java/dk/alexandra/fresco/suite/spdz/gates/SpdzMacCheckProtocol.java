@@ -11,6 +11,7 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.lib.generic.CoinTossingComputation;
+import dk.alexandra.fresco.lib.generic.CommitmentComputation;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import java.math.BigInteger;
@@ -94,16 +95,14 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
           // compute delta_i as: gamma_i - alpha_i*a
           FieldElement delta = gamma.subtract(alpha.multiply(a));
           // Commit to delta and open it afterwards
-          SpdzCommitment deltaCommitment = new SpdzCommitment(digest, delta, rand,
-              modulus.bitLength());
-          return seq.seq((subSeq) -> subSeq.append(new SpdzCommitProtocol(deltaCommitment)))
-              .seq((subSeq, commitProtocol) ->
-                  subSeq.append(new SpdzOpenCommitProtocol(deltaCommitment.getValue(),
-                      deltaCommitment.getRandomness(), commitProtocol)));
-        }).seq((seq, commitments) -> {
+          return seq.seq(
+              new CommitmentComputation(commitmentSerializer, fieldDefinition.serialize(delta),
+                  noOfParties, localDrbg));
+        }).seq((seq, commitmentsRaw) -> {
           FieldDefinition fieldDefinition = builder.getBasicNumericContext().getFieldDefinition();
+          List<FieldElement> commitments = fieldDefinition.deserializeList(commitmentsRaw);
           FieldElement deltaSum =
-              commitments.values()
+              commitments
                   .stream()
                   .reduce(fieldDefinition.createElement(0), FieldElement::add);
 
