@@ -10,6 +10,7 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.lib.generic.CoinTossingComputation;
+import dk.alexandra.fresco.lib.generic.CommitmentComputation;
 import dk.alexandra.fresco.lib.generic.MaliciousCommitmentComputation;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import java.math.BigInteger;
@@ -71,11 +72,23 @@ public class MaliciousSpdzMacCheckComputation implements Computation<Void, Proto
 
           // compute delta_i as: gamma_i - alpha_i*a
           FieldElement delta = gamma.subtract(alpha.multiply(a));
-          // Commit to delta and open it afterwards
-          return seq.seq(
-              new MaliciousCommitmentComputation(commitmentSerializer,
-                  fieldDefinition.serialize(delta),
-                  noOfParties, localDrbg));
+          if (corruptCommitRound) {
+            // tamper with delta
+            delta = delta.add(fieldDefinition.createElement(1));
+          }
+
+          if (corruptOpenCommitRound) {
+            // tamper with opening
+            return seq.seq(
+                new MaliciousCommitmentComputation(commitmentSerializer,
+                    fieldDefinition.serialize(delta),
+                    noOfParties, localDrbg));
+          } else {
+            return seq.seq(
+                new CommitmentComputation(commitmentSerializer,
+                    fieldDefinition.serialize(delta),
+                    noOfParties, localDrbg));
+          }
         }).seq((seq, ignored) -> null);
   }
 
