@@ -59,8 +59,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
     BatchedProtocolEvaluator<SpdzResourcePool> evaluator =
         new BatchedProtocolEvaluator<>(batchStrategy, spdzProtocolSuite, batchSize);
     OpenedValueStore<SpdzSInt, FieldElement> store = resourcePool.getOpenedValueStore();
-    SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(secRand,
-        resourcePool.getMessageDigest(),
+    SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(
         store.popValues(),
         resourcePool.getModulus(),
         resourcePool::createRandomGenerator,

@@ -12,11 +12,8 @@ import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.lib.generic.CoinTossingComputation;
 import dk.alexandra.fresco.lib.generic.CommitmentComputation;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.SecureRandom;
 import java.util.List;
 import java.util.function.Function;
 
@@ -26,8 +23,6 @@ import java.util.function.Function;
  */
 public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNumeric> {
 
-  private final SecureRandom rand;
-  private final MessageDigest digest;
   private final BigInteger modulus;
   private final List<SpdzSInt> closedValues;
   private final List<FieldElement> openedValues;
@@ -39,20 +34,18 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
    * Protocol which handles the MAC check internal to SPDZ. If this protocol reaches the end, no
    * malicious activity was detected and the storage is reset.
    *
-   * @param rand A secure randomness source
-   * @param digest A secure hash used for the commitment scheme
-   * @param modulus The global modulus used.
+   * @param toCheck opened values and corresponding macs to check
+   * @param modulus the global modulus used
+   * @param jointDrbgSupplier supplier of DRBG to be used for joint randomness
+   * @param alpha this party's key share
+   * @param drbgSeedBitLength seed length for local DRBG
    */
   public SpdzMacCheckProtocol(
-      final SecureRandom rand,
-      final MessageDigest digest,
       final Pair<List<SpdzSInt>, List<FieldElement>> toCheck,
       final BigInteger modulus,
       final Function<byte[], Drbg> jointDrbgSupplier,
       final FieldElement alpha,
       final int drbgSeedBitLength) {
-    this.rand = rand;
-    this.digest = digest;
     this.closedValues = toCheck.getFirst();
     this.openedValues = toCheck.getSecond();
     this.modulus = modulus;
