@@ -2,6 +2,7 @@ package dk.alexandra.fresco.lib.generic;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.commitment.HashBasedCommitmentSerializer;
@@ -26,6 +27,14 @@ public class TestCoinTossingComputation extends AbstractDummyArithmeticTest {
   public void testCoinTossing() {
     runTest(new TestCoinTossing<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
     runTest(new TestCoinTossing<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3);
+  }
+
+  @Test
+  public void testDefaultConstructor() {
+    final AesCtrDrbg localDrbg = new AesCtrDrbg();
+    final HashBasedCommitmentSerializer commitmentSerializer = new HashBasedCommitmentSerializer();
+    CoinTossingComputation ct = new CoinTossingComputation(32, commitmentSerializer, 2, localDrbg);
+    assertNotNull(ct);
   }
 
   private static class TestCoinTossing<ResourcePoolT extends ResourcePool>
