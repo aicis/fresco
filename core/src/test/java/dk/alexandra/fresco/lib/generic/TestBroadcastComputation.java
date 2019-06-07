@@ -57,7 +57,8 @@ public class TestBroadcastComputation extends AbstractDummyArithmeticTest {
           }
           Application<List<byte[]>, ProtocolBuilderNumeric> testApplication =
               root -> new BroadcastComputation<ProtocolBuilderNumeric>(
-                  inputs.get(root.getBasicNumericContext().getMyId() - 1)).buildComputation(root);
+                  inputs.get(root.getBasicNumericContext().getMyId() - 1), noParties > 2)
+                  .buildComputation(root);
           List<byte[]> actual = runApplication(testApplication);
           assertEquals(inputs.size(), actual.size());
           for (int i = 0; i < actual.size(); i++) {
@@ -91,7 +92,8 @@ public class TestBroadcastComputation extends AbstractDummyArithmeticTest {
                 inputs.get(root.getBasicNumericContext().getMyId() - 1)).buildComputation(root);
           } else {
             testApplication = root -> new BroadcastComputation<ProtocolBuilderNumeric>(
-                inputs.get(root.getBasicNumericContext().getMyId() - 1)).buildComputation(root);
+                inputs.get(root.getBasicNumericContext().getMyId() - 1), noParties > 2)
+                .buildComputation(root);
           }
           // we need that new test framework...
           boolean thrown = false;
