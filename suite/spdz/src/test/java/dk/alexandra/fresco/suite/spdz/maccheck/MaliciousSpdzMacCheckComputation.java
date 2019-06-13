@@ -48,7 +48,6 @@ public class MaliciousSpdzMacCheckComputation implements Computation<Void, Proto
 
     return builder.seq(new CoinTossingComputation(32,
         commitmentSerializer,
-        noOfParties,
         localDrbg))
         .seq((seq, seed) -> {
           this.jointDrbg = new AesCtrDrbg(seed);
@@ -87,7 +86,7 @@ public class MaliciousSpdzMacCheckComputation implements Computation<Void, Proto
             return seq.seq(
                 new CommitmentComputation(commitmentSerializer,
                     fieldDefinition.serialize(delta),
-                    noOfParties, localDrbg));
+                    localDrbg));
           }
         }).seq((seq, ignored) -> null);
   }

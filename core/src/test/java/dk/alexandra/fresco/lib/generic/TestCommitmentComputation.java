@@ -69,7 +69,7 @@ public class TestCommitmentComputation extends AbstractDummyArithmeticTest {
           Application<List<byte[]>, ProtocolBuilderNumeric> testApplication =
               root -> new CommitmentComputation(
                   commitmentSerializer,
-                  inputs.get(root.getBasicNumericContext().getMyId() - 1), noParties,
+                  inputs.get(root.getBasicNumericContext().getMyId() - 1),
                   localDrbg)
                   .buildComputation(root);
           List<byte[]> actual = runApplication(testApplication);
@@ -118,7 +118,7 @@ public class TestCommitmentComputation extends AbstractDummyArithmeticTest {
                 } else {
                   return new CommitmentComputation(
                       commitmentSerializer,
-                      inputs.get(myId - 1), noParties,
+                      inputs.get(myId - 1),
                       localDrbg)
                       .buildComputation(root);
                 }

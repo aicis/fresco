@@ -131,7 +131,7 @@ public class Spdz2kMacCheckComputation<
         .subtract(p.multiply(macKeyShare).shiftLowIntoHigh())
         .add(r.getMacShare().shiftLowIntoHigh());
     return new CommitmentComputation(commitmentSerializer, serializer.serialize(zj),
-        noOfParties, localDrbg).buildComputation(builder);
+        localDrbg).buildComputation(builder);
   }
 
   /**

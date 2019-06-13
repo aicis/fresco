@@ -16,7 +16,6 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.suite.dummy.arithmetic.AbstractDummyArithmeticTest;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import org.junit.Test;
@@ -33,7 +32,7 @@ public class TestCoinTossingComputation extends AbstractDummyArithmeticTest {
   public void testDefaultConstructor() {
     final AesCtrDrbg localDrbg = new AesCtrDrbg();
     final HashBasedCommitmentSerializer commitmentSerializer = new HashBasedCommitmentSerializer();
-    CoinTossingComputation ct = new CoinTossingComputation(32, commitmentSerializer, 2, localDrbg);
+    CoinTossingComputation ct = new CoinTossingComputation(32, commitmentSerializer, localDrbg);
     assertNotNull(ct);
   }
 
@@ -58,7 +57,7 @@ public class TestCoinTossingComputation extends AbstractDummyArithmeticTest {
                 final AesCtrDrbg localDrbg = new AesCtrDrbg();
                 final HashBasedCommitmentSerializer commitmentSerializer = new HashBasedCommitmentSerializer();
                 final byte[] bytes = inputs.get(root.getBasicNumericContext().getMyId() - 1);
-                return new CoinTossingComputation(bytes, commitmentSerializer, noParties, localDrbg)
+                return new CoinTossingComputation(bytes, commitmentSerializer, localDrbg)
                     .buildComputation(root);
               };
           byte[] actual = runApplication(testApplication);

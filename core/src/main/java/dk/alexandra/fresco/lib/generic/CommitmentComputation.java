@@ -18,14 +18,12 @@ public class CommitmentComputation implements
 
   private final ByteSerializer<HashBasedCommitment> commitmentSerializer;
   private final byte[] value;
-  private final int noOfParties;
   private final Drbg localDrbg;
 
   public CommitmentComputation(ByteSerializer<HashBasedCommitment> commitmentSerializer,
-      byte[] value, int noOfParties, Drbg localDrbg) {
+      byte[] value, Drbg localDrbg) {
     this.commitmentSerializer = commitmentSerializer;
     this.value = value;
-    this.noOfParties = noOfParties;
     this.localDrbg = localDrbg;
   }
 
@@ -33,6 +31,7 @@ public class CommitmentComputation implements
   public DRes<List<byte[]>> buildComputation(ProtocolBuilderNumeric builder) {
     HashBasedCommitment ownCommitment = new HashBasedCommitment();
     byte[] ownOpening = ownCommitment.commit(localDrbg, value);
+    final int noOfParties = builder.getBasicNumericContext().getNoOfParties();
     return builder.seq(
         seq -> {
           if (noOfParties > 2) {
@@ -40,6 +39,8 @@ public class CommitmentComputation implements
                 commitmentSerializer.serialize(ownCommitment))
                 .buildComputation(seq);
           } else {
+            // when there are only two parties, parties can't send mutually inconsistent messages
+            // so no extra validation is necessary
             return seq.append(new InsecureBroadcastProtocol<>(
                 commitmentSerializer.serialize(ownCommitment)));
           }

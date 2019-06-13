@@ -62,7 +62,6 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
 
     return builder.seq(new CoinTossingComputation(drbgSeedBitLength / 8,
         commitmentSerializer,
-        noOfParties,
         localDrbg))
         .seq((seq, seed) -> {
           FieldDefinition fieldDefinition = builder.getBasicNumericContext().getFieldDefinition();
@@ -90,7 +89,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
           // Commit to delta and open it afterwards
           return seq.seq(
               new CommitmentComputation(commitmentSerializer, fieldDefinition.serialize(delta),
-                  noOfParties, localDrbg));
+                  localDrbg));
         }).seq((seq, commitmentsRaw) -> {
           FieldDefinition fieldDefinition = builder.getBasicNumericContext().getFieldDefinition();
           List<FieldElement> commitments = fieldDefinition.deserializeList(commitmentsRaw);

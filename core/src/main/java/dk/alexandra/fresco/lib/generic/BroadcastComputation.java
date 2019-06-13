@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderImpl;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,7 +24,7 @@ public class BroadcastComputation<BuilderT extends ProtocolBuilderImpl<BuilderT>
   }
 
   public BroadcastComputation(byte[] input, boolean runValidation) {
-    this(java.util.Collections.singletonList(input), runValidation);
+    this(Collections.singletonList(input), runValidation);
   }
 
   public BroadcastComputation(byte[] input) {

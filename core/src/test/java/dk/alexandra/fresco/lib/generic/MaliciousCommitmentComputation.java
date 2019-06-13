@@ -18,7 +18,7 @@ public class MaliciousCommitmentComputation extends CommitmentComputation {
   public MaliciousCommitmentComputation(
       ByteSerializer<HashBasedCommitment> commitmentSerializer,
       byte[] value, int noOfParties, Drbg localDrbg) {
-    super(commitmentSerializer, value, noOfParties, localDrbg);
+    super(commitmentSerializer, value, localDrbg);
     this.commitmentSerializer = commitmentSerializer;
     this.value = value;
     this.noOfParties = noOfParties;
@@ -36,6 +36,8 @@ public class MaliciousCommitmentComputation extends CommitmentComputation {
                 commitmentSerializer.serialize(ownCommitment))
                 .buildComputation(seq);
           } else {
+            // when there are only two parties, parties can't send mutually inconsistent messages
+            // so no extra validation is necessary
             return seq.append(new InsecureBroadcastProtocol<>(
                 commitmentSerializer.serialize(ownCommitment)));
           }
