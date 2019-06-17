@@ -56,7 +56,6 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
 
   @Override
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
-    final int noOfParties = builder.getBasicNumericContext().getNoOfParties();
     final AesCtrDrbg localDrbg = new AesCtrDrbg();
     final HashBasedCommitmentSerializer commitmentSerializer = new HashBasedCommitmentSerializer();
 
