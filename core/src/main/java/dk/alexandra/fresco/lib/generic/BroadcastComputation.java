@@ -37,15 +37,16 @@ public class BroadcastComputation<BuilderT extends ProtocolBuilderImpl<BuilderT>
   }
 
   /**
-   * Default constructor for when a party only broadcasts a single message.
+   * Default constructor to {@link #BroadcastComputation(List, boolean)} for when a party only
+   * broadcasts a single message.
    */
   public BroadcastComputation(byte[] input, boolean runValidation) {
     this(Collections.singletonList(input), runValidation);
   }
 
   /**
-   * Default constructor for when a party only broadcasts a single message and validation is
-   * required.
+   * Default constructor to {@link #BroadcastComputation(byte[], boolean)} for when a party only
+   * broadcasts a single message and validation is required.
    */
   public BroadcastComputation(byte[] input) {
     this(input, true);
