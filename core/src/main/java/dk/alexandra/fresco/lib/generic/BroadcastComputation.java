@@ -9,8 +9,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Generic active broadcast validation computation. <p>Uses generic native protocols {@link
- * InsecureBroadcastProtocol} and {@link BroadcastValidationProtocol}.</p>
+ * Generic active broadcast validation computation.
+ *
+ * <p>Allows each party to securely broadcast a list of messages and receive the other parties'
+ * messages.</p>
+ *
+ * <p>Uses generic native protocols {@link InsecureBroadcastProtocol} and {@link
+ * BroadcastValidationProtocol}.</p>
  */
 public class BroadcastComputation<BuilderT extends ProtocolBuilderImpl<BuilderT>> implements
     Computation<List<byte[]>, BuilderT> {
@@ -18,15 +23,30 @@ public class BroadcastComputation<BuilderT extends ProtocolBuilderImpl<BuilderT>
   private final List<byte[]> input;
   private final boolean runValidation;
 
+  /**
+   * Creates new {@link BroadcastComputation}.
+   *
+   * @param input list of messages this party will broadcast
+   * @param runValidation indicates if messages received from other parties need to be validated for
+   * consistency (this can be false for instance when there are only two parties participating in
+   * the broadcast)
+   */
   public BroadcastComputation(List<byte[]> input, boolean runValidation) {
     this.input = input;
     this.runValidation = runValidation;
   }
 
+  /**
+   * Default constructor for when a party only broadcasts a single message.
+   */
   public BroadcastComputation(byte[] input, boolean runValidation) {
     this(Collections.singletonList(input), runValidation);
   }
 
+  /**
+   * Default constructor for when a party only broadcasts a single message and validation is
+   * required.
+   */
   public BroadcastComputation(byte[] input) {
     this(input, true);
   }
