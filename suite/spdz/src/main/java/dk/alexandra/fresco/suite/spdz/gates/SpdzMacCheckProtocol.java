@@ -28,7 +28,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
   private final List<FieldElement> openedValues;
   private final FieldElement alpha;
   private final Function<byte[], Drbg> jointDrbgSupplier;
-  private final int drbgSeedBitLength;
+  private final int drbgByteLength;
 
   /**
    * Protocol which handles the MAC check internal to SPDZ. If this protocol reaches the end, no
@@ -51,23 +51,24 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
     this.modulus = modulus;
     this.jointDrbgSupplier = jointDrbgSupplier;
     this.alpha = alpha;
-    this.drbgSeedBitLength = drbgSeedBitLength;
+    this.drbgByteLength = drbgSeedBitLength / 8;
   }
 
   @Override
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
     final AesCtrDrbg localDrbg = new AesCtrDrbg();
     final HashBasedCommitmentSerializer commitmentSerializer = new HashBasedCommitmentSerializer();
+    final FieldDefinition definition = builder
+        .getBasicNumericContext()
+        .getFieldDefinition();
 
-    return builder.seq(new CoinTossingComputation(drbgSeedBitLength / 8,
-        commitmentSerializer,
-        localDrbg))
+    return builder
+        .seq(new CoinTossingComputation(drbgByteLength, commitmentSerializer, localDrbg))
         .seq((seq, seed) -> {
-          FieldDefinition fieldDefinition = builder.getBasicNumericContext().getFieldDefinition();
           Drbg jointDrbg = jointDrbgSupplier.apply(seed);
-          FieldElement[] rs = sampleRandomCoefficients(openedValues.size(), fieldDefinition,
+          FieldElement[] rs = sampleRandomCoefficients(openedValues.size(), definition,
               jointDrbg);
-          FieldElement a = fieldDefinition.createElement(0);
+          FieldElement a = definition.createElement(0);
           int index = 0;
           for (FieldElement openedValue : openedValues) {
             FieldElement openedValueHidden = openedValue.multiply(rs[index++]);
@@ -76,7 +77,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
 
           // compute gamma_i as the sum of all MAC's on the opened values times
           // r_j.
-          FieldElement gamma = fieldDefinition.createElement(0);
+          FieldElement gamma = definition.createElement(0);
           index = 0;
           for (SpdzSInt closedValue : closedValues) {
             FieldElement closedValueHidden = rs[index++].multiply(closedValue.getMac());
@@ -85,19 +86,18 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
 
           // compute delta_i as: gamma_i - alpha_i*a
           FieldElement delta = gamma.subtract(alpha.multiply(a));
+          byte[] deltaBytes = definition.serialize(delta);
+
           // Commit to delta and open it afterwards
-          return seq.seq(
-              new CommitmentComputation(commitmentSerializer, fieldDefinition.serialize(delta),
-                  localDrbg));
+          return seq.seq(new CommitmentComputation(commitmentSerializer, deltaBytes, localDrbg));
         }).seq((seq, commitmentsRaw) -> {
-          FieldDefinition fieldDefinition = builder.getBasicNumericContext().getFieldDefinition();
-          List<FieldElement> commitments = fieldDefinition.deserializeList(commitmentsRaw);
+          List<FieldElement> commitments = definition.deserializeList(commitmentsRaw);
           FieldElement deltaSum =
               commitments
                   .stream()
-                  .reduce(fieldDefinition.createElement(0), FieldElement::add);
+                  .reduce(definition.createElement(0), FieldElement::add);
 
-          if (!BigInteger.ZERO.equals(fieldDefinition.convertToUnsigned(deltaSum))) {
+          if (!BigInteger.ZERO.equals(definition.convertToUnsigned(deltaSum))) {
             throw new MaliciousException(
                 "The sum of delta's was not 0. Someone was corrupting something amongst "
                     + openedValues.size()
