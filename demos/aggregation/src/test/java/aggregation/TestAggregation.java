@@ -50,7 +50,7 @@ public class TestAggregation {
       ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
       SpdzResourcePool rp =
           new SpdzResourcePoolImpl(i, n, new SpdzOpenedValueStoreImpl(),
-              new SpdzDummyDataSupplier(i, n, definition, modulus), new AesCtrDrbg(new byte[32]));
+              new SpdzDummyDataSupplier(i, n, definition, modulus), AesCtrDrbg::new);
       ProtocolEvaluator<SpdzResourcePool> evaluator =
           new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =

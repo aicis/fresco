@@ -62,7 +62,7 @@ public class TestInputSumExample {
             return (ResourcePoolT) new SpdzResourcePoolImpl(i, n, new SpdzOpenedValueStoreImpl(),
                 new SpdzDummyDataSupplier(i, n,
                     new BigIntegerFieldDefinition(modulus), modulus),
-                new AesCtrDrbg(new byte[32]));
+                AesCtrDrbg::new);
           } catch (Exception e) {
             throw new RuntimeException("Your system does not support the necessary hash function.",
                 e);

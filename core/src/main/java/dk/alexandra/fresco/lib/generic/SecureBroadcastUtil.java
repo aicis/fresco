@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.spdz2k.resource;
+package dk.alexandra.fresco.lib.generic;
 
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;

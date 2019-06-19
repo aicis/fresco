@@ -6,7 +6,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
-import dk.alexandra.fresco.suite.spdz2k.protocols.natives.BroadcastValidationProtocol;
+import dk.alexandra.fresco.lib.generic.BroadcastValidationProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kInputOnlyProtocol;
 
 /**

@@ -16,13 +16,6 @@ public abstract class SpdzNativeProtocol<OutputT> implements
     return sendAndReset(dig, network);
   }
 
-  byte[] sendBroadcastValidation(MessageDigest dig, Network network, Collection<byte[]> bs) {
-    for (byte[] b : bs) {
-      dig.update(b);
-    }
-    return sendAndReset(dig, network);
-  }
-
   private byte[] sendAndReset(MessageDigest dig, Network network) {
     byte[] digest = dig.digest();
     dig.reset();

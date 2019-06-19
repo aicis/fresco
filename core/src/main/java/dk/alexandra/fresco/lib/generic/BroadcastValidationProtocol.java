@@ -1,15 +1,14 @@
-package dk.alexandra.fresco.suite.spdz2k.protocols.natives;
+package dk.alexandra.fresco.lib.generic;
 
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.suite.spdz2k.resource.SecureBroadcastUtil;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * Generic native protocol implementing validation of previously received broadcast. <p>Used as a
- * building block in {@link dk.alexandra.fresco.suite.spdz2k.protocols.computations.BroadcastComputation}.</p>
+ * building block in {@link BroadcastComputation}.</p>
  */
 public class BroadcastValidationProtocol<ResourcePoolT extends ResourcePool> implements
     NativeProtocol<Void, ResourcePoolT> {

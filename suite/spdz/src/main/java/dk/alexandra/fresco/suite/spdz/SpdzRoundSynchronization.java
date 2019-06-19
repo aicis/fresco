@@ -33,11 +33,10 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
    * Creates new {@link SpdzRoundSynchronization}.
    *
    * @param spdzProtocolSuite the spdz protocol suite which we will use for the mac-check
-   *     computation
-   * @param openValueThreshold number of open values we accumulating before forcing mac-check
-   *     (the mac-check will always run if there are output gates but in order to reduce memory
-   *     usage we will run the mac-check even when there are no output gates yet but the threshold
-   *     is exceeded)
+   * computation
+   * @param openValueThreshold number of open values we accumulating before forcing mac-check (the
+   * mac-check will always run if there are output gates but in order to reduce memory usage we will
+   * run the mac-check even when there are no output gates yet but the threshold is exceeded)
    * @param batchSize batch size for mac-check protocol
    */
   public SpdzRoundSynchronization(SpdzProtocolSuite spdzProtocolSuite, int openValueThreshold,
@@ -60,12 +59,12 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
     BatchedProtocolEvaluator<SpdzResourcePool> evaluator =
         new BatchedProtocolEvaluator<>(batchStrategy, spdzProtocolSuite, batchSize);
     OpenedValueStore<SpdzSInt, FieldElement> store = resourcePool.getOpenedValueStore();
-    SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(secRand,
-        resourcePool.getMessageDigest(),
+    SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(
         store.popValues(),
         resourcePool.getModulus(),
-        resourcePool.getRandomGenerator(),
-        resourcePool.getDataSupplier().getSecretSharedKey());
+        resourcePool::createRandomGenerator,
+        resourcePool.getDataSupplier().getSecretSharedKey(),
+        resourcePool.getDrbgSeedBitLength());
     ProtocolBuilderNumeric sequential = spdzBuilder.createSequential();
     macCheck.buildComputation(sequential);
     evaluator.eval(sequential.build(), resourcePool, network);
@@ -103,7 +102,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
     }
   }
 
-  public int getBatchSize() {
+  protected int getBatchSize() {
     return batchSize;
   }
 }

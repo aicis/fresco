@@ -9,13 +9,17 @@ import dk.alexandra.fresco.framework.util.OpenedValueStore;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import java.security.MessageDigest;
+import java.util.function.Function;
 
 public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResourcePool {
+
+  private static final int DRBG_SEED_LENGTH = 256;
 
   private final MessageDigest messageDigest;
   private final OpenedValueStore<SpdzSInt, FieldElement> openedValueStore;
   private final SpdzDataSupplier dataSupplier;
-  private final Drbg drbg;
+  private final Function<byte[], Drbg> drbgSupplier;
+  private final int drbgSeedBitLength;
 
   /**
    * Construct a ResourcePool implementation suitable for the spdz protocol suite.
@@ -24,18 +28,30 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
    * @param noOfPlayers The amount of parties
    * @param openedValueStore Store for maintaining opened values for later mac check
    * @param dataSupplier Pre-processing material supplier
+   * @param drbgSupplier Function instantiating DRBG with given seed
+   * @param drbgSeedBitLength Required bit length of seed used for DRBGs
    */
   public SpdzResourcePoolImpl(int myId, int noOfPlayers,
       OpenedValueStore<SpdzSInt, FieldElement> openedValueStore, SpdzDataSupplier dataSupplier,
-      Drbg drbg) {
+      Function<byte[], Drbg> drbgSupplier, int drbgSeedBitLength) {
     super(myId, noOfPlayers);
     this.dataSupplier = dataSupplier;
     this.openedValueStore = openedValueStore;
     this.messageDigest = ExceptionConverter.safe(
         () -> MessageDigest.getInstance("SHA-256"),
         "Configuration error, SHA-256 is needed for Spdz");
-    // Initialize various fields global to the computation.
-    this.drbg = drbg;
+    this.drbgSupplier = drbgSupplier;
+    this.drbgSeedBitLength = drbgSeedBitLength;
+  }
+
+  /**
+   * Default call to {@link #SpdzResourcePoolImpl(int, int, OpenedValueStore, SpdzDataSupplier,
+   * Function, int)} with default DRBG seed length.
+   */
+  public SpdzResourcePoolImpl(int myId, int noOfPlayers,
+      OpenedValueStore<SpdzSInt, FieldElement> openedValueStore, SpdzDataSupplier dataSupplier,
+      Function<byte[], Drbg> drbgSupplier) {
+    this(myId, noOfPlayers, openedValueStore, dataSupplier, drbgSupplier, DRBG_SEED_LENGTH);
   }
 
   @Override
@@ -54,15 +70,18 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   }
 
   @Override
+  public int getDrbgSeedBitLength() {
+    return drbgSeedBitLength;
+  }
+
+  @Override
   public MessageDigest getMessageDigest() {
     return messageDigest;
   }
 
   @Override
-  public Drbg getRandomGenerator() {
-    if (drbg == null) {
-      throw new IllegalStateException("Joint drbg must be initialized before use");
-    }
-    return drbg;
+  public Drbg createRandomGenerator(byte[] seed) {
+    return drbgSupplier.apply(seed);
   }
+
 }

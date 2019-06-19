@@ -193,7 +193,7 @@ public abstract class AbstractSpdzTest {
         new RealNumericContext(fixedPointPrecision)).createSequential();
     SpdzResourcePoolImpl tripleResourcePool =
         new SpdzResourcePoolImpl(myId, noOfPlayers, new OpenedValueStoreImpl<>(), tripleSupplier,
-            new AesCtrDrbg(new byte[32]));
+            AesCtrDrbg::new);
 
     DRes<List<DRes<SInt>>> exponentiationPipe =
         new DefaultPreprocessedValues(sequential).getExponentiationPipe(pipeLength);
@@ -279,7 +279,7 @@ public abstract class AbstractSpdzTest {
       supplier = new SpdzStorageDataSupplier(storage, storageName, numberOfParties);
     }
     return new SpdzResourcePoolImpl(myId, numberOfParties, new OpenedValueStoreImpl<>(), supplier,
-        new AesCtrDrbg(new byte[32]));
+        AesCtrDrbg::new);
   }
 
   private SpdzSInt[] computeSInts(DRes<List<DRes<SInt>>> pipe) {

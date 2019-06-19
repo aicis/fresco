@@ -1,41 +1,45 @@
 package dk.alexandra.fresco.suite.spdz.maccheck;
 
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
-import dk.alexandra.fresco.framework.sce.evaluator.NetworkBatchDecorator;
-import dk.alexandra.fresco.framework.sce.evaluator.ProtocolCollectionList;
 import dk.alexandra.fresco.framework.util.OpenedValueStore;
+import dk.alexandra.fresco.suite.spdz.SpdzBuilder;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzRoundSynchronization;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import java.security.SecureRandom;
+import java.util.function.Function;
 
 public class MaliciousSpdzRoundSynchronization extends SpdzRoundSynchronization {
 
-  public MaliciousSpdzRoundSynchronization(SpdzProtocolSuite spdzProtocolSuite) {
+  private final SpdzProtocolSuite hacked;
+  private final Function<SpdzResourcePool, SpdzBuilder> builder;
+
+  public MaliciousSpdzRoundSynchronization(SpdzProtocolSuite spdzProtocolSuite,
+      Function<SpdzResourcePool, SpdzBuilder> builder) {
     super(spdzProtocolSuite);
+    this.hacked = spdzProtocolSuite;
+    this.builder = builder;
   }
 
   @Override
   protected void doMacCheck(SpdzResourcePool resourcePool, Network network) {
-    NetworkBatchDecorator networkBatchDecorator =
-        new NetworkBatchDecorator(resourcePool.getNoOfParties(), network);
     OpenedValueStore<SpdzSInt, FieldElement> store = resourcePool.getOpenedValueStore();
-    MaliciousSpdzMacCheckProtocol macCheck = new MaliciousSpdzMacCheckProtocol(new SecureRandom(),
-        resourcePool.getMessageDigest(),
+    MaliciousSpdzMacCheckComputation macCheck = new MaliciousSpdzMacCheckComputation(
         store.popValues(),
-        resourcePool.getFieldDefinition(),
-        resourcePool.getRandomGenerator(),
+        resourcePool.getFieldDefinition().getModulus(),
+        resourcePool::createRandomGenerator,
         resourcePool.getDataSupplier().getSecretSharedKey());
-    do {
-      ProtocolCollectionList<SpdzResourcePool> protocolCollectionList =
-          new ProtocolCollectionList<>(getBatchSize());
-      macCheck.getNextProtocols(protocolCollectionList);
-      BatchEvaluationStrategy<SpdzResourcePool> batchStrat = new BatchedStrategy<>();
-      batchStrat.processBatch(protocolCollectionList, resourcePool, networkBatchDecorator);
-    } while (macCheck.hasNextProtocols());
+    BatchEvaluationStrategy<SpdzResourcePool> batchStrategy = new BatchedStrategy<>();
+    BatchedProtocolEvaluator<SpdzResourcePool> evaluator =
+        new BatchedProtocolEvaluator<>(batchStrategy, hacked, getBatchSize());
+    ProtocolBuilderNumeric sequential = builder.apply(resourcePool).createSequential();
+    macCheck.buildComputation(sequential);
+    evaluator.eval(sequential.build(), resourcePool, network);
   }
 }
