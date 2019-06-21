@@ -786,13 +786,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
-  public void test_Real_Sqrt_Uneven_Precision() {
-    runTest(new MathTests.TestSqrt<>(),
-        new TestParameters()
-            .fixedPointPrecesion(BasicFixedPointTests.DEFAULT_PRECISION + 1));
-  }
-
-  @Test
   public void test_trunctation() {
     runTest(new TruncationTests.TestTruncation<>(), new TestParameters().numParties(2));
   }

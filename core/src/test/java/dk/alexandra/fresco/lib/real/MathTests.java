@@ -59,7 +59,7 @@ public class MathTests {
               producer -> producer.seq(seq -> {
                 List<DRes<SReal>> result = new ArrayList<>();
                 for (int i = 0; i < 10; i++) {
-                  result.add(seq.realAdvanced().random(DEFAULT_PRECISION));
+                  result.add(seq.realAdvanced().random());
                 }
 
                 List<DRes<BigDecimal>> opened =

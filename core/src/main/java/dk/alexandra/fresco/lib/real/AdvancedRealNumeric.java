@@ -51,10 +51,9 @@ public interface AdvancedRealNumeric extends ComputationDirectory {
    * sampled as <i>r * 2<sup>-n</sup></i> for a random positive <i>n</i> bit number <i>r</i>.
    * </p>
    *
-   * @param bits the number of random bits used for the sample
    * @return The random value
    */
-  DRes<SReal> random(int bits);
+  DRes<SReal> random();
 
   /**
    * Calculate the natural logarithm of a secret value. Works best for small inputs (< 10), so
