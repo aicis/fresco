@@ -10,6 +10,7 @@ import dk.alexandra.fresco.lib.real.fixed.utils.Truncate;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.Objects;
 
 /**
  * An implementation of the {@link RealNumeric} ComputationDirectory based on a fixed point
@@ -27,9 +28,7 @@ public class FixedNumeric implements RealNumeric {
    *     the fixed point operations.
    */
   public FixedNumeric(ProtocolBuilderNumeric builder) {
-    if (builder == null) {
-      throw new NullPointerException();
-    }
+    Objects.requireNonNull(builder);
     this.builder = builder;
   }
 
