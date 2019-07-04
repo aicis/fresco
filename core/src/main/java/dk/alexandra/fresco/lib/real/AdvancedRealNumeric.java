@@ -73,4 +73,13 @@ public interface AdvancedRealNumeric extends ComputationDirectory {
    */
   DRes<SReal> sqrt(DRes<SReal> x);
 
+  /**
+   * Calculate a power of two in the interval between <i>1/x</i> and <i>1/2x</i>. So the product
+   * <i>x * c</i> is in the interval <i>[0.5, 1]</i>. 
+   * 
+   * @param x A secret value
+   * @return A deferred result computing <i>c</i> as decribed above.
+   */
+  DRes<SReal> normalize(DRes<SReal> x);
+  
 }

@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.real.DefaultAdvancedRealNumeric;
 import dk.alexandra.fresco.lib.real.SReal;
+import dk.alexandra.fresco.lib.real.fixed.utils.NormalizeSInt;
 import java.math.BigInteger;
 
 public class AdvancedFixedNumeric extends DefaultAdvancedRealNumeric {
@@ -39,6 +40,17 @@ public class AdvancedFixedNumeric extends DefaultAdvancedRealNumeric {
       return random;
     }).seq((seq, random) -> {
       return () -> new SFixed(random.random);
+    });
+  }
+
+  @Override
+  public DRes<SReal> normalize(DRes<SReal> x) {
+    return builder.seq(seq -> {
+      DRes<SInt> normalized = new NormalizeSInt(((SFixed) x.out()).getSInt(),
+          seq.getRealNumericContext().getPrecision() * 2).buildComputation(seq);      
+      DRes<SReal> scalingFactor = new SFixed(normalized);
+      
+      return scalingFactor;
     });
   }
 }

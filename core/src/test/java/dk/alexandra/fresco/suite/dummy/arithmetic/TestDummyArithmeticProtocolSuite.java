@@ -43,6 +43,7 @@ import dk.alexandra.fresco.lib.math.polynomial.PolynomialTests;
 import dk.alexandra.fresco.lib.real.BasicFixedPointTests;
 import dk.alexandra.fresco.lib.real.LinearAlgebraTests;
 import dk.alexandra.fresco.lib.real.MathTests;
+import dk.alexandra.fresco.lib.real.NormalizeTests;
 import dk.alexandra.fresco.lib.real.TruncationTests;
 import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
 import dk.alexandra.fresco.lib.statistics.DeaSolver;
@@ -788,5 +789,15 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_trunctation() {
     runTest(new TruncationTests.TestTruncation<>(), new TestParameters().numParties(2));
+  }
+  
+  @Test
+  public void test_normalize_sint() {
+    runTest(new NormalizeTests.TestNormalizeSInt<>(), new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void test_normalize_sreal() {
+    runTest(new NormalizeTests.TestNormalizeSReal<>(), new TestParameters().numParties(2));
   }
 }
