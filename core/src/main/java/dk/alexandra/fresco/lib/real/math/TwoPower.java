@@ -29,19 +29,27 @@ public class TwoPower implements Computation<SReal, ProtocolBuilderNumeric> {
     int f = builder.getRealNumericContext().getPrecision();
     int l = log2(f);
     
+    // Sign bit
     DRes<SInt> b = builder.comparison().compareLEQ(exponent, builder.numeric().known(0));
-    DRes<SInt> sign = builder.numeric().add(1, builder.numeric().mult(-2, b));
     
-    DRes<SInt> n = builder.numeric().mult(sign, exponent);
+    // Sign
+    DRes<SInt> s = builder.numeric().add(1, builder.numeric().mult(-2, b));
+    
+    // Absolute value of n
+    DRes<SInt> n = builder.numeric().mult(s, exponent);
     
     return builder.seq(seq -> {
       return seq.advancedNumeric().toBits(n, l);
     }).seq((seq, bits) -> {
       RealNumeric rn = seq.realNumeric();
       
+      // Result if exponent is positive
       DRes<SReal> bp = rn.add(1, rn.fromSInt(bits.get(0)));
-      DRes<SReal> bn = bp;;
+      
+      // Result if exponent is negative
+      DRes<SReal> bn = bp;
 
+      // 0'th iteration is the initialization of bp and bn
       for (int i = 1; i < l; i++) {
         double twoI = Math.pow(2, i);
         

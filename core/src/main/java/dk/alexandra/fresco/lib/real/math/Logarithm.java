@@ -22,10 +22,12 @@ public class Logarithm implements Computation<SReal, ProtocolBuilderNumeric> {
       DRes<SReal> g = seq.realNumeric().mult(norm.getFirst(), x);
       DRes<SReal> f = seq.realAdvanced().polynomialEvalutation(g, ApproximationPolynomials.LOG);
 
+      // Natural log of 2
       double log2 = 0.69314718055994530;
 
       g = seq.realNumeric().sub(f,
           seq.realNumeric().mult(log2, seq.realNumeric().fromSInt(norm.getSecond())));
+      
       return g;
     });
   }
