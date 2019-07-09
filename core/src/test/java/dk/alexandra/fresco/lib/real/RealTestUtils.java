@@ -12,6 +12,7 @@ class RealTestUtils {
   }
 
   static void assertEqual(BigDecimal a, BigDecimal b, int precision) {
+    // TODO: Make relative to expected, eg. the number of correct bits
     BigDecimal bound = BigDecimal.ONE.setScale(precision, RoundingMode.HALF_UP)
         .divide(BigDecimal.valueOf(2.0).pow(precision), RoundingMode.HALF_UP);
     BigDecimal d = a.subtract(b).abs();

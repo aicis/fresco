@@ -1,0 +1,56 @@
+package dk.alexandra.fresco.lib.real.math;
+
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.real.SReal;
+
+public class SquareRoot implements Computation<SReal, ProtocolBuilderNumeric> {
+
+  private final DRes<SReal> x;
+
+  public SquareRoot(DRes<SReal> x) {
+    this.x = x;
+  }
+
+  @Override
+  public DRes<SReal> buildComputation(ProtocolBuilderNumeric builder) {
+    return builder.seq(seq -> {
+      return seq.realAdvanced().normalize(x);
+    }).par((par, norm) -> {
+      DRes<SReal> a = par.seq(subBuilder -> {
+        DRes<SReal> g = subBuilder.realNumeric().mult(norm.getFirst(), x);
+        return subBuilder.realAdvanced().polynomialEvalutation(g, ApproximationPolynomials.SQRT);
+      });
+
+      DRes<SInt> kHalf = par.seq(subBuilder -> {
+        DRes<SInt> k = norm.getSecond();
+        DRes<SInt> kSign = subBuilder.comparison().sign(k);
+
+        return subBuilder.numeric().mult(kSign,
+            subBuilder.advancedNumeric().rightShift(subBuilder.numeric().mult(kSign, k)));
+      });
+      return () -> new Pair<>(a, new Pair<>(norm.getSecond(), kHalf));
+    }).seq((seq, params) -> {
+
+      DRes<SInt> k = params.getSecond().getFirst();
+      DRes<SInt> kHalf = params.getSecond().getSecond();
+
+      // Result if k is even
+      DRes<SReal> a = seq.realNumeric().mult(params.getFirst(),
+          new TwoPower(seq.numeric().sub(0, kHalf)).buildComputation(seq));
+
+      // Result if k is odd
+      double sqrt2recip = 0.707106781186548;
+      DRes<SReal> aPrime = seq.realNumeric().mult(sqrt2recip, a);
+
+      DRes<SInt> kOddSigned = seq.numeric().sub(k, seq.numeric().mult(2, kHalf));
+      DRes<SInt> kOdd = seq.numeric().mult(kOddSigned, kOddSigned);
+
+      return seq.realAdvanced().condSelect(kOdd, aPrime, a);
+    });
+  }
+
+}

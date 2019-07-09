@@ -2,6 +2,8 @@ package dk.alexandra.fresco.lib.real;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
+import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -69,17 +71,69 @@ public interface AdvancedRealNumeric extends ComputationDirectory {
    * Calculate the square root of a secret value.
    *
    * @param x Secret value
-   * @return A deferred result computing computing &radic;x
+   * @return A deferred result computing &radic;x
    */
   DRes<SReal> sqrt(DRes<SReal> x);
 
   /**
-   * Calculate a power of two in the interval between <i>1/x</i> and <i>1/2x</i>. So the product
-   * <i>x * c</i> is in the interval <i>[0.5, 1]</i>. 
+   * Calculate a power of two <i>c = 2<sup>-k</sup></i> such that the product <i>x * c</i> is in the
+   * interval <i>[0.5, 1]</i>.
    * 
    * @param x A secret value
-   * @return A deferred result computing <i>c</i> as decribed above.
+   * @return A deferred result computing the pair <i>(c, k)</i> as decribed above.
    */
-  DRes<SReal> normalize(DRes<SReal> x);
+  DRes<Pair<DRes<SReal>, DRes<SInt>>> normalize(DRes<SReal> x);
+  
+  /**
+   * Calculate the reciprocal of a secret value.
+   * 
+   * @param x A secret value
+   * @return A deferred result computing 1/x
+   */
+  DRes<SReal> reciprocal(DRes<SReal> x);
+
+  /**
+   * Calculate 2 to a secret integer power which may be negative.
+   * 
+   * @param x A secret value.
+   * @return A deferred result computing <i>2<sup>x</sup></i>
+   */
+  DRes<SReal> twoPower(DRes<SInt> x);
+
+  /**
+   * Evaluate a polynomial with public coefficients and a secret input.
+   *
+   * @param input A secret value
+   * @param polynomial The coefficients for the polynomial in increaseing order of degree.
+   * @return A deferred result computing the value of the polynomial on the input.
+   */
+  DRes<SReal> polynomialEvalutation(DRes<SReal> input, double ... polynomial);
+  
+  /**
+   * Pick one of two inputs depending on a condition. The first is picked if the condition is 1 and
+   * the other if the condition is 0.
+   * 
+   * @param condition A secret value which is 0 or 1
+   * @param first A secret value
+   * @param second A secret value
+   * @return
+   */
+  DRes<SReal> condSelect(DRes<SInt> condition, DRes<SReal> first, DRes<SReal> second);
+  
+  /**
+   * Compute the floor of a secret input.
+   * 
+   * @param x A secret value.
+   * @return A deferred result computing &lfloor; x &rfloor;
+   */
+  DRes<SInt> floor(DRes<SReal> x);
+  
+  /**
+   * Compute the sign of a secret input.
+   * 
+   * @param x A secret value.
+   * @return A deferred result computing the sign for x (0 has positive sign).
+   */
+  DRes<SInt> sign(DRes<SReal> x);
   
 }

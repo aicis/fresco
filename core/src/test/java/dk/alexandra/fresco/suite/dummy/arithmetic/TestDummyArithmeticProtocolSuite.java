@@ -792,12 +792,18 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
   
   @Test
-  public void test_normalize_sint() {
-    runTest(new NormalizeTests.TestNormalizeSInt<>(), new TestParameters().numParties(2));
-  }
-
-  @Test
   public void test_normalize_sreal() {
     runTest(new NormalizeTests.TestNormalizeSReal<>(), new TestParameters().numParties(2));
   }
+  
+  @Test
+  public void test_normalize_power_sreal() {
+    runTest(new NormalizeTests.TestNormalizePowerSReal<>(), new TestParameters().numParties(2));
+  }
+  
+  @Test
+  public void test_reciprocal() {
+    runTest(new MathTests.TestReciprocal<>(), new TestParameters().numParties(2));
+  }
+
 }
