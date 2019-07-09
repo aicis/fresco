@@ -18,45 +18,6 @@ import org.junit.Assert;
 
 public class NormalizeTests {
 
-  // public static class TestNormalizeSInt<ResourcePoolT extends ResourcePool>
-  // extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-  //
-  // @Override
-  // public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-  // List<BigInteger> openInputs = Stream.of(123, 1234, 12345, 123456, 1234567, 12345678, 123456789)
-  // .map(BigInteger::valueOf).collect(Collectors.toList());
-  //
-  // int l = 32;
-  // return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-  // @Override
-  // public void test() throws Exception {
-  // Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> {
-  //
-  // List<DRes<SInt>> closed1 =
-  // openInputs.stream().map(producer.numeric()::known).collect(Collectors.toList());
-  //
-  // List<DRes<List<DRes<SInt>>>> result = new ArrayList<>();
-  // for (DRes<SInt> inputX : closed1) {
-  // result.add(producer.seq(new NormalizeSInt(inputX, l)));
-  // }
-  //
-  // List<DRes<BigInteger>> opened =
-  // result.stream().map(producer.numeric()::open).collect(Collectors.toList());
-  // return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
-  // };
-  // List<BigInteger> output = runApplication(app);
-  //
-  // for (BigInteger x : output) {
-  // int idx = output.indexOf(x);
-  // BigInteger expected = BigInteger.ONE.shiftLeft(l - openInputs.get(idx).bitLength());
-  // Assert.assertEquals(expected, x);
-  // System.out.println(x);
-  // }
-  // }
-  // };
-  // }
-  // }
-
   public static class TestNormalizeSReal<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
