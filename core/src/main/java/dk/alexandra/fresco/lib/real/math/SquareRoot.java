@@ -11,6 +11,13 @@ public class SquareRoot implements Computation<SReal, ProtocolBuilderNumeric> {
 
   private final DRes<SReal> x;
 
+  /**
+   * p0132 from "Computer Approximations" by Hart et al. which approximates the square root on the
+   * interval [0.5, 1].
+   */
+  private static double[] POLYNOMIAL =
+      new double[] {0.22906994529, 1.300669049, -0.9093210498, 0.5010420763, -0.1214683824};
+  
   public SquareRoot(DRes<SReal> x) {
     this.x = x;
   }
@@ -22,7 +29,7 @@ public class SquareRoot implements Computation<SReal, ProtocolBuilderNumeric> {
     }).par((par, norm) -> {
       DRes<SReal> a = par.seq(subBuilder -> {
         DRes<SReal> g = subBuilder.realNumeric().mult(norm.getFirst(), x);
-        return subBuilder.realAdvanced().polynomialEvalutation(g, ApproximationPolynomials.SQRT);
+        return subBuilder.realAdvanced().polynomialEvalutation(g, POLYNOMIAL);
       });
 
       DRes<SInt> kHalf = par.seq(subBuilder -> {
