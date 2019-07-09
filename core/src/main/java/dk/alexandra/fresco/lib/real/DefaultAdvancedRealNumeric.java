@@ -81,47 +81,7 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
   }
 
   @Override
-  public DRes<SReal> exp(DRes<SReal> x) {
-
-//    int numberOfTerms = 16;
-//    return builder.seq(seq -> {
-//      List<DRes<SReal>> powers = new ArrayList<>(numberOfTerms - 1);
-//
-//      powers.add(x);
-//      DRes<SReal> pow = x;
-//      for (int i = 1; i < numberOfTerms - 1; i++) {
-//        pow = seq.realNumeric().mult(pow, x);
-//        powers.add(pow);
-//      }
-//      return () -> powers;
-//    }).par((par, powers) -> {
-//
-//      /*
-//       * We approximate the exponential function by calculating the first terms of the Taylor
-//       * expansion. By letting all terms in the series have common denominator, we only need to do
-//       * one division.
-//       *
-//       * TODO: In the current implementation we compute 16 terms, which seems to give decent
-//       * percision for small inputs. If we want full precision for all possible inputs, we need to
-//       * calculate many more terms, since the error after n terms is approx x^{n+1}/(n+1)!), and
-//       * this would cause the function to be very inefficient. Maybe we should allow the app
-//       * developer to specify an upper bound on the input?
-//       */
-//
-//      BigInteger n = BigInteger.ONE;
-//      List<DRes<SReal>> terms = new ArrayList<>(numberOfTerms);
-//      for (int i = numberOfTerms - 1; i >= 1; i--) {
-//        terms.add(par.realNumeric().mult(new BigDecimal(n), powers.get(i - 1)));
-//        n = n.multiply(BigInteger.valueOf(i));
-//      }
-//      final BigDecimal divisor = new BigDecimal(n);
-//      terms.add(par.realNumeric().known(divisor));
-//      return () -> new Pair<>(terms, divisor);
-//    }).seq((seq, termsAndDivisor) -> {
-//      return seq.realNumeric().div(seq.realAdvanced().sum(termsAndDivisor.getFirst()),
-//          termsAndDivisor.getSecond());
-//    });
-    
+  public DRes<SReal> exp(DRes<SReal> x) {    
     return new Exponential(x).buildComputation(builder);
   }
 
