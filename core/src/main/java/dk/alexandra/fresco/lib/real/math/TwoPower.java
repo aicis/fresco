@@ -37,11 +37,12 @@ public class TwoPower implements Computation<SReal, ProtocolBuilderNumeric> {
     return builder.seq(seq -> {
       return seq.advancedNumeric().toBits(n, l);
     }).seq((seq, bits) -> {
-      DRes<SReal> bp = seq.realNumeric().known(1);
-      DRes<SReal> bn = seq.realNumeric().known(1);
       RealNumeric rn = seq.realNumeric();
+      
+      DRes<SReal> bp = rn.add(1, rn.fromSInt(bits.get(0)));
+      DRes<SReal> bn = bp;;
 
-      for (int i = 0; i < l; i++) {
+      for (int i = 1; i < l; i++) {
         double twoI = Math.pow(2, i);
         
         DRes<SInt> t = bits.get(i);
