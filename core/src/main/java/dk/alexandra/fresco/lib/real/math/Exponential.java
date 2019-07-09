@@ -21,22 +21,34 @@ public class Exponential implements Computation<SReal, ProtocolBuilderNumeric> {
     
     // Sign bit
     DRes<SInt> b = builder.realNumeric().leq(x, builder.realNumeric().known(0.0));
-    
-    // Sign
-    DRes<SInt> s = builder.numeric().add(1, builder.numeric().mult(-2, b));
-    
+        
     return builder.seq(seq -> {
-      DRes<SReal> X = seq.realNumeric().mult(1.442695040889, x);      
+      
+      // e^x = 2^{log_2 e * x} = 2^{1.442695040889 * x}
+      DRes<SReal> X = seq.realNumeric().mult(1.442695040889, x);
+      
+      // Sign = 1 - 2b 
+      DRes<SInt> s = seq.numeric().add(1, seq.numeric().mult(-2, b));
+      
+      // Take absolute value
       X = new Scaling(X, s).buildComputation(seq);
       
+      // Integer part
       DRes<SInt> xPrime = seq.realAdvanced().floor(X);
+      
+      // Fractional part
       DRes<SReal> xDoublePrime = seq.realNumeric().sub(X, seq.realNumeric().fromSInt(xPrime));
+      
       return () -> new Pair<>(xPrime, xDoublePrime);
     }).seq((par, x) -> {
       
+      // 2^integer part
       DRes<SReal> f = par.realAdvanced().twoPower(x.getFirst());      
+      
+      // 2^fractional part
       DRes<SReal> g =
           par.realAdvanced().polynomialEvalutation(x.getSecond(), ApproximationPolynomials.TWOPOW);
+      
       return () -> new Pair<>(f,g);
     }).seq((seq, fg) -> {
       
