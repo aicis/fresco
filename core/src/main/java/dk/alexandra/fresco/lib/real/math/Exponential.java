@@ -45,7 +45,6 @@ public class Exponential implements Computation<SReal, ProtocolBuilderNumeric> {
       
       // Integer part
       DRes<SInt> xPrime = seq.numeric().sub(seq.realAdvanced().floor(X), b);
-      seq.debug().openAndPrint("Int part", xPrime, System.out);
       
       // Fractional part
       DRes<SReal> xDoublePrime = seq.realNumeric().sub(X, seq.realNumeric().fromSInt(xPrime));
