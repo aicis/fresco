@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.real.SReal;
+import dk.alexandra.fresco.lib.real.fixed.utils.Scaling;
 
 public class SquareRoot implements Computation<SReal, ProtocolBuilderNumeric> {
 
@@ -17,7 +18,7 @@ public class SquareRoot implements Computation<SReal, ProtocolBuilderNumeric> {
    */
   private static double[] POLYNOMIAL =
       new double[] {0.22906994529, 1.300669049, -0.9093210498, 0.5010420763, -0.1214683824};
-  
+
   public SquareRoot(DRes<SReal> x) {
     this.x = x;
   }
@@ -49,13 +50,16 @@ public class SquareRoot implements Computation<SReal, ProtocolBuilderNumeric> {
       DRes<SReal> a = seq.realNumeric().mult(params.getFirst(),
           new TwoPower(seq.numeric().sub(0, kHalf)).buildComputation(seq));
 
+      DRes<SInt> kOddSigned = seq.numeric().sub(k, seq.numeric().mult(2, kHalf));
+
       // Result if k is odd
-      double sqrt2recip = 1.414213562373095; //0.707106781186548;
+      DRes<SReal> sqrt2recip = seq.realNumeric().sub(1.060660171779821,
+          new Scaling(seq.realNumeric().known(0.353553390593274), kOddSigned)
+              .buildComputation(seq));
+      
       DRes<SReal> aPrime = seq.realNumeric().mult(sqrt2recip, a);
 
-      DRes<SInt> kOddSigned = seq.numeric().sub(k, seq.numeric().mult(2, kHalf));
       DRes<SInt> kOdd = seq.numeric().mult(kOddSigned, kOddSigned);
-      seq.debug().openAndPrint("kOdd", kOdd, System.out);
 
       return seq.realAdvanced().condSelect(kOdd, aPrime, a);
     });

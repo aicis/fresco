@@ -146,7 +146,7 @@ public class MathTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       List<BigDecimal> openInputs =
-          Stream.of(0.2, 1.5, 2.5, 40.1, 10_000.)
+          Stream.of(0.1, 0.2, 0.4, 0.8, 1.6, 3.2, 10.0, 20.0, 40.0, 10_000.)
               .map(BigDecimal::valueOf).collect(Collectors.toList());
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
