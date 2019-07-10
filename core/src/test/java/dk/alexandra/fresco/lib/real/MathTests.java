@@ -9,7 +9,9 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,9 +26,8 @@ public class MathTests {
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      List<BigDecimal> openInputs =
-          Stream.of(-5.0, -1.2, 0.01, 0.2, 1.1, 2.1, 5.1)
-              .map(BigDecimal::valueOf).collect(Collectors.toList());
+      List<BigDecimal> openInputs = Stream.of(/*-10.0, -1.2,*/ -0.5/* , 0.01, 0.2, 1.1, 2.1, 5.1 */)
+          .map(BigDecimal::valueOf).collect(Collectors.toList());
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
@@ -50,7 +51,9 @@ public class MathTests {
             int idx = output.indexOf(openOutput);
 
             BigDecimal expected = new BigDecimal(Math.exp(openInputs.get(idx).doubleValue()));
-            RealTestUtils.assertEqual(expected, openOutput, DEFAULT_PRECISION / 4); // TODO: Make relative to expected
+            RealTestUtils.assertEqual(expected, openOutput, DEFAULT_PRECISION / 4); // TODO: Make
+                                                                                    // relative to
+                                                                                    // expected
           }
         }
       };
@@ -371,6 +374,46 @@ public class MathTests {
             BigDecimal a = openInputs.get(idx);
 
             BigDecimal expected = BigDecimal.ONE.divide(a, 10, BigDecimal.ROUND_HALF_UP);
+            RealTestUtils.assertEqual(expected, openOutput, DEFAULT_PRECISION / 4);
+          }
+        }
+      };
+    }
+  }
+
+  public static class TestTwoPower<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      List<BigInteger> openInputs = Stream.of(-10, -5, -1, 0, 1, 2, 5, 10).map(BigInteger::valueOf)
+          .collect(Collectors.toList());
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
+
+            List<DRes<SInt>> closed1 =
+                openInputs.stream().map(producer.numeric()::known).collect(Collectors.toList());
+
+            List<DRes<SReal>> result = new ArrayList<>();
+            for (DRes<SInt> inputX : closed1) {
+              result.add(producer.realAdvanced().twoPower(inputX));
+            }
+
+            List<DRes<BigDecimal>> opened =
+                result.stream().map(producer.realNumeric()::open).collect(Collectors.toList());
+            return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
+          };
+          List<BigDecimal> output = runApplication(app);
+
+          for (BigDecimal openOutput : output) {
+            int idx = output.indexOf(openOutput);
+
+            int a = openInputs.get(idx).intValue();
+
+            BigDecimal expected = BigDecimal.valueOf(Math.pow(2.0, a));
             RealTestUtils.assertEqual(expected, openOutput, DEFAULT_PRECISION / 4);
           }
         }

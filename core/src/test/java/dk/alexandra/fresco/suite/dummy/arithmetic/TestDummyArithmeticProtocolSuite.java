@@ -805,5 +805,10 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_reciprocal() {
     runTest(new MathTests.TestReciprocal<>(), new TestParameters().numParties(2));
   }
+  
+  @Test
+  public void test_two_power() {
+    runTest(new MathTests.TestTwoPower<>(), new TestParameters().numParties(2));
+  }
 
 }
