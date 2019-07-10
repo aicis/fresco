@@ -49,9 +49,6 @@ public class SquareRoot implements Computation<SReal, ProtocolBuilderNumeric> {
       DRes<SReal> a = seq.realNumeric().mult(params.getFirst(),
           new TwoPower(seq.numeric().sub(0, kHalf)).buildComputation(seq));
 
-      seq.debug().openAndPrint("k", k, System.out);
-      seq.debug().openAndPrint("kHalf", kHalf, System.out);
-      
       // Result if k is odd
       double sqrt2recip = 1.414213562373095; //0.707106781186548;
       DRes<SReal> aPrime = seq.realNumeric().mult(sqrt2recip, a);
