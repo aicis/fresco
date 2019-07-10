@@ -39,11 +39,13 @@ public class Exponential implements Computation<SReal, ProtocolBuilderNumeric> {
       // Sign = 1 - 2b 
       DRes<SInt> s = seq.numeric().add(1, seq.numeric().mult(-2, b));
       
+      
       // Take absolute value
       X = new Scaling(X, s).buildComputation(seq);
       
       // Integer part
-      DRes<SInt> xPrime = seq.realAdvanced().floor(X);
+      DRes<SInt> xPrime = seq.numeric().sub(seq.realAdvanced().floor(X), b);
+      seq.debug().openAndPrint("Int part", xPrime, System.out);
       
       // Fractional part
       DRes<SReal> xDoublePrime = seq.realNumeric().sub(X, seq.realNumeric().fromSInt(xPrime));
