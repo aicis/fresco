@@ -20,6 +20,10 @@ class RealTestUtils {
         + ceilLog2(d) + " but expected precision " + precision, d.compareTo(bound) <= 0);
   }
 
+  static void assertEqual(double a, BigDecimal b, int precision) {
+    assertEqual(BigDecimal.valueOf(a), b, precision);
+  }
+
   static void assertEqual(List<BigDecimal> a, List<BigDecimal> b, int precision) {
     Assert.assertTrue("Lists must be of same size", a.size() == b.size());
     for (int i = 0; i < a.size(); i++) {
@@ -28,9 +32,13 @@ class RealTestUtils {
   }
 
   static int floorLog2(BigDecimal value) {
-    return (int) Math.floor(Math.log(value.doubleValue()) / Math.log(2.0));
+    return floorLog2(value.doubleValue());
   }
 
+  static int floorLog2(double value) {
+    return (int) Math.floor(Math.log(value) / Math.log(2.0));
+  }
+  
   static int ceilLog2(BigDecimal value) {
     return (int) Math.ceil(Math.log(value.doubleValue()) / Math.log(2.0));
   }

@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.junit.Assert;
 
 public class MathTests {
 
@@ -379,6 +380,49 @@ public class MathTests {
     }
   }
 
+  public static class TestRealSign<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      List<BigDecimal> openInputs =
+          Stream.of(-Math.pow(2.0, DEFAULT_PRECISION - 1), -1e-4, 0.0, 1e-4, 1.0)
+              .map(BigDecimal::valueOf).collect(Collectors.toList());
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> {
+
+            List<DRes<SReal>> closed1 =
+                openInputs.stream().map(producer.realNumeric()::known).collect(Collectors.toList());
+
+            List<DRes<SInt>> result = new ArrayList<>();
+            for (DRes<SReal> inputX : closed1) {
+              result.add(producer.realAdvanced().sign(inputX));
+            }
+
+            List<DRes<BigInteger>> opened =
+                result.stream().map(producer.numeric()::open).collect(Collectors.toList());
+            return () -> opened.stream().map(DRes::out)
+                .map(producer.getBasicNumericContext().getFieldDefinition()::convertToSigned)
+                .collect(Collectors.toList());
+          };
+          List<BigInteger> output = runApplication(app);
+
+          for (BigInteger openOutput : output) {
+            int idx = output.indexOf(openOutput);
+
+            int a = openInputs.get(idx).intValue();
+
+            BigInteger expected = BigInteger.valueOf(a >= 0 ? 1 : -1);
+            Assert.assertEquals(expected, openOutput);
+          }
+        }
+      };
+    }
+  }
+
   public static class TestTwoPower<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
@@ -417,5 +461,44 @@ public class MathTests {
         }
       };
     }
+  }
+
+  public static class TestConstantPolynomial<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      List<BigDecimal> openInputs =
+          Stream.of(1.0, 2.0, 3.0, 10.0)
+              .map(BigDecimal::valueOf).collect(Collectors.toList());
+
+              double[] p = new double[] {7.0};
+              
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
+
+            List<DRes<SReal>> closed1 =
+                openInputs.stream().map(producer.realNumeric()::known).collect(Collectors.toList());
+
+            List<DRes<SReal>> result = new ArrayList<>();
+            for (DRes<SReal> inputX : closed1) {
+              result.add(producer.realAdvanced().polynomialEvalutation(inputX, p));
+            }
+
+            List<DRes<BigDecimal>> opened =
+                result.stream().map(producer.realNumeric()::open).collect(Collectors.toList());
+            return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
+          };
+          List<BigDecimal> output = runApplication(app);
+
+          for (BigDecimal openOutput : output) {
+            RealTestUtils.assertEqual(p[0], openOutput, DEFAULT_PRECISION);
+          }
+        }
+      };
+    }
+
   }
 }

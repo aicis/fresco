@@ -29,10 +29,6 @@ public class PolynomialEvaluation implements Computation<SReal, ProtocolBuilderN
   public DRes<SReal> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq(seq -> {
 
-      if (p.length == 0) {
-        return seq.realNumeric().known(0);
-      }
-
       if (p.length == 1) {
         return seq.realNumeric().known(p[0]);
       }

@@ -811,4 +811,13 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new MathTests.TestTwoPower<>(), new TestParameters().numParties(2));
   }
 
+  @Test
+  public void test_real_sign() {
+    runTest(new MathTests.TestRealSign<>(), new TestParameters().numParties(2));    
+  }
+  
+  @Test
+  public void test_constant_real_polynomial() {
+    runTest(new MathTests.TestConstantPolynomial<>(), new TestParameters().numParties(2));
+  }
 }

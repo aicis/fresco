@@ -38,9 +38,9 @@ public class BasicFixedPointTests {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      List<BigDecimal> value = Stream.of(10.000001, 5.9, 11.0, 0.0001,
-          100000000.0001, 1.5 * Math.pow(2.0, -DEFAULT_PRECISION)).map(BigDecimal::valueOf)
-          .collect(Collectors.toList());
+      List<BigDecimal> value = Stream
+          .of(10.000001, 5.9, 11.0, 0.0001, 100000000.0001, 1.5 * Math.pow(2.0, -DEFAULT_PRECISION))
+          .map(BigDecimal::valueOf).collect(Collectors.toList());
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() {
@@ -122,8 +122,8 @@ public class BasicFixedPointTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
-      List<BigDecimal> value = Stream.of(10.000001, 5.9, 11.0, 0.0001, 100000000.0001,
-          0.5 * Math.pow(2.0, -DEFAULT_PRECISION)).map(BigDecimal::valueOf)
+      List<Double> value = Stream
+          .of(10.000001, 5.9, 11.0, 0.0001, 100000000.0001, 0.5 * Math.pow(2.0, -DEFAULT_PRECISION))
           .collect(Collectors.toList());
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
@@ -137,7 +137,10 @@ public class BasicFixedPointTests {
             return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
           };
           List<BigDecimal> output = runApplication(app);
-          RealTestUtils.assertEqual(value, output, DEFAULT_PRECISION + 1);
+
+          for (int i = 0; i < output.size(); i++) {
+            RealTestUtils.assertEqual(value.get(i), output.get(i), DEFAULT_PRECISION + 1);
+          }
         }
       };
     }
@@ -149,14 +152,12 @@ public class BasicFixedPointTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
-      List<BigDecimal> openInputs = Stream
-          .of(1.0001, 0.000_000_001, -1_000_000_000_000.000_100_000_000_1,
-              0.5 * Math.pow(2.0, -DEFAULT_PRECISION))
-          .map(BigDecimal::valueOf).collect(Collectors.toList());
-      List<BigDecimal> openInputs2 = Stream
-          .of(-1.0001, 1_000_000_000.0, -1_000_000_000_000.000_100_000_000_1,
-              0.5 * Math.pow(2.0, -DEFAULT_PRECISION))
-          .map(BigDecimal::valueOf).collect(Collectors.toList());
+      List<Double> openInputs =
+          Stream.of(1.0001, 0.000_000_001, -1_000_000_000_000.000_100_000_000_1,
+              0.5 * Math.pow(2.0, -DEFAULT_PRECISION)).collect(Collectors.toList());
+      List<Double> openInputs2 =
+          Stream.of(-1.0001, 1_000_000_000.0, -1_000_000_000_000.000_100_000_000_1,
+              0.5 * Math.pow(2.0, -DEFAULT_PRECISION)).collect(Collectors.toList());
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
@@ -180,9 +181,9 @@ public class BasicFixedPointTests {
           for (BigDecimal openOutput : output) {
             int idx = output.indexOf(openOutput);
 
-            BigDecimal a = openInputs.get(idx);
-            BigDecimal b = openInputs2.get(idx);
-            RealTestUtils.assertEqual(a.add(b), openOutput, DEFAULT_PRECISION);
+            double a = openInputs.get(idx);
+            double b = openInputs2.get(idx);
+            RealTestUtils.assertEqual(BigDecimal.valueOf(a + b), openOutput, DEFAULT_PRECISION);
           }
         }
       };
@@ -242,14 +243,14 @@ public class BasicFixedPointTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
-      List<BigDecimal> openInputs = Stream
+      List<Double> openInputs = Stream
           .of(1.000_2, 0.000_000_001, -1_000_000_000_000.000_100_000_000_1,
               2.5 * Math.pow(2.0, -DEFAULT_PRECISION))
-          .map(BigDecimal::valueOf).collect(Collectors.toList());
-      List<BigDecimal> openInputs2 = Stream
+          .collect(Collectors.toList());
+      List<Double> openInputs2 = Stream
           .of(1.000_1, 1_000_000_000.0, -1_000_000_000_000.000_100_000_000_1,
               Math.pow(2.0, -DEFAULT_PRECISION))
-          .map(BigDecimal::valueOf).collect(Collectors.toList());
+          .collect(Collectors.toList());
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
@@ -257,32 +258,28 @@ public class BasicFixedPointTests {
           Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
             List<DRes<SReal>> closed =
                 openInputs.stream().map(producer.realNumeric()::known).collect(Collectors.toList());
-            List<DRes<BigDecimal>> opened = Stream.concat(
-                IntStream.range(0, closed.size())
-                    .mapToObj(i -> producer.realNumeric().sub(closed.get(i), openInputs2.get(i))),
-                IntStream.range(0, closed.size())
-                    .mapToObj(i -> producer.realNumeric().sub(openInputs2.get(i), closed.get(i))))
-                .map(producer.realNumeric()::open)
-                .collect(Collectors.toList());
+            List<DRes<BigDecimal>> opened = Stream
+                .concat(
+                    IntStream.range(0, closed.size()).mapToObj(
+                        i -> producer.realNumeric().sub(closed.get(i), openInputs2.get(i))),
+                    IntStream.range(0, closed.size()).mapToObj(
+                        i -> producer.realNumeric().sub(openInputs2.get(i), closed.get(i))))
+                .map(producer.realNumeric()::open).collect(Collectors.toList());
             return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
           };
           List<BigDecimal> output = runApplication(app);
           assertEquals(output.size(), openInputs.size() * 2);
-          IntStream.range(0, openInputs.size())
-              .forEach(
-                  idx -> {
-                    BigDecimal a = openInputs.get(idx);
-                    BigDecimal b = openInputs2.get(idx);
-                    RealTestUtils.assertEqual(a.subtract(b), output.get(idx), DEFAULT_PRECISION);
-                  });
+          IntStream.range(0, openInputs.size()).forEach(idx -> {
+            double a = openInputs.get(idx);
+            double b = openInputs2.get(idx);
+            RealTestUtils.assertEqual(a-b, output.get(idx), DEFAULT_PRECISION);
+          });
 
-          IntStream.range(openInputs.size(), output.size())
-              .forEach(
-                  idx -> {
-                    BigDecimal a = openInputs.get(idx - openInputs.size());
-                    BigDecimal b = openInputs2.get(idx - openInputs.size());
-                    RealTestUtils.assertEqual(b.subtract(a), output.get(idx), DEFAULT_PRECISION);
-                  });
+          IntStream.range(openInputs.size(), output.size()).forEach(idx -> {
+            double a = openInputs.get(idx - openInputs.size());
+            double b = openInputs2.get(idx - openInputs.size());
+            RealTestUtils.assertEqual(b-a, output.get(idx), DEFAULT_PRECISION);
+          });
         }
       };
     }
@@ -293,19 +290,15 @@ public class BasicFixedPointTests {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      List<BigDecimal> openInputs =
-          Stream.of(1.223, 222.23, 5.59703, 0.004, 5.90, 6.0, 0.007, 0.1298, 9.99)
-              .map(BigDecimal::valueOf).collect(Collectors.toList());
-      List<BigDecimal> openInputs2 =
-          Stream.of(1.000, 1.0000, 0.22211, 100.1, 11.0, .07, 0.005, 10.0012, 999.0101)
-              .map(BigDecimal::valueOf).collect(Collectors.toList());
+      List<Double> openInputs =
+          Arrays.asList(1.223, 222.23, 5.59703, 0.004, 5.90, 6.0, 0.007, 0.1298, 9.99);
+      List<Double> openInputs2 =
+          Arrays.asList(1.000, 1.0000, 0.22211, 100.1, 11.0, .07, 0.005, 10.0012, 999.0101);
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() {
           Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
 
-           
-            
             List<DRes<SReal>> closed1 =
                 openInputs.stream().map(producer.realNumeric()::known).collect(Collectors.toList());
 
@@ -322,12 +315,12 @@ public class BasicFixedPointTests {
           List<BigDecimal> output = runApplication(app);
           for (BigDecimal openOutput : output) {
             int idx = output.indexOf(openOutput);
-            BigDecimal a = openInputs.get(idx);
-            BigDecimal b = openInputs2.get(idx);
+            double a = openInputs.get(idx);
+            double b = openInputs2.get(idx);
             // There should be no truncation after just one multiplication
             int precision = DEFAULT_PRECISION
                 - Math.max(0, Math.max(RealTestUtils.floorLog2(a), RealTestUtils.floorLog2(b)));
-            RealTestUtils.assertEqual(a.multiply(b), openOutput, precision);
+            RealTestUtils.assertEqual(a*b, openOutput, precision);
           }
         }
       };
@@ -376,8 +369,8 @@ public class BasicFixedPointTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
-      BigDecimal value = BigDecimal.valueOf(10.00100);
-      BigDecimal value2 = BigDecimal.valueOf(0.2);
+      double value = 10.00100;
+      double value2 = 0.2;
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
@@ -392,7 +385,7 @@ public class BasicFixedPointTests {
           BigDecimal output = runApplication(app);
           int precision = DEFAULT_PRECISION - 2
               - Math.max(0, RealTestUtils.floorLog2(value) - RealTestUtils.floorLog2(value2));
-          RealTestUtils.assertEqual(value.divide(value2), output, precision);
+          RealTestUtils.assertEqual(value / value2, output, precision);
         }
       };
     }
@@ -404,8 +397,8 @@ public class BasicFixedPointTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
-      BigDecimal value = BigDecimal.valueOf(10.00100);
-      BigDecimal value2 = BigDecimal.valueOf(-1);
+      double value = 10.00100;
+      double value2 = -1;
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
@@ -420,7 +413,7 @@ public class BasicFixedPointTests {
           BigDecimal output = runApplication(app);
           int precision = DEFAULT_PRECISION - 2
               - Math.max(0, RealTestUtils.floorLog2(value) - RealTestUtils.floorLog2(value2));
-          RealTestUtils.assertEqual(value.divide(value2), output, precision);
+          RealTestUtils.assertEqual(value / value2, output, precision);
         }
       };
     }
@@ -465,8 +458,8 @@ public class BasicFixedPointTests {
             BigDecimal a = openInputs.get(idx);
             BigDecimal b = openInputs2.get(idx);
 
-            int precision = DEFAULT_PRECISION - 1 - Math.max(0, Math
-                .max(RealTestUtils.floorLog2(a), RealTestUtils.floorLog2(b)));
+            int precision = DEFAULT_PRECISION - 1
+                - Math.max(0, Math.max(RealTestUtils.floorLog2(a), RealTestUtils.floorLog2(b)));
             RealTestUtils.assertEqual(a.multiply(b), openOutput, precision);
           }
         }
