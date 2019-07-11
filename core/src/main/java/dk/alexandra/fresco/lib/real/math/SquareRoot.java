@@ -25,43 +25,43 @@ public class SquareRoot implements Computation<SReal, ProtocolBuilderNumeric> {
 
   @Override
   public DRes<SReal> buildComputation(ProtocolBuilderNumeric builder) {
-    return builder.seq(seq -> {
-      return seq.realAdvanced().normalize(x);
-    }).par((par, norm) -> {
-      DRes<SReal> a = par.seq(subBuilder -> {
-        DRes<SReal> g = subBuilder.realNumeric().mult(norm.getFirst(), x);
-        return subBuilder.realAdvanced().polynomialEvalutation(g, POLYNOMIAL);
+    return builder.seq(r1 -> {
+      return r1.realAdvanced().normalize(x);
+    }).par((r2, norm) -> {
+      DRes<SReal> a = r2.seq(r2Sub1 -> {
+        DRes<SReal> g = r2Sub1.realNumeric().mult(norm.getFirst(), x);
+        return r2Sub1.realAdvanced().polynomialEvalutation(g, POLYNOMIAL);
       });
 
-      DRes<SInt> kHalf = par.seq(subBuilder -> {
+      DRes<SInt> kHalf = r2.seq(r2Sub2 -> {
         DRes<SInt> k = norm.getSecond();
-        DRes<SInt> kSign = subBuilder.comparison().sign(k);
+        DRes<SInt> kSign = r2Sub2.comparison().sign(k);
 
-        return subBuilder.numeric().mult(kSign,
-            subBuilder.advancedNumeric().rightShift(subBuilder.numeric().mult(kSign, k)));
+        return r2Sub2.numeric().mult(kSign,
+            r2Sub2.advancedNumeric().rightShift(r2Sub2.numeric().mult(kSign, k)));
       });
       return () -> new Pair<>(a, new Pair<>(norm.getSecond(), kHalf));
-    }).seq((seq, params) -> {
+    }).seq((r3, params) -> {
 
       DRes<SInt> k = params.getSecond().getFirst();
       DRes<SInt> kHalf = params.getSecond().getSecond();
 
       // Result if k is even
-      DRes<SReal> a = seq.realNumeric().mult(params.getFirst(),
-          new TwoPower(seq.numeric().sub(0, kHalf)).buildComputation(seq));
+      DRes<SReal> a = r3.realNumeric().mult(params.getFirst(),
+          new TwoPower(r3.numeric().sub(0, kHalf)).buildComputation(r3));
 
-      DRes<SInt> kOddSigned = seq.numeric().sub(k, seq.numeric().mult(2, kHalf));
+      DRes<SInt> kOddSigned = r3.numeric().sub(k, r3.numeric().mult(2, kHalf));
 
-      // Result if k is odd
-      DRes<SReal> sqrt2recip = seq.realNumeric().sub(1.060660171779821,
-          new Scaling(seq.realNumeric().known(0.353553390593274), kOddSigned)
-              .buildComputation(seq));
+      // Result if k is odd - multiply with 1/sqrt(2) if k negative and sqrt(2) if k non-negative
+      DRes<SReal> sqrt2recip = r3.realNumeric().sub(1.060660171779821,
+          new Scaling(r3.realNumeric().known(0.353553390593274), kOddSigned)
+              .buildComputation(r3));
       
-      DRes<SReal> aPrime = seq.realNumeric().mult(sqrt2recip, a);
+      DRes<SReal> aPrime = r3.realNumeric().mult(sqrt2recip, a);
 
-      DRes<SInt> kOdd = seq.numeric().mult(kOddSigned, kOddSigned);
+      DRes<SInt> kOdd = r3.numeric().mult(kOddSigned, kOddSigned);
 
-      return seq.realAdvanced().condSelect(kOdd, aPrime, a);
+      return r3.realAdvanced().condSelect(kOdd, aPrime, a);
     });
   }
 

@@ -130,10 +130,8 @@ public class MathTests {
             int idx = output.indexOf(openOutput);
 
             BigDecimal a = openInputs.get(idx);
-            // For large inputs, the result is quite imprecise. How imprecise is hard to estimate,
-            // but for now we use 8 bits precision as bound.
-            System.out.println(a);
-            RealTestUtils.assertEqual(new BigDecimal(Math.log(a.doubleValue())), openOutput, 8);
+            RealTestUtils.assertEqual(new BigDecimal(Math.log(a.doubleValue())), openOutput,
+                DEFAULT_PRECISION / 2);
           }
         }
       };

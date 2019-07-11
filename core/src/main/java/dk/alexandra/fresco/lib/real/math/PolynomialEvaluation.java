@@ -20,27 +20,30 @@ public class PolynomialEvaluation implements Computation<SReal, ProtocolBuilderN
    * @param x Secret value
    * @param polynomial The coefficients for the polynomial
    */
-  public PolynomialEvaluation(DRes<SReal> x, double ... polynomial) {
+  public PolynomialEvaluation(DRes<SReal> x, double... polynomial) {
     this.p = polynomial;
     this.x = x;
   }
 
   @Override
   public DRes<SReal> buildComputation(ProtocolBuilderNumeric builder) {
-    if (p.length == 0) {
-      return builder.realNumeric().known(0);
-    }
-    
-    if (p.length == 1) {
-      return builder.realNumeric().known(p[0]);
-    }
+    return builder.seq(seq -> {
 
-    int n = p.length - 1;
-    DRes<SReal> b = builder.realNumeric().add(p[n - 1], builder.realNumeric().mult(p[n], x));
-    for (int i = n - 2; i >= 0; i--) {
-      b = builder.realNumeric().add(p[i], builder.realNumeric().mult(b, x));
-    }
-    return b;
+      if (p.length == 0) {
+        return seq.realNumeric().known(0);
+      }
+
+      if (p.length == 1) {
+        return seq.realNumeric().known(p[0]);
+      }
+
+      int n = p.length - 1;
+      DRes<SReal> b = seq.realNumeric().add(p[n - 1], seq.realNumeric().mult(p[n], x));
+      for (int i = n - 2; i >= 0; i--) {
+        b = seq.realNumeric().add(p[i], seq.realNumeric().mult(b, x));
+      }
+      return b;
+    });
   }
 
 }

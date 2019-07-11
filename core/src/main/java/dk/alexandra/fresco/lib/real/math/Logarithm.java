@@ -23,18 +23,18 @@ public class Logarithm implements Computation<SReal, ProtocolBuilderNumeric> {
 
   @Override
   public DRes<SReal> buildComputation(ProtocolBuilderNumeric builder) {
-    return builder.seq(seq -> {
-      return seq.realAdvanced().normalize(x);
-    }).seq((seq, norm) -> {
+    return builder.seq(r1 -> {
+      return r1.realAdvanced().normalize(x);
+    }).seq((r2, norm) -> {
 
-      DRes<SReal> g = seq.realNumeric().mult(norm.getFirst(), x);
-      DRes<SReal> f = seq.realAdvanced().polynomialEvalutation(g, POLYNOMIAL);
+      DRes<SReal> g = r2.realNumeric().mult(norm.getFirst(), x);
+      DRes<SReal> f = r2.realAdvanced().polynomialEvalutation(g, POLYNOMIAL);
 
       // Natural log of 2
       double log2 = 0.69314718055994530;
 
-      g = seq.realNumeric().sub(f,
-          seq.realNumeric().mult(log2, seq.realNumeric().fromSInt(norm.getSecond())));
+      g = r2.realNumeric().sub(f,
+          r2.realNumeric().mult(log2, r2.realNumeric().fromSInt(norm.getSecond())));
       
       return g;
     });

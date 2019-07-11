@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.conditional.ConditionalSelectRow;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
@@ -31,14 +32,14 @@ public class NormalizeSInt
     return builder.seq(seq -> {
       return seq.advancedNumeric().toBits(input, l);
     }).seq((seq, bits) -> {
-      
+
       // Sign bit
       DRes<SInt> b = seq.comparison().compareLEQ(input, seq.numeric().known(0));
-      
+
       // Signum
       DRes<SInt> s = seq.numeric().add(1, seq.numeric().mult(-2, b));
-      
-      DRes<List<DRes<SInt>>> n = new InternalNorm(bits, b).buildComputation(seq);      
+
+      DRes<List<DRes<SInt>>> n = new InternalNorm(bits, b).buildComputation(seq);
       return () -> new Pair<>(s, n);
     }).seq((seq, params) -> {
       DRes<SInt> c = seq.numeric().mult(params.getFirst(), params.getSecond().out().get(0));
@@ -59,42 +60,45 @@ public class NormalizeSInt
     @Override
     public DRes<List<DRes<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
 
-      int n = bits.size();
-      if (n == 1) {
-        
-        DRes<SInt> signum = builder.numeric().add(1, builder.numeric().mult(-2, b));
-        DRes<SInt> t = builder.numeric().add(builder.numeric().mult(signum, bits.get(0)), b);
-        
-        DRes<SInt> twominust = builder.numeric().sub(BigInteger.valueOf(2), t);
-        DRes<SInt> oneminust = builder.numeric().sub(BigInteger.ONE, t);
-        return () -> Arrays.asList(twominust, t, oneminust);
-      }
+      return builder.seq(seq -> {
+        int n = bits.size();
+        if (n == 1) {
+          DRes<SInt> signum = seq.numeric().add(1, seq.numeric().mult(-2, b));
+          DRes<SInt> t = seq.numeric().add(seq.numeric().mult(signum, bits.get(0)), b);
 
-      return builder.par(par -> {
+          DRes<SInt> twominust = seq.numeric().sub(BigInteger.valueOf(2), t);
+          DRes<SInt> oneminust = seq.numeric().sub(BigInteger.ONE, t);
+          return () -> Arrays.asList(twominust, t, oneminust);
+        } else {
+          return seq.par(r1 -> {
 
-        DRes<List<DRes<SInt>>> x =
-            new InternalNorm(bits.subList(0, n / 2), b).buildComputation(par);
+            DRes<List<DRes<SInt>>> x =
+                new InternalNorm(bits.subList(0, n / 2), b).buildComputation(r1);
 
-        DRes<List<DRes<SInt>>> y =
-            new InternalNorm(bits.subList(n / 2, n), b).buildComputation(par);
+            DRes<List<DRes<SInt>>> y =
+                new InternalNorm(bits.subList(n / 2, n), b).buildComputation(r1);
 
-        return () -> new Pair<>(x, y);
-      }).seq((seq, p) -> {
+            return () -> new Pair<>(x, y);
+          }).seq((r2, p) -> {
 
-        List<DRes<SInt>> x = p.getFirst().out();
-        List<DRes<SInt>> y = p.getSecond().out();
-        
-        DRes<SInt> x0 = seq.numeric().mult(1 << ((n + 1) / 2), x.get(0));
-        DRes<SInt> x2 = seq.numeric().add((n + 1) / 2, x.get(2));
+            List<DRes<SInt>> x = p.getFirst().out();
+            List<DRes<SInt>> y = p.getSecond().out();
 
-        // TODO: Parallelize or create cond select for lists
-        DRes<SInt> z0 = seq.advancedNumeric().condSelect(y.get(1), y.get(0), x0);
-        DRes<SInt> z1 = seq.advancedNumeric().condSelect(y.get(1),
-            seq.numeric().known(BigInteger.ONE), x.get(1));
-        DRes<SInt> z2 = seq.advancedNumeric().condSelect(y.get(1), y.get(2), x2);
+            DRes<SInt> x0 = r2.numeric().mult(1 << ((n + 1) / 2), x.get(0));
+            DRes<SInt> x2 = r2.numeric().add((n + 1) / 2, x.get(2));
 
-        return () -> Arrays.asList(z0, z1, z2);
+            List<DRes<SInt>> yPrime =
+                Arrays.asList(y.get(0), r2.numeric().known(BigInteger.ONE), y.get(2));
+            List<DRes<SInt>> xPrime = Arrays.asList(x0, x.get(1), x2);
+            
+            DRes<List<DRes<SInt>>> result =
+                new ConditionalSelectRow<>(y.get(1), () -> yPrime, () -> xPrime).buildComputation(r2);
+            
+            return result;
+          });
+        }
       });
+
     }
 
   }
