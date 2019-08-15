@@ -27,21 +27,34 @@ public class NormalizeSInt
 
   @Override
   public DRes<Pair<DRes<SInt>, DRes<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
-    return builder.seq(seq -> {
-      return seq.advancedNumeric().toBits(input, l);
-    }).seq((seq, bits) -> {
+    return builder.par(par -> {
+      DRes<List<SInt>> bits = par.advancedNumeric().toBits(input, l);
 
-      // Sign bit
-      DRes<SInt> b = seq.comparison().compareLEQ(input, seq.numeric().known(0));
+      // Sign bit (0 or 1)
+      DRes<SInt> signBit = par.comparison().compareLEQ(input, par.numeric().known(-1));
 
-      // Signum -- TODO: Doesn't handle zero correctly
-      DRes<SInt> s = seq.numeric().add(1, seq.numeric().mult(-2, b));
+      DRes<SInt> isZero =
+          par.comparison().compareZero(input, par.getBasicNumericContext().getMaxBitLength());
 
-      DRes<List<DRes<SInt>>> n = new InternalNorm(bits, b).buildComputation(seq);
-      return () -> new Pair<>(s, n);
+      return () -> new Pair<>(bits, new Pair<>(signBit, isZero));      
     }).seq((seq, params) -> {
-      DRes<SInt> c = seq.numeric().mult(params.getFirst(), params.getSecond().out().get(0));
-      return () -> new Pair<>(c, params.getSecond().out().get(2));
+      
+      DRes<SInt> isNonZero = seq.numeric().sub(1, params.getSecond().getSecond());
+      
+      // Sign (-1, 0 or 1)      
+      DRes<SInt> sign = seq.numeric().mult(isNonZero,
+          seq.numeric().add(1, seq.numeric().mult(-2, params.getSecond().getFirst())));
+      
+      DRes<List<DRes<SInt>>> norm =
+          new InternalNorm(params.getFirst().out(), params.getSecond().getFirst(), sign)
+              .buildComputation(seq);
+      
+      return () -> new Pair<>(sign, norm);
+    }).seq((seq, signAndNorm) -> {
+      
+      DRes<SInt> c =
+          seq.numeric().mult(signAndNorm.getFirst(), signAndNorm.getSecond().out().get(0));
+      return () -> new Pair<>(c, signAndNorm.getSecond().out().get(2));
     });
   }
 
@@ -49,10 +62,12 @@ public class NormalizeSInt
 
     private List<SInt> bits;
     private DRes<SInt> b;
+    private DRes<SInt> s;
 
-    public InternalNorm(List<SInt> bits, DRes<SInt> signBit) {
+    public InternalNorm(List<SInt> bits, DRes<SInt> signBit, DRes<SInt> sign) {
       this.bits = bits;
       this.b = signBit;
+      this.s = sign;
     }
 
     @Override
@@ -61,20 +76,18 @@ public class NormalizeSInt
       return builder.seq(seq -> {
         int n = bits.size();
         if (n == 1) {
-          DRes<SInt> signum = seq.numeric().add(1, seq.numeric().mult(-2, b));
-          DRes<SInt> t = seq.numeric().add(seq.numeric().mult(signum, bits.get(0)), b);
-
-          DRes<SInt> twominust = seq.numeric().sub(BigInteger.valueOf(2), t);
-          DRes<SInt> oneminust = seq.numeric().sub(BigInteger.ONE, t);
-          return () -> Arrays.asList(twominust, t, oneminust);
+          DRes<SInt> t = seq.numeric().add(seq.numeric().mult(s, bits.get(0)), b);
+          DRes<SInt> twoMinusT = seq.numeric().sub(BigInteger.valueOf(2), t);
+          DRes<SInt> oneMinusT = seq.numeric().sub(BigInteger.ONE, t);
+          return () -> Arrays.asList(twoMinusT, t, oneMinusT);
         } else {
           return seq.par(r1 -> {
 
             DRes<List<DRes<SInt>>> x =
-                new InternalNorm(bits.subList(0, n / 2), b).buildComputation(r1);
+                new InternalNorm(bits.subList(0, n / 2), b, s).buildComputation(r1);
 
             DRes<List<DRes<SInt>>> y =
-                new InternalNorm(bits.subList(n / 2, n), b).buildComputation(r1);
+                new InternalNorm(bits.subList(n / 2, n), b, s).buildComputation(r1);
 
             return () -> new Pair<>(x, y);
           }).seq((r2, p) -> {

@@ -8,6 +8,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.real.fixed.utils.NormalizeSInt;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -53,7 +54,6 @@ public class NormalizeTests {
             int idx = output.indexOf(x);
             Double input = openInputs.get(idx);
             Double scaled = input * x.doubleValue();
-            System.out.println(input + " - " + scaled);
             Assert.assertTrue(scaled >= 0.5 && scaled < 1.0);
           }
         }
@@ -103,4 +103,48 @@ public class NormalizeTests {
       };
     }
   }
+
+  public static class TestNormalizeSInt<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      List<BigInteger> openInputs =
+          Stream.of(-10000000, -12345, -10, -1, 0, 1, 2, 123, (int) Math.pow(2, 32) - 1)
+              .map(BigInteger::valueOf).collect(Collectors.toList());
+      
+      int l = 32;
+      
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
+              builder -> builder.seq(producer -> {
+
+                List<DRes<SInt>> closed1 =
+                    openInputs.stream().map(producer.numeric()::known).collect(Collectors.toList());
+
+                List<DRes<Pair<DRes<SInt>, DRes<SInt>>>> result = new ArrayList<>();
+                for (DRes<SInt> inputX : closed1) {
+                  result.add(producer.seq(new NormalizeSInt(inputX, l)));
+                }
+                return () -> result;
+              }).seq((producer, result) -> {
+                List<DRes<BigInteger>> opened = result.stream().map(DRes::out).map(Pair::getSecond)
+                    .map(producer.numeric()::open).collect(Collectors.toList());
+                return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
+              });
+
+          List<BigInteger> output = runApplication(app);
+
+          for (int i = 0; i < openInputs.size(); i++) {
+            BigInteger input = openInputs.get(i);
+            int expected = l - input.bitLength();
+            Assert.assertEquals(expected, output.get(i).intValue());
+          }
+        }
+      };
+    }
+  }
+
 }
