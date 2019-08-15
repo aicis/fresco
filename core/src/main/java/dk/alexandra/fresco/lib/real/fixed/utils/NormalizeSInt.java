@@ -12,9 +12,7 @@ import java.util.List;
 
 /**
  * If n is the bitlength of the input and l is an upper bound for the bit length, this protocol
- * computes c = 2^{l-n}.
- * 
- * The protocol is simlar to the norm function in MPyC.
+ * computes <i>c = 2<sup>l-n</sup></i> and returns the pair <i>(c, l-n)</i>.
  */
 public class NormalizeSInt
     implements Computation<Pair<DRes<SInt>, DRes<SInt>>, ProtocolBuilderNumeric> {
@@ -36,7 +34,7 @@ public class NormalizeSInt
       // Sign bit
       DRes<SInt> b = seq.comparison().compareLEQ(input, seq.numeric().known(0));
 
-      // Signum
+      // Signum -- TODO: Doesn't handle zero correctly
       DRes<SInt> s = seq.numeric().add(1, seq.numeric().mult(-2, b));
 
       DRes<List<DRes<SInt>>> n = new InternalNorm(bits, b).buildComputation(seq);
@@ -90,10 +88,11 @@ public class NormalizeSInt
             List<DRes<SInt>> yPrime =
                 Arrays.asList(y.get(0), r2.numeric().known(BigInteger.ONE), y.get(2));
             List<DRes<SInt>> xPrime = Arrays.asList(x0, x.get(1), x2);
-            
+
             DRes<List<DRes<SInt>>> result =
-                new ConditionalSelectRow<>(y.get(1), () -> yPrime, () -> xPrime).buildComputation(r2);
-            
+                new ConditionalSelectRow<>(y.get(1), () -> yPrime, () -> xPrime)
+                    .buildComputation(r2);
+
             return result;
           });
         }

@@ -5,6 +5,9 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.lib.real.SReal;
 
+/**
+ * Compute the reciprocal of a secret real value.
+ */
 public class Reciprocal implements Computation<SReal, ProtocolBuilderNumeric> {
 
   private DRes<SReal> x;

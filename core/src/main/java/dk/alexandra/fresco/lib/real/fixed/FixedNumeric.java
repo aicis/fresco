@@ -33,8 +33,8 @@ public class FixedNumeric implements RealNumeric {
   }
 
   /**
-   * Return value * 2^{scale} rounded to the nearest integer, eg. the best integer for representing
-   * a given value as a fixed point in base two with the given precision.
+   * Return <i>value * 2<sup>precision</sup></i> rounded to the nearest integer, eg. the best
+   * integer for representing a given value as a fixed point in base two with the given precision.
    * 
    * @param value A decimal value.
    * @param precision
@@ -70,7 +70,7 @@ public class FixedNumeric implements RealNumeric {
    * @param scale the scale
    * @return a DRes eventually holding the scaled value
    */
-  private DRes<SInt> scale(ProtocolBuilderNumeric scope, DRes<SInt> n, int scale) {
+  private static DRes<SInt> scale(ProtocolBuilderNumeric scope, DRes<SInt> n, int scale) {
     if (scale > 0) {
       n = scope.numeric().mult(BigInteger.ONE.shiftLeft(scale), n);
     } else if (scale < 0) {

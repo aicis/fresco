@@ -6,12 +6,12 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.lib.real.SReal;
 
 /**
- * Evaluate a polynomial with public coefficients and a secret input.
+ * Evaluate a polynomial with public coefficients and a secret real input.
  */
 public class PolynomialEvaluation implements Computation<SReal, ProtocolBuilderNumeric> {
 
-  private double[] p;
   private DRes<SReal> x;
+  private double[] p;
 
   /**
    * Create a new polynomial evalutation computation. The array contains the coefficients with the
@@ -21,8 +21,8 @@ public class PolynomialEvaluation implements Computation<SReal, ProtocolBuilderN
    * @param polynomial The coefficients for the polynomial
    */
   public PolynomialEvaluation(DRes<SReal> x, double... polynomial) {
-    this.p = polynomial;
     this.x = x;
+    this.p = polynomial;
   }
 
   @Override

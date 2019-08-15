@@ -7,6 +7,10 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.real.SReal;
 import dk.alexandra.fresco.lib.real.fixed.SFixed;
 
+/**
+ * This computation returns the first value if the condition varibale is one and the second if the
+ * condition variable is zero.
+ */
 public class FixedCondSelect implements Computation<SReal, ProtocolBuilderNumeric> {
 
   private DRes<SInt> condition;

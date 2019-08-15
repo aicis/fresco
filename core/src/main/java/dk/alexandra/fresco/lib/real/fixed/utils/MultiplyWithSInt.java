@@ -8,18 +8,18 @@ import dk.alexandra.fresco.lib.real.SReal;
 import dk.alexandra.fresco.lib.real.fixed.SFixed;
 
 /**
- * This computes a scaling of the integer behind a fixed point number without truncation.
+ * This computes the product of a secret real number and a secret integer.
  */
-public class Scaling implements Computation<SReal, ProtocolBuilderNumeric> {
+public class MultiplyWithSInt implements Computation<SReal, ProtocolBuilderNumeric> {
 
   private DRes<SReal> x;
   private DRes<SInt> s;
 
-  public Scaling(DRes<SReal> x, DRes<SInt> s) {
+  public MultiplyWithSInt(DRes<SReal> x, DRes<SInt> s) {
     this.x = x;
     this.s = s;
   }
-  
+
   @Override
   public DRes<SReal> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq(seq -> {

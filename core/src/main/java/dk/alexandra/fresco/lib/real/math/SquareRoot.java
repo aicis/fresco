@@ -6,8 +6,11 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.real.SReal;
-import dk.alexandra.fresco.lib.real.fixed.utils.Scaling;
+import dk.alexandra.fresco.lib.real.fixed.utils.MultiplyWithSInt;
 
+/**
+ * Compute the square root of a secret real value.
+ */
 public class SquareRoot implements Computation<SReal, ProtocolBuilderNumeric> {
 
   private final DRes<SReal> x;
@@ -54,7 +57,7 @@ public class SquareRoot implements Computation<SReal, ProtocolBuilderNumeric> {
 
       // Result if k is odd - multiply with 1/sqrt(2) if k negative and sqrt(2) if k non-negative
       DRes<SReal> sqrt2recip = r3.realNumeric().sub(1.060660171779821,
-          new Scaling(r3.realNumeric().known(0.353553390593274), kOddSigned)
+          new MultiplyWithSInt(r3.realNumeric().known(0.353553390593274), kOddSigned)
               .buildComputation(r3));
       
       DRes<SReal> aPrime = r3.realNumeric().mult(sqrt2recip, a);

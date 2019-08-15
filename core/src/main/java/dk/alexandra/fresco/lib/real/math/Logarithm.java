@@ -5,6 +5,9 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.lib.real.SReal;
 
+/**
+ * Compute the logarithm of a secret real value.
+ */
 public class Logarithm implements Computation<SReal, ProtocolBuilderNumeric> {
 
   private final DRes<SReal> x;
@@ -30,11 +33,8 @@ public class Logarithm implements Computation<SReal, ProtocolBuilderNumeric> {
       DRes<SReal> g = r2.realNumeric().mult(norm.getFirst(), x);
       DRes<SReal> f = r2.realAdvanced().polynomialEvalutation(g, POLYNOMIAL);
 
-      // Natural log of 2
-      double log2 = 0.69314718055994530;
-
       g = r2.realNumeric().sub(f,
-          r2.realNumeric().mult(log2, r2.realNumeric().fromSInt(norm.getSecond())));
+          r2.realNumeric().mult(Math.log(2), r2.realNumeric().fromSInt(norm.getSecond())));
       
       return g;
     });

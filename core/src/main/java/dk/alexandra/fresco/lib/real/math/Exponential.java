@@ -6,8 +6,11 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.real.SReal;
-import dk.alexandra.fresco.lib.real.fixed.utils.Scaling;
+import dk.alexandra.fresco.lib.real.fixed.utils.MultiplyWithSInt;
 
+/**
+ * Compute the exponential function of a secret real value.
+ */
 public class Exponential implements Computation<SReal, ProtocolBuilderNumeric> {
 
   private DRes<SReal> x;
@@ -28,29 +31,20 @@ public class Exponential implements Computation<SReal, ProtocolBuilderNumeric> {
   @Override
   public DRes<SReal> buildComputation(ProtocolBuilderNumeric builder) {
 
-
     return builder.seq(r1 -> {
 
-      // Sign bit
-      DRes<SInt> b = r1.realNumeric().leq(x, r1.realNumeric().known(0.0));
+      DRes<SInt> signBit = r1.realNumeric().leq(x, r1.realNumeric().known(0.0));
 
       // e^x = 2^{log_2 e * x} = 2^{1.442695040889 * x}
       DRes<SReal> X = r1.realNumeric().mult(1.442695040889, x);
 
-      // Sign = 1 - 2b
-      DRes<SInt> s = r1.numeric().add(1, r1.numeric().mult(-2, b));
+      DRes<SInt> sign = r1.numeric().add(1, r1.numeric().mult(-2, signBit));
+      DRes<SReal> absX = new MultiplyWithSInt(X, sign).buildComputation(r1);
 
+      DRes<SInt> xIntegerPart = r1.numeric().sub(r1.realAdvanced().floor(absX), signBit);
+      DRes<SReal> xFractionalPart = r1.realNumeric().sub(X, r1.realNumeric().fromSInt(xIntegerPart));
 
-      // Take absolute value
-      X = new Scaling(X, s).buildComputation(r1);
-
-      // Integer part
-      DRes<SInt> xPrime = r1.numeric().sub(r1.realAdvanced().floor(X), b);
-
-      // Fractional part
-      DRes<SReal> xDoublePrime = r1.realNumeric().sub(X, r1.realNumeric().fromSInt(xPrime));
-
-      return () -> new Pair<>(new Pair<>(xPrime, xDoublePrime), b);
+      return () -> new Pair<>(new Pair<>(xIntegerPart, xFractionalPart), signBit);
     }).par((r2, xAndSign) -> {
 
       // 2^integer part
