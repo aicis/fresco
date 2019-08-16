@@ -34,13 +34,8 @@ public class NormalizeSInt
       // Sign bit (0 or 1)
       DRes<SInt> signBit = par.comparison().compareLEQ(input, par.numeric().known(-1));
 
-//      DRes<SInt> isZero =
-//          par.comparison().compareZero(input, par.getBasicNumericContext().getMaxBitLength());
-
       return () -> new Pair<>(bits, signBit);      
     }).seq((seq, params) -> {
-      
-//      DRes<SInt> isNonZero = seq.numeric().sub(1, params.getSecond().getSecond());
       
       // Sign (-1 or 1)      
       DRes<SInt> sign = seq.numeric().add(1, seq.numeric().mult(-2, params.getSecond()));
