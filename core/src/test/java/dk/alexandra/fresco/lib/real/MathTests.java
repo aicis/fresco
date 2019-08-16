@@ -27,7 +27,7 @@ public class MathTests {
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      List<BigDecimal> openInputs = Stream.of(/*-10.0, -1.2,*/ -0.5/* , 0.01, 0.2, 1.1, 2.1, 5.1 */)
+      List<BigDecimal> openInputs = Stream.of(-10.0, -5.1, -1.2, -0.5, 0.01, 0.2, 1.1, 2.1, 5.1)
           .map(BigDecimal::valueOf).collect(Collectors.toList());
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {

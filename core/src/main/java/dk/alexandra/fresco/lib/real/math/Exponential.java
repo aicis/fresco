@@ -41,27 +41,27 @@ public class Exponential implements Computation<SReal, ProtocolBuilderNumeric> {
       DRes<SInt> sign = r1.numeric().add(1, r1.numeric().mult(-2, signBit));
       DRes<SReal> absX = new MultiplyWithSInt(X, sign).buildComputation(r1);
 
-      DRes<SInt> xIntegerPart = r1.numeric().sub(r1.realAdvanced().floor(absX), signBit);
-      DRes<SReal> xFractionalPart = r1.realNumeric().sub(X, r1.realNumeric().fromSInt(xIntegerPart));
+      DRes<SInt> xIntegerPart = r1.realAdvanced().floor(absX);
+      DRes<SReal> xFractionalPart = r1.realNumeric().sub(absX, r1.realNumeric().fromSInt(xIntegerPart));
 
       return () -> new Pair<>(new Pair<>(xIntegerPart, xFractionalPart), signBit);
-    }).par((r2, xAndSign) -> {
+    }).par((r2, xAndSignBit) -> {
 
       // 2^integer part
-      DRes<SReal> f = r2.realAdvanced().twoPower(xAndSign.getFirst().getFirst());
+      DRes<SReal> f = r2.realAdvanced().twoPower(xAndSignBit.getFirst().getFirst());
 
       // 2^fractional part
       DRes<SReal> g =
-          r2.realAdvanced().polynomialEvalutation(xAndSign.getFirst().getSecond(), POLYNOMIAL);
+          r2.realAdvanced().polynomialEvalutation(xAndSignBit.getFirst().getSecond(), POLYNOMIAL);
 
-      return () -> new Pair<>(new Pair<>(f, g), xAndSign.getSecond());
-    }).seq((r3, fgAndSigne) -> {
+      return () -> new Pair<>(new Pair<>(f, g), xAndSignBit.getSecond());
+    }).seq((r3, fgAndSign) -> {
 
-      DRes<SReal> h = r3.realNumeric().mult(fgAndSigne.getFirst().getFirst(),
-          fgAndSigne.getFirst().getSecond());
+      DRes<SReal> h = r3.realNumeric().mult(fgAndSign.getFirst().getFirst(),
+          fgAndSign.getFirst().getSecond());
       DRes<SReal> hRecip = r3.realAdvanced().reciprocal(h);
 
-      return r3.realAdvanced().condSelect(fgAndSigne.getSecond(), hRecip, h);
+      return r3.realAdvanced().condSelect(fgAndSign.getSecond(), hRecip, h);
     });
   }
 
