@@ -79,7 +79,7 @@ public interface AdvancedRealNumeric extends ComputationDirectory {
    * Calculate a power of two <i>c = 2<sup>-k</sup></i> such that the product <i>x * c</i> is in the
    * interval <i>[0.5, 1]</i>.
    * 
-   * @param x A secret value
+   * @param x A secret non-zero value
    * @return A deferred result computing the pair <i>(c, k)</i> as decribed above.
    */
   DRes<Pair<DRes<SReal>, DRes<SInt>>> normalize(DRes<SReal> x);

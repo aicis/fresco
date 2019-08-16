@@ -12,7 +12,8 @@ import java.util.List;
 
 /**
  * If n is the bitlength of the input and l is an upper bound for the bit length, this protocol
- * computes <i>c = 2<sup>l-n</sup></i> and returns the pair <i>(c, l-n)</i>.
+ * computes <i>c = 2<sup>l-n</sup></i> and returns the pair <i>(c, l-n)</i>. The input has to be
+ * non-zero.
  */
 public class NormalizeSInt
     implements Computation<Pair<DRes<SInt>, DRes<SInt>>, ProtocolBuilderNumeric> {
@@ -33,20 +34,19 @@ public class NormalizeSInt
       // Sign bit (0 or 1)
       DRes<SInt> signBit = par.comparison().compareLEQ(input, par.numeric().known(-1));
 
-      DRes<SInt> isZero =
-          par.comparison().compareZero(input, par.getBasicNumericContext().getMaxBitLength());
+//      DRes<SInt> isZero =
+//          par.comparison().compareZero(input, par.getBasicNumericContext().getMaxBitLength());
 
-      return () -> new Pair<>(bits, new Pair<>(signBit, isZero));      
+      return () -> new Pair<>(bits, signBit);      
     }).seq((seq, params) -> {
       
-      DRes<SInt> isNonZero = seq.numeric().sub(1, params.getSecond().getSecond());
+//      DRes<SInt> isNonZero = seq.numeric().sub(1, params.getSecond().getSecond());
       
-      // Sign (-1, 0 or 1)      
-      DRes<SInt> sign = seq.numeric().mult(isNonZero,
-          seq.numeric().add(1, seq.numeric().mult(-2, params.getSecond().getFirst())));
+      // Sign (-1 or 1)      
+      DRes<SInt> sign = seq.numeric().add(1, seq.numeric().mult(-2, params.getSecond()));
       
       DRes<List<DRes<SInt>>> norm =
-          new InternalNorm(params.getFirst().out(), params.getSecond().getFirst(), sign)
+          new InternalNorm(params.getFirst().out(), params.getSecond(), sign)
               .buildComputation(seq);
       
       return () -> new Pair<>(sign, norm);

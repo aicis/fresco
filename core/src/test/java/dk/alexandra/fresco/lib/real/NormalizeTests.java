@@ -110,7 +110,7 @@ public class NormalizeTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       List<BigInteger> openInputs =
-          Stream.of(-10000000, -12345, -10, -1, 0, 1, 2, 123, (int) Math.pow(2, 32) - 1)
+          Stream.of(-10000000, -12345, -10, -1, 1, 2, 123, (int) Math.pow(2, 32) - 1)
               .map(BigInteger::valueOf).collect(Collectors.toList());
       
       int l = 32;
