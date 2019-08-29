@@ -9,7 +9,13 @@ import dk.alexandra.fresco.lib.real.DefaultAdvancedRealNumeric;
 import dk.alexandra.fresco.lib.real.SReal;
 import dk.alexandra.fresco.lib.real.fixed.utils.FixedCondSelect;
 import dk.alexandra.fresco.lib.real.fixed.utils.NormalizeSInt;
+import dk.alexandra.fresco.lib.real.fixed.utils.Truncate;
+
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class AdvancedFixedNumeric extends DefaultAdvancedRealNumeric {
 
@@ -65,6 +71,64 @@ public class AdvancedFixedNumeric extends DefaultAdvancedRealNumeric {
     return builder.seq(seq -> {
       SFixed xFixed = (SFixed) x.out();
       return seq.comparison().sign(xFixed.getSInt());
+    });
+  }
+
+  @Override
+  public DRes<SReal> innerProduct(List<DRes<SReal>> a, List<DRes<SReal>> b) {
+    return builder.seq(seq -> {
+
+      /*
+       * Exploit that we are working with fixed point numbers to avoid truncation for each
+       * multiplication. Instead one truncation is done at the end. Note that this could result in
+       * an overflow if the sum of the products (un-truncated) exceeds the max bit length.
+       */
+
+      if (a.size() != b.size()) {
+        throw new IllegalArgumentException("Vectors must have same size");
+      }
+
+      List<DRes<SInt>> aFixed =
+          a.stream().map(x -> ((SFixed) x.out()).getSInt()).collect(Collectors.toList());
+      List<DRes<SInt>> bFixed =
+          b.stream().map(x -> ((SFixed) x.out()).getSInt()).collect(Collectors.toList());
+
+      DRes<SInt> innerProductBeforeTruncation = seq.advancedNumeric().innerProduct(aFixed, bFixed);
+
+      DRes<SInt> truncated =
+          new Truncate(innerProductBeforeTruncation, seq.getRealNumericContext().getPrecision())
+              .buildComputation(seq);
+      return new SFixed(truncated);
+    });
+  }
+
+  public DRes<SReal> innerProductWithPublicPart(List<BigDecimal> a, List<DRes<SReal>> b) {
+    return builder.seq(seq -> {
+
+      /*
+       * Exploit that we are working with fixed point numbers to avoid truncation for each
+       * multiplication. Instead one truncation is done at the end. Note that this could result in
+       * an overflow if the sum of the products (un-truncated) exceeds the max bit length.
+       */
+
+      if (a.size() != b.size()) {
+        throw new IllegalArgumentException("Vectors must have same size");
+      }
+
+      List<BigInteger> aFixed = a.stream().map(x -> x
+          .multiply(
+              new BigDecimal(BigInteger.valueOf(2).pow(seq.getRealNumericContext().getPrecision())))
+          .setScale(0, RoundingMode.HALF_UP).toBigIntegerExact()).collect(Collectors.toList());
+      List<DRes<SInt>> bFixed =
+          b.stream().map(x -> ((SFixed) x.out()).getSInt()).collect(Collectors.toList());
+
+      DRes<SInt> innerProductBeforeTruncation =
+          seq.advancedNumeric().innerProductWithPublicPart(aFixed, bFixed);
+
+      DRes<SInt> truncated =
+          new Truncate(innerProductBeforeTruncation, seq.getRealNumericContext().getPrecision())
+              .buildComputation(seq);
+      return new SFixed(truncated);
     });
   }
 }
