@@ -44,6 +44,11 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
+  public void produceTriples(int numTriples) {
+    // Dummy does nothing here
+  }
+
+  @Override
   public SpdzSInt[] getNextExpPipe() {
     List<Pair<BigInteger, BigInteger>> rawExpPipe = supplier.getExpPipe(expPipeLength);
     return rawExpPipe.stream()
@@ -62,8 +67,18 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
+  public void produceInputMasks(int towardsPlayerId, int numMasks) {
+    // Dummy does nothing here
+  }
+
+  @Override
   public SpdzSInt getNextBit() {
     return toSpdzSInt(supplier.getRandomBitShare());
+  }
+
+  @Override
+  public void produceBits(int numBits) {
+    // Dummy does nothing here
   }
 
   @Override
@@ -79,6 +94,11 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   @Override
   public SpdzSInt getNextRandomFieldElement() {
     return toSpdzSInt(supplier.getRandomElementShare());
+  }
+
+  @Override
+  public void produceRandomFieldElements(int numElements) {
+    // Dummy does nothing here
   }
 
   private SpdzSInt toSpdzSInt(Pair<BigInteger, BigInteger> raw) {

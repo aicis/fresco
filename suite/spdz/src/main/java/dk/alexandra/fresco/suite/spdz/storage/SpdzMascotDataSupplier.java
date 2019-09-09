@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 public class SpdzMascotDataSupplier implements SpdzDataSupplier {
 
   private static final Logger logger = LoggerFactory.getLogger(SpdzMascotDataSupplier.class);
+  private static final int PRODUCE_LIMIT = 1024;
   private final int myId;
   private final int instanceId;
   private final int numberOfPlayers;
@@ -129,6 +130,20 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
+  public void produceTriples(int numTriples) {
+    ensureInitialized();
+    logger.trace("Getting another " + numTriples + " triples");
+    int toProduce = numTriples;
+    while (toProduce > 0) {
+      // Limit the number of elements produced at once
+      int produce = (toProduce > PRODUCE_LIMIT) ? PRODUCE_LIMIT : toProduce;
+      triples.addAll(mascot.getTriples(produce));
+      toProduce = toProduce - produce;
+    }
+    logger.trace("Got another " + numTriples + " triples");
+  }
+
+  @Override
   public SpdzSInt getNextRandomFieldElement() {
     ensureInitialized();
     if (randomElements.isEmpty()) {
@@ -137,6 +152,20 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       logger.trace("Got another random element batch");
     }
     return MascotFormatConverter.toSpdzSInt(randomElements.pop());
+  }
+
+  @Override
+  public void produceRandomFieldElements(int numElements) {
+    ensureInitialized();
+    logger.trace("Getting another " + numElements + " random elements");
+    int toProduce = numElements;
+    while (toProduce > 0) {
+      // Limit the number of elements produced at once
+      int produce = (toProduce > PRODUCE_LIMIT) ? PRODUCE_LIMIT : toProduce;
+      randomElements.addAll(mascot.getRandomElements(produce));
+      toProduce = toProduce - produce;
+    }
+    logger.trace("Got another " + numElements + " random elements");
   }
 
   @Override
@@ -160,6 +189,21 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
+  public void produceInputMasks(int towardsPlayerId, int numMasks) {
+    ensureInitialized();
+    ArrayDeque<InputMask> inputMasks = masks.get(towardsPlayerId);
+    logger.trace("Getting another " + numMasks + " masks");
+    int toProduce = numMasks;
+    while (toProduce > 0) {
+      // Limit the number of elements produced at once
+      int produce = (toProduce > PRODUCE_LIMIT) ? PRODUCE_LIMIT : toProduce;
+      inputMasks.addAll(mascot.getInputMasks(towardsPlayerId, produce));
+      toProduce = toProduce - produce;
+    }
+    logger.trace("Got another " + numMasks + " masks");
+  }
+
+  @Override
   public SpdzSInt getNextBit() {
     ensureInitialized();
     if (randomBits.isEmpty()) {
@@ -168,6 +212,20 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       logger.trace("Got another bit batch");
     }
     return MascotFormatConverter.toSpdzSInt(randomBits.pop());
+  }
+
+  @Override
+  public void produceBits(int numBits) {
+    ensureInitialized();
+    logger.trace("Getting another " + numBits + " random bits");
+    int toProduce = numBits;
+    while (toProduce > 0) {
+      // Limit the number of elements produced at once
+      int produce = (toProduce > PRODUCE_LIMIT) ? PRODUCE_LIMIT : toProduce;
+      randomBits.addAll(mascot.getRandomBits(produce));
+      toProduce = toProduce - produce;
+    }
+    logger.trace("Got another " + numBits + " random bits");
   }
 
   @Override

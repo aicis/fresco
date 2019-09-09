@@ -17,6 +17,13 @@ public interface SpdzDataSupplier {
   SpdzTriple getNextTriple();
 
   /**
+   * Produces a number of triples
+   *
+   * @param numTriples the number of triples to be produced
+   */
+  void produceTriples(int numTriples);
+
+  /**
    * Supplies the next exponentiation pipe. <p>An exponentiation pipe is a list of numbers in the
    * following format: r^{-1}, r, r^{2}, r^{3}, ..., r^{l}, where r is a random element, l is the
    * length of exponentiation pipe, and all exponentiations are mod the prime we are working with.
@@ -35,11 +42,26 @@ public interface SpdzDataSupplier {
   SpdzInputMask getNextInputMask(int towardPlayerId);
 
   /**
+   * Produces a number of inputmasks
+   *
+   * @param towardPlayerId the id of the input player
+   * @param numMasks the number of masks to be produced
+   */
+  void produceInputMasks(int towardsPlayerId, int numMasks);
+
+  /**
    * Supplies the next bit (i.e. a SpdzSInt representing a value in {0, 1}).
    *
    * @return the next new bit
    */
   SpdzSInt getNextBit();
+
+  /**
+   * Produces a number of random bits
+   *
+   * @param numBits the number of bits to be produced
+   */
+  void produceBits(int numBits);
 
   /**
    * The field definition used for this instance of SPDZ.
@@ -62,4 +84,11 @@ public interface SpdzDataSupplier {
    * @return A SpdzSInt representing a random secret shared field element.
    */
   SpdzSInt getNextRandomFieldElement();
+
+  /**
+   * Produces a number of random elements
+   *
+   * @param numElements the number of random elements to be produced
+   */
+  void produceRandomFieldElements(int numElements);
 }
