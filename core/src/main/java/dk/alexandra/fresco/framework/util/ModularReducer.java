@@ -8,22 +8,22 @@ import java.math.BigInteger;
  */
 public class ModularReducer {
 
-  private BigInteger m;
-  private BigInteger r;
-  private int k;
+  private final BigInteger m;
+  private final BigInteger r;
+  private final int k;
 
-  public ModularReducer(BigInteger m) {
-    this.m = m;
-    this.k = m.bitLength() + 1;
-    this.r = BigInteger.ONE.shiftLeft(2 * k).divide(m);
+  public ModularReducer(BigInteger modulus) {
+    this.m = modulus;
+    this.k = modulus.bitLength() + 1;
+    this.r = BigInteger.ONE.shiftLeft(2 * k).divide(modulus);
   }
 
   /**
-   * Compute <i>x mod m</i> for the <i>m</i> provided in the constructor and <i>0 &le; x <
+   * Compute <i>x mod m</i> for the modulus <i>m</i> provided in the constructor and <i>0 &le; x <
    * m<sup>2</sup></i>.
    * 
-   * @param x An non-negative integer smaller than <i>m<sup>2</sup></i>
-   * @return
+   * @param x A non-negative integer smaller than the modulus squared.
+   * @return x mod m
    */
   public BigInteger mod(BigInteger x) {
     BigInteger t = x.subtract(x.multiply(r).shiftRight(2 * k).multiply(m));
