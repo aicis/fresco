@@ -50,9 +50,16 @@ public class ModularReducer {
    */
   public BigInteger mod(BigInteger x) {
     if (x.signum() >= 0) {
+      // Non-negative input
       return modPositive(x);
     } else {
-      return m.subtract(modPositive(x.abs()));
+      // Negative input
+      BigInteger mod = modPositive(x.abs());
+      if (mod.signum() > 0) {
+        return m.subtract(mod);
+      } else {
+        return BigInteger.ZERO;
+      }     
     }
   }
   
