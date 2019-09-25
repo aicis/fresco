@@ -41,7 +41,9 @@ final class BigIntegerModulus implements Serializable {
    */
   BigInteger reduceModThis(BigInteger x) {
     // We don't serialize the reducer and create it lazily if needed
-    reducer = Objects.requireNonNullElse(reducer, new ModularReducer(value));
+    if (Objects.isNull(reducer)) {
+      reducer = new ModularReducer(value);
+    }
     return reducer.mod(x);
   }
   
