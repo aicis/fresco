@@ -71,10 +71,10 @@ public class FixedNumeric implements RealNumeric {
    * @return a DRes eventually holding the scaled value
    */
   private static DRes<SInt> scale(ProtocolBuilderNumeric scope, DRes<SInt> n, int scale) {
-    if (scale > 0) {
+    if (scale >= 0) {
       n = scope.numeric().mult(BigInteger.ONE.shiftLeft(scale), n);
-    } else if (scale < 0) {
-      n = scope.seq(new Truncate(n, -scale));
+    } else {
+      n = new Truncate(n, -scale).buildComputation(scope);
     }
     return n;
   }
