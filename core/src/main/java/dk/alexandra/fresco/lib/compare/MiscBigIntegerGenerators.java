@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import dk.alexandra.fresco.framework.util.ModularReducer;
+
 
 /**
  * Misc computation on BigIntegers -- results are cached.
@@ -17,6 +19,7 @@ public class MiscBigIntegerGenerators {
   private Map<Integer, BigInteger[]> coefficientsOfPolynomiums;
   private List<BigInteger> twoPowersList;
   private BigInteger modulus;
+  private ModularReducer reducer;
 
   public MiscBigIntegerGenerators(BigInteger modulus) {
     coefficientsOfPolynomiums = new HashMap<>();
@@ -24,6 +27,8 @@ public class MiscBigIntegerGenerators {
     this.modulus = modulus;
     twoPowersList = new ArrayList<>(1);
     twoPowersList.add(BigInteger.ONE);
+    
+    this.reducer = new ModularReducer(modulus);
   }
 
 
@@ -91,18 +96,18 @@ public class MiscBigIntegerGenerators {
       k++;
 
       // Apply recurrence relation
-      f[i] = f[i - 1].multiply(BigInteger.valueOf(-k)).mod(modulus);
+      f[i] = reducer.mod(f[i - 1].multiply(BigInteger.valueOf(-k)));
       for (int j = i - 1; j > 0; j--) {
-        f[j] = f[j].subtract(BigInteger.valueOf(k).multiply(f[j - 1]).mod(modulus)).mod(modulus);
+        f[j] = reducer.mod(f[j].subtract(BigInteger.valueOf(k).multiply(f[j - 1])));
       }
 
-      fm = fm.multiply(BigInteger.valueOf(1 - k)).mod(modulus);
+      fm = reducer.mod(fm.multiply(BigInteger.valueOf(1 - k)));
     }
 
     // Scale all coefficients of f_l by f_l(m)^{-1}.
     fm = fm.modInverse(modulus);
     for (int i = 0; i < f.length; i++) {
-      f[i] = f[i].multiply(fm).mod(modulus);
+      f[i] = reducer.mod(f[i].multiply(fm));
     }
 
     return f;
@@ -139,7 +144,7 @@ public class MiscBigIntegerGenerators {
     BigInteger[] Ms = new BigInteger[maxBitSize];
     Ms[0] = value;
     for (int i1 = 1; i1 < Ms.length; i1++) {
-      Ms[i1] = Ms[i1 - 1].multiply(value).mod(modulus);
+      Ms[i1] = reducer.mod(Ms[i1 - 1].multiply(value));
     }
     return Ms;
   }

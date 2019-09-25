@@ -20,7 +20,8 @@ public class ArithmeticDummyDataSupplier {
   private final int modBitLength;
   private final Random random;
   private final SecretSharer<BigInteger> sharer;
-
+  private final ModularReducer reducer;
+  
   public ArithmeticDummyDataSupplier(int myId, int noOfParties, BigInteger modulus) {
     this.myId = myId;
     this.noOfParties = noOfParties;
@@ -28,6 +29,7 @@ public class ArithmeticDummyDataSupplier {
     this.modBitLength = modulus.bitLength();
     random = new Random(42);
     sharer = new DummyBigIntegerSharer(modulus, random);
+    reducer = new ModularReducer(modulus);
   }
 
   /**
@@ -52,7 +54,7 @@ public class ArithmeticDummyDataSupplier {
   public MultiplicationTripleShares getMultiplicationTripleShares() {
     BigInteger left = sampleRandomBigInteger();
     BigInteger right = sampleRandomBigInteger();
-    BigInteger product = left.multiply(right).mod(modulus);
+    BigInteger product = reducer.mod(left.multiply(right));
     return new MultiplicationTripleShares(
         new Pair<>(left, sharer.share(left, noOfParties).get(myId - 1)),
         new Pair<>(right, sharer.share(right, noOfParties).get(myId - 1)),
@@ -73,7 +75,7 @@ public class ArithmeticDummyDataSupplier {
   }
 
   private BigInteger sampleRandomBigInteger() {
-    return new BigInteger(modBitLength, random).mod(modulus);
+    return reducer.mod(new BigInteger(modBitLength, random));
   }
 
   private List<BigInteger> getOpenExpPipe(int expPipeLength) {
@@ -84,7 +86,7 @@ public class ArithmeticDummyDataSupplier {
     openExpPipe.add(first);
     for (int i = 1; i < expPipeLength; i++) {
       BigInteger previous = openExpPipe.get(openExpPipe.size() - 1);
-      openExpPipe.add(previous.multiply(first).mod(modulus));
+      openExpPipe.add(reducer.mod(previous.multiply(first)));
     }
     return openExpPipe;
   }
@@ -112,7 +114,7 @@ public class ArithmeticDummyDataSupplier {
     public List<BigInteger> share(BigInteger input, int numShares) {
       List<BigInteger> shares = getNextRandomElements(numShares - 1);
       BigInteger sumShares = MathUtils.sum(shares, modulus);
-      BigInteger diff = input.subtract(sumShares).mod(modulus);
+      BigInteger diff = reducer.mod(input.subtract(sumShares));
       shares.add(diff);
       return shares;
     }
@@ -127,7 +129,7 @@ public class ArithmeticDummyDataSupplier {
 
     private List<BigInteger> getNextRandomElements(int numElements) {
       return IntStream.range(0, numElements)
-          .mapToObj(i -> new BigInteger(modBitLength, random).mod(modulus))
+          .mapToObj(i -> reducer.mod(new BigInteger(modBitLength, random)))
           .collect(Collectors.toList());
     }
   }
