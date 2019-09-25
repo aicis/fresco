@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import dk.alexandra.fresco.framework.util.ModularReducer;
+import dk.alexandra.fresco.framework.util.ModularReductionAlgorithm;
 
 
 /**
@@ -19,7 +19,7 @@ public class MiscBigIntegerGenerators {
   private Map<Integer, BigInteger[]> coefficientsOfPolynomiums;
   private List<BigInteger> twoPowersList;
   private BigInteger modulus;
-  private ModularReducer reducer;
+  private ModularReductionAlgorithm reducer;
 
   public MiscBigIntegerGenerators(BigInteger modulus) {
     coefficientsOfPolynomiums = new HashMap<>();
@@ -28,7 +28,7 @@ public class MiscBigIntegerGenerators {
     twoPowersList = new ArrayList<>(1);
     twoPowersList.add(BigInteger.ONE);
     
-    this.reducer = new ModularReducer(modulus);
+    this.reducer = ModularReductionAlgorithm.getReductionAlgorithm(modulus);
   }
 
 
@@ -94,18 +94,18 @@ public class MiscBigIntegerGenerators {
       k++;
 
       // Apply recurrence relation
-      f[i] = reducer.mod(f[i - 1].multiply(modulus.subtract(BigInteger.valueOf(k))));
+      f[i] = reducer.apply(f[i - 1].multiply(modulus.subtract(BigInteger.valueOf(k))));
       for (int j = i - 1; j > 0; j--) {
-        f[j] = reducer.mod(f[j].subtract(BigInteger.valueOf(k).multiply(f[j - 1])));
+        f[j] = reducer.apply(f[j].subtract(BigInteger.valueOf(k).multiply(f[j - 1])));
       }
 
-      fm = reducer.mod(fm.multiply(modulus.subtract(BigInteger.valueOf(k - 1))));
+      fm = reducer.apply(fm.multiply(modulus.subtract(BigInteger.valueOf(k - 1))));
     }
 
     // Scale all coefficients of f_l by f_l(m)^{-1}.
     fm = fm.modInverse(modulus);
     for (int i = 0; i < f.length; i++) {
-      f[i] = reducer.mod(f[i].multiply(fm));
+      f[i] = reducer.apply(f[i].multiply(fm));
     }
 
     return f;
@@ -142,7 +142,7 @@ public class MiscBigIntegerGenerators {
     BigInteger[] Ms = new BigInteger[maxBitSize];
     Ms[0] = value;
     for (int i1 = 1; i1 < Ms.length; i1++) {
-      Ms[i1] = reducer.mod(Ms[i1 - 1].multiply(value));
+      Ms[i1] = reducer.apply(Ms[i1 - 1].multiply(value));
     }
     return Ms;
   }

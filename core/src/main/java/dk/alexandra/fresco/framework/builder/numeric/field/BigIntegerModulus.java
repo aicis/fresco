@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Objects;
 
-import dk.alexandra.fresco.framework.util.ModularReducer;
+import dk.alexandra.fresco.framework.util.ModularReductionAlgorithm;
 
 /**
  * A naïve implementation that does not restrict the value of the modulus used. Alternative
@@ -15,7 +15,7 @@ final class BigIntegerModulus implements Serializable {
 
   private static final long serialVersionUID = 1L;
   private final BigInteger value;
-  private transient ModularReducer reducer;
+  private transient ModularReductionAlgorithm reducer;
 
   /**
    * Creates a new modulus object. The bid integer must be larger than 0.
@@ -42,9 +42,9 @@ final class BigIntegerModulus implements Serializable {
   BigInteger reduceModThis(BigInteger x) {
     // We don't serialize the reducer and create it lazily if needed
     if (Objects.isNull(reducer)) {
-      reducer = new ModularReducer(value);
+      reducer = ModularReductionAlgorithm.getReductionAlgorithm(value);
     }
-    return reducer.mod(x);
+    return reducer.apply(x);
   }
   
   @Override

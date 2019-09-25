@@ -3,7 +3,7 @@ package dk.alexandra.fresco.suite.spdz.storage;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.util.ArithmeticDummyDataSupplier;
-import dk.alexandra.fresco.framework.util.ModularReducer;
+import dk.alexandra.fresco.framework.util.ModularReductionAlgorithm;
 import dk.alexandra.fresco.framework.util.MultiplicationTripleShares;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -19,7 +19,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   private final FieldDefinition fieldDefinition;
   private final BigInteger secretSharedKey;
   private final int expPipeLength;
-  private final ModularReducer reducer;
+  private final ModularReductionAlgorithm reducer;
 
   public SpdzDummyDataSupplier(int myId, int noOfPlayers, FieldDefinition fieldDefinition,
       BigInteger secretSharedKey) {
@@ -34,7 +34,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
     this.expPipeLength = expPipeLength;
     this.supplier =
         new ArithmeticDummyDataSupplier(myId, noOfPlayers, fieldDefinition.getModulus());
-    this.reducer = new ModularReducer(fieldDefinition.getModulus());
+    this.reducer = ModularReductionAlgorithm.getReductionAlgorithm(fieldDefinition.getModulus());
   }
 
   @Override
@@ -87,7 +87,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   private SpdzSInt toSpdzSInt(Pair<BigInteger, BigInteger> raw) {
     return new SpdzSInt(
         createElement(raw.getSecond()),
-        createElement(reducer.mod(raw.getFirst().multiply(secretSharedKey)))
+        createElement(reducer.apply(raw.getFirst().multiply(secretSharedKey)))
     );
   }
 
