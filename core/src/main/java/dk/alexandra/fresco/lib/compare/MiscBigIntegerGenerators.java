@@ -65,30 +65,28 @@ public class MiscBigIntegerGenerators {
    * @param l The desired degree of <i>f</i>
    */
   private BigInteger[] constructPolynomial(int l) {
-		/*
-     * Let f_i be the polynoimial which is the product of the first i of
-		 * (x-1), (x-2), ..., (x), (x-2), ..., (x-(l+1)). Then f_0 = 1
-		 * and f_i = (x-k) f_{i-1} where k = i if i < 1 and k = i+1 if i >= 1.
-		 * Note that we are interested in calculating f(x) = f_l(x) / f_l(1).
-		 *
-		 * If we let f_ij denote the j'th coefficient of f_i we have the
-		 * recurrence relations:
-		 *
-		 * f_i0 = 1 for all i (highest degree coefficient)
-		 *
-		 * f_ij = f_{i-1, j} - f_{i-1, j-1} * k for j = 1,...,i
-		 *
-		 * f_ij = 0 for j > i
-		 */
+    /*
+     * Let f_i be the polynomial which is the product of the first i of (x-1), (x-2), ..., (x),
+     * (x-2), ..., (x-(l+1)). Then f_0 = 1 and f_i = (x-k) f_{i-1} where k = i if i < 1 and k = i+1
+     * if i >= 1. Note that we are interested in calculating f(x) = f_l(x) / f_l(1).
+     *
+     * If we let f_ij denote the j'th coefficient of f_i we have the recurrence relations:
+     *
+     * f_i0 = 1 for all i (highest degree coefficient)
+     *
+     * f_ij = f_{i-1, j} - f_{i-1, j-1} * k for j = 1,...,i
+     *
+     * f_ij = 0 for j > i
+     */
     BigInteger[] f = new BigInteger[l + 1];
 
     // Initial value: f_0 = 1
     f[0] = BigInteger.valueOf(1);
 
-		/*
-     * We also calculate f_i(m) in order to be able to normalize f such that
-		 * f(m) = 1. Note that f_i(m) = f_{i-1}(m)(m - k) with the above notation.
-		 */
+    /*
+     * We also calculate f_i(m) in order to be able to normalize f such that f(m) = 1. Note that
+     * f_i(m) = f_{i-1}(m)(m - k) with the above notation.
+     */
     BigInteger fm = BigInteger.ONE;
 
     for (int i = 1; i <= l; i++) {
@@ -96,12 +94,12 @@ public class MiscBigIntegerGenerators {
       k++;
 
       // Apply recurrence relation
-      f[i] = reducer.mod(f[i - 1].multiply(BigInteger.valueOf(-k)));
+      f[i] = reducer.mod(f[i - 1].multiply(modulus.subtract(BigInteger.valueOf(k))));
       for (int j = i - 1; j > 0; j--) {
         f[j] = reducer.mod(f[j].subtract(BigInteger.valueOf(k).multiply(f[j - 1])));
       }
 
-      fm = reducer.mod(fm.multiply(BigInteger.valueOf(1 - k)));
+      fm = reducer.mod(fm.multiply(modulus.subtract(BigInteger.valueOf(k - 1))));
     }
 
     // Scale all coefficients of f_l by f_l(m)^{-1}.

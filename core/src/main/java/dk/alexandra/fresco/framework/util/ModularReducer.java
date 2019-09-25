@@ -13,19 +13,26 @@ public class ModularReducer {
   private final int k;
 
   public ModularReducer(BigInteger modulus) {
+    if (modulus.compareTo(BigInteger.valueOf(3)) <= 0) {
+      throw new IllegalArgumentException("Modulus must be greater than 3");
+    }
+    
+    if (modulus.bitCount() == 1) {
+      throw new IllegalArgumentException("Modulus cannot be a power of two");
+    }
+    
     this.m = modulus;
     this.k = modulus.bitLength();
     this.r = BigInteger.ONE.shiftLeft(2 * k).divide(modulus);
   }
 
   /**
-   * Compute <i>x mod m</i> for the modulus <i>m</i> provided in the constructor and <i>0 &le; x <
-   * m<sup>2</sup></i>.
+   * Compute <i>x</i> modulus the value provided in the constructor.
    * 
    * @param x A non-negative integer smaller than the modulus squared.
-   * @return x mod m
+   * @return The remainder of x divided by the modulus
    */
-  public BigInteger mod(BigInteger x) {
+  private BigInteger modPositive(BigInteger x) {
     BigInteger t = x.subtract(x.multiply(r).shiftRight(2 * k).multiply(m));
 
     if (t.compareTo(m) < 0) {
@@ -34,5 +41,20 @@ public class ModularReducer {
       return t.subtract(m);
     }
   }
+  
+  /**
+   * Compute <i>x</i> modulus the value provided in the constructor.
+   * 
+   * @param x A integer with absolute value smaller than the modulus squared.
+   * @return The remainder of x divided by the modulus
+   */
+  public BigInteger mod(BigInteger x) {
+    if (x.signum() >= 0) {
+      return modPositive(x);
+    } else {
+      return m.subtract(modPositive(x.abs()));
+    }
+  }
+  
 
 }
