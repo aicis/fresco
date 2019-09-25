@@ -45,7 +45,7 @@ public class ModularReducer {
   /**
    * Compute <i>x</i> modulus the value provided in the constructor.
    * 
-   * @param x A integer with absolute value smaller than the modulus squared.
+   * @param x An integer with absolute value smaller than the modulus squared.
    * @return The remainder of x divided by the modulus
    */
   public BigInteger mod(BigInteger x) {
