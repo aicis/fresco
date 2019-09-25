@@ -9,7 +9,6 @@ import dk.alexandra.fresco.lib.real.math.PolynomialEvaluation;
 import dk.alexandra.fresco.lib.real.math.Reciprocal;
 import dk.alexandra.fresco.lib.real.math.SquareRoot;
 import dk.alexandra.fresco.lib.real.math.TwoPower;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,42 +41,6 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
         })).seq((r3, currentInput) -> {
           return currentInput.get(0);
         });
-  }
-
-  @Override
-  public DRes<SReal> innerProduct(List<DRes<SReal>> a, List<DRes<SReal>> b) {
-    return builder.par(par -> {
-      if (a.size() != b.size()) {
-        throw new IllegalArgumentException("Vectors must have same size");
-      }
-
-      List<DRes<SReal>> products = new ArrayList<>(a.size());
-      for (int i = 0; i < a.size(); i++) {
-        products.add(par.realNumeric().mult(a.get(i), b.get(i)));
-      }
-
-      return () -> products;
-    }).seq((seq, list) -> {
-      return seq.realAdvanced().sum(list);
-    });
-  }
-
-  @Override
-  public DRes<SReal> innerProductWithPublicPart(List<BigDecimal> a, List<DRes<SReal>> b) {
-    return builder.par(r1 -> {
-      if (a.size() != b.size()) {
-        throw new IllegalArgumentException("Vectors must have same size");
-      }
-
-      List<DRes<SReal>> products = new ArrayList<>(a.size());
-      for (int i = 0; i < a.size(); i++) {
-        products.add(r1.realNumeric().mult(a.get(i), b.get(i)));
-      }
-
-      return () -> products;
-    }).seq((seq, list) -> {
-      return seq.realAdvanced().sum(list);
-    });
   }
 
   @Override
