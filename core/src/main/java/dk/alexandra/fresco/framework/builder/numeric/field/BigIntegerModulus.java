@@ -15,7 +15,7 @@ final class BigIntegerModulus implements Serializable {
 
   private static final long serialVersionUID = 1L;
   private final BigInteger value;
-  private final ModularReducer reducer;
+  private transient ModularReducer reducer;
 
   /**
    * Creates a new modulus object. The bid integer must be larger than 0.
@@ -27,7 +27,6 @@ final class BigIntegerModulus implements Serializable {
       throw new IllegalArgumentException("Only positive modulus is acceptable");
     }
     this.value = Objects.requireNonNull(value);
-    this.reducer = new ModularReducer(value);
   }
 
   BigInteger getBigInteger() {
@@ -41,6 +40,8 @@ final class BigIntegerModulus implements Serializable {
    * @return A BigInteger equal to x mod M.
    */
   BigInteger reduceModThis(BigInteger x) {
+    // We don't serialize the reducer and create it lazily if needed
+    reducer = Objects.requireNonNullElse(reducer, new ModularReducer(value));
     return reducer.mod(x);
   }
   
