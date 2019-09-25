@@ -14,7 +14,7 @@ public class ModularReducer {
 
   public ModularReducer(BigInteger modulus) {
     this.m = modulus;
-    this.k = modulus.bitLength() + 1;
+    this.k = modulus.bitLength();
     this.r = BigInteger.ONE.shiftLeft(2 * k).divide(modulus);
   }
 
