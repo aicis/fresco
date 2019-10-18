@@ -14,7 +14,7 @@ final class BigIntegerFieldElement implements FieldElement {
   private final BigIntegerModulus modulus;
 
   private BigIntegerFieldElement(BigInteger value, BigIntegerModulus modulus) {
-    this.value = value.mod(modulus.getBigInteger());
+    this.value = modulus.reduceModThis(value);
     this.modulus = modulus;
   }
 
