@@ -1,18 +1,5 @@
 package dk.alexandra.fresco.demo.cli;
 
-import java.io.File;
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Random;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
-import javax.crypto.spec.DHParameterSpec;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
@@ -54,6 +41,17 @@ import dk.alexandra.fresco.tools.ot.base.DhParameters;
 import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
+import java.io.File;
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Random;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import javax.crypto.spec.DHParameterSpec;
 
 /**
  * Utility for reading all configuration from command line.
@@ -73,13 +71,14 @@ public class CmdLineProtocolSuite {
     return Arrays.toString(strings);
   }
 
-  CmdLineProtocolSuite(String protocolSuiteName, Properties properties, int myId, int noOfParties,
-      Supplier<Network> network) {
+  CmdLineProtocolSuite(String protocolSuiteName, Properties properties, int myId, 
+      int noOfParties, Supplier<Network> network) {
     this.myId = myId;
     this.noOfPlayers = noOfParties;
     if (protocolSuiteName.equals("dummybool")) {
       this.protocolSuite = new DummyBooleanProtocolSuite();
-      this.resourcePool = new ResourcePoolImpl(myId, noOfPlayers);
+      this.resourcePool = 
+          new ResourcePoolImpl(myId, noOfPlayers);
     } else if (protocolSuiteName.equals("dummyarithmetic")) {
       this.protocolSuite = dummyArithmeticFromCmdLine(properties);
       String mod = properties.getProperty("modulus",
@@ -96,9 +95,11 @@ public class CmdLineProtocolSuite {
       this.protocolSuite = tinyTablesPreProFromCmdLine(properties);
       Drbg random = new AesCtrDrbg();
       TinyTablesOt baseOt = new TinyTablesNaorPinkasOt(Util.otherPlayerId(myId), random,
-          DhParameters.getStaticDhParams());
-      this.resourcePool = new TinyTablesPreproResourcePool(myId, baseOt, random, 128, 40, 16000,
-          new File(tinyTablesFilePath), network);
+          DhParameters
+              .getStaticDhParams());
+      this.resourcePool = new TinyTablesPreproResourcePool(myId, baseOt, 
+          random, 128, 40, 16000, new File(
+              tinyTablesFilePath), network);
     } else {
       this.protocolSuite = tinyTablesFromCmdLine(properties);
       this.resourcePool = new ResourcePoolImpl(myId, noOfPlayers);
