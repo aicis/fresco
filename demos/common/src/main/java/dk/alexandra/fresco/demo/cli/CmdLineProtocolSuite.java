@@ -71,21 +71,22 @@ public class CmdLineProtocolSuite {
     return Arrays.toString(strings);
   }
 
-  CmdLineProtocolSuite(String protocolSuiteName, Properties properties, int myId, 
+  CmdLineProtocolSuite(String protocolSuiteName, Properties properties, int myId,
       int noOfParties, Supplier<Network> network) {
     this.myId = myId;
     this.noOfPlayers = noOfParties;
     if (protocolSuiteName.equals("dummybool")) {
       this.protocolSuite = new DummyBooleanProtocolSuite();
-      this.resourcePool = 
+      this.resourcePool =
           new ResourcePoolImpl(myId, noOfPlayers);
     } else if (protocolSuiteName.equals("dummyarithmetic")) {
       this.protocolSuite = dummyArithmeticFromCmdLine(properties);
       String mod = properties.getProperty("modulus",
           "67039039649712985497870124991238141152738485774711365274259660130265015367064643"
               + "54255445443244279389455058889493431223951165286470575994074291745908195329");
-      this.resourcePool = new DummyArithmeticResourcePoolImpl(myId, noOfPlayers,
-          new BigIntegerFieldDefinition(mod));
+      this.resourcePool = 
+          new DummyArithmeticResourcePoolImpl(myId, noOfPlayers,
+              new BigIntegerFieldDefinition(mod));
     } else if (protocolSuiteName.equals("spdz")) {
       this.protocolSuite = getSpdzProtocolSuite(properties);
       this.resourcePool = createSpdzResourcePool(properties, network);
@@ -97,9 +98,9 @@ public class CmdLineProtocolSuite {
       TinyTablesOt baseOt = new TinyTablesNaorPinkasOt(Util.otherPlayerId(myId), random,
           DhParameters
               .getStaticDhParams());
-      this.resourcePool = new TinyTablesPreproResourcePool(myId, baseOt, 
-          random, 128, 40, 16000, new File(
-              tinyTablesFilePath), network);
+      this.resourcePool = new TinyTablesPreproResourcePool(myId, baseOt,
+          random, 128, 40, 16000,
+          new File(tinyTablesFilePath), network);
     } else {
       this.protocolSuite = tinyTablesFromCmdLine(properties);
       this.resourcePool = new ResourcePoolImpl(myId, noOfPlayers);
