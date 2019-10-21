@@ -27,7 +27,7 @@ public class MathTests {
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      List<BigDecimal> openInputs = Stream.of(-10.0, -5.1, -1.2, -0.5, 0.01, 0.2, 1.1, 2.1, 5.1)
+      List<BigDecimal> openInputs = Stream.of(-5., -1., -0.1, -.01, 0., .01, 0.1, 1., 5.)
           .map(BigDecimal::valueOf).collect(Collectors.toList());
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
@@ -105,7 +105,7 @@ public class MathTests {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      List<BigDecimal> openInputs = Stream.of(1.1, 2.1, 3.1, 4.1, 5.1, 10.1)
+      List<BigDecimal> openInputs = Stream.of(.01, 0.1, 1., 10., 100., 1000.)
           .map(BigDecimal::valueOf).collect(Collectors.toList());
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
@@ -145,7 +145,7 @@ public class MathTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       List<BigDecimal> openInputs =
-          Stream.of(0.1, 0.2, 0.4, 0.8, 1.6, 3.2, 10.0, 20.0, 40.0, 10_000.)
+          Stream.of(0., .01, 0.1, 1., 10., 100., 1000.)
               .map(BigDecimal::valueOf).collect(Collectors.toList());
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
@@ -182,9 +182,8 @@ public class MathTests {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      List<BigDecimal> openInputs =
-          Stream.of(1000_000.0, 1_000.0 + 0.5 * Math.pow(2.0, -DEFAULT_PRECISION), 40.1)
-              .map(BigDecimal::valueOf).collect(Collectors.toList());
+      List<BigDecimal> openInputs = Stream.of(-1., -0.1, -.01, 0., .01, 0.1, 1., 10.)
+          .map(BigDecimal::valueOf).collect(Collectors.toList());
       BigDecimal expectedOutput = openInputs.stream().reduce(BigDecimal.ZERO, (a, b) -> a.add(b));
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
@@ -209,7 +208,7 @@ public class MathTests {
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       List<BigDecimal> openInputs1 =
           Stream.of(64.0, 128.0, 8.0).map(BigDecimal::valueOf).collect(Collectors.toList());
-      List<BigDecimal> openInputs2 = Stream.of(1 / 64.0, 1 / 128.0, 1 / 8.0)
+      List<BigDecimal> openInputs2 = Stream.of(1. / 64.0, 1. / 128.0, 1. / 8.0)
           .map(BigDecimal::valueOf).collect(Collectors.toList());
       BigDecimal expectedOutput = BigDecimal.valueOf(3);
 
@@ -345,7 +344,7 @@ public class MathTests {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      List<BigDecimal> openInputs = Stream.of(.01, 0.1, 1.1, 2.1, 3.1, 4.1, 5.1, 10.1)
+      List<BigDecimal> openInputs = Stream.of(.01, 0.1, 1., 10., 100.)
           .map(BigDecimal::valueOf).collect(Collectors.toList());
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
@@ -428,7 +427,7 @@ public class MathTests {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      List<BigInteger> openInputs = Stream.of(-10, -5, -1, 0, 1, 2, 5, 10).map(BigInteger::valueOf)
+      List<BigInteger> openInputs = Stream.of(-10, -5, -2, -1, 0, 1, 2, 5, 10).map(BigInteger::valueOf)
           .collect(Collectors.toList());
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
@@ -468,11 +467,10 @@ public class MathTests {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      List<BigDecimal> openInputs =
-          Stream.of(1.0, 2.0, 3.0, 10.0)
-              .map(BigDecimal::valueOf).collect(Collectors.toList());
+      List<BigDecimal> openInputs = Stream.of(-10., -1., -0.1, -.01, 0., .01, 0.1, 1., 10.)
+          .map(BigDecimal::valueOf).collect(Collectors.toList());
 
-              double[] p = new double[] {7.0};
+      double[] p = new double[] {7.0}; // Constant polynomial
               
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
