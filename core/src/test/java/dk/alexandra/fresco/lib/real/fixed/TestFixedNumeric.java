@@ -18,27 +18,11 @@ public class TestFixedNumeric {
     BuilderFactoryNumeric bfn = new DummyArithmeticBuilderFactory(
         new BasicNumericContext(16, 1, 1, fieldDefinition),
         new RealNumericContext(0));
-    new FixedNumeric(bfn.createSequential(), 4);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testFixedNumericPrecisionTooLarge() {
-    BuilderFactoryNumeric bfn = new DummyArithmeticBuilderFactory(
-        new BasicNumericContext(16, 1, 1, fieldDefinition),
-        new RealNumericContext(0));
-    new FixedNumeric(bfn.createSequential(), 5);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testFixedNumericPrecisionTooLow() {
-    BuilderFactoryNumeric bfn = new DummyArithmeticBuilderFactory(
-        new BasicNumericContext(16, 1, 1, fieldDefinition),
-        new RealNumericContext(0));
-    new FixedNumeric(bfn.createSequential(), -1);
+    new FixedNumeric(bfn.createSequential());
   }
 
   @Test(expected = NullPointerException.class)
   public void testFixedNumericNullBuilder() {
-    new FixedNumeric(null, -1);
+    new FixedNumeric(null);
   }
 }

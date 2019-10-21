@@ -43,6 +43,7 @@ import dk.alexandra.fresco.lib.math.polynomial.PolynomialTests;
 import dk.alexandra.fresco.lib.real.BasicFixedPointTests;
 import dk.alexandra.fresco.lib.real.LinearAlgebraTests;
 import dk.alexandra.fresco.lib.real.MathTests;
+import dk.alexandra.fresco.lib.real.NormalizeTests;
 import dk.alexandra.fresco.lib.real.TruncationTests;
 import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
 import dk.alexandra.fresco.lib.statistics.DeaSolver;
@@ -786,14 +787,42 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
-  public void test_Real_Sqrt_Uneven_Precision() {
-    runTest(new MathTests.TestSqrt<>(),
-        new TestParameters()
-            .fixedPointPrecesion(BasicFixedPointTests.DEFAULT_PRECISION + 1));
+  public void test_trunctation() {
+    runTest(new TruncationTests.TestTruncation<>(), new TestParameters().numParties(2));
+  }
+  
+  @Test
+  public void test_normalize_sreal() {
+    runTest(new NormalizeTests.TestNormalizeSReal<>(), new TestParameters().numParties(2));
+  }
+  
+  @Test
+  public void test_normalize_power_sreal() {
+    runTest(new NormalizeTests.TestNormalizePowerSReal<>(), new TestParameters().numParties(2));
+  }
+  
+  @Test
+  public void test_normalize_sint() {
+    runTest(new NormalizeTests.TestNormalizeSInt<>(), new TestParameters().numParties(2));
+  }
+  
+  @Test
+  public void test_reciprocal() {
+    runTest(new MathTests.TestReciprocal<>(), new TestParameters().numParties(2));
+  }
+  
+  @Test
+  public void test_two_power() {
+    runTest(new MathTests.TestTwoPower<>(), new TestParameters().numParties(2));
   }
 
   @Test
-  public void test_trunctation() {
-    runTest(new TruncationTests.TestTruncation<>(), new TestParameters().numParties(2));
+  public void test_real_sign() {
+    runTest(new MathTests.TestRealSign<>(), new TestParameters().numParties(2));    
+  }
+  
+  @Test
+  public void test_constant_real_polynomial() {
+    runTest(new MathTests.TestConstantPolynomial<>(), new TestParameters().numParties(2));
   }
 }

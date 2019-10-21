@@ -27,7 +27,18 @@ public interface RealNumeric extends ComputationDirectory {
    * @return A deferred result computing a+b
    */
   DRes<SReal> add(BigDecimal a, DRes<SReal> b);
-
+  
+  /**
+   * Adds a secret value with a public value and returns the result.
+   *
+   * @param a Public value
+   * @param b Secret value
+   * @return A deferred result computing a+b
+   */
+  default DRes<SReal> add(double a, DRes<SReal> b) {
+    return add(BigDecimal.valueOf(a), b);
+  }
+  
   /**
    * Subtracts two secret values and returns the result.
    *
@@ -47,6 +58,17 @@ public interface RealNumeric extends ComputationDirectory {
   DRes<SReal> sub(BigDecimal a, DRes<SReal> b);
 
   /**
+   * Subtracts a public value and a secret value and returns the result.
+   *
+   * @param a Public value
+   * @param b Secret value
+   * @return A deferred result computing a-b
+   */
+  default DRes<SReal> sub(double a, DRes<SReal> b) {
+    return sub(BigDecimal.valueOf(a), b);
+  }
+  
+  /**
    * Subtracts a secret value and a public value and returns the result.
    *
    * @param a Secret value
@@ -54,6 +76,17 @@ public interface RealNumeric extends ComputationDirectory {
    * @return A deferred result computing a-b
    */
   DRes<SReal> sub(DRes<SReal> a, BigDecimal b);
+
+  /**
+   * Subtracts a secret value and a public value and returns the result.
+   *
+   * @param a Secret value
+   * @param b Public value
+   * @return A deferred result computing a-b
+   */
+  default DRes<SReal> sub(DRes<SReal> a, double b) {
+    return sub(a, BigDecimal.valueOf(b));
+  }
 
   /**
    * Multiplies two secret values and returns the result.
@@ -74,6 +107,17 @@ public interface RealNumeric extends ComputationDirectory {
   DRes<SReal> mult(BigDecimal a, DRes<SReal> b);
 
   /**
+   * Multiplies a public value onto a secret value and returns the result.
+   *
+   * @param a Public value
+   * @param b Secret value
+   * @return A deferred result computing a*b
+   */
+  default DRes<SReal> mult(double a, DRes<SReal> b) {
+    return mult(BigDecimal.valueOf(a), b);
+  }
+
+  /**
    * Divides two secret values and returns the result.
    *
    * @param a Secret value 1
@@ -90,7 +134,18 @@ public interface RealNumeric extends ComputationDirectory {
    * @return A deferred result computing a/b
    */
   DRes<SReal> div(DRes<SReal> a, BigDecimal b);
-
+  
+  /**
+   * Divides a secret value with a public value and returns the result.
+   *
+   * @param a Secret value
+   * @param b Public value
+   * @return A deferred result computing a/b
+   */
+  default DRes<SReal> div(DRes<SReal> a, double b) {
+    return div(a, BigDecimal.valueOf(b));
+  }
+  
   /**
    * Creates a known secret value from a public value. This is primarily a helper function in order
    * to use public values within the FRESCO functions.
@@ -99,6 +154,17 @@ public interface RealNumeric extends ComputationDirectory {
    * @return A secret value which represents the given public value.
    */
   DRes<SReal> known(BigDecimal value);
+
+  /**
+   * Creates a known secret value from a public value. This is primarily a helper function in order
+   * to use public values within the FRESCO functions.
+   *
+   * @param value The public value.
+   * @return A secret value which represents the given public value.
+   */
+  default DRes<SReal> known(double value) {
+    return known(BigDecimal.valueOf(value));
+  }
 
   /**
    * Create a secret real value from a secret integer value representing the same value.
@@ -118,6 +184,18 @@ public interface RealNumeric extends ComputationDirectory {
    */
   DRes<SReal> input(BigDecimal value, int inputParty);
 
+  /**
+   * Closes a public value. If the MPC party calling this method is not providing input, just use
+   * null as the input value.
+   *
+   * @param value The value to input or null if no input should be given.
+   * @param inputParty The ID of the MPC party.
+   * @return The closed input value.
+   */
+  default DRes<SReal> input(double value, int inputParty) {
+    return input(BigDecimal.valueOf(value), inputParty);
+  }
+  
   /**
    * Opens a value to all MPC parties.
    *
