@@ -84,7 +84,7 @@ public class CmdLineProtocolSuite {
       String mod = properties.getProperty("modulus",
           "67039039649712985497870124991238141152738485774711365274259660130265015367064643"
               + "54255445443244279389455058889493431223951165286470575994074291745908195329");
-      this.resourcePool = 
+      this.resourcePool =
           new DummyArithmeticResourcePoolImpl(myId, noOfPlayers,
               new BigIntegerFieldDefinition(mod));
     } else if (protocolSuiteName.equals("spdz")) {
@@ -99,8 +99,8 @@ public class CmdLineProtocolSuite {
           DhParameters
               .getStaticDhParams());
       this.resourcePool = new TinyTablesPreproResourcePool(myId, baseOt,
-          random, 128, 40, 16000,
-          new File(tinyTablesFilePath), network);
+          random, 128, 40, 16000, new File(
+              tinyTablesFilePath), network);
     } else {
       this.protocolSuite = tinyTablesFromCmdLine(properties);
       this.resourcePool = new ResourcePoolImpl(myId, noOfPlayers);
