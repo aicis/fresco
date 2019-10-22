@@ -72,9 +72,11 @@ public class CmdLineProtocolSuite {
   }
 
   CmdLineProtocolSuite(String protocolSuiteName, Properties properties, int myId,
-      int noOfParties, Supplier<Network> network) {
+      int noOfParties, Supplier<Network> networkSupplier) {
+    
     this.myId = myId;
     this.noOfPlayers = noOfParties;
+    
     if (protocolSuiteName.equals("dummybool")) {
       this.protocolSuite = new DummyBooleanProtocolSuite();
       this.resourcePool =
@@ -89,7 +91,7 @@ public class CmdLineProtocolSuite {
               new BigIntegerFieldDefinition(mod));
     } else if (protocolSuiteName.equals("spdz")) {
       this.protocolSuite = getSpdzProtocolSuite(properties);
-      this.resourcePool = createSpdzResourcePool(properties, network);
+      this.resourcePool = createSpdzResourcePool(properties, networkSupplier);
     } else if (protocolSuiteName.equals("tinytablesprepro")) {
       String tinytablesFileOption = "tinytables.file";
       String tinyTablesFilePath = properties.getProperty(tinytablesFileOption, "tinytables");
@@ -100,7 +102,7 @@ public class CmdLineProtocolSuite {
               .getStaticDhParams());
       this.resourcePool = new TinyTablesPreproResourcePool(myId, baseOt,
           random, 128, 40, 16000, new File(
-              tinyTablesFilePath), network);
+              tinyTablesFilePath), networkSupplier);
     } else {
       this.protocolSuite = tinyTablesFromCmdLine(properties);
       this.resourcePool = new ResourcePoolImpl(myId, noOfPlayers);
@@ -140,7 +142,7 @@ public class CmdLineProtocolSuite {
   }
 
   private SpdzResourcePool createSpdzResourcePool(Properties properties,
-      Supplier<Network> network) {
+      Supplier<Network> networkSupplier) {
 
     String strat = properties.getProperty("spdz.preprocessingStrategy", "DUMMY");
     final PreprocessingStrategy strategy = PreprocessingStrategy.valueOf(strat);
@@ -166,25 +168,24 @@ public class CmdLineProtocolSuite {
       case MASCOT:
         int prgSeedLength = 256;
 
+        Network network = networkSupplier.get();
         Drbg drbg = getDrbg(myId, prgSeedLength);
         Map<Integer, RotList> seedOts =
-            getSeedOts(myId, noOfPlayers, prgSeedLength, drbg, network.get());
+            getSeedOts(myId, noOfPlayers, prgSeedLength, drbg, network);
         FieldElement ssk = SpdzMascotDataSupplier.createRandomSsk(definition, prgSeedLength);
-
-        supplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, noOfPlayers, network,
+        
+        supplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, noOfPlayers, () -> network,
             modBitLength, definition, new Function<Integer, SpdzSInt[]>() {
 
               private SpdzMascotDataSupplier tripleSupplier;
-              private Network pipeNetwork;
 
               @Override
               public SpdzSInt[] apply(Integer pipeLength) {
-                if (pipeNetwork == null) {
-                  pipeNetwork = network.get();
+                if (tripleSupplier == null) {
                   tripleSupplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, noOfPlayers,
-                      () -> pipeNetwork, modBitLength, definition, null, seedOts, drbg, ssk);
+                      () -> network, modBitLength, definition, null, seedOts, drbg, ssk);
                 }
-                DRes<List<DRes<SInt>>> pipe = createPipe(pipeLength, pipeNetwork, tripleSupplier);
+                DRes<List<DRes<SInt>>> pipe = createPipe(pipeLength, network, tripleSupplier);
                 return computeSInts(pipe);
               }
             }, seedOts, drbg, ssk);
@@ -195,7 +196,7 @@ public class CmdLineProtocolSuite {
         AesCtrDrbg::new);
   }
 
-  private DRes<List<DRes<SInt>>> createPipe(int pipeLength, Network pipeNetwork,
+  private DRes<List<DRes<SInt>>> createPipe(int pipeLength, Network network,
       SpdzMascotDataSupplier tripleSupplier) {
 
     SpdzProtocolSuite spdzProtocolSuite = (SpdzProtocolSuite) this.protocolSuite;
@@ -205,7 +206,7 @@ public class CmdLineProtocolSuite {
     DRes<List<DRes<SInt>>> exponentiationPipe =
         sequential.append(new SpdzExponentiationPipeProtocol(pipeLength));
 
-    evaluate(sequential, spdzResourcePool, pipeNetwork);
+    evaluate(sequential, spdzResourcePool, network);
     return exponentiationPipe;
   }
 
