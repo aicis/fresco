@@ -110,15 +110,16 @@ public class NormalizeTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       List<BigInteger> openInputs =
-          Stream.of(-10000000, -12345, -10, -1, 1, 2, 123, (int) Math.pow(2, 32) - 1)
+          Stream
+              .of(-1234567, -12345, -123, -1, 1, 123, 12345, 1234567)
               .map(BigInteger::valueOf).collect(Collectors.toList());
-      
-      int l = 32;
-      
+
+      int l = 64;
+
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
+          Application<Pair<List<BigInteger>, List<BigInteger>>, ProtocolBuilderNumeric> app =
               builder -> builder.seq(producer -> {
 
                 List<DRes<SInt>> closed1 =
@@ -130,17 +131,30 @@ public class NormalizeTests {
                 }
                 return () -> result;
               }).seq((producer, result) -> {
-                List<DRes<BigInteger>> opened = result.stream().map(DRes::out).map(Pair::getSecond)
+                List<DRes<BigInteger>> factors = result.stream().map(DRes::out).map(Pair::getFirst)
                     .map(producer.numeric()::open).collect(Collectors.toList());
-                return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
+
+                List<DRes<BigInteger>> exponents = result.stream().map(DRes::out).map(Pair::getSecond)
+                    .map(producer.numeric()::open).collect(Collectors.toList());
+
+                return () -> new Pair<List<BigInteger>, List<BigInteger>>(factors.stream().map(DRes::out)
+                    .map(producer.getBasicNumericContext().getFieldDefinition()::convertToSigned)
+                    .collect(Collectors.toList()), exponents.stream().map(DRes::out)
+                    .map(producer.getBasicNumericContext().getFieldDefinition()::convertToSigned)
+                    .collect(Collectors.toList()));
               });
 
-          List<BigInteger> output = runApplication(app);
+          Pair<List<BigInteger>, List<BigInteger>> output = runApplication(app);
 
           for (int i = 0; i < openInputs.size(); i++) {
             BigInteger input = openInputs.get(i);
             int expected = l - input.bitLength();
-            Assert.assertEquals(expected, output.get(i).intValue());
+
+            Assert.assertEquals(expected, output.getSecond().get(i).intValue());
+
+            Assert.assertEquals(
+                BigInteger.ONE.shiftLeft(expected).multiply(BigInteger.valueOf(input.signum())),
+                output.getFirst().get(i));
           }
         }
       };
