@@ -90,7 +90,7 @@ public class NormalizeSInt
             List<DRes<SInt>> x = p.getFirst().out();
             List<DRes<SInt>> y = p.getSecond().out();
 
-            DRes<SInt> x0 = r2.numeric().mult(1 << ((n + 1) / 2), x.get(0));
+            DRes<SInt> x0 = r2.numeric().mult(BigInteger.ONE.shiftLeft((n + 1) / 2), x.get(0));
             DRes<SInt> x2 = r2.numeric().add((n + 1) / 2, x.get(2));
 
             List<DRes<SInt>> yPrime =
