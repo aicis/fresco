@@ -13,8 +13,6 @@ in Java and licensed under the open source MIT license.
 The FRESCO documentation is available at
 [http://fresco.readthedocs.org](http://fresco.readthedocs.org/).
 
-The <strong>FRESCO security bug hunt challenge</strong> is open from Feb 15 – Sep 15. For more information on the challenge and rewards consult <https://www.soda-project.eu/challenge>.
-
 If you have any comments, questions, ideas, or find bugs, send us an
 email at fresco@alexandra.dk or use the FRESCO issue tracker at
 [http://github.com/aicis/fresco/issues](http://github.com/aicis/fresco/issues/).
