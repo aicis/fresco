@@ -6,6 +6,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -24,10 +25,12 @@ import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -102,6 +105,19 @@ public class TestCmdLineUtil {
             1);
     CmdLineUtil<SpdzResourcePool, ProtocolBuilderNumeric> cmd =
         parseAndCloseNetwork("spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=STATIC");
+    assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
+    assertEquals(1, cmd.getNetworkConfiguration().getMyId());
+    assertEquals(2, cmd.getNetworkConfiguration().noOfParties());
+    assertTrue(cmd.getProtocolSuite() instanceof SpdzProtocolSuite);
+    assertTrue(cmd.getResourcePool() instanceof ResourcePoolImpl);
+    assertTrue(cmd.getSce() instanceof SecureComputationEngineImpl);
+    InitializeStorage.cleanup();
+  }
+
+  @Test
+  public void testSpdzAritmeticMascotFromCmdLine() throws IOException {
+    CmdLineUtil<SpdzResourcePool, ProtocolBuilderNumeric> cmd =
+            parseAndCloseNetwork("spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=MASCOT");
     assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
     assertEquals(1, cmd.getNetworkConfiguration().getMyId());
     assertEquals(2, cmd.getNetworkConfiguration().noOfParties());

@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.demo.cli;
 
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.DefaultPreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
@@ -73,10 +75,10 @@ public class CmdLineProtocolSuite {
 
   CmdLineProtocolSuite(String protocolSuiteName, Properties properties, int myId,
       int noOfParties, Supplier<Network> networkSupplier) {
-    
+
     this.myId = myId;
     this.noOfPlayers = noOfParties;
-    
+
     if (protocolSuiteName.equals("dummybool")) {
       this.protocolSuite = new DummyBooleanProtocolSuite();
       this.resourcePool =
@@ -177,15 +179,17 @@ public class CmdLineProtocolSuite {
         supplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, noOfPlayers, () -> network,
             modBitLength, definition, new Function<Integer, SpdzSInt[]>() {
 
-              private SpdzMascotDataSupplier tripleSupplier;
+              private SpdzResourcePool resourcePool;
 
               @Override
               public SpdzSInt[] apply(Integer pipeLength) {
-                if (tripleSupplier == null) {
-                  tripleSupplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, noOfPlayers,
-                      () -> network, modBitLength, definition, null, seedOts, drbg, ssk);
+                if (resourcePool == null) {
+                  SpdzDataSupplier tripleSupplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, noOfPlayers,
+                          () -> network, modBitLength, definition, null, seedOts, drbg, ssk);
+                  this.resourcePool = new SpdzResourcePoolImpl(myId, noOfPlayers, new SpdzOpenedValueStoreImpl(),
+                          tripleSupplier, AesCtrDrbg::new);
                 }
-                DRes<List<DRes<SInt>>> pipe = createPipe(pipeLength, network, tripleSupplier);
+                DRes<List<DRes<SInt>>> pipe = createPipe(pipeLength, network, resourcePool);
                 return computeSInts(pipe);
               }
             }, seedOts, drbg, ssk);
@@ -197,16 +201,13 @@ public class CmdLineProtocolSuite {
   }
 
   private DRes<List<DRes<SInt>>> createPipe(int pipeLength, Network network,
-      SpdzMascotDataSupplier tripleSupplier) {
-
-    SpdzProtocolSuite spdzProtocolSuite = (SpdzProtocolSuite) this.protocolSuite;
-    SpdzResourcePool spdzResourcePool = (SpdzResourcePool) this.resourcePool;
-    ProtocolBuilderNumeric sequential = spdzProtocolSuite.init(spdzResourcePool).createSequential();
-
-    DRes<List<DRes<SInt>>> exponentiationPipe =
-        sequential.append(new SpdzExponentiationPipeProtocol(pipeLength));
-
-    evaluate(sequential, spdzResourcePool, network);
+      SpdzResourcePool resourcePool) {
+    SpdzProtocolSuite spdzProtocolSuite = (SpdzProtocolSuite) protocolSuite;
+    ProtocolBuilderNumeric sequential = spdzProtocolSuite.init(resourcePool).createSequential();
+    Application<List<DRes<SInt>>, ProtocolBuilderNumeric> expPipe = builder ->
+            new DefaultPreprocessedValues(builder).getExponentiationPipe(pipeLength);
+    DRes<List<DRes<SInt>>> exponentiationPipe = expPipe.buildComputation(sequential);
+    evaluate(sequential, resourcePool, network);
     return exponentiationPipe;
   }
 
