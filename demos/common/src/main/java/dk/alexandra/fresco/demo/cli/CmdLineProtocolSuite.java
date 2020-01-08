@@ -154,48 +154,42 @@ public class CmdLineProtocolSuite {
     final BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(modulus);
     SpdzDataSupplier supplier = null;
 
-    switch (strategy) {
-      case DUMMY:
-        supplier = new SpdzDummyDataSupplier(myId, noOfPlayers, definition, modulus);
-        break;
+    if (strategy == PreprocessingStrategy.DUMMY) {
+      supplier = new SpdzDummyDataSupplier(myId, noOfPlayers, definition, modulus);
+    } else if (strategy == PreprocessingStrategy.STATIC) {
+      int noOfThreadsUsed = 1;
+      String storageName = SpdzStorageDataSupplier.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_"
+              + myId + "_" + 0 + "_";
+      supplier = new SpdzStorageDataSupplier(
+              new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, noOfPlayers);
+    } else if (strategy == PreprocessingStrategy.MASCOT) {
+      int prgSeedLength = 256;
 
-      case STATIC:
-        int noOfThreadsUsed = 1;
-        String storageName = SpdzStorageDataSupplier.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_"
-            + myId + "_" + 0 + "_";
-        supplier = new SpdzStorageDataSupplier(
-            new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, noOfPlayers);
-        break;
+      Network network = networkSupplier.get();
+      Drbg drbg = getDrbg(myId, prgSeedLength);
+      Map<Integer, RotList> seedOts =
+              getSeedOts(myId, noOfPlayers, prgSeedLength, drbg, network);
+      FieldElement ssk = SpdzMascotDataSupplier.createRandomSsk(definition, prgSeedLength);
 
-      case MASCOT:
-        int prgSeedLength = 256;
+      supplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, noOfPlayers, () -> network,
+              modBitLength, definition, new Function<Integer, SpdzSInt[]>() {
 
-        Network network = networkSupplier.get();
-        Drbg drbg = getDrbg(myId, prgSeedLength);
-        Map<Integer, RotList> seedOts =
-            getSeedOts(myId, noOfPlayers, prgSeedLength, drbg, network);
-        FieldElement ssk = SpdzMascotDataSupplier.createRandomSsk(definition, prgSeedLength);
-        
-        supplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, noOfPlayers, () -> network,
-            modBitLength, definition, new Function<Integer, SpdzSInt[]>() {
+                private SpdzResourcePool resourcePool;
 
-              private SpdzResourcePool resourcePool;
-
-              @Override
-              public SpdzSInt[] apply(Integer pipeLength) {
-                if (resourcePool == null) {
-                  SpdzDataSupplier tripleSupplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, noOfPlayers,
-                          () -> network, modBitLength, definition, null, seedOts, drbg, ssk);
-                  this.resourcePool = new SpdzResourcePoolImpl(myId, noOfPlayers, new SpdzOpenedValueStoreImpl(),
-                          tripleSupplier, AesCtrDrbg::new);
+                @Override
+                public SpdzSInt[] apply(Integer pipeLength) {
+                  if (resourcePool == null) {
+                    SpdzDataSupplier tripleSupplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, noOfPlayers,
+                            () -> network, modBitLength, definition, null, seedOts, drbg, ssk);
+                    this.resourcePool = new SpdzResourcePoolImpl(myId, noOfPlayers, new SpdzOpenedValueStoreImpl(),
+                            tripleSupplier, AesCtrDrbg::new);
+                  }
+                  DRes<List<DRes<SInt>>> pipe = createPipe(pipeLength, network, resourcePool);
+                  return computeSInts(pipe);
                 }
-                DRes<List<DRes<SInt>>> pipe = createPipe(pipeLength, network, resourcePool);
-                return computeSInts(pipe);
-              }
-            }, seedOts, drbg, ssk);
-        break;
+              }, seedOts, drbg, ssk);
     }
-    
+
     return new SpdzResourcePoolImpl(myId, noOfPlayers, new SpdzOpenedValueStoreImpl(), supplier,
         AesCtrDrbg::new);
   }
