@@ -45,12 +45,7 @@ import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import java.io.File;
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import javax.crypto.spec.DHParameterSpec;
@@ -162,7 +157,8 @@ public class CmdLineProtocolSuite {
               + myId + "_" + 0 + "_";
       supplier = new SpdzStorageDataSupplier(
               new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, noOfPlayers);
-    } else if (strategy == PreprocessingStrategy.MASCOT) {
+    } else {
+      // MASCOT preprocessing
       int prgSeedLength = 256;
 
       Network network = networkSupplier.get();
@@ -171,22 +167,20 @@ public class CmdLineProtocolSuite {
               getSeedOts(myId, noOfPlayers, prgSeedLength, drbg, network);
       FieldElement ssk = SpdzMascotDataSupplier.createRandomSsk(definition, prgSeedLength);
 
+      SpdzDataSupplier preprocessedValuesDataSupplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, noOfPlayers,
+                      () -> network, modBitLength, definition, null, seedOts, drbg, ssk);
+      SpdzResourcePool preprocessedValuesResourcePool = new SpdzResourcePoolImpl(myId, noOfPlayers, new SpdzOpenedValueStoreImpl(),
+                      preprocessedValuesDataSupplier, AesCtrDrbg::new);
+
       supplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, noOfPlayers, () -> network,
               modBitLength, definition, new Function<Integer, SpdzSInt[]>() {
 
-                private SpdzResourcePool resourcePool;
-
                 @Override
                 public SpdzSInt[] apply(Integer pipeLength) {
-                  if (resourcePool == null) {
-                    SpdzDataSupplier tripleSupplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, noOfPlayers,
-                            () -> network, modBitLength, definition, null, seedOts, drbg, ssk);
-                    this.resourcePool = new SpdzResourcePoolImpl(myId, noOfPlayers, new SpdzOpenedValueStoreImpl(),
-                            tripleSupplier, AesCtrDrbg::new);
-                  }
-                  DRes<List<DRes<SInt>>> pipe = createPipe(pipeLength, network, resourcePool);
+                  DRes<List<DRes<SInt>>> pipe = createPipe(pipeLength, network, preprocessedValuesResourcePool);
                   return computeSInts(pipe);
                 }
+
               }, seedOts, drbg, ssk);
     }
 
@@ -260,4 +254,5 @@ public class CmdLineProtocolSuite {
     String tinyTablesFilePath = properties.getProperty(tinytablesFileOption, "tinytables");
     return new TinyTablesProtocolSuite(myId, new File(tinyTablesFilePath));
   }
+
 }
