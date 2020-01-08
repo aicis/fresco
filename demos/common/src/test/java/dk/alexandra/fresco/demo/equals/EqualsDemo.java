@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.demo;
+package dk.alexandra.fresco.demo.equals;
 
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.framework.Application;

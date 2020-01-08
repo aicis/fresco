@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.demo;
+package dk.alexandra.fresco.demo.equals;
 
 import static org.junit.Assert.fail;
 
