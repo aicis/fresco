@@ -47,6 +47,5 @@
     <module>distance</module>
     <module>sum</module>
     <module>aggregation</module>
-    <module>equals</module>
   </modules>
 </project>
