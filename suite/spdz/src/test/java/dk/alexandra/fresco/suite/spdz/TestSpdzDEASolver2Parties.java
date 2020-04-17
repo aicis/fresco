@@ -6,8 +6,9 @@ import dk.alexandra.fresco.lib.statistics.DeaSolverTests.RandomDataDeaTest;
 import dk.alexandra.fresco.lib.statistics.DeaSolverTests.TestDeaFixed1;
 import dk.alexandra.fresco.lib.statistics.DeaSolverTests.TestDeaFixed2;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
-import java.util.Random;
 import org.junit.Test;
+
+import java.util.Random;
 
 
 /**

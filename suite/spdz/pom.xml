@@ -28,6 +28,14 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!-- Used for plaintext LP solving -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-math3</artifactId>
+      <version>3.6.1</version>
+      <scope>test</scope>
+    </dependency>
+
     <!-- TODO Proper handling would imply these utilities to be present in a seperate module -->
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
@@ -36,13 +44,33 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
-    <!-- Used for plaintext LP solving -->
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-math3</artifactId>
-      <version>3.5</version>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>dea</artifactId>
+      <version>1.2.2-SNAPSHOT</version>
+      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>dea</artifactId>
+      <version>1.2.2-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>lp</artifactId>
+      <version>1.2.2-SNAPSHOT</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>lp</artifactId>
+      <version>1.2.2-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
   <build>

@@ -12,13 +12,14 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.lp.LPSolver.PivotRule;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.DeaResult;
+import org.hamcrest.core.IsNull;
+import org.junit.Assert;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
-import org.hamcrest.core.IsNull;
-import org.junit.Assert;
 
 /**
  * Test class for the DEASolver. Will generate a random data sample and perform a Data Envelopment

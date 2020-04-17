@@ -7,11 +7,11 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.lp.LPSolver;
-import dk.alexandra.fresco.lib.lp.LPSolver.PivotRule;
 import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.OptimalValue;
 import dk.alexandra.fresco.lib.lp.SimpleLPPrefix;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.DeaResult;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,7 +37,7 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
   private int maxNumberOfIterations;
 
   private final AnalysisType type;
-  private final PivotRule pivotRule;
+  private final LPSolver.PivotRule pivotRule;
 
   /**
    * Construct a DEA problem for the solver to solve. The problem consists of 4 matrices: 2 basis
@@ -53,7 +53,7 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
   public DeaSolver(AnalysisType type, List<List<DRes<SInt>>> inputValues,
       List<List<DRes<SInt>>> outputValues, List<List<DRes<SInt>>> setInput,
       List<List<DRes<SInt>>> setOutput) {
-    this(PivotRule.DANZIG, type, inputValues, outputValues, setInput, setOutput, 50);
+    this(LPSolver.PivotRule.DANZIG, type, inputValues, outputValues, setInput, setOutput, 50);
   }
 
   /**
@@ -70,9 +70,9 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
    * @param maxNumberOfIterations the LpSolver might not terminate, the solver stops after this
    *     no
    */
-  public DeaSolver(PivotRule pivotRule, AnalysisType type, List<List<DRes<SInt>>> inputValues,
-      List<List<DRes<SInt>>> outputValues, List<List<DRes<SInt>>> setInput,
-      List<List<DRes<SInt>>> setOutput, int maxNumberOfIterations) {
+  public DeaSolver(LPSolver.PivotRule pivotRule, AnalysisType type, List<List<DRes<SInt>>> inputValues,
+                   List<List<DRes<SInt>>> outputValues, List<List<DRes<SInt>>> setInput,
+                   List<List<DRes<SInt>>> setOutput, int maxNumberOfIterations) {
     this.pivotRule = pivotRule;
     this.type = type;
     this.targetInputs = inputValues;

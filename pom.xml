@@ -120,6 +120,7 @@
 	
 	<modules>
 		<module>core</module>
+		<module>lib</module>
 		<module>suite</module>
 		<module>demos</module>
 		<module>tools</module>

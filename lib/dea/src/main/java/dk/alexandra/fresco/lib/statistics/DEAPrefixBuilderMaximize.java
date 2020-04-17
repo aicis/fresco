@@ -8,6 +8,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.SimpleLPPrefix;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedList;

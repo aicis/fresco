@@ -8,12 +8,13 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
+import org.hamcrest.core.Is;
+import org.junit.Assert;
+
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.hamcrest.core.Is;
-import org.junit.Assert;
 
 /**
  * Test class for the DEASolver. Will generate a random data sample and perform a Data Envelopment
