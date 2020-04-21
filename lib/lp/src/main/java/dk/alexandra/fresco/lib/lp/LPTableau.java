@@ -47,9 +47,9 @@ public class LPTableau {
 
   /**
    * Opens and outputs the plaintext values of this tableau for debugging.
-   * 
+   *
    * @param builder a builder to provide the open and print functionality
-   * @param ps a PrintStream on which to print the debugging information
+   * @param ps      a PrintStream on which to print the debugging information
    */
   public void debugInfo(ProtocolBuilderNumeric builder, PrintStream ps) {
     builder.debug().openAndPrint("C: ", C, ps);

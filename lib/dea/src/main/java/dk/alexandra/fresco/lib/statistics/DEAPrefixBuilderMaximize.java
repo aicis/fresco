@@ -7,7 +7,6 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.lp.LPTableau;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -16,14 +15,18 @@ import java.util.ListIterator;
 import java.util.stream.Collectors;
 
 /**
- * A helper class used to build the LPPrefix from the SInts representing the
- * input and outputs of DEA instance and the prefix GateProducer that populates
- * these SInts. Note that we use the words "output" and "input" in terms of the
- * DEA instance. I.e. in the way the economists use these words.
+ * A helper class used to build the LPPrefix from the SInts representing the input and outputs of
+ * DEA instance and the prefix GateProducer that populates these SInts. Note that we use the words
+ * "output" and "input" in terms of the DEA instance. I.e. in the way the economists use these
+ * words.
  */
 public class DEAPrefixBuilderMaximize implements
     Computation<SimpleLPPrefix, ProtocolBuilderNumeric> {
 
+  // A value no benchmarking result should be larger than. Note the benchmarking results
+  // are of the form \theta = "the factor a farmer can do better than he currently does"
+  // and thus is not necessarily upper bounded.
+  private static final int BENCHMARKING_BIG_M = 1000;
   private final List<List<DRes<SInt>>> basisInputs;
   private final List<List<DRes<SInt>>> basisOutputs;
   private final List<DRes<SInt>> targetInputs;
@@ -38,11 +41,22 @@ public class DEAPrefixBuilderMaximize implements
     this.targetOutputs = targetOutputs;
   }
 
-  // A value no benchmarking result should be larger than. Note the benchmarking results
-  // are of the form \theta = "the factor a farmer can do better than he currently does"
-  // and thus is not necessarily upper bounded.
-  private static final int BENCHMARKING_BIG_M = 1000;
-
+  static ArrayList<ArrayList<DRes<SInt>>> getIdentity(int dimension, DRes<SInt> one,
+      DRes<SInt> zero) {
+    ArrayList<ArrayList<DRes<SInt>>> identity = new ArrayList<>(dimension);
+    for (int i = 0; i < dimension; i++) {
+      ArrayList<DRes<SInt>> row = new ArrayList<>();
+      for (int j = 0; j < dimension; j++) {
+        if (i == j) {
+          row.add(one);
+        } else {
+          row.add(zero);
+        }
+      }
+      identity.add(row);
+    }
+    return identity;
+  }
 
   @Override
   public DRes<SimpleLPPrefix> buildComputation(ProtocolBuilderNumeric builder) {
@@ -67,9 +81,9 @@ public class DEAPrefixBuilderMaximize implements
           Numeric numeric = par.numeric();
           List<List<DRes<SInt>>> negatedBasisResult = newBasisOutputs.stream().map(
               outputs -> outputs.stream()
-              .map(output -> numeric.mult(negativeOne, output))
-              .collect(Collectors.toList())
-              ).collect(Collectors.toList());
+                  .map(output -> numeric.mult(negativeOne, output))
+                  .collect(Collectors.toList())
+          ).collect(Collectors.toList());
           return () -> negatedBasisResult;
         });
 
@@ -107,23 +121,6 @@ public class DEAPrefixBuilderMaximize implements
           constraints + 1, constraints + 1, getIdentity(constraints + 1, one, zero));
       return () -> new SimpleLPPrefix(updateMatrix, tab, pivot, basis);
     });
-  }
-
-  static ArrayList<ArrayList<DRes<SInt>>> getIdentity(int dimension, DRes<SInt> one,
-      DRes<SInt> zero) {
-    ArrayList<ArrayList<DRes<SInt>>> identity = new ArrayList<>(dimension);
-    for (int i = 0; i < dimension; i++) {
-      ArrayList<DRes<SInt>> row = new ArrayList<>();
-      for (int j = 0; j < dimension; j++) {
-        if (i == j) {
-          row.add(one);
-        } else {
-          row.add(zero);
-        }
-      }
-      identity.add(row);
-    }
-    return identity;
   }
 
   private List<List<DRes<SInt>>> addTargetToList(

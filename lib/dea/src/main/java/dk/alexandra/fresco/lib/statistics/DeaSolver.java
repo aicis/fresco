@@ -10,7 +10,6 @@ import dk.alexandra.fresco.lib.lp.LPSolver;
 import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.OptimalValue;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.DeaResult;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +21,7 @@ import java.util.stream.IntStream;
 /**
  * Given a dataset (two matrices of inputs and outputs) and a number of query vectors, the protocol
  * will compute how well the query vectors perform compared to the dataset.
- *
+ * <p>
  * The result/score of the computation must be converted to a double using Gauss reduction to be
  * meaningful. See the DEASolverTests for an example.
  * </p>
@@ -33,21 +32,20 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
   private final List<List<DRes<SInt>>> targetOutputs;
   private final List<List<DRes<SInt>>> inputDataSet;
   private final List<List<DRes<SInt>>> outputDataSet;
-  private int maxNumberOfIterations;
-
   private final AnalysisType type;
   private final LPSolver.PivotRule pivotRule;
+  private int maxNumberOfIterations;
 
   /**
    * Construct a DEA problem for the solver to solve. The problem consists of 4 matrices: 2 basis
    * input/output matrices containing the dataset which the queries will be measured against 2 query
    * input/output matrices containing the data to be evaluated.
    *
-   * @param type The type of analysis to do
-   * @param inputValues Matrix of query input values
+   * @param type         The type of analysis to do
+   * @param inputValues  Matrix of query input values
    * @param outputValues Matrix of query output values
-   * @param setInput Matrix containing the basis input
-   * @param setOutput Matrix containing the basis output
+   * @param setInput     Matrix containing the basis input
+   * @param setOutput    Matrix containing the basis output
    */
   public DeaSolver(AnalysisType type, List<List<DRes<SInt>>> inputValues,
       List<List<DRes<SInt>>> outputValues, List<List<DRes<SInt>>> setInput,
@@ -60,18 +58,18 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
    * input/output matrices containing the dataset which the queries will be measured against 2 query
    * input/output matrices containing the data to be evaluated.
    *
-   * @param pivotRule the pivot rule to use in LP solver
-   * @param type The type of analysis to do
-   * @param inputValues Matrix of query input values
-   * @param outputValues Matrix of query output values
-   * @param setInput Matrix containing the basis input
-   * @param setOutput Matrix containing the basis output
-   * @param maxNumberOfIterations the LpSolver might not terminate, the solver stops after this
-   *     no
+   * @param pivotRule             the pivot rule to use in LP solver
+   * @param type                  The type of analysis to do
+   * @param inputValues           Matrix of query input values
+   * @param outputValues          Matrix of query output values
+   * @param setInput              Matrix containing the basis input
+   * @param setOutput             Matrix containing the basis output
+   * @param maxNumberOfIterations the LpSolver might not terminate, the solver stops after this no
    */
-  public DeaSolver(LPSolver.PivotRule pivotRule, AnalysisType type, List<List<DRes<SInt>>> inputValues,
-                   List<List<DRes<SInt>>> outputValues, List<List<DRes<SInt>>> setInput,
-                   List<List<DRes<SInt>>> setOutput, int maxNumberOfIterations) {
+  public DeaSolver(LPSolver.PivotRule pivotRule, AnalysisType type,
+      List<List<DRes<SInt>>> inputValues,
+      List<List<DRes<SInt>>> outputValues, List<List<DRes<SInt>>> setInput,
+      List<List<DRes<SInt>>> setOutput, int maxNumberOfIterations) {
     this.pivotRule = pivotRule;
     this.type = type;
     this.targetInputs = inputValues;

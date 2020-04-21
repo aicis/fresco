@@ -1,37 +1,12 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <groupId>dk.alexandra.fresco</groupId>
-    <artifactId>fresco-lib-pom</artifactId>
-    <version>1.2.2-SNAPSHOT</version>
-  </parent>
-
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <artifactId>lp</artifactId>
-
-  <dependencies>
-    <dependency>
-      <groupId>dk.alexandra.fresco</groupId>
-      <artifactId>core</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <!-- Tests depends on AbstractDummyArithmeticTest -->
-    <dependency>
-      <groupId>dk.alexandra.fresco</groupId>
-      <artifactId>core</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
 
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>2.2</version>
         <executions>
           <execution>
             <goals>
@@ -39,7 +14,33 @@
             </goals>
           </execution>
         </executions>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>2.2</version>
       </plugin>
     </plugins>
   </build>
+  <dependencies>
+    <dependency>
+      <artifactId>core</artifactId>
+      <groupId>dk.alexandra.fresco</groupId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- Tests depends on AbstractDummyArithmeticTest -->
+    <dependency>
+      <artifactId>core</artifactId>
+      <groupId>dk.alexandra.fresco</groupId>
+      <scope>test</scope>
+      <type>test-jar</type>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>fresco-lib-pom</artifactId>
+    <groupId>dk.alexandra.fresco</groupId>
+    <version>1.2.2-SNAPSHOT</version>
+  </parent>
 </project>

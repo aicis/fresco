@@ -138,11 +138,11 @@ public class ExitingVariable implements
           List<DRes<SInt>> updatedTies = IntStream.range(0, ties.size())
               .boxed()
               .map(i -> {
-                return par2.seq(seq3 -> {
-                  Numeric numeric = seq3.numeric();
-                  DRes<SInt> mult = numeric.add(multNegTies.get(i), multTies.get(i));
-                  return numeric.add(multNonApps.get(i), mult);
-                });
+                    return par2.seq(seq3 -> {
+                      Numeric numeric = seq3.numeric();
+                      DRes<SInt> mult = numeric.add(multNegTies.get(i), multTies.get(i));
+                      return numeric.add(multNonApps.get(i), mult);
+                    });
                   }
               ).collect(Collectors.toList());
           return () -> updatedTies;

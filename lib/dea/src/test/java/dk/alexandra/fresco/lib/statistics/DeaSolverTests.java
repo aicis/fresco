@@ -12,14 +12,13 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.lp.LPSolver.PivotRule;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.DeaResult;
-import org.hamcrest.core.IsNull;
-import org.junit.Assert;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import org.hamcrest.core.IsNull;
+import org.junit.Assert;
 
 /**
  * Test class for the DEASolver. Will generate a random data sample and perform a Data Envelopment
@@ -28,6 +27,97 @@ import java.util.stream.Collectors;
  * The MPC result is compared with the result of a plaintext DEA solver.
  */
 public class DeaSolverTests {
+
+  private static List<List<BigInteger>> buildInputs(int[][] dataset) {
+    List<List<BigInteger>> inputs = new ArrayList<>();
+    for (int i = 0; i < dataset.length; i++) {
+      inputs.add(new ArrayList<>());
+      for (int j = 0; j < dataset[0].length - 1; j++) {
+        inputs.get(i).add(BigInteger.valueOf(dataset[i][j]));
+      }
+    }
+    return inputs;
+  }
+
+  private static List<List<BigInteger>> buildOutputs(int[][] dataset) {
+    List<List<BigInteger>> outputs = new ArrayList<>();
+    for (int i = 0; i < dataset.length; i++) {
+      outputs.add(new ArrayList<>());
+      outputs.get(i).add(BigInteger.valueOf(dataset[i][dataset[i].length - 1]));
+    }
+    return outputs;
+  }
+
+  private static List<List<DRes<SInt>>> knownMatrix(Numeric numeric,
+      List<List<BigInteger>> rawTargetOutputs) {
+    return rawTargetOutputs.stream()
+        .map(list -> list.stream().map(numeric::known).collect(Collectors.toList()))
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Reduces a field-element to a double using Gauss reduction.
+   */
+  private static double postProcess(BigInteger input, AnalysisType type, BigInteger modulus) {
+    BigInteger[] gauss = gauss(input, modulus);
+    double res = (gauss[0].doubleValue() / gauss[1].doubleValue());
+    if (type == DeaSolver.AnalysisType.INPUT_EFFICIENCY) {
+      res *= -1;
+    }
+    return res;
+  }
+
+  /**
+   * Converts a number of the form <i>t = r*s<sup>-1</sup> mod N</i> to the rational number
+   * <i>r/s</i> represented as a reduced fraction.
+   * <p>
+   * This is useful outputting non-integer rational numbers from MPC, when outputting a non-reduced
+   * fraction may leak too much information. The technique used is adapted from the paper
+   * "CryptoComputing With Rationals" of Fouque et al. Financial Cryptography 2002. This methods
+   * restricts us to integers <i>t = r*s<sup>-1</sup> mod N</i> so that <i>2r*s < N</i>. See
+   * <a href="https://www.di.ens.fr/~stern/data/St100.pdf">https://www.di.ens.
+   * fr/~stern/data/St100.pdf</a>
+   * </p>
+   *
+   * @param product The integer <i>t = r*s<sup>-1</sup>mod N</i>. Note that we must have that
+   *                <i>2r*s < N</i>.
+   * @param mod     the modulus, i.e., <i>N</i>.
+   * @return The fraction as represented as the rational number <i>r/s</i>.
+   */
+  private static BigInteger[] gauss(BigInteger product, BigInteger mod) {
+    product = product.mod(mod);
+    BigInteger[] u = {mod, BigInteger.ZERO};
+    BigInteger[] v = {product, BigInteger.ONE};
+    BigInteger two = BigInteger.valueOf(2);
+    BigInteger uv = innerproduct(u, v);
+    BigInteger vv = innerproduct(v, v);
+    BigInteger uu;
+    do {
+      BigInteger[] q = uv.divideAndRemainder(vv);
+      boolean negRes = q[1].signum() == -1;
+      if (!negRes) {
+        if (vv.compareTo(q[1].multiply(two)) <= 0) {
+          q[0] = q[0].add(BigInteger.ONE);
+        }
+      } else {
+        if (vv.compareTo(q[1].multiply(two.negate())) <= 0) {
+          q[0] = q[0].subtract(BigInteger.ONE);
+        }
+      }
+      BigInteger r0 = u[0].subtract(v[0].multiply(q[0]));
+      BigInteger r1 = u[1].subtract(v[1].multiply(q[0]));
+      u = v;
+      v = new BigInteger[]{r0, r1};
+      uu = vv;
+      uv = innerproduct(u, v);
+      vv = innerproduct(v, v);
+    } while (uu.compareTo(vv) > 0);
+    return new BigInteger[]{u[0], u[1]};
+  }
+
+  private static BigInteger innerproduct(BigInteger[] u, BigInteger[] v) {
+    return u[0].multiply(v[0]).add(u[1].multiply(v[1]));
+  }
 
   public static class RandomDataDeaTest<ResourcePoolT extends ResourcePool>
       extends TestDeaSolver<ResourcePoolT> {
@@ -102,26 +192,6 @@ public class DeaSolverTests {
     public TestDeaFixed2(AnalysisType type) {
       super(inputs, outputs, inputs, outputs, type, 50, false);
     }
-  }
-
-  private static List<List<BigInteger>> buildInputs(int[][] dataset) {
-    List<List<BigInteger>> inputs = new ArrayList<>();
-    for (int i = 0; i < dataset.length; i++) {
-      inputs.add(new ArrayList<>());
-      for (int j = 0; j < dataset[0].length - 1; j++) {
-        inputs.get(i).add(BigInteger.valueOf(dataset[i][j]));
-      }
-    }
-    return inputs;
-  }
-
-  private static List<List<BigInteger>> buildOutputs(int[][] dataset) {
-    List<List<BigInteger>> outputs = new ArrayList<>();
-    for (int i = 0; i < dataset.length; i++) {
-      outputs.add(new ArrayList<>());
-      outputs.get(i).add(BigInteger.valueOf(dataset[i][dataset[i].length - 1]));
-    }
-    return outputs;
   }
 
   public static class TestDeaSolver<ResourcePoolT extends ResourcePool>
@@ -332,76 +402,5 @@ public class DeaSolverTests {
         );
       }
     }
-  }
-
-  private static List<List<DRes<SInt>>> knownMatrix(Numeric numeric,
-      List<List<BigInteger>> rawTargetOutputs) {
-    return rawTargetOutputs.stream()
-        .map(list -> list.stream().map(numeric::known).collect(Collectors.toList()))
-        .collect(Collectors.toList());
-  }
-
-  /**
-   * Reduces a field-element to a double using Gauss reduction.
-   */
-  private static double postProcess(BigInteger input, AnalysisType type, BigInteger modulus) {
-    BigInteger[] gauss = gauss(input, modulus);
-    double res = (gauss[0].doubleValue() / gauss[1].doubleValue());
-    if (type == DeaSolver.AnalysisType.INPUT_EFFICIENCY) {
-      res *= -1;
-    }
-    return res;
-  }
-
-  /**
-   * Converts a number of the form <i>t = r*s<sup>-1</sup> mod N</i> to the rational number
-   * <i>r/s</i> represented as a reduced fraction.
-   * <p>
-   * This is useful outputting non-integer rational numbers from MPC, when outputting a non-reduced
-   * fraction may leak too much information. The technique used is adapted from the paper
-   * "CryptoComputing With Rationals" of Fouque et al. Financial Cryptography 2002. This methods
-   * restricts us to integers <i>t = r*s<sup>-1</sup> mod N</i> so that <i>2r*s < N</i>. See
-   * <a href="https://www.di.ens.fr/~stern/data/St100.pdf">https://www.di.ens.
-   * fr/~stern/data/St100.pdf</a>
-   * </p>
-   *
-   * @param product The integer <i>t = r*s<sup>-1</sup>mod N</i>. Note that we must have that
-   *     <i>2r*s < N</i>.
-   * @param mod the modulus, i.e., <i>N</i>.
-   * @return The fraction as represented as the rational number <i>r/s</i>.
-   */
-  private static BigInteger[] gauss(BigInteger product, BigInteger mod) {
-    product = product.mod(mod);
-    BigInteger[] u = {mod, BigInteger.ZERO};
-    BigInteger[] v = {product, BigInteger.ONE};
-    BigInteger two = BigInteger.valueOf(2);
-    BigInteger uv = innerproduct(u, v);
-    BigInteger vv = innerproduct(v, v);
-    BigInteger uu;
-    do {
-      BigInteger[] q = uv.divideAndRemainder(vv);
-      boolean negRes = q[1].signum() == -1;
-      if (!negRes) {
-        if (vv.compareTo(q[1].multiply(two)) <= 0) {
-          q[0] = q[0].add(BigInteger.ONE);
-        }
-      } else {
-        if (vv.compareTo(q[1].multiply(two.negate())) <= 0) {
-          q[0] = q[0].subtract(BigInteger.ONE);
-        }
-      }
-      BigInteger r0 = u[0].subtract(v[0].multiply(q[0]));
-      BigInteger r1 = u[1].subtract(v[1].multiply(q[0]));
-      u = v;
-      v = new BigInteger[]{r0, r1};
-      uu = vv;
-      uv = innerproduct(u, v);
-      vv = innerproduct(v, v);
-    } while (uu.compareTo(vv) > 0);
-    return new BigInteger[]{u[0], u[1]};
-  }
-
-  private static BigInteger innerproduct(BigInteger[] u, BigInteger[] v) {
-    return u[0].multiply(v[0]).add(u[1].multiply(v[1]));
   }
 }

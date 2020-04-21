@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * We basically use the method of
  * <a href="http://fc09.ifca.ai/papers/69_Solving_linear_programs.pdf">Toft 2009</a>.
- *
+ * <p>
  * We optimize this protocol by using the so called <i>Revised Simplex</i> method. I.e., instead of
  * updating the tableau it self, we keep track of much smaller update matrix representing changes to
  * the initial tableau. Do this only requires multiplication with a small sparse matrix, which can
@@ -30,10 +30,7 @@ import org.slf4j.LoggerFactory;
  */
 public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
 
-  public enum PivotRule {
-    BLAND, DANZIG
-  }
-
+  private static Logger logger = LoggerFactory.getLogger(LPSolver.class);
   private final PivotRule pivotRule;
   private final LPTableau tableau;
   private final Matrix<DRes<SInt>> updateMatrix;
@@ -46,17 +43,15 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
   private final int noVariables;
   private final int noConstraints;
 
-  private static Logger logger = LoggerFactory.getLogger(LPSolver.class);
-
   /**
    * Creates a new LPSolver. Note, we do not do full two-phase Simplex, so the initial state is
    * assumed to be good.
    *
-   * @param pivotRule the pivot rule to apply
-   * @param tableau the initial tableau, this will not be modified
-   * @param updateMatrix the initial update matrix, will be modified to the current state
-   * @param pivot the initial pivot, will be modified to reflect the  state
-   * @param initialBasis the initial basis, will be modified to reflect the state
+   * @param pivotRule             the pivot rule to apply
+   * @param tableau               the initial tableau, this will not be modified
+   * @param updateMatrix          the initial update matrix, will be modified to the current state
+   * @param pivot                 the initial pivot, will be modified to reflect the  state
+   * @param initialBasis          the initial basis, will be modified to reflect the state
    * @param maxNumberOfIterations we might not terminate, the solver stops after this iteration
    */
   public LPSolver(PivotRule pivotRule, LPTableau tableau, Matrix<DRes<SInt>> updateMatrix,
@@ -139,7 +134,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
    * entering variable. Having the exiting variable index also gives us the pivot. Having the
    * entering and exiting indices and the pivot allows us to compute the new update matrix for the
    * next iteration.
-   *
+   * <p>
    * Additionally, having the entering and exiting variables we can update the basis of the current
    * solution.
    * </p>
@@ -228,7 +223,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
 
   /**
    * Indicates if debug information should be opened and written.
-   *
+   * <p>
    * This is meant to be possible to override in debugging classes, but should always return false
    * in non-debugging versions of this class.
    *
@@ -275,6 +270,10 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
     builder.debug().openAndPrint("Basis [" + iterations + "]: ", state.basis, stream);
     builder.debug().openAndPrint("Update Matrix [" + iterations + "]: ", updateMatrix, stream);
     builder.debug().openAndPrint("Pivot [" + iterations + "]: ", state.prevPivot, stream);
+  }
+
+  public enum PivotRule {
+    BLAND, DANZIG
   }
 
   public static class LPOutput {

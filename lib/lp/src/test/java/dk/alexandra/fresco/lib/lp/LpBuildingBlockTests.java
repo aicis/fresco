@@ -25,14 +25,25 @@ import org.hamcrest.Matchers;
 
 public class LpBuildingBlockTests {
 
+  /**
+   * Convenience method to assert that debug output should contain a given key/value pair.
+   *
+   * @param output the debug output
+   * @param key    the key
+   * @param value  the value
+   */
+  private static void assertDebugInfoContains(String output, String key, String value) {
+    assertThat(output, Matchers.containsString(key + ": \n" + value));
+  }
+
   private abstract static class LpTester<OutputT>
       implements Application<OutputT, ProtocolBuilderNumeric> {
 
+    protected ArrayList<BigInteger> f;
     Random rand = new Random(42);
     Matrix<BigInteger> updateMatrix;
     Matrix<BigInteger> constraints;
     ArrayList<BigInteger> b;
-    protected ArrayList<BigInteger> f;
     LPTableau secretTableau;
     Matrix<DRes<SInt>> secretUpdateMatrix;
 
@@ -495,17 +506,6 @@ public class LpBuildingBlockTests {
         }
       };
     }
-  }
-
-  /**
-   * Convenience method to assert that debug output should contain a given key/value pair.
-   *
-   * @param output the debug output
-   * @param key the key
-   * @param value the value
-   */
-  private static void assertDebugInfoContains(String output, String key, String value) {
-    assertThat(output, Matchers.containsString(key + ": \n" + value));
   }
 
 

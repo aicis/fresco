@@ -23,8 +23,8 @@ public class OptimalValue implements
    * An general version of the protocol working any (valid) initial tableau.
    *
    * @param updateMatrix the final update matrix
-   * @param tableau the initial tableau
-   * @param pivot the final pivot
+   * @param tableau      the initial tableau
+   * @param pivot        the final pivot
    */
   public OptimalValue(
       Matrix<DRes<SInt>> updateMatrix,

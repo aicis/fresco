@@ -19,8 +19,8 @@ public class EnteringVariable
 
   /**
    * Creates an entering variable computation.
-   * 
-   * @param tableau an (m + 1)x(n + m + 1) tableau
+   *
+   * @param tableau      an (m + 1)x(n + m + 1) tableau
    * @param updateMatrix an (m + 1)x(m + 1) update matrix, multiplying the tableau on the left with
    */
   protected EnteringVariable(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix) {

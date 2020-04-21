@@ -7,7 +7,6 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.lp.LPTableau;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,15 +16,14 @@ import java.util.List;
  * A builder to set up the LP-Prefix for a DEA input efficiency analysis.
  *
  * <p>
- * The initial LP tableau is set up using the Big-M method to handle the
- * equality and greater-than constraints. To handle the fact that this is
- * minimization problem and our Simplex solver only maximizes we simply negate
- * the objective function. This, however, means that we must negate the
+ * The initial LP tableau is set up using the Big-M method to handle the equality and greater-than
+ * constraints. To handle the fact that this is minimization problem and our Simplex solver only
+ * maximizes we simply negate the objective function. This, however, means that we must negate the
  * result of the Simplex solver in order to get the correct result.
  * </p>
  */
 public class DEAInputEfficiencyPrefixBuilder implements
-Computation<SimpleLPPrefix, ProtocolBuilderNumeric> {
+    Computation<SimpleLPPrefix, ProtocolBuilderNumeric> {
 
   private final List<List<DRes<SInt>>> basisInputs;
   private final List<List<DRes<SInt>>> basisOutputs;

@@ -1,17 +1,24 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
-import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.linear.*;
-import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
-
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math3.optim.linear.LinearConstraint;
+import org.apache.commons.math3.optim.linear.LinearConstraintSet;
+import org.apache.commons.math3.optim.linear.LinearObjectiveFunction;
+import org.apache.commons.math3.optim.linear.NonNegativeConstraint;
+import org.apache.commons.math3.optim.linear.Relationship;
+import org.apache.commons.math3.optim.linear.SimplexSolver;
+import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 
 /**
  * Solves the DEA problem on a given plaintext dataset.
- * 
  */
 public class PlaintextDEASolver {
 
@@ -30,8 +37,8 @@ public class PlaintextDEASolver {
 
   /**
    * Does the DEA analysis for a given target against the current dataset.
-   * 
-   * @param targetInputs a map between input labels and values.
+   *
+   * @param targetInputs  a map between input labels and values.
    * @param targetOutputs a map between output labels and values.
    * @return the DEA score of the given target.
    */
@@ -40,18 +47,18 @@ public class PlaintextDEASolver {
     int sizePlusTheta = size + 2;
     /*
      * We number the variables as follows:
-     * 
+     *
      * Let the order for variables be x_0, x_1, ..., x_(n + 1)
-     * 
+     *
      * Were n is the number of farmers in the dataset.
-     * 
+     *
      * Then:
-     * 
+     *
      * x_0 = theta
-     * 
-     * 
+     *
+     *
      * x_(i + 1) = "lambda for i'th farmer in dataset"
-     * 
+     *
      * In this way we may include the target twice, but this is not a problem, since the result will
      * be invariant.
      */
@@ -124,7 +131,7 @@ public class PlaintextDEASolver {
     constraints.add(oneConstraint);
     return constraints;
   }
-  
+
   private LinkedList<LinearConstraint> buildInputEfficienceConstraints(
       Map<String, Double> targetInputs, Map<String, Double> targetOutputs, int sizePlusTarget) {
     // Make input constraints
@@ -148,10 +155,11 @@ public class PlaintextDEASolver {
       lcoeffs[0] = 0;
       int i = 1;
       for (double d : outputs.get(outputLabel)) {
-        lcoeffs[i] = d;       
+        lcoeffs[i] = d;
         i++;
       }
-      LinearConstraint cons = new LinearConstraint(lcoeffs, Relationship.GEQ, targetOutputs.get(outputLabel));
+      LinearConstraint cons = new LinearConstraint(lcoeffs, Relationship.GEQ,
+          targetOutputs.get(outputLabel));
       constraints.add(cons);
     }
 
@@ -170,10 +178,10 @@ public class PlaintextDEASolver {
    * Add an new input type with corresponding values to the current dataset. A value must be given
    * for each entry in the current dataset. If the current dataset is empty this will define the
    * size of the dataset.
-   * 
-   * @param label label of the new datatype
+   *
+   * @param label     label of the new datatype
    * @param inputList a list of values for the datatype, must be of the same size as the list of any
-   *        prior added datatypes.
+   *                  prior added datatypes.
    */
   public void addInputType(String label, List<Double> inputList) {
     if (size < 0) {
@@ -188,8 +196,8 @@ public class PlaintextDEASolver {
   /**
    * Convenience method for adding the dataset. Given two BigInteger matrices, will call the
    * appropriate addInputType() and addOutputType() methods.
-   * 
-   * @param rawBasisInputs Matrix of inputs
+   *
+   * @param rawBasisInputs  Matrix of inputs
    * @param rawBasisOutputs Matrix of outputs
    */
   public void addBasis(BigInteger[][] rawBasisInputs, BigInteger[][] rawBasisOutputs) {
@@ -211,11 +219,11 @@ public class PlaintextDEASolver {
 
   /**
    * Convenience method for solving a DEA problem.
-   * 
+   * <p>
    * For each row in the two BigInteger matrices (inputs and outputs), it will attempt to solve the
    * problem using the solve() method.
-   * 
-   * @param rawTargetInputs A matrix containing input values
+   *
+   * @param rawTargetInputs  A matrix containing input values
    * @param rawTargetOutputs A matrix containing output values
    * @return An array of results.
    */
@@ -241,10 +249,10 @@ public class PlaintextDEASolver {
    * Add an new output type with corresponding values to the current dataset. A value must be given
    * for each entry in the current dataset. If the current dataset is empty this will define the
    * size of the dataset.
-   * 
-   * @param label label of the new datatype
-   * @param outputList a list of values for the datatype, must be of the same size as the list of any
-   *        prior added datatypes.
+   *
+   * @param label      label of the new datatype
+   * @param outputList a list of values for the datatype, must be of the same size as the list of
+   *                   any prior added datatypes.
    */
   public void addOutputType(String label, List<Double> outputList) {
     outputs.put(label, outputList);

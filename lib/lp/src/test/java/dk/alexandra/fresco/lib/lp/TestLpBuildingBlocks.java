@@ -15,13 +15,13 @@ import java.util.List;
 import org.junit.Test;
 
 public class TestLpBuildingBlocks {
-  
+
   @Test
-  public void testEnums(){
+  public void testEnums() {
     assertThat(PivotRule.valueOf("BLAND"), is(PivotRule.BLAND));
     assertThat(PivotRule.valueOf("DANZIG"), is(PivotRule.DANZIG));
   }
-  
+
   @Test
   public void testMatrix() {
     Matrix<String> matrix = new Matrix<String>(3, 3, (i) -> {
@@ -40,9 +40,9 @@ public class TestLpBuildingBlocks {
     assertTrue(toString.contains("matrix"));
     assertTrue(toString.contains("00, 01, 02"));
     assertTrue(toString.contains("10, 11, 12"));
-    assertTrue(toString.contains("20, 21, 22"));    
+    assertTrue(toString.contains("20, 21, 22"));
   }
-  
+
   @Test(expected = IllegalArgumentException.class)
   public void testLpTableuBadDimensions1() {
     Matrix<DRes<SInt>> matrix = new Matrix<>(4, 3, i -> {
@@ -52,11 +52,11 @@ public class TestLpBuildingBlocks {
     });
     ArrayList<DRes<SInt>> vector = new ArrayList<>(4);
     vector.addAll(Arrays.asList(null, null, null, null));
-    DRes<SInt> z = null;    
+    DRes<SInt> z = null;
     new LPTableau(matrix, vector, vector, z);
     fail("Should not be reachable");
-  } 
-  
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void testLpTableuBadDimensions2() {
     Matrix<DRes<SInt>> matrix = new Matrix<>(4, 3, i -> {
@@ -66,11 +66,11 @@ public class TestLpBuildingBlocks {
     });
     ArrayList<DRes<SInt>> vector = new ArrayList<>(3);
     vector.addAll(Arrays.asList(null, null, null));
-    DRes<SInt> z = null;    
+    DRes<SInt> z = null;
     new LPTableau(matrix, vector, vector, z);
     fail("Should not be reachable");
-  } 
-  
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void testLpTableuBadDimensions3() {
     Matrix<DRes<SInt>> matrix = new Matrix<>(4, 3, i -> {
@@ -82,11 +82,11 @@ public class TestLpBuildingBlocks {
     vector.addAll(Arrays.asList(null, null, null, null, null));
     ArrayList<DRes<SInt>> vector2 = new ArrayList<>(5);
     vector2.addAll(Arrays.asList(null, null, null, null, null));
-    DRes<SInt> z = null;    
+    DRes<SInt> z = null;
     new LPTableau(matrix, vector, vector2, z);
     fail("Should not be reachable");
   }
-    
+
   @Test(expected = IllegalArgumentException.class)
   public void testLpSolverBadDimensions1() {
     Matrix<DRes<SInt>> matrix = new Matrix<>(4, 3, i -> {
@@ -98,12 +98,12 @@ public class TestLpBuildingBlocks {
     b.addAll(Arrays.asList(null, null, null, null));
     ArrayList<DRes<SInt>> f = new ArrayList<>(3);
     f.addAll(Arrays.asList(null, null, null));
-    DRes<SInt> z = null;    
+    DRes<SInt> z = null;
     LPTableau tab = new LPTableau(matrix, b, f, z);
     new LPSolver(LPSolver.PivotRule.DANZIG, tab, matrix, null, null, 50);
     fail("Should not be reachable");
   }
-  
+
   @Test(expected = IllegalArgumentException.class)
   public void testLpSolverBadDimensions2() {
     Matrix<DRes<SInt>> matrix = new Matrix<>(4, 4, i -> {
@@ -115,7 +115,7 @@ public class TestLpBuildingBlocks {
     b.addAll(Arrays.asList(null, null, null, null));
     ArrayList<DRes<SInt>> f = new ArrayList<>(4);
     f.addAll(Arrays.asList(null, null, null, null));
-    DRes<SInt> z = null;    
+    DRes<SInt> z = null;
     LPTableau tab = new LPTableau(matrix, b, f, z);
     new LPSolver(LPSolver.PivotRule.DANZIG, tab, matrix, null, null, 50);
     fail("Should not be reachable");

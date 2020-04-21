@@ -5,12 +5,11 @@ import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefini
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
+import java.util.ArrayList;
+import java.util.List;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TestCreditRater {
 

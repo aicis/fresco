@@ -8,13 +8,12 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import org.hamcrest.core.Is;
-import org.junit.Assert;
-
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.hamcrest.core.Is;
+import org.junit.Assert;
 
 /**
  * Test class for the DEASolver. Will generate a random data sample and perform a Data Envelopment
@@ -25,6 +24,11 @@ import java.util.stream.Collectors;
 public class CreditRaterTest {
 
 
+  private static List<DRes<SInt>> knownArray(Numeric numeric, int[] values) {
+    return Arrays.stream(values).mapToObj(BigInteger::valueOf).map(numeric::known)
+        .collect(Collectors.toList());
+  }
+
   public static class TestCreditRater<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
@@ -34,11 +38,11 @@ public class CreditRaterTest {
 
     /**
      * Creates an instance of the Credit rater tester.
-     * 
-     * @param values The values to score.
+     *
+     * @param values    The values to score.
      * @param intervals The intervals at which to separate scores (we assume the same number of
-     *        intervals as values and scores.)
-     * @param scores The DEA scores The score you get per interval.
+     *                  intervals as values and scores.)
+     * @param scores    The DEA scores The score you get per interval.
      */
     public TestCreditRater(int[] values, int[][] intervals, int[][] scores) {
       this.values = values;
@@ -79,11 +83,6 @@ public class CreditRaterTest {
         }
       };
     }
-  }
-
-  private static List<DRes<SInt>> knownArray(Numeric numeric, int[] values) {
-    return Arrays.stream(values).mapToObj(BigInteger::valueOf).map(numeric::known)
-        .collect(Collectors.toList());
   }
 
   private static class CreditRaterInput {

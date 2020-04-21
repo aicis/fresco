@@ -81,9 +81,9 @@ public class BlandEnteringVariable
           }
           return () -> enteringIndex;
         })).seq((seq, enteringIndex) -> {
-          DRes<SInt> terminationSum = seq.advancedNumeric().sum(enteringIndex);
-          DRes<SInt> termination = seq.numeric().sub(one, terminationSum);
-          return () -> new Pair<>(enteringIndex, termination.out());
-        });
+      DRes<SInt> terminationSum = seq.advancedNumeric().sum(enteringIndex);
+      DRes<SInt> termination = seq.numeric().sub(one, terminationSum);
+      return () -> new Pair<>(enteringIndex, termination.out());
+    });
   }
 }

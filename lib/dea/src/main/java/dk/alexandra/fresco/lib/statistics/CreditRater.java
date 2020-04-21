@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.builder.numeric.Comparison;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +13,8 @@ import java.util.List;
 /**
  * Application for performing credit rating.
  *
- * <p>Given a dataset (a vector of values) and a credit rating function (a set of intervals for each
+ * <p>Given a dataset (a vector of values) and a credit rating function (a set of intervals for
+ * each
  * value) will calculate the combined score.
  */
 public class CreditRater implements
@@ -28,7 +28,7 @@ public class CreditRater implements
    * Construct a new CreditRater.
    *
    * @throws IllegalArgumentException if the intervals, values and intervalScores does not have the
-   * same length
+   *                                  same length
    */
   public CreditRater(
       List<DRes<SInt>> values, List<List<DRes<SInt>>> intervals,
@@ -79,9 +79,9 @@ public class CreditRater implements
     /**
      * Given a value and scores for an interval, will lookup the score for the value.
      *
-     * @param value The value to lookup
+     * @param value    The value to lookup
      * @param interval The interval definition
-     * @param scores The scores for each interval
+     * @param scores   The scores for each interval
      */
     ComputeIntervalScore(List<DRes<SInt>> interval, DRes<SInt> value,
         List<DRes<SInt>> scores) {

@@ -1,13 +1,13 @@
 package dk.alexandra.fresco.lib.lp;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.logging.arithmetic.ComparisonLoggerDecorator;
 import dk.alexandra.fresco.suite.dummy.arithmetic.AbstractDummyArithmeticTest;
 import org.junit.Test;
-
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 
 public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTest {
 
@@ -20,7 +20,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_LpSolverBlandEntering() {
     runTest(new LpBuildingBlockTests.TestBlandEnteringVariable<>(),
-            new TestParameters().numParties(2));
+        new TestParameters().numParties(2));
   }
 
   @Test
@@ -31,27 +31,27 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_LpSolverDanzig() {
     runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.DANZIG),
-            new TestParameters().numParties(2));
+        new TestParameters().numParties(2));
   }
 
   @Test
   public void test_LpSolverDanzigSmallerMod() {
     runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.DANZIG),
-            new TestParameters()
-                    .numParties(2)
-                    .field(new BigIntegerFieldDefinition(ModulusFinder.findSuitableModulus(128)))
-                    .maxBitLength(30)
-                    .fixedPointPrecesion(8)
-                    .performanceLogging(false));
+        new TestParameters()
+            .numParties(2)
+            .field(new BigIntegerFieldDefinition(ModulusFinder.findSuitableModulus(128)))
+            .maxBitLength(30)
+            .fixedPointPrecesion(8)
+            .performanceLogging(false));
   }
 
 
   @Test
   public void test_LpSolverBland() {
     runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.BLAND),
-            new TestParameters().numParties(2).performanceLogging(true));
+        new TestParameters().numParties(2).performanceLogging(true));
     assertThat(performanceLoggers.get(1).getLoggedValues()
-            .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ), is((long) 33));
+        .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ), is((long) 33));
   }
 
   @Test
