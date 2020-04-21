@@ -1,5 +1,8 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests;
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
@@ -35,16 +38,16 @@ import dk.alexandra.fresco.lib.math.integer.min.MinTests;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.lib.math.integer.stat.StatisticsTests;
 import dk.alexandra.fresco.lib.math.polynomial.PolynomialTests;
-import dk.alexandra.fresco.lib.real.*;
+import dk.alexandra.fresco.lib.real.BasicFixedPointTests;
+import dk.alexandra.fresco.lib.real.LinearAlgebraTests;
+import dk.alexandra.fresco.lib.real.MathTests;
+import dk.alexandra.fresco.lib.real.NormalizeTests;
+import dk.alexandra.fresco.lib.real.TruncationTests;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.arithmetic.ComparisonLoggerDecorator;
 import dk.alexandra.fresco.logging.arithmetic.NumericLoggingDecorator;
-import org.junit.Test;
-
 import java.util.ArrayList;
-
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import org.junit.Test;
 
 public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTest {
 
@@ -645,27 +648,27 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_trunctation() {
     runTest(new TruncationTests.TestTruncation<>(), new TestParameters().numParties(2));
   }
-  
+
   @Test
   public void test_normalize_sreal() {
     runTest(new NormalizeTests.TestNormalizeSReal<>(), new TestParameters().numParties(2));
   }
-  
+
   @Test
   public void test_normalize_power_sreal() {
     runTest(new NormalizeTests.TestNormalizePowerSReal<>(), new TestParameters().numParties(2));
   }
-  
+
   @Test
   public void test_normalize_sint() {
     runTest(new NormalizeTests.TestNormalizeSInt<>(), new TestParameters().numParties(2));
   }
-  
+
   @Test
   public void test_reciprocal() {
     runTest(new MathTests.TestReciprocal<>(), new TestParameters().numParties(2));
   }
-  
+
   @Test
   public void test_two_power() {
     runTest(new MathTests.TestTwoPower<>(), new TestParameters().numParties(2));
@@ -673,9 +676,9 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_real_sign() {
-    runTest(new MathTests.TestRealSign<>(), new TestParameters().numParties(2));    
+    runTest(new MathTests.TestRealSign<>(), new TestParameters().numParties(2));
   }
-  
+
   @Test
   public void test_constant_real_polynomial() {
     runTest(new MathTests.TestConstantPolynomial<>(), new TestParameters().numParties(2));
