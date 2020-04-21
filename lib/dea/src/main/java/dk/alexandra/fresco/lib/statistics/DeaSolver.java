@@ -9,7 +9,6 @@ import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.lp.LPSolver;
 import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.OptimalValue;
-import dk.alexandra.fresco.lib.lp.SimpleLPPrefix;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.DeaResult;
 
 import java.math.BigInteger;

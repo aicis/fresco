@@ -1,8 +1,9 @@
-package dk.alexandra.fresco.lib.lp;
+package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
+import dk.alexandra.fresco.lib.lp.LPTableau;
 
 import java.util.List;
 

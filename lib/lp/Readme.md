@@ -1,3 +1,0 @@
-
-Linear programming
-==================
