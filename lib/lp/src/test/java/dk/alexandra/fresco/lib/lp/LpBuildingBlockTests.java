@@ -192,6 +192,10 @@ public class LpBuildingBlockTests {
     }
 
     DRes<BigInteger> setup(ProtocolBuilderNumeric builder, LPSolver.PivotRule rule) {
+      return setup(builder, rule, 50);
+    }
+
+    DRes<BigInteger> setup(ProtocolBuilderNumeric builder, LPSolver.PivotRule rule, int maxIterations) {
       /*
        *
        * Sets up the following linear program
@@ -240,77 +244,15 @@ public class LpBuildingBlockTests {
                 seq.numeric().known(BigInteger.valueOf(5)),
                 seq.numeric().known(BigInteger.valueOf(6))));
         LPSolver solver = new LPSolver(rule, secretTableau, secretUpdateMatrix,
-            pivot, initialBasis, 50);
+            pivot, initialBasis, maxIterations);
         return solver.buildComputation(seq);
       }).seq((seq2, lpOutput) -> {
+        if (lpOutput.isAborted()) {
+          return null;
+        }
         OptimalValue ov = new OptimalValue(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot);
-        return ov.buildComputation(seq2);
-      }).seq((seq2, ov) -> seq2.numeric().open(ov.optimal));
-    }
-  }
-
-  private abstract static class LpSolverTooManyIterationsTester extends LpTester<BigInteger> {
-
-    BigInteger expectedOptimal;
-
-    public BigInteger getExpectedOptimal() {
-      return expectedOptimal;
-    }
-
-    DRes<BigInteger> setup(ProtocolBuilderNumeric builder, LPSolver.PivotRule rule) {
-      /*
-       *
-       * Sets up the following linear program allowing only very few iterations:
-       * maximize a + b + c
-       * a <= 1
-       * b <= 2
-       * c <= 3 (all variables > 0 is implied)
-       *
-       */
-      expectedOptimal = null;
-      updateMatrix = new Matrix<>(4, 4, i -> {
-        ArrayList<BigInteger> row =
-            new ArrayList<>(Arrays.asList(((i == 0) ? BigInteger.ONE : BigInteger.ZERO),
-                ((i == 1) ? BigInteger.ONE : BigInteger.ZERO),
-                ((i == 2) ? BigInteger.ONE : BigInteger.ZERO),
-                ((i == 3) ? BigInteger.ONE : BigInteger.ZERO)));
-        return row;
-      }); // The identity matrix
-      constraints = new Matrix<>(3, 6, i -> {
-        ArrayList<BigInteger> row =
-            new ArrayList<>(Arrays.asList(((i == 0) ? BigInteger.ONE : BigInteger.ZERO),
-                ((i == 1) ? BigInteger.ONE : BigInteger.ZERO),
-                ((i == 2) ? BigInteger.ONE : BigInteger.ZERO),
-                ((i == 0) ? BigInteger.ONE : BigInteger.ZERO),
-                ((i == 1) ? BigInteger.ONE : BigInteger.ZERO),
-                ((i == 2) ? BigInteger.ONE : BigInteger.ZERO)));
-        return row;
-      }); // A 3x3 identity matrix concatenated with a 3x3 identity matrix
-      b = new ArrayList<>(Arrays.asList(
-          BigInteger.valueOf(1),
-          BigInteger.valueOf(2),
-          BigInteger.valueOf(3)));
-      f = new ArrayList<>(Arrays.asList(
-          BigInteger.valueOf(-1),
-          BigInteger.valueOf(-1),
-          BigInteger.valueOf(-1),
-          BigInteger.ZERO,
-          BigInteger.ZERO,
-          BigInteger.ZERO));
-      inputTableau(builder);
-      return builder.seq(seq -> {
-        DRes<SInt> pivot = seq.numeric().known(BigInteger.ONE);
-        ArrayList<DRes<SInt>> initialBasis =
-            new ArrayList<>(Arrays.asList(
-                seq.numeric().known(BigInteger.valueOf(4)),
-                seq.numeric().known(BigInteger.valueOf(5)),
-                seq.numeric().known(BigInteger.valueOf(6))));
-        LPSolver solver = new LPSolver(rule, secretTableau, secretUpdateMatrix,
-            pivot, initialBasis, 3);
-        return solver.buildComputation(seq);
-      }).seq((seq2, lpOutput) -> {
-        assertTrue(lpOutput.isAborted());
-        return () -> null;
+        return seq2.seq(seq3 -> ov.buildComputation(seq3))
+            .seq((seq4, ov2) -> seq4.numeric().open(ov2.optimal));
       });
     }
   }
@@ -464,15 +406,15 @@ public class LpBuildingBlockTests {
 
         @Override
         public void test() {
-          LpSolverTooManyIterationsTester app = new LpSolverTooManyIterationsTester() {
+          LpSolverTester app = new LpSolverTester() {
 
             @Override
             public DRes<BigInteger> buildComputation(ProtocolBuilderNumeric builder) {
-              return setup(builder, pivotRule);
+              return setup(builder, pivotRule, 3);
             }
           };
           BigInteger out = runApplication(app);
-          assertEquals(app.getExpectedOptimal(), out);
+          assertEquals(null, out);
         }
       };
     }
