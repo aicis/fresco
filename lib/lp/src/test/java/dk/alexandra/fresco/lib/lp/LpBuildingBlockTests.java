@@ -2,6 +2,7 @@ package dk.alexandra.fresco.lib.lp;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
@@ -10,6 +11,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import java.io.ByteArrayOutputStream;
@@ -247,6 +249,72 @@ public class LpBuildingBlockTests {
     }
   }
 
+  private abstract static class LpSolverTooManyIterationsTester extends LpTester<BigInteger> {
+
+    BigInteger expectedOptimal;
+
+    public BigInteger getExpectedOptimal() {
+      return expectedOptimal;
+    }
+
+    DRes<BigInteger> setup(ProtocolBuilderNumeric builder, LPSolver.PivotRule rule) {
+      /*
+       *
+       * Sets up the following linear program allowing only very few iterations:
+       * maximize a + b + c
+       * a <= 1
+       * b <= 2
+       * c <= 3 (all variables > 0 is implied)
+       *
+       */
+      expectedOptimal = null;
+      updateMatrix = new Matrix<>(4, 4, i -> {
+        ArrayList<BigInteger> row =
+            new ArrayList<>(Arrays.asList(((i == 0) ? BigInteger.ONE : BigInteger.ZERO),
+                ((i == 1) ? BigInteger.ONE : BigInteger.ZERO),
+                ((i == 2) ? BigInteger.ONE : BigInteger.ZERO),
+                ((i == 3) ? BigInteger.ONE : BigInteger.ZERO)));
+        return row;
+      }); // The identity matrix
+      constraints = new Matrix<>(3, 6, i -> {
+        ArrayList<BigInteger> row =
+            new ArrayList<>(Arrays.asList(((i == 0) ? BigInteger.ONE : BigInteger.ZERO),
+                ((i == 1) ? BigInteger.ONE : BigInteger.ZERO),
+                ((i == 2) ? BigInteger.ONE : BigInteger.ZERO),
+                ((i == 0) ? BigInteger.ONE : BigInteger.ZERO),
+                ((i == 1) ? BigInteger.ONE : BigInteger.ZERO),
+                ((i == 2) ? BigInteger.ONE : BigInteger.ZERO)));
+        return row;
+      }); // A 3x3 identity matrix concatenated with a 3x3 identity matrix
+      b = new ArrayList<>(Arrays.asList(
+          BigInteger.valueOf(1),
+          BigInteger.valueOf(2),
+          BigInteger.valueOf(3)));
+      f = new ArrayList<>(Arrays.asList(
+          BigInteger.valueOf(-1),
+          BigInteger.valueOf(-1),
+          BigInteger.valueOf(-1),
+          BigInteger.ZERO,
+          BigInteger.ZERO,
+          BigInteger.ZERO));
+      inputTableau(builder);
+      return builder.seq(seq -> {
+        DRes<SInt> pivot = seq.numeric().known(BigInteger.ONE);
+        ArrayList<DRes<SInt>> initialBasis =
+            new ArrayList<>(Arrays.asList(
+                seq.numeric().known(BigInteger.valueOf(4)),
+                seq.numeric().known(BigInteger.valueOf(5)),
+                seq.numeric().known(BigInteger.valueOf(6))));
+        LPSolver solver = new LPSolver(rule, secretTableau, secretUpdateMatrix,
+            pivot, initialBasis, 3);
+        return solver.buildComputation(seq);
+      }).seq((seq2, lpOutput) -> {
+        assertTrue(lpOutput.isAborted());
+        return () -> null;
+      });
+    }
+  }
+
   private abstract static class LpSolverDebugTester extends LpTester<BigInteger> {
 
     DRes<BigInteger> setup(ProtocolBuilderNumeric builder, LPSolver.PivotRule rule) {
@@ -368,6 +436,35 @@ public class LpBuildingBlockTests {
         @Override
         public void test() {
           LpSolverTester app = new LpSolverTester() {
+
+            @Override
+            public DRes<BigInteger> buildComputation(ProtocolBuilderNumeric builder) {
+              return setup(builder, pivotRule);
+            }
+          };
+          BigInteger out = runApplication(app);
+          assertEquals(app.getExpectedOptimal(), out);
+        }
+      };
+    }
+  }
+
+  public static class TestLpSolverTooManyIterations<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    private LPSolver.PivotRule pivotRule;
+
+    public TestLpSolverTooManyIterations(LPSolver.PivotRule pivotRule) {
+      this.pivotRule = pivotRule;
+    }
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() {
+          LpSolverTooManyIterationsTester app = new LpSolverTooManyIterationsTester() {
 
             @Override
             public DRes<BigInteger> buildComputation(ProtocolBuilderNumeric builder) {

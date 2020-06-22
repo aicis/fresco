@@ -35,6 +35,12 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
+  public void test_LpSolverDanzigTooManyIterations() {
+    runTest(new LpBuildingBlockTests.TestLpSolverTooManyIterations<>(LPSolver.PivotRule.DANZIG),
+        new TestParameters().numParties(2));
+  }
+
+  @Test
   public void test_LpSolverDanzigSmallerMod() {
     runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.DANZIG),
         new TestParameters()
