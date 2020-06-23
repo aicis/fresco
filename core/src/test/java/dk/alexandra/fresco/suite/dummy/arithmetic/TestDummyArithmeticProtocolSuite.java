@@ -121,6 +121,11 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
+  public void test_compareFracEQ_Sequential() {
+    runTest(new CompareTests.TestCompareFracEQ<>(), new TestParameters());
+  }
+
+  @Test
   public void testCompareEqEdgeCasesSequential() {
     runTest(new CompareTests.TestCompareEQEdgeCases<>(), new TestParameters());
   }
@@ -388,6 +393,11 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_InnerProductClosed() {
     runTest(new LinAlgTests.TestInnerProductClosed<>(), new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void test_InnerProductClosedLinkedList() {
+    runTest(new LinAlgTests.TestInnerProductLinkedList<>(), new TestParameters().numParties(2));
   }
 
   @Test

@@ -13,6 +13,7 @@ import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.compare.eq.FracEq;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -111,7 +112,8 @@ public class CompareTests {
   }
 
   /**
-   * Compares the two numbers 3 and 5 and checks that 3 == 3. Also checks that 3 != 5
+   * Compares the two numbers 3 and 5 and checks that 3 == 3. Also checks that 3 != 11 but that the
+   * three least significant bits of 3 and 11 are the same.
    */
   public static class TestCompareEQ<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
@@ -122,21 +124,24 @@ public class CompareTests {
 
         @Override
         public void test() throws Exception {
-          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = builder -> {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
             Numeric input = builder.numeric();
             DRes<SInt> x = input.known(BigInteger.valueOf(3));
-            DRes<SInt> y = input.known(BigInteger.valueOf(5));
+            DRes<SInt> y = input.known(BigInteger.valueOf(11));
             Comparison comparison = builder.comparison();
             DRes<SInt> compResult1 = comparison.equals(x, x);
             DRes<SInt> compResult2 = comparison.equals(x, y);
+            DRes<SInt> compResult3 = comparison.equals(3, x, y);
             Numeric open = builder.numeric();
             DRes<BigInteger> res1 = open.open(compResult1);
             DRes<BigInteger> res2 = open.open(compResult2);
-            return () -> new Pair<>(res1.out(), res2.out());
+            DRes<BigInteger> res3 = open.open(compResult3);
+            return () -> Arrays.asList(res1.out(), res2.out(), res3.out());
           };
-          Pair<BigInteger, BigInteger> output = runApplication(app);
-          Assert.assertEquals(BigInteger.ONE, output.getFirst());
-          Assert.assertEquals(BigInteger.ZERO, output.getSecond());
+          List<BigInteger> output = runApplication(app);
+          Assert.assertEquals(BigInteger.ONE, output.get(0));
+          Assert.assertEquals(BigInteger.ZERO, output.get(1));
+          Assert.assertEquals(BigInteger.ONE, output.get(2));
         }
       };
     }
@@ -271,4 +276,37 @@ public class CompareTests {
     }
   }
 
+  /**
+   * Compares the two numbers 3/5 and -6/-10 and checks that they are equal. Also checks that 3/5 != -6/10
+   */
+  public static class TestCompareFracEQ<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() throws Exception {
+          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = builder -> {
+            Numeric input = builder.numeric();
+            DRes<SInt> n0 = input.known(BigInteger.valueOf(3));
+            DRes<SInt> d0 = input.known(BigInteger.valueOf(5));
+            DRes<SInt> n1 = input.known(BigInteger.valueOf(-6));
+            DRes<SInt> d1 = input.known(BigInteger.valueOf(-10));
+            DRes<SInt> d2 = input.known(BigInteger.valueOf(10));
+            DRes<SInt> compResult1 = new FracEq(n0, d0, n1, d1).buildComputation(builder);
+            DRes<SInt> compResult2 = new FracEq(n0, d0, n1, d2).buildComputation(builder);
+            Numeric open = builder.numeric();
+            DRes<BigInteger> res1 = open.open(compResult1);
+            DRes<BigInteger> res2 = open.open(compResult2);
+            return () -> new Pair<>(res1.out(), res2.out());
+          };
+          Pair<BigInteger, BigInteger> output = runApplication(app);
+          Assert.assertEquals(BigInteger.ONE, output.getFirst());
+          Assert.assertEquals(BigInteger.ZERO, output.getSecond());
+        }
+      };
+    }
+  }
 }
