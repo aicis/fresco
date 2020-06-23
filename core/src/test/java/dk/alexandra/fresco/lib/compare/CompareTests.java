@@ -112,8 +112,8 @@ public class CompareTests {
   }
 
   /**
-   * Compares the two numbers 3 and 5 and checks that 3 == 3. Also checks that 3 != 11 but that the
-   * three least significant bits of 3 and 11 are the same.
+   * Compares the two numbers 3 and 5 and checks that 3 == 3. Also checks that 3 != 5 but that the
+   * least significant bit of 3 and 5 is the same.
    */
   public static class TestCompareEQ<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
@@ -127,11 +127,11 @@ public class CompareTests {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
             Numeric input = builder.numeric();
             DRes<SInt> x = input.known(BigInteger.valueOf(3));
-            DRes<SInt> y = input.known(BigInteger.valueOf(11));
+            DRes<SInt> y = input.known(BigInteger.valueOf(5));
             Comparison comparison = builder.comparison();
             DRes<SInt> compResult1 = comparison.equals(x, x);
             DRes<SInt> compResult2 = comparison.equals(x, y);
-            DRes<SInt> compResult3 = comparison.equals(3, x, y);
+            DRes<SInt> compResult3 = comparison.equals(1, x, y);
             Numeric open = builder.numeric();
             DRes<BigInteger> res1 = open.open(compResult1);
             DRes<BigInteger> res2 = open.open(compResult2);
