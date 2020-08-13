@@ -29,8 +29,6 @@ import dk.alexandra.fresco.lib.conditional.ConditionalSwapRowsTests;
 import dk.alexandra.fresco.lib.conditional.SwapIfTests;
 import dk.alexandra.fresco.lib.debug.ArithmeticDebugTests;
 import dk.alexandra.fresco.lib.list.EliminateDuplicatesTests;
-import dk.alexandra.fresco.lib.lp.LPSolver;
-import dk.alexandra.fresco.lib.lp.LpBuildingBlockTests;
 import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationTests;
@@ -45,16 +43,10 @@ import dk.alexandra.fresco.lib.real.LinearAlgebraTests;
 import dk.alexandra.fresco.lib.real.MathTests;
 import dk.alexandra.fresco.lib.real.NormalizeTests;
 import dk.alexandra.fresco.lib.real.TruncationTests;
-import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
-import dk.alexandra.fresco.lib.statistics.DeaSolver;
-import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
-import dk.alexandra.fresco.lib.statistics.DeaSolverTests.RandomDataDeaTest;
-import dk.alexandra.fresco.lib.statistics.DeaSolverTests.TestDeaFixed1;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.arithmetic.ComparisonLoggerDecorator;
 import dk.alexandra.fresco.logging.arithmetic.NumericLoggingDecorator;
 import java.util.ArrayList;
-import java.util.Random;
 import org.junit.Test;
 
 public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTest {
@@ -129,6 +121,11 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
+  public void test_compareFracEQ_Sequential() {
+    runTest(new CompareTests.TestCompareFracEQ<>(), new TestParameters());
+  }
+
+  @Test
   public void testCompareEqEdgeCasesSequential() {
     runTest(new CompareTests.TestCompareEQEdgeCases<>(), new TestParameters());
   }
@@ -151,85 +148,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_Big_Sort() {
     runTest(new SortingTests.TestBigSort<>(), new TestParameters());
-  }
-
-  // Statistics
-
-  // Creditrater
-  @Test
-  public void test_CreditRater_Single_Value_2_parties() {
-    int[] values = {2};
-    int[][] intervals = {{1, 3}};
-    int[][] scores = {{10, 100, 1000}};
-    runTest(new CreditRaterTest.TestCreditRater<>(values, intervals, scores),
-        new TestParameters());
-  }
-
-  @Test
-  public void test_CreditRater_Single_Value_3_parties() {
-    int[] values = {2};
-    int[][] intervals = {{1, 3}};
-    int[][] scores = {{10, 100, 1000}};
-    runTest(new CreditRaterTest.TestCreditRater<>(values, intervals, scores),
-        new TestParameters());
-  }
-
-  @Test
-  public void test_CreditRater_multi_Value_2_parties() {
-    int[] values = {2, 2, 2};
-    int[][] intervals = {{1, 3}, {0, 5}, {0, 1}};
-    int[][] scores = {{10, 100, 1000}, {10, 100, 1000}, {10, 100, 1000}};
-    runTest(new CreditRaterTest.TestCreditRater<>(values, intervals, scores),
-        new TestParameters());
-  }
-
-  // DEASolver
-  @Test
-  public void test_DeaSolver_2_parties() {
-    runTest(new RandomDataDeaTest<>(5, 2, 10, 1, AnalysisType.INPUT_EFFICIENCY),
-        new TestParameters());
-  }
-
-  @Test
-  public void test_DeaSolver_3_parties() {
-    runTest(new RandomDataDeaTest<>(2, 2, 10, 1, AnalysisType.INPUT_EFFICIENCY),
-        new TestParameters().numParties(3));
-  }
-
-  @Test
-  public void test_DeaSolver_multiple_queries_2_parties() {
-    runTest(new RandomDataDeaTest<>(5, 2, 10, 2, AnalysisType.INPUT_EFFICIENCY),
-        new TestParameters());
-  }
-
-  @Test
-  public void test_DeaSolver_single_input_2_parties() {
-    runTest(new RandomDataDeaTest<>(1, 2, 10, 1, AnalysisType.INPUT_EFFICIENCY),
-        new TestParameters());
-  }
-
-  @Test
-  public void test_DeaSolver_single_input_and_output_2_parties() {
-    runTest(new RandomDataDeaTest<>(1, 1, 10, 1, AnalysisType.INPUT_EFFICIENCY),
-        new TestParameters());
-  }
-
-  @Test
-  public void test_DEASolver_output_efficiency_2_parties() {
-    runTest(new RandomDataDeaTest<>(5, 1, 10, 1, AnalysisType.OUTPUT_EFFICIENCY),
-        new TestParameters());
-  }
-
-  @Test
-  public void test_DEASolver_multiple_queries__output_2_parties() {
-    runTest(new RandomDataDeaTest<>(5, 2, 10, 2, AnalysisType.OUTPUT_EFFICIENCY),
-        new TestParameters());
-  }
-
-  @Test
-  public void test_DEASolver_fixedData1() {
-    runTest(new TestDeaFixed1<>(AnalysisType.OUTPUT_EFFICIENCY),
-        new TestParameters());
   }
 
   // lib.conditional
@@ -400,63 +318,8 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         new TestParameters().numParties(2));
   }
 
-  // lib.lp
-  @Test
-  public void test_LpSolverEntering() {
-    runTest(new LpBuildingBlockTests.TestEnteringVariable<>(), new TestParameters().numParties(2));
-  }
-
-  @Test
-  public void test_LpSolverBlandEntering() {
-    runTest(new LpBuildingBlockTests.TestBlandEnteringVariable<>(),
-        new TestParameters().numParties(2));
-  }
-
-  @Test
-  public void test_LpTableauDebug() {
-    runTest(new LpBuildingBlockTests.TestLpTableuDebug<>(), new TestParameters().numParties(2));
-  }
-
-  @Test
-  public void test_LpSolverDanzig() {
-    runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.DANZIG),
-        new TestParameters().numParties(2));
-  }
-
-  @Test
-  public void test_LpSolverDanzigSmallerMod() {
-    runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.DANZIG),
-        new TestParameters()
-            .numParties(2)
-            .field(getModulus(128))
-            .maxBitLength(30)
-            .fixedPointPrecesion(8)
-            .performanceLogging(false));
-  }
-
   private FieldDefinition getModulus(int i) {
     return new BigIntegerFieldDefinition(ModulusFinder.findSuitableModulus(i));
-  }
-
-  @Test
-  public void test_LpSolverBland() {
-    runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.BLAND),
-        new TestParameters().numParties(2).performanceLogging(true));
-    assertThat(performanceLoggers.get(1).getLoggedValues()
-        .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ), is((long) 33));
-  }
-
-  @Test
-  public void test_LpSolverDebug() {
-    runTest(new LpBuildingBlockTests.TestLpSolverDebug<>(), new TestParameters().numParties(2));
-  }
-
-  @Test
-  public void test_DEASolver_2_Sequential_dummy_NoIterations() {
-    runTest(
-        new RandomDataDeaTest<>(2, 1, 5, 1, DeaSolver.AnalysisType.OUTPUT_EFFICIENCY, new Random(),
-            1, true),
-        new TestParameters().numParties(2));
   }
 
   // lib.math.integer.binary
@@ -530,6 +393,11 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_InnerProductClosed() {
     runTest(new LinAlgTests.TestInnerProductClosed<>(), new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void test_InnerProductClosedLinkedList() {
+    runTest(new LinAlgTests.TestInnerProductLinkedList<>(), new TestParameters().numParties(2));
   }
 
   @Test
@@ -790,27 +658,27 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_trunctation() {
     runTest(new TruncationTests.TestTruncation<>(), new TestParameters().numParties(2));
   }
-  
+
   @Test
   public void test_normalize_sreal() {
     runTest(new NormalizeTests.TestNormalizeSReal<>(), new TestParameters().numParties(2));
   }
-  
+
   @Test
   public void test_normalize_power_sreal() {
     runTest(new NormalizeTests.TestNormalizePowerSReal<>(), new TestParameters().numParties(2));
   }
-  
+
   @Test
   public void test_normalize_sint() {
     runTest(new NormalizeTests.TestNormalizeSInt<>(), new TestParameters().numParties(2));
   }
-  
+
   @Test
   public void test_reciprocal() {
     runTest(new MathTests.TestReciprocal<>(), new TestParameters().numParties(2));
   }
-  
+
   @Test
   public void test_two_power() {
     runTest(new MathTests.TestTwoPower<>(), new TestParameters().numParties(2));
@@ -818,9 +686,9 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_real_sign() {
-    runTest(new MathTests.TestRealSign<>(), new TestParameters().numParties(2));    
+    runTest(new MathTests.TestRealSign<>(), new TestParameters().numParties(2));
   }
-  
+
   @Test
   public void test_constant_real_polynomial() {
     runTest(new MathTests.TestConstantPolynomial<>(), new TestParameters().numParties(2));

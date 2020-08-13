@@ -34,7 +34,7 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
   @Override
   public DRes<SInt> equals(int bitLength, DRes<SInt> x, DRes<SInt> y) {
     eqCount++;
-    return this.delegate.equals(x, y);
+    return this.delegate.equals(bitLength, x, y);
   }
 
   @Override

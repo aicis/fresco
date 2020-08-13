@@ -1,0 +1,61 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <artifactId>dea</artifactId>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>2.2</version>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <artifactId>core</artifactId>
+      <groupId>dk.alexandra.fresco</groupId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <artifactId>lp</artifactId>
+      <groupId>dk.alexandra.fresco</groupId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- Tests depends on AbstractDummyArithmeticTest -->
+    <dependency>
+      <artifactId>core</artifactId>
+      <groupId>dk.alexandra.fresco</groupId>
+      <scope>test</scope>
+      <type>test-jar</type>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- Used for plaintext LP solving -->
+    <dependency>
+      <artifactId>commons-math3</artifactId>
+      <groupId>org.apache.commons</groupId>
+      <scope>test</scope>
+      <version>3.6.1</version>
+    </dependency>
+  </dependencies>
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>fresco-lib-pom</artifactId>
+    <groupId>dk.alexandra.fresco</groupId>
+    <version>1.2.2-SNAPSHOT</version>
+  </parent>
+
+</project>
