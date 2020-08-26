@@ -7,7 +7,6 @@ import dk.alexandra.fresco.lib.collections.Matrix;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -30,10 +29,10 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
   }
 
   @Override
-  public DRes<Vector<DRes<SReal>>> input(Vector<BigDecimal> a, int inputParty) {
+  public DRes<ArrayList<DRes<SReal>>> input(ArrayList<BigDecimal> a, int inputParty) {
     return builder.par(par -> {
-      Vector<DRes<SReal>> matrix = a.stream().map(e -> par.realNumeric().input(e, inputParty))
-          .collect(Collectors.toCollection(Vector::new));
+      ArrayList<DRes<SReal>> matrix = a.stream().map(e -> par.realNumeric().input(e, inputParty))
+          .collect(Collectors.toCollection(ArrayList::new));
       return () -> matrix;
     });
   }
@@ -49,10 +48,10 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
   }
 
   @Override
-  public DRes<Vector<DRes<BigDecimal>>> openVector(DRes<Vector<DRes<SReal>>> a) {
+  public DRes<ArrayList<DRes<BigDecimal>>> openArrayList(DRes<ArrayList<DRes<SReal>>> a) {
     return builder.par(par -> {
-      Vector<DRes<BigDecimal>> vector = a.out().stream().map(e -> par.realNumeric().open(e))
-          .collect(Collectors.toCollection(Vector::new));
+      ArrayList<DRes<BigDecimal>> vector = a.out().stream().map(e -> par.realNumeric().open(e))
+          .collect(Collectors.toCollection(ArrayList::new));
       return () -> vector;
     });
   }
@@ -238,8 +237,8 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
   }
 
   @Override
-  public DRes<Vector<DRes<SReal>>> vectorMult(DRes<Matrix<DRes<SReal>>> a,
-      DRes<Vector<DRes<SReal>>> v) {
+  public DRes<ArrayList<DRes<SReal>>> vectorMult(DRes<Matrix<DRes<SReal>>> a,
+      DRes<ArrayList<DRes<SReal>>> v) {
     return builder.par(par -> {
       return vectorMult(par, a.out(), v.out(),
           (builder, x) -> builder.realAdvanced().innerProduct(x.getFirst(), x.getSecond()));
@@ -247,7 +246,7 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
   }
 
   @Override
-  public DRes<Vector<DRes<SReal>>> vectorMult(DRes<Matrix<DRes<SReal>>> a, Vector<BigDecimal> v) {
+  public DRes<ArrayList<DRes<SReal>>> vectorMult(DRes<Matrix<DRes<SReal>>> a, ArrayList<BigDecimal> v) {
     return builder.par(par -> {
       return vectorMult(par, a.out(), v, (builder, x) -> builder.realAdvanced()
           .innerProductWithPublicPart(x.getSecond(), x.getFirst()));
@@ -255,7 +254,7 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
   }
 
   @Override
-  public DRes<Vector<DRes<SReal>>> vectorMult(Matrix<BigDecimal> a, DRes<Vector<DRes<SReal>>> v) {
+  public DRes<ArrayList<DRes<SReal>>> vectorMult(Matrix<BigDecimal> a, DRes<ArrayList<DRes<SReal>>> v) {
     return builder.par(par -> {
       return vectorMult(par, a, v.out(), (builder, x) -> builder.realAdvanced()
           .innerProductWithPublicPart(x.getFirst(), x.getSecond()));
@@ -267,13 +266,13 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
    *
    * @param builder The builder to be used for this computation
    * @param a Matrix of type <code>A</code>
-   * @param v Vector of type <code>B</code>
+   * @param v ArrayList of type <code>B</code>
    * @param innerProductOperator An inner product operator which takes the inner product of a vector
    *        of type <code>A</code> and type <code>B</code> to produce a value of type <code>C</code>
    * @return A vector of type <code>C</code> which is the product of the matrix and the vector
    */
-  private <A, B, C> DRes<Vector<C>> vectorMult(ProtocolBuilderNumeric builder, Matrix<A> a,
-      Vector<B> v,
+  private <A, B, C> DRes<ArrayList<C>> vectorMult(ProtocolBuilderNumeric builder, Matrix<A> a,
+      ArrayList<B> v,
       BiFunction<ProtocolBuilderNumeric, Pair<List<A>, List<B>>, C> innerProductOperator) {
     return builder.par(par -> {
 
@@ -282,9 +281,9 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
             "Matrix and vector sizes does not match - " + a.getWidth() + " != " + v.size());
       }
 
-      Vector<C> result =
+      ArrayList<C> result =
           a.getRows().stream().map(r -> innerProductOperator.apply(par, new Pair<>(r, v)))
-              .collect(Collectors.toCollection(Vector::new));
+              .collect(Collectors.toCollection(ArrayList::new));
       return () -> result;
     });
   }

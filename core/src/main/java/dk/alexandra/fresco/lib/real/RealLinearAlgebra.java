@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import java.math.BigDecimal;
-import java.util.Vector;
+import java.util.ArrayList;
 
 public interface RealLinearAlgebra extends ComputationDirectory {
 
@@ -51,7 +51,7 @@ public interface RealLinearAlgebra extends ComputationDirectory {
    * @param b Public value
    * @return A deferred result computing a-b
    */
-  DRes<Matrix<DRes<SReal>>> sub(DRes<Matrix<DRes<SReal>>> a, Matrix<BigDecimal> n);
+  DRes<Matrix<DRes<SReal>>> sub(DRes<Matrix<DRes<SReal>>> a, Matrix<BigDecimal> b);
   
   /**
    * Multiplies two secret values and returns the result.
@@ -69,7 +69,7 @@ public interface RealLinearAlgebra extends ComputationDirectory {
    * @param b Second secret value
    * @return A deferred result computing a*v
    */
-  DRes<Vector<DRes<SReal>>> vectorMult(DRes<Matrix<DRes<SReal>>> a, DRes<Vector<DRes<SReal>>> v);
+  DRes<ArrayList<DRes<SReal>>> vectorMult(DRes<Matrix<DRes<SReal>>> a, DRes<ArrayList<DRes<SReal>>> b);
 
   /**
    * Multiply a matrix to a vector.
@@ -78,7 +78,7 @@ public interface RealLinearAlgebra extends ComputationDirectory {
    * @param v Public vector
    * @return A deferred result computing a*v
    */
-  DRes<Vector<DRes<SReal>>> vectorMult(DRes<Matrix<DRes<SReal>>> a, Vector<BigDecimal> v);
+  DRes<ArrayList<DRes<SReal>>> vectorMult(DRes<Matrix<DRes<SReal>>> a, ArrayList<BigDecimal> v);
 
   /**
    * Multiply a matrix to a vector.
@@ -87,7 +87,7 @@ public interface RealLinearAlgebra extends ComputationDirectory {
    * @param v Secret vector
    * @return A deferred result computing a*v
    */
-  DRes<Vector<DRes<SReal>>> vectorMult(Matrix<BigDecimal> a, DRes<Vector<DRes<SReal>>> v);
+  DRes<ArrayList<DRes<SReal>>> vectorMult(Matrix<BigDecimal> a, DRes<ArrayList<DRes<SReal>>> v);
 
   /**
    * Multiplies a public value onto a secret value and returns the result.
@@ -160,7 +160,7 @@ public interface RealLinearAlgebra extends ComputationDirectory {
    * @param inputParty The ID of the MPC party.
    * @return The closed input value.
    */
-  DRes<Vector<DRes<SReal>>> input(Vector<BigDecimal> value, int inputParty);
+  DRes<ArrayList<DRes<SReal>>> input(ArrayList<BigDecimal> value, int inputParty);
 
   /**
    * Opens a matrix to all MPC parties.
@@ -176,7 +176,7 @@ public interface RealLinearAlgebra extends ComputationDirectory {
    * @param secretShare The value to open.
    * @return The opened value represented by the closed value.
    */
-  DRes<Vector<DRes<BigDecimal>>> openVector(DRes<Vector<DRes<SReal>>> secretShare);
+  DRes<ArrayList<DRes<BigDecimal>>> openArrayList(DRes<ArrayList<DRes<SReal>>> secretShare);
 
 
 }
