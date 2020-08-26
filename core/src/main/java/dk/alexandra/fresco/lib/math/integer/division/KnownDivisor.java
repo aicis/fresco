@@ -7,7 +7,6 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
-import dk.alexandra.fresco.lib.real.fixed.utils.Truncate;
 import java.math.BigInteger;
 
 /**
@@ -85,8 +84,8 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
        * result in absolute value. Only the most significant bits of mx0 may influence mx1 so a truncate
        * is sufficient here.
        */
-      DRes<SInt> q = seq.advancedNumeric().rightShift(seq.numeric().add(mx1,
-          new Truncate(mx0, n).buildComputation(seq)), n - 1);
+      DRes<SInt> q = seq.advancedNumeric()
+          .rightShift(seq.numeric().add(mx1, seq.advancedNumeric().truncate(mx0, n)), n - 1);
 
       /*
        * Adjust the sign of the result.

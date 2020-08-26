@@ -19,7 +19,7 @@ public class SquareRoot implements Computation<SReal, ProtocolBuilderNumeric> {
    * p0132 from "Computer Approximations" by Hart et al. which approximates the square root on the
    * interval [0.5, 1].
    */
-  private static double[] POLYNOMIAL =
+  private static final double[] POLYNOMIAL =
       new double[] {0.22906994529, 1.300669049, -0.9093210498, 0.5010420763, -0.1214683824};
 
   public SquareRoot(DRes<SReal> x) {
@@ -28,9 +28,9 @@ public class SquareRoot implements Computation<SReal, ProtocolBuilderNumeric> {
 
   @Override
   public DRes<SReal> buildComputation(ProtocolBuilderNumeric builder) {
-    return builder.seq(r1 -> {
-      return r1.realAdvanced().normalize(x);
-    }).par((r2, norm) -> {
+    return builder.seq(r1 ->
+      r1.realAdvanced().normalize(x)
+    ).par((r2, norm) -> {
       DRes<SReal> a = r2.seq(r2Sub1 -> {
         DRes<SReal> g = r2Sub1.realNumeric().mult(norm.getFirst(), x);
         return r2Sub1.realAdvanced().polynomialEvalutation(g, POLYNOMIAL);

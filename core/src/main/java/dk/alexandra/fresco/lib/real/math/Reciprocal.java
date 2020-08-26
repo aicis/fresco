@@ -10,7 +10,7 @@ import dk.alexandra.fresco.lib.real.SReal;
  */
 public class Reciprocal implements Computation<SReal, ProtocolBuilderNumeric> {
 
-  private DRes<SReal> x;
+  private final DRes<SReal> x;
 
   public Reciprocal(DRes<SReal> x) {
     this.x = x;
@@ -22,9 +22,9 @@ public class Reciprocal implements Computation<SReal, ProtocolBuilderNumeric> {
 
   @Override
   public DRes<SReal> buildComputation(ProtocolBuilderNumeric builder) {
-    return builder.seq(r1 -> {
-      return r1.realAdvanced().normalize(x);
-    }).seq((r2, norm) -> {
+    return builder.seq(r1 ->
+      r1.realAdvanced().normalize(x)
+    ).seq((r2, norm) -> {
       DRes<SReal> normalized = r2.realNumeric().mult(norm.getFirst(), x);
 
       // From https://en.wikipedia.org/wiki/Division_algorithm

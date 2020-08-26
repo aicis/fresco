@@ -6,10 +6,12 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
 import dk.alexandra.fresco.lib.conditional.SwapIf;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsByShift;
+import dk.alexandra.fresco.lib.math.integer.binary.NormalizeSInt;
 import dk.alexandra.fresco.lib.math.integer.ProductSIntList;
 import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLength;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShift;
+import dk.alexandra.fresco.lib.math.integer.binary.Truncate;
 import dk.alexandra.fresco.lib.math.integer.division.KnownDivisor;
 import dk.alexandra.fresco.lib.math.integer.division.KnownDivisorRemainder;
 import dk.alexandra.fresco.lib.math.integer.division.SecretSharedDivisor;
@@ -142,6 +144,11 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   }
 
   @Override
+  public DRes<SInt> truncate(DRes<SInt> input, int shifts) {
+    return builder.seq(new Truncate(input, shifts));
+  }
+
+  @Override
   public DRes<SInt> bitLength(DRes<SInt> input, int maxBitLength) {
     return builder.seq(new BitLength(input, maxBitLength));
 
@@ -161,5 +168,10 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   public DRes<Pair<DRes<SInt>, DRes<SInt>>> swapIf(DRes<SInt> condition, DRes<SInt> left,
       DRes<SInt> right) {
     return builder.par(new SwapIf(condition, left, right));
+  }
+
+  @Override
+  public DRes<Pair<DRes<SInt>, DRes<SInt>>> normalize(DRes<SInt> input, int targetBitLength) {
+    return builder.seq(new NormalizeSInt(input, targetBitLength));
   }
 }

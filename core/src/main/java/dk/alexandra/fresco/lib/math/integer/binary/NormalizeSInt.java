@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.real.fixed.utils;
+package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * If n is the bitlength of the input and l is an upper bound for the bit length, this protocol
  * computes <i>c = 2<sup>l-n</sup></i> and returns the pair <i>(c, l-n)</i>. The input has to be
- * non-zero.
+ * non-zero. If the bit length of the input is larger than l, the computation returns (1, 0).
  */
 public class NormalizeSInt
     implements Computation<Pair<DRes<SInt>, DRes<SInt>>, ProtocolBuilderNumeric> {

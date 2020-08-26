@@ -13,13 +13,13 @@ import dk.alexandra.fresco.lib.real.fixed.utils.MultiplyWithSInt;
  */
 public class Exponential implements Computation<SReal, ProtocolBuilderNumeric> {
 
-  private DRes<SReal> x;
+  private final DRes<SReal> x;
 
   /**
    * p1045 from "Computer Approximations" by Hart et al. which approximates x -> 2^x on the interval
    * [0, 1].
    */
-  private static double[] POLYNOMIAL = new double[] {0.1000000077443021686e1,
+  private static final double[] POLYNOMIAL = new double[] {0.1000000077443021686e1,
       0.693147180426163827795756e0, 0.24022651071017064605384e0, .55504068620466379157744e-1,
       0.9618341225880462374977e-2, 0.1332730359281437819329e-2, 0.155107460590052573978e-3,
       0.14197847399765606711e-4, 0.1863347724137967076e-5};
