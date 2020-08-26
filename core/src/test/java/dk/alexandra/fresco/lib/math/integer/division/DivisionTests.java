@@ -56,8 +56,8 @@ public class DivisionTests {
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        private final BigInteger dividend = new BigInteger("123978634193227335452345761");
-        private final BigInteger divisor = new BigInteger("6543212341214412");
+        private final BigInteger dividend = new BigInteger("123978634193227335452");
+        private final BigInteger divisor = new BigInteger("6543212341");
 
         @Override
         public void test() throws Exception {
@@ -68,34 +68,6 @@ public class DivisionTests {
           BigInteger remainder = result.getSecond();
           Assert.assertThat(quotient, Is.is(dividend.divide(divisor)));
           Assert.assertThat(remainder, Is.is(dividend.mod(divisor)));
-        }
-
-      };
-    }
-  }
-
-  /**
-   * Tests division computation with known divisor (as implemented in {@link KnownDivisor})
-   * with a divisor that is too large for the computation to work. Note: This test should be
-   * expected to throw an {@link IllegalArgumentException}
-   */
-  public static class TestKnowndivisorTooLargeDivisor<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-
-      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-
-        @Override
-        public void test() throws Exception {
-          Application<SInt, ProtocolBuilderNumeric> app = (builder) -> {
-            int maxLength = builder.getBasicNumericContext().getMaxBitLength();
-            BigInteger divisor = BigInteger.valueOf(2).pow(maxLength);
-            DRes<SInt> dividend = builder.numeric().known(BigInteger.TEN);
-            return builder.seq(new KnownDivisor(dividend, divisor));
-          };
-          runApplication(app);
         }
 
       };
