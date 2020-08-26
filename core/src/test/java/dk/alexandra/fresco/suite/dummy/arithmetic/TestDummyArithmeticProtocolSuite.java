@@ -343,7 +343,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
-  public void test_trunctation() {
+  public void test_truncation() {
     runTest(new BinaryOperationsTests.TestTruncation<>(), new TestParameters().numParties(2));
   }
 
