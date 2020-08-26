@@ -351,12 +351,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         new TestParameters());
   }
 
-  @Test(expected = RuntimeException.class)
-  public void test_euclidian_division_too_large_divisor() {
-    runTest(new DivisionTests.TestKnowndivisorTooLargeDivisor<>(),
-        new TestParameters());
-  }
-
   @Test
   public void test_ss_division() {
     runTest(new DivisionTests.TestDivision<>(), new TestParameters().performanceLogging(true));

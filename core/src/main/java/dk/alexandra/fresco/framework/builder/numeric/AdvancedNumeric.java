@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -29,8 +30,9 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<SInt> product(List<DRes<SInt>> elements);
 
   /**
-   * This protocol calculates an approximation of <code>floor(dividend / divisor)</code>, which will
-   * be either correct or slightly smaller than the correct result.
+   * This protocol calculates <code>floor(dividend / divisor)</code>. The result is guaranteed to be
+   * correct if the bit length of the dividend is smaller than {@link BasicNumericContext#getMaxBitLength()}
+   * / 2.
    *
    * @param dividend The dividend.
    * @param divisor The divisor.
