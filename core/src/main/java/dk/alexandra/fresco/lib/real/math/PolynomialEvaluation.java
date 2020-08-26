@@ -10,8 +10,8 @@ import dk.alexandra.fresco.lib.real.SReal;
  */
 public class PolynomialEvaluation implements Computation<SReal, ProtocolBuilderNumeric> {
 
-  private DRes<SReal> x;
-  private double[] p;
+  private final DRes<SReal> x;
+  private final double[] p;
 
   /**
    * Create a new polynomial evalutation computation. The array contains the coefficients with the

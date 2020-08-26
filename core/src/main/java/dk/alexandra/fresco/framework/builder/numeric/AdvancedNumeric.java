@@ -211,6 +211,17 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input, int shifts);
 
   /**
+   * Compute the truncation of a secret input. The result will in most cases be equal to <code>input
+   * >> shifts</code> , but may be one larger. {@link #rightShift(DRes)} gives the exact result, but
+   * is slower to compute.
+   *
+   * @param input  A secret input
+   * @param shifts The number of shifts
+   * @return input >> shifts OR (input >> shifts) + 1.
+   */
+  DRes<SInt> truncate(DRes<SInt> input, int shifts);
+
+  /**
    * Computes the bit length of the input.
    *
    * @param input The number to know the bit length of
@@ -251,6 +262,18 @@ public interface AdvancedNumeric extends ComputationDirectory {
    */
   DRes<Pair<DRes<SInt>, DRes<SInt>>> swapIf(DRes<SInt> condition, DRes<SInt> left,
       DRes<SInt> right);
+
+  /**
+   * Given a secret input and a target bit length, this computation outputs a power of two, which
+   * multiplied by the input will have the target bit length if the target bit length is larger than
+   * the inputs or <i>2<sup>0</sup> = 1</i> otherwise. The result is given as a pair with the first
+   * being the two power and the second being the exponent.
+   *
+   * @param input           A secret input.
+   * @param targetBitLength A target bit length.
+   * @return
+   */
+  DRes<Pair<DRes<SInt>, DRes<SInt>>> normalize(DRes<SInt> input, int targetBitLength);
 
   /**
    * Container holding the deferred result and remainder of shifting a number.

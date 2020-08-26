@@ -8,11 +8,14 @@ import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RightShiftResult;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.Assert;
 
 
@@ -123,4 +126,100 @@ public class BinaryOperationsTests {
       };
     }
   }
+
+  public static class TestNormalizeSInt<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      List<BigInteger> openInputs =
+          Stream
+              .of(-1234567, -12345, -123, -1, 1, 123, 12345, 1234567, 123456789)
+              .map(BigInteger::valueOf).collect(Collectors.toList());
+
+      int l = 16;
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<Pair<List<BigInteger>, List<BigInteger>>, ProtocolBuilderNumeric> app =
+              builder -> builder.seq(producer -> {
+
+                List<DRes<SInt>> closed1 =
+                    openInputs.stream().map(producer.numeric()::known).collect(Collectors.toList());
+
+                List<DRes<Pair<DRes<SInt>, DRes<SInt>>>> result = new ArrayList<>();
+                for (DRes<SInt> inputX : closed1) {
+                  result.add(producer.advancedNumeric().normalize(inputX, l));
+                }
+                return () -> result;
+              }).seq((producer, result) -> {
+                List<DRes<BigInteger>> factors = result.stream().map(DRes::out).map(Pair::getFirst)
+                    .map(producer.numeric()::open).collect(Collectors.toList());
+
+                List<DRes<BigInteger>> exponents = result.stream().map(DRes::out).map(Pair::getSecond)
+                    .map(producer.numeric()::open).collect(Collectors.toList());
+
+                return () -> new Pair<List<BigInteger>, List<BigInteger>>(factors.stream().map(DRes::out)
+                    .map(producer.getBasicNumericContext().getFieldDefinition()::convertToSigned)
+                    .collect(Collectors.toList()), exponents.stream().map(DRes::out)
+                    .map(producer.getBasicNumericContext().getFieldDefinition()::convertToSigned)
+                    .collect(Collectors.toList()));
+              });
+
+          Pair<List<BigInteger>, List<BigInteger>> output = runApplication(app);
+
+          for (int i = 0; i < openInputs.size(); i++) {
+            BigInteger input = openInputs.get(i);
+            int expected = Math.max(0, l - input.bitLength());
+
+            Assert.assertEquals(expected, output.getSecond().get(i).intValue());
+
+            Assert.assertEquals(
+                BigInteger.ONE.shiftLeft(expected).multiply(BigInteger.valueOf(input.signum())),
+                output.getFirst().get(i));
+          }
+        }
+      };
+    }
+  }
+
+  public static class TestTruncation<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      List<BigInteger> openInputs = Stream.of(123, 1234, 12345, 123456, 1234567, 12345678)
+          .map(BigInteger::valueOf).collect(Collectors.toList());
+      int shifts = 5;
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> {
+
+            List<DRes<SInt>> closed1 =
+                openInputs.stream().map(producer.numeric()::known).collect(Collectors.toList());
+
+            List<DRes<SInt>> result = new ArrayList<>();
+            for (DRes<SInt> inputX : closed1) {
+              result.add(producer.advancedNumeric().truncate(inputX, shifts));
+            }
+
+            List<DRes<BigInteger>> opened =
+                result.stream().map(producer.numeric()::open).collect(Collectors.toList());
+            return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
+          };
+          List<BigInteger> output = runApplication(app);
+
+          for (BigInteger x : output) {
+            int idx = output.indexOf(x);
+            BigInteger expected = openInputs.get(idx).shiftRight(shifts);
+            Assert.assertTrue(x.subtract(expected).equals(BigInteger.ONE)
+                || x.subtract(expected).equals(BigInteger.ZERO));
+          }
+        }
+      };
+    }
+  }
+
 }

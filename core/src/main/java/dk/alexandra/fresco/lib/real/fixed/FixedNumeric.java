@@ -4,9 +4,9 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.math.integer.binary.Truncate;
 import dk.alexandra.fresco.lib.real.RealNumeric;
 import dk.alexandra.fresco.lib.real.SReal;
-import dk.alexandra.fresco.lib.real.fixed.utils.Truncate;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -74,7 +74,7 @@ public class FixedNumeric implements RealNumeric {
     if (scale >= 0) {
       n = scope.numeric().mult(BigInteger.ONE.shiftLeft(scale), n);
     } else {
-      n = new Truncate(n, -scale).buildComputation(scope);
+      n = scope.advancedNumeric().truncate(n, -scale);
     }
     return n;
   }

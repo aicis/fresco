@@ -42,7 +42,6 @@ import dk.alexandra.fresco.lib.real.BasicFixedPointTests;
 import dk.alexandra.fresco.lib.real.LinearAlgebraTests;
 import dk.alexandra.fresco.lib.real.MathTests;
 import dk.alexandra.fresco.lib.real.NormalizeTests;
-import dk.alexandra.fresco.lib.real.TruncationTests;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.arithmetic.ComparisonLoggerDecorator;
 import dk.alexandra.fresco.logging.arithmetic.NumericLoggingDecorator;
@@ -336,6 +335,16 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_Bits() {
     runTest(new BinaryOperationsTests.TestBits<>(), new TestParameters());
+  }
+
+  @Test
+  public void test_normalize_sint() {
+    runTest(new BinaryOperationsTests.TestNormalizeSInt<>(), new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void test_trunctation() {
+    runTest(new BinaryOperationsTests.TestTruncation<>(), new TestParameters().numParties(2));
   }
 
   // Math tests
@@ -649,11 +658,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
-  public void test_trunctation() {
-    runTest(new TruncationTests.TestTruncation<>(), new TestParameters().numParties(2));
-  }
-
-  @Test
   public void test_normalize_sreal() {
     runTest(new NormalizeTests.TestNormalizeSReal<>(), new TestParameters().numParties(2));
   }
@@ -661,11 +665,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_normalize_power_sreal() {
     runTest(new NormalizeTests.TestNormalizePowerSReal<>(), new TestParameters().numParties(2));
-  }
-
-  @Test
-  public void test_normalize_sint() {
-    runTest(new NormalizeTests.TestNormalizeSInt<>(), new TestParameters().numParties(2));
   }
 
   @Test

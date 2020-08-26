@@ -16,7 +16,7 @@ public class Logarithm implements Computation<SReal, ProtocolBuilderNumeric> {
    * p2607 from "Computer Approximations" by Hart et al. which approximates the natural logarithm on
    * the interval [0.5, 1].
    */
-  private static double[] POLYNOMIAL = new double[] {-0.30674666858e1, 0.1130516183486e2,
+  private static final double[] POLYNOMIAL = new double[] {-0.30674666858e1, 0.1130516183486e2,
       -0.2774666470302e2, 0.5149518504454e2, -0.6669583732238e2, 0.5853503340958e2,
       -0.3320167436859e2, 0.1098927015084e2, -0.161300738935e1};
   
@@ -26,9 +26,9 @@ public class Logarithm implements Computation<SReal, ProtocolBuilderNumeric> {
 
   @Override
   public DRes<SReal> buildComputation(ProtocolBuilderNumeric builder) {
-    return builder.seq(r1 -> {
-      return r1.realAdvanced().normalize(x);
-    }).seq((r2, norm) -> {
+    return builder.seq(
+        r1 -> r1.realAdvanced().normalize(x)
+    ).seq((r2, norm) -> {
 
       DRes<SReal> g = r2.realNumeric().mult(norm.getFirst(), x);
       DRes<SReal> f = r2.realAdvanced().polynomialEvalutation(g, POLYNOMIAL);

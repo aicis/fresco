@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.real.fixed.utils;
+package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
@@ -7,12 +7,11 @@ import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RandomAddit
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShift;
 import java.math.BigInteger;
 
 /**
  * Returns a number which is approximately the input shifted a number of positions to the right. The
- * result will be one larger than the exact result with some non-negligible propability. If you need
+ * result will be one larger than the exact result with some non-negligible probability. If you need
  * the exact result you need to use {@link RightShift} instead, but this will be at a significant
  * performance cost.
  *

@@ -8,9 +8,6 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.real.DefaultAdvancedRealNumeric;
 import dk.alexandra.fresco.lib.real.SReal;
 import dk.alexandra.fresco.lib.real.fixed.utils.FixedCondSelect;
-import dk.alexandra.fresco.lib.real.fixed.utils.NormalizeSInt;
-import dk.alexandra.fresco.lib.real.fixed.utils.Truncate;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -37,9 +34,9 @@ public class AdvancedFixedNumeric extends DefaultAdvancedRealNumeric {
   @Override
   public DRes<Pair<DRes<SReal>, DRes<SInt>>> normalize(DRes<SReal> x) {
     return builder.seq(seq -> {
-      DRes<Pair<DRes<SInt>, DRes<SInt>>> normalized =
-          new NormalizeSInt(((SFixed) x.out()).getSInt(),
-              seq.getRealNumericContext().getPrecision() * 2).buildComputation(seq);
+      DRes<Pair<DRes<SInt>, DRes<SInt>>> normalized = seq.advancedNumeric()
+          .normalize(((SFixed) x.out()).getSInt(),
+              seq.getRealNumericContext().getPrecision() * 2);
       return normalized;
     }).seq((seq, normalized) -> {
       DRes<SReal> scalingFactor = new SFixed(normalized.getFirst());
@@ -95,9 +92,8 @@ public class AdvancedFixedNumeric extends DefaultAdvancedRealNumeric {
 
       DRes<SInt> innerProductBeforeTruncation = seq.advancedNumeric().innerProduct(aFixed, bFixed);
 
-      DRes<SInt> truncated =
-          new Truncate(innerProductBeforeTruncation, seq.getRealNumericContext().getPrecision())
-              .buildComputation(seq);
+      DRes<SInt> truncated = seq.advancedNumeric()
+          .truncate(innerProductBeforeTruncation, seq.getRealNumericContext().getPrecision());
       return new SFixed(truncated);
     });
   }
@@ -125,9 +121,8 @@ public class AdvancedFixedNumeric extends DefaultAdvancedRealNumeric {
       DRes<SInt> innerProductBeforeTruncation =
           seq.advancedNumeric().innerProductWithPublicPart(aFixed, bFixed);
 
-      DRes<SInt> truncated =
-          new Truncate(innerProductBeforeTruncation, seq.getRealNumericContext().getPrecision())
-              .buildComputation(seq);
+      DRes<SInt> truncated = seq.advancedNumeric()
+          .truncate(innerProductBeforeTruncation, seq.getRealNumericContext().getPrecision());
       return new SFixed(truncated);
     });
   }
