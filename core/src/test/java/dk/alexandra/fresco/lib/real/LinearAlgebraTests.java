@@ -15,7 +15,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 import java.util.stream.Collectors;
 
 public class LinearAlgebraTests {
@@ -258,9 +257,9 @@ public class LinearAlgebraTests {
           Matrix<BigDecimal> expected = new Matrix<>(dimension, 1, e);
           Application<List<Matrix<BigDecimal>>, ProtocolBuilderNumeric> testApplication = root -> {
             DRes<Matrix<DRes<SReal>>> closedMatrix = root.realLinAlg().input(matrix, 1);
-            DRes<Matrix<DRes<SReal>>> closedVector = root.realLinAlg().input(vector, 1);
-            DRes<Matrix<DRes<SReal>>> res1 = root.realLinAlg().mult(closedMatrix, closedVector);
-            DRes<Matrix<DRes<SReal>>> res2 = root.realLinAlg().mult(matrix, closedVector);
+            DRes<Matrix<DRes<SReal>>> closedArrayList = root.realLinAlg().input(vector, 1);
+            DRes<Matrix<DRes<SReal>>> res1 = root.realLinAlg().mult(closedMatrix, closedArrayList);
+            DRes<Matrix<DRes<SReal>>> res2 = root.realLinAlg().mult(matrix, closedArrayList);
             DRes<Matrix<DRes<SReal>>> res3 = root.realLinAlg().mult(closedMatrix, vector);
             DRes<Matrix<DRes<BigDecimal>>> open1 = root.realLinAlg().openMatrix(res1);
             DRes<Matrix<DRes<BigDecimal>>> open2 = root.realLinAlg().openMatrix(res2);
@@ -293,31 +292,31 @@ public class LinearAlgebraTests {
         @Override
         public void test() throws Exception {
           Matrix<BigDecimal> matrix = allOneMatrix(dimension, dimension, precision);
-          Vector<BigDecimal> vector = allOneVector(dimension, precision);
-          Vector<BigDecimal> expected = new Vector<>(dimension);
+          ArrayList<BigDecimal> vector = allOneArrayList(dimension, precision);
+          ArrayList<BigDecimal> expected = new ArrayList<>(dimension);
           for (int i = 0; i < dimension; i++) {
             expected.add(BigDecimal.valueOf(dimension).setScale(1));
           }
-          Application<List<Vector<BigDecimal>>, ProtocolBuilderNumeric> testApplication = root -> {
+          Application<List<ArrayList<BigDecimal>>, ProtocolBuilderNumeric> testApplication = root -> {
 
             DRes<Matrix<DRes<SReal>>> closedMatrix = root.realLinAlg().input(matrix, 1);
-            DRes<Vector<DRes<SReal>>> closedVector = root.realLinAlg().input(vector, 1);
-            DRes<Vector<DRes<SReal>>> res1 =
-                root.realLinAlg().vectorMult(closedMatrix, closedVector);
-            DRes<Vector<DRes<SReal>>> res2 = root.realLinAlg().vectorMult(matrix, closedVector);
-            DRes<Vector<DRes<SReal>>> res3 = root.realLinAlg().vectorMult(closedMatrix, vector);
-            DRes<Vector<DRes<BigDecimal>>> open1 = root.realLinAlg().openVector(res1);
-            DRes<Vector<DRes<BigDecimal>>> open2 = root.realLinAlg().openVector(res2);
-            DRes<Vector<DRes<BigDecimal>>> open3 = root.realLinAlg().openVector(res3);
+            DRes<ArrayList<DRes<SReal>>> closedArrayList = root.realLinAlg().input(vector, 1);
+            DRes<ArrayList<DRes<SReal>>> res1 =
+                root.realLinAlg().vectorMult(closedMatrix, closedArrayList);
+            DRes<ArrayList<DRes<SReal>>> res2 = root.realLinAlg().vectorMult(matrix, closedArrayList);
+            DRes<ArrayList<DRes<SReal>>> res3 = root.realLinAlg().vectorMult(closedMatrix, vector);
+            DRes<ArrayList<DRes<BigDecimal>>> open1 = root.realLinAlg().openArrayList(res1);
+            DRes<ArrayList<DRes<BigDecimal>>> open2 = root.realLinAlg().openArrayList(res2);
+            DRes<ArrayList<DRes<BigDecimal>>> open3 = root.realLinAlg().openArrayList(res3);
             return () -> Arrays.asList(
                 open1.out().stream().map(x -> x.out())
-                    .collect(Collectors.toCollection(Vector::new)),
+                    .collect(Collectors.toCollection(ArrayList::new)),
                 open2.out().stream().map(x -> x.out())
-                    .collect(Collectors.toCollection(Vector::new)),
+                    .collect(Collectors.toCollection(ArrayList::new)),
                 open3.out().stream().map(x -> x.out())
-                    .collect(Collectors.toCollection(Vector::new)));
+                    .collect(Collectors.toCollection(ArrayList::new)));
           };
-          List<Vector<BigDecimal>> output = runApplication(testApplication);
+          List<ArrayList<BigDecimal>> output = runApplication(testApplication);
           for (int i = 0; i < matrix.getHeight(); i++) {
             for (int j = 0; j < output.size(); j++) {
               RealTestUtils
@@ -341,10 +340,10 @@ public class LinearAlgebraTests {
         @Override
         public void test() throws Exception {
           Matrix<BigDecimal> matrix = allOneMatrix(dimension, dimension, precision);
-          Vector<BigDecimal> vector = allOneVector(dimension - 1, precision);
-          Application<List<Vector<BigDecimal>>, ProtocolBuilderNumeric> testApplication = root -> {
-            DRes<Vector<DRes<SReal>>> closedVector = root.realLinAlg().input(vector, 1);
-            root.realLinAlg().vectorMult(matrix, closedVector);
+          ArrayList<BigDecimal> vector = allOneArrayList(dimension - 1, precision);
+          Application<List<ArrayList<BigDecimal>>, ProtocolBuilderNumeric> testApplication = root -> {
+            DRes<ArrayList<DRes<SReal>>> closedArrayList = root.realLinAlg().input(vector, 1);
+            root.realLinAlg().vectorMult(matrix, closedArrayList);
             return () -> null;
           };
           try {
@@ -374,7 +373,7 @@ public class LinearAlgebraTests {
           Matrix<BigDecimal> matrix1 = allOneMatrix(dimension, dimension, precision);
           Matrix<BigDecimal> matrix2 = allOneMatrix(dimension - 1, dimension, precision);
           Matrix<BigDecimal> matrix3 = allOneMatrix(dimension, dimension - 1, precision);
-          Application<List<Vector<BigDecimal>>, ProtocolBuilderNumeric> testApplication1 = root -> {
+          Application<List<ArrayList<BigDecimal>>, ProtocolBuilderNumeric> testApplication1 = root -> {
             DRes<Matrix<DRes<SReal>>> closedMatrix = root.realLinAlg().input(matrix1, 1);
             root.realLinAlg().add(matrix2, closedMatrix);
             return () -> null;
@@ -389,7 +388,7 @@ public class LinearAlgebraTests {
               // Success - Ignore the exception
             }
           }
-          Application<List<Vector<BigDecimal>>, ProtocolBuilderNumeric> testApplication2 = root -> {
+          Application<List<ArrayList<BigDecimal>>, ProtocolBuilderNumeric> testApplication2 = root -> {
             DRes<Matrix<DRes<SReal>>> closedMatrix = root.realLinAlg().input(matrix1, 1);
             root.realLinAlg().add(matrix3, closedMatrix);
             return () -> null;
@@ -422,7 +421,7 @@ public class LinearAlgebraTests {
         public void test() throws Exception {
           Matrix<BigDecimal> matrix1 = allOneMatrix(dimension, dimension, precision);
           Matrix<BigDecimal> matrix2 = allOneMatrix(dimension, dimension - 1, precision);
-          Application<List<Vector<BigDecimal>>, ProtocolBuilderNumeric> testApplication1 = root -> {
+          Application<List<ArrayList<BigDecimal>>, ProtocolBuilderNumeric> testApplication1 = root -> {
             DRes<Matrix<DRes<SReal>>> closedMatrix = root.realLinAlg().input(matrix1, 1);
             root.realLinAlg().mult(matrix2, closedMatrix);
             return () -> null;
@@ -485,8 +484,8 @@ public class LinearAlgebraTests {
     }
   }
 
-  private static Vector<BigDecimal> allOneVector(int dimension, int precision) {
-    Vector<BigDecimal> vector = new Vector<>(dimension);
+  private static ArrayList<BigDecimal> allOneArrayList(int dimension, int precision) {
+    ArrayList<BigDecimal> vector = new ArrayList<>(dimension);
     for (int i = 0; i < dimension; i++) {
       vector.add(BigDecimal.ONE.setScale(precision));
     }
