@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.RowPairD;
@@ -161,12 +162,9 @@ public interface Collections extends ComputationDirectory {
    * implementation leaks equality of values in column
    * <code>groupColIdx</code> and the size of the result.
    *
-   * @param values rows to be aggregated
-   * @param groupColIdx column to group by
-   * @param aggColIdx column to aggregate
+   * @param aggregation aggregation computation
    * @return aggregated result
    */
-  DRes<Matrix<DRes<SInt>>> leakyAggregateSum(DRes<Matrix<DRes<SInt>>> values,
-      int groupColIdx, int aggColIdx);
+  DRes<Matrix<DRes<SInt>>> leakyAggregateSum(Computation<Matrix<DRes<SInt>>, ProtocolBuilderNumeric> aggregation);
 
 }

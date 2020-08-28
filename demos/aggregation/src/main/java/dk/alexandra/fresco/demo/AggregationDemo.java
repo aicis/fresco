@@ -3,6 +3,7 @@ package dk.alexandra.fresco.demo;
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
@@ -10,6 +11,7 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
+import dk.alexandra.fresco.lib.crypto.mimc.MiMCAggregation;
 import dk.alexandra.fresco.lib.collections.MatrixUtils;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
@@ -75,8 +77,9 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
         // if we aren't player 1 we need to provide the expected size of the input
         closed = root.collections().closeMatrix(8, 2, 1);
       }
+      Computation<Matrix<DRes<SInt>>, ProtocolBuilderNumeric> aggregation = new MiMCAggregation(closed,groupByIdx,aggIdx);
       DRes<Matrix<DRes<SInt>>> aggregated =
-          root.collections().leakyAggregateSum(closed, groupByIdx, aggIdx);
+          root.collections().leakyAggregateSum(aggregation);
       DRes<Matrix<DRes<BigInteger>>> opened = root.collections().openMatrix(aggregated);
       return () -> new MatrixUtils().unwrapMatrix(opened);
     };

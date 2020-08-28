@@ -1,16 +1,17 @@
 package dk.alexandra.fresco.lib.crypto.mimc;
 
-import static dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryption.USE_DEFAULT_ROUNDS;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
+
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+
+import static dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryption.USE_DEFAULT_ROUNDS;
 
 /**
  * MPC Decryption of an already MIMC encrypted number. See {@link MiMCEncryption} for more

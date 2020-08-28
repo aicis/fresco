@@ -15,6 +15,11 @@
       <artifactId>demos-common</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>mimc</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
   
   <build>

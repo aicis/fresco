@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.arithmetic;
+package dk.alexandra.fresco.lib.crypto.mimc;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
@@ -9,12 +9,9 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.crypto.mimc.MiMCDecryption;
-import dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryption;
-import dk.alexandra.fresco.lib.crypto.mimc.MimcDecryptionReducedRounds;
-import dk.alexandra.fresco.lib.crypto.mimc.MimcEncryptionReducedRounds;
-import java.math.BigInteger;
 import org.junit.Assert;
+
+import java.math.BigInteger;
 
 public class MiMCTests {
 

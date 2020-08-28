@@ -1,11 +1,11 @@
-package dk.alexandra.fresco.lib.collections.relational;
+package dk.alexandra.fresco.lib.crypto.mimc;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
-import dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryption;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +18,18 @@ public class MiMCAggregation implements Computation<Matrix<DRes<SInt>>, Protocol
   private final DRes<Matrix<DRes<SInt>>> values;
   private final int groupColIdx;
   private final int aggColIdx;
+
+  /**
+   * Performs a SQL-like group-by sum operation. Groups rows by column <code>groupColIdx</code> and
+   * sums values in resulting groups in column <code>aggColIdx</code>. <br> NOTE: this particular
+   * implementation leaks equality of values in column
+   * <code>groupColIdx</code> and the size of the result.
+   *
+   * @param values rows to be aggregated
+   * @param groupColIdx column to group by
+   * @param aggColIdx column to aggregate
+   * @return aggregated result
+   */
 
   public MiMCAggregation(DRes<Matrix<DRes<SInt>>> values, int groupColIdx, int aggColIdx) {
     super();

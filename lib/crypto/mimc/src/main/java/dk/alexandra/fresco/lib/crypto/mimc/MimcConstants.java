@@ -3,6 +3,7 @@ package dk.alexandra.fresco.lib.crypto.mimc;
 import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drng;
 import dk.alexandra.fresco.framework.util.DrngImpl;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;

@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.RowPairD;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -12,7 +13,6 @@ import dk.alexandra.fresco.lib.collections.io.OpenMatrix;
 import dk.alexandra.fresco.lib.collections.io.OpenPair;
 import dk.alexandra.fresco.lib.collections.io.OpenRowPair;
 import dk.alexandra.fresco.lib.collections.permute.PermuteRows;
-import dk.alexandra.fresco.lib.collections.relational.MiMCAggregation;
 import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRows;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelectRow;
 import dk.alexandra.fresco.lib.conditional.SwapNeighborsIf;
@@ -107,9 +107,8 @@ public class DefaultCollections implements Collections {
   }
 
   @Override
-  public DRes<Matrix<DRes<SInt>>> leakyAggregateSum(DRes<Matrix<DRes<SInt>>> values,
-      int groupColIdx, int aggColIdx) {
-    return builder.seq(new MiMCAggregation(values, groupColIdx, aggColIdx));
+  public DRes<Matrix<DRes<SInt>>> leakyAggregateSum(Computation<Matrix<DRes<SInt>>, ProtocolBuilderNumeric> aggregation) {
+    return builder.seq(aggregation);
   }
 
 }

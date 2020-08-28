@@ -1,20 +1,22 @@
-package dk.alexandra.fresco.lib.collections.relational;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+package dk.alexandra.fresco.lib.crypto.mimc;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.MatrixTestUtils;
 import dk.alexandra.fresco.lib.collections.MatrixUtils;
+
 import java.math.BigInteger;
 import java.util.Collections;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class LeakyAggregationTests {
 
@@ -37,8 +39,9 @@ public class LeakyAggregationTests {
           // define functionality to be tested
           Application<Matrix<BigInteger>, ProtocolBuilderNumeric> testApplication = root -> {
             DRes<Matrix<DRes<SInt>>> closed = root.collections().closeMatrix(input, 1);
+              Computation<Matrix<DRes<SInt>>, ProtocolBuilderNumeric> aggregation = new MiMCAggregation(closed, 0, 1);
             DRes<Matrix<DRes<SInt>>> aggregated =
-                root.collections().leakyAggregateSum(closed, 0, 1);
+                root.collections().leakyAggregateSum(aggregation);
             DRes<Matrix<DRes<BigInteger>>> opened = root.collections().openMatrix(aggregated);
             return () -> new MatrixUtils().unwrapMatrix(opened);
           };
@@ -99,3 +102,4 @@ public class LeakyAggregationTests {
     return new TestLeakyAggregationGeneric<>(input, expected);
   }
 }
+
