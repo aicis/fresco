@@ -154,17 +154,4 @@ public interface Collections extends ComputationDirectory {
    */
   DRes<Matrix<DRes<SInt>>> shuffle(DRes<Matrix<DRes<SInt>>> values);
 
-  // Relational (SQL-like) operators
-
-  /**
-   * Performs a SQL-like group-by sum operation. Groups rows by column <code>groupColIdx</code> and
-   * sums values in resulting groups in column <code>aggColIdx</code>. <br> NOTE: this particular
-   * implementation leaks equality of values in column
-   * <code>groupColIdx</code> and the size of the result.
-   *
-   * @param aggregation aggregation computation
-   * @return aggregated result
-   */
-  DRes<Matrix<DRes<SInt>>> leakyAggregateSum(Computation<Matrix<DRes<SInt>>, ProtocolBuilderNumeric> aggregation);
-
 }

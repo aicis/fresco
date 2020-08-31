@@ -105,10 +105,4 @@ public class DefaultCollections implements Collections {
   public DRes<Matrix<DRes<SInt>>> shuffle(DRes<Matrix<DRes<SInt>>> values) {
     return builder.seq(new ShuffleRows(values));
   }
-
-  @Override
-  public DRes<Matrix<DRes<SInt>>> leakyAggregateSum(Computation<Matrix<DRes<SInt>>, ProtocolBuilderNumeric> aggregation) {
-    return builder.seq(aggregation);
-  }
-
 }

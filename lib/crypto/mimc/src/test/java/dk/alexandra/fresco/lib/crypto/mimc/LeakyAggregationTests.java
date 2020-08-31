@@ -39,9 +39,8 @@ public class LeakyAggregationTests {
           // define functionality to be tested
           Application<Matrix<BigInteger>, ProtocolBuilderNumeric> testApplication = root -> {
             DRes<Matrix<DRes<SInt>>> closed = root.collections().closeMatrix(input, 1);
-              Computation<Matrix<DRes<SInt>>, ProtocolBuilderNumeric> aggregation = new MiMCAggregation(closed, 0, 1);
             DRes<Matrix<DRes<SInt>>> aggregated =
-                root.collections().leakyAggregateSum(aggregation);
+                root.seq(new MiMCAggregation(closed, 0, 1));
             DRes<Matrix<DRes<BigInteger>>> opened = root.collections().openMatrix(aggregated);
             return () -> new MatrixUtils().unwrapMatrix(opened);
           };
