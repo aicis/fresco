@@ -77,9 +77,8 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
         // if we aren't player 1 we need to provide the expected size of the input
         closed = root.collections().closeMatrix(8, 2, 1);
       }
-      Computation<Matrix<DRes<SInt>>, ProtocolBuilderNumeric> aggregation = new MiMCAggregation(closed,groupByIdx,aggIdx);
       DRes<Matrix<DRes<SInt>>> aggregated =
-          root.collections().leakyAggregateSum(aggregation);
+          root.seq(new MiMCAggregation(closed,groupByIdx,aggIdx));
       DRes<Matrix<DRes<BigInteger>>> opened = root.collections().openMatrix(aggregated);
       return () -> new MatrixUtils().unwrapMatrix(opened);
     };
