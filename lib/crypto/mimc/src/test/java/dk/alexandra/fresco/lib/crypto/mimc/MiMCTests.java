@@ -9,9 +9,8 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import org.junit.Assert;
-
 import java.math.BigInteger;
+import org.junit.Assert;
 
 public class MiMCTests {
 

@@ -11,7 +11,6 @@ import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRows;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelectRow;
 import dk.alexandra.fresco.lib.conditional.SwapNeighborsIf;
 import dk.alexandra.fresco.lib.conditional.SwapRowsIf;
-
 import java.math.BigInteger;
 import java.util.List;
 
