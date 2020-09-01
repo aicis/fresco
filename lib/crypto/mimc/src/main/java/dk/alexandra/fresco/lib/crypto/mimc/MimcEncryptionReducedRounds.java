@@ -8,16 +8,14 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
 /**
- * A version of MiMC with a reduced number of rounds suitable when using as PRF. As described in
- * <a href="https://eprint.iacr.org/2016/542.pdf">MPC-Friendly Symmetric Key Primitives</a> of
- * Grassi <i>et al.</i>.
+ * A version of MiMC with a reduced number of rounds suitable when using as PRF. As described in <a
+ * href="https://eprint.iacr.org/2016/542.pdf">MPC-Friendly Symmetric Key Primitives</a> of Grassi
+ * <i>et al.</i>.
  *
- * <p>
- * As described above this implementation is suitable only when using MIMC as an PRF and an
+ * <p>As described above this implementation is suitable only when using MIMC as an PRF and an
  * adversary has access to at most <i>n</i> ciphertexts where <i>&lceil;log<sub>3</sub>(n)&rceil;
  * &lt; &lceil;log<sub>3</sub>(p) - 2log<sub>3</sub>(log<sub>3</sub>(p))&rceil;</i>, where <i>p</i>
  * is the modulus.
- * </p>
  */
 public class MimcEncryptionReducedRounds implements Computation<SInt, ProtocolBuilderNumeric> {
 
@@ -28,11 +26,9 @@ public class MimcEncryptionReducedRounds implements Computation<SInt, ProtocolBu
   /**
    * Reduced round MiMC encryption.
    *
-   * <p>
-   * This implementation is suitable only when using MIMC as an PRF and an adversary has access to
-   * at most <i>n</i> ciphertexts where <i>&lceil;log<sub>3</sub>(n)&rceil; &lt;
+   * <p>This implementation is suitable only when using MIMC as an PRF and an adversary has access
+   * to at most <i>n</i> ciphertexts where <i>&lceil;log<sub>3</sub>(n)&rceil; &lt;
    * &lceil;log<sub>3</sub>(p) - 2log<sub>3</sub>(log<sub>3</sub>(p))&rceil;</i>
-   * </p>
    *
    * @param plainText the plain text to encrypt.
    * @param encryptionKey the symmetric key used to encrypt.
@@ -58,5 +54,4 @@ public class MimcEncryptionReducedRounds implements Computation<SInt, ProtocolBu
     double logThreeMod = Math.log(modulus.doubleValue()) / LOG_THREE;
     return (int) Math.ceil(logThreeMod - 2 * (Math.log(logThreeMod) / LOG_THREE));
   }
-
 }

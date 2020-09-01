@@ -21,16 +21,15 @@ public class MiMCAggregation implements Computation<Matrix<DRes<SInt>>, Protocol
 
   /**
    * Performs a SQL-like group-by sum operation. Groups rows by column <code>groupColIdx</code> and
-   * sums values in resulting groups in column <code>aggColIdx</code>. <br> NOTE: this particular
-   * implementation leaks equality of values in column
-   * <code>groupColIdx</code> and the size of the result.
+   * sums values in resulting groups in column <code>aggColIdx</code>. <br>
+   * NOTE: this particular implementation leaks equality of values in column <code>groupColIdx
+   * </code> and the size of the result.
    *
    * @param values rows to be aggregated
    * @param groupColIdx column to group by
    * @param aggColIdx column to aggregate
    * @return aggregated result
    */
-
   public MiMCAggregation(DRes<Matrix<DRes<SInt>>> values, int groupColIdx, int aggColIdx) {
     super();
     this.values = values;
@@ -38,8 +37,8 @@ public class MiMCAggregation implements Computation<Matrix<DRes<SInt>>, Protocol
     this.aggColIdx = aggColIdx;
   }
 
-  private Matrix<DRes<SInt>> toMatrix(Map<BigInteger, DRes<SInt>> groupedByCipher,
-      Map<BigInteger, DRes<SInt>> cipherToShare) {
+  private Matrix<DRes<SInt>> toMatrix(
+      Map<BigInteger, DRes<SInt>> groupedByCipher, Map<BigInteger, DRes<SInt>> cipherToShare) {
     ArrayList<ArrayList<DRes<SInt>>> result = new ArrayList<>(groupedByCipher.size());
     for (Entry<BigInteger, DRes<SInt>> keyAndValues : groupedByCipher.entrySet()) {
       ArrayList<DRes<SInt>> row = new ArrayList<>(2);
@@ -56,42 +55,48 @@ public class MiMCAggregation implements Computation<Matrix<DRes<SInt>>, Protocol
     DRes<Matrix<DRes<SInt>>> shuffled = builder.collections().shuffle(values);
     // generate encryption key
     DRes<SInt> mimcKey = builder.numeric().randomElement();
-    return builder.par(par -> {
-      Matrix<DRes<SInt>> inputRows = shuffled.out();
-      // encrypt values in group by column and reveal cipher text
-      List<TripleWithCipher> ciphers = new ArrayList<>(inputRows.getHeight());
-      for (final ArrayList<DRes<SInt>> row : inputRows.getRows()) {
-        DRes<SInt> groupBy = row.get(groupColIdx);
-        DRes<SInt> aggOn = row.get(aggColIdx);
-        // encrypt and open groupBy
-        DRes<BigInteger> openedCipher = par.seq((seq -> {
-          // TODO: encryption should be on a directory
-          DRes<SInt> cipherText = seq.seq(new MiMCEncryption(groupBy, mimcKey));
-          return seq.numeric().open(cipherText);
-        }));
-        ciphers.add(new TripleWithCipher(groupBy, aggOn, openedCipher));
-      }
-      return () -> ciphers;
-    }).seq((seq, triples) -> {
-      // use cipher texts to perform aggregation "in-the-clear"
-      Map<BigInteger, DRes<SInt>> groupedByCipher = new HashMap<>();
-      Map<BigInteger, DRes<SInt>> cipherToShare = new HashMap<>();
+    return builder
+        .par(
+            par -> {
+              Matrix<DRes<SInt>> inputRows = shuffled.out();
+              // encrypt values in group by column and reveal cipher text
+              List<TripleWithCipher> ciphers = new ArrayList<>(inputRows.getHeight());
+              for (final ArrayList<DRes<SInt>> row : inputRows.getRows()) {
+                DRes<SInt> groupBy = row.get(groupColIdx);
+                DRes<SInt> aggOn = row.get(aggColIdx);
+                // encrypt and open groupBy
+                DRes<BigInteger> openedCipher =
+                    par.seq(
+                        (seq -> {
+                          // TODO: encryption should be on a directory
+                          DRes<SInt> cipherText = seq.seq(new MiMCEncryption(groupBy, mimcKey));
+                          return seq.numeric().open(cipherText);
+                        }));
+                ciphers.add(new TripleWithCipher(groupBy, aggOn, openedCipher));
+              }
+              return () -> ciphers;
+            })
+        .seq(
+            (seq, triples) -> {
+              // use cipher texts to perform aggregation "in-the-clear"
+              Map<BigInteger, DRes<SInt>> groupedByCipher = new HashMap<>();
+              Map<BigInteger, DRes<SInt>> cipherToShare = new HashMap<>();
 
-      for (TripleWithCipher triple : triples) {
-        BigInteger cipher = triple.getCipher().out();
-        DRes<SInt> key = triple.getKey();
-        DRes<SInt> value = triple.getValue();
+              for (TripleWithCipher triple : triples) {
+                BigInteger cipher = triple.getCipher().out();
+                DRes<SInt> key = triple.getKey();
+                DRes<SInt> value = triple.getValue();
 
-        if (!groupedByCipher.containsKey(cipher)) {
-          groupedByCipher.put(cipher, value);
-          cipherToShare.put(cipher, key);
-        } else {
-          DRes<SInt> subTotal = seq.numeric().add(groupedByCipher.get(cipher), value);
-          groupedByCipher.put(cipher, subTotal);
-        }
-      }
-      return () -> toMatrix(groupedByCipher, cipherToShare);
-    });
+                if (!groupedByCipher.containsKey(cipher)) {
+                  groupedByCipher.put(cipher, value);
+                  cipherToShare.put(cipher, key);
+                } else {
+                  DRes<SInt> subTotal = seq.numeric().add(groupedByCipher.get(cipher), value);
+                  groupedByCipher.put(cipher, subTotal);
+                }
+              }
+              return () -> toMatrix(groupedByCipher, cipherToShare);
+            });
   }
 
   private class TripleWithCipher extends Triple<DRes<SInt>, DRes<SInt>, DRes<BigInteger>> {
@@ -99,7 +104,6 @@ public class MiMCAggregation implements Computation<Matrix<DRes<SInt>>, Protocol
     public TripleWithCipher(DRes<SInt> key, DRes<SInt> value, DRes<BigInteger> cipher) {
       super(key, value, cipher);
     }
-
   }
 
   private class Triple<K, V, C> {
@@ -125,7 +129,5 @@ public class MiMCAggregation implements Computation<Matrix<DRes<SInt>>, Protocol
     public C getCipher() {
       return cipher;
     }
-
   }
-
 }

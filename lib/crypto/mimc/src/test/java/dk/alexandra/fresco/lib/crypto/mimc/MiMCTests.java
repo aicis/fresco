@@ -31,23 +31,26 @@ public class MiMCTests {
         @Override
         public void test() throws Exception {
 
-          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = builder -> {
-            Numeric intFactory = builder.numeric();
-            DRes<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
-            DRes<SInt> plainText = intFactory.known(BigInteger.TEN);
-            DRes<SInt> cipherText;
-            DRes<SInt> cipherText2;
-            if (reduced) {
-              cipherText = builder.seq(new MimcEncryptionReducedRounds(plainText, encryptionKey));
-              cipherText2 = builder.seq(new MimcEncryptionReducedRounds(plainText, encryptionKey));
-            } else {
-              cipherText = builder.seq(new MiMCEncryption(plainText, encryptionKey));
-              cipherText2 = builder.seq(new MiMCEncryption(plainText, encryptionKey));
-            }
-            DRes<BigInteger> result1 = builder.numeric().open(cipherText);
-            DRes<BigInteger> result2 = builder.numeric().open(cipherText2);
-            return () -> new Pair<>(result1.out(), result2.out());
-          };
+          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app =
+              builder -> {
+                Numeric intFactory = builder.numeric();
+                DRes<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
+                DRes<SInt> plainText = intFactory.known(BigInteger.TEN);
+                DRes<SInt> cipherText;
+                DRes<SInt> cipherText2;
+                if (reduced) {
+                  cipherText =
+                      builder.seq(new MimcEncryptionReducedRounds(plainText, encryptionKey));
+                  cipherText2 =
+                      builder.seq(new MimcEncryptionReducedRounds(plainText, encryptionKey));
+                } else {
+                  cipherText = builder.seq(new MiMCEncryption(plainText, encryptionKey));
+                  cipherText2 = builder.seq(new MiMCEncryption(plainText, encryptionKey));
+                }
+                DRes<BigInteger> result1 = builder.numeric().open(cipherText);
+                DRes<BigInteger> result2 = builder.numeric().open(cipherText2);
+                return () -> new Pair<>(result1.out(), result2.out());
+              };
 
           Pair<BigInteger, BigInteger> result = runApplication(app);
 
@@ -73,24 +76,27 @@ public class MiMCTests {
         @Override
         public void test() throws Exception {
 
-          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = builder -> {
-            Numeric intFactory = builder.numeric();
-            DRes<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
-            DRes<SInt> plainTextA = intFactory.known(BigInteger.valueOf(10));
-            DRes<SInt> plainTextB = intFactory.known(BigInteger.valueOf(11));
-            DRes<SInt> cipherTextA = null;
-            DRes<SInt> cipherTextB = null;
-            if (reduced) {
-              cipherTextA = builder.seq(new MimcEncryptionReducedRounds(plainTextA, encryptionKey));
-              cipherTextB = builder.seq(new MimcEncryptionReducedRounds(plainTextB, encryptionKey));
-            } else {
-              cipherTextA = builder.seq(new MiMCEncryption(plainTextA, encryptionKey));
-              cipherTextB = builder.seq(new MiMCEncryption(plainTextB, encryptionKey));
-            }
-            DRes<BigInteger> resultA = builder.numeric().open(cipherTextA);
-            DRes<BigInteger> resultB = builder.numeric().open(cipherTextB);
-            return () -> new Pair<>(resultA.out(), resultB.out());
-          };
+          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app =
+              builder -> {
+                Numeric intFactory = builder.numeric();
+                DRes<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
+                DRes<SInt> plainTextA = intFactory.known(BigInteger.valueOf(10));
+                DRes<SInt> plainTextB = intFactory.known(BigInteger.valueOf(11));
+                DRes<SInt> cipherTextA = null;
+                DRes<SInt> cipherTextB = null;
+                if (reduced) {
+                  cipherTextA =
+                      builder.seq(new MimcEncryptionReducedRounds(plainTextA, encryptionKey));
+                  cipherTextB =
+                      builder.seq(new MimcEncryptionReducedRounds(plainTextB, encryptionKey));
+                } else {
+                  cipherTextA = builder.seq(new MiMCEncryption(plainTextA, encryptionKey));
+                  cipherTextB = builder.seq(new MiMCEncryption(plainTextB, encryptionKey));
+                }
+                DRes<BigInteger> resultA = builder.numeric().open(cipherTextA);
+                DRes<BigInteger> resultB = builder.numeric().open(cipherTextB);
+                return () -> new Pair<>(resultA.out(), resultB.out());
+              };
 
           Pair<BigInteger, BigInteger> result = runApplication(app);
 
@@ -117,21 +123,23 @@ public class MiMCTests {
         @Override
         public void test() throws Exception {
           BigInteger ten = BigInteger.TEN;
-          Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
-            Numeric intFactory = builder.numeric();
-            DRes<SInt> encryptionKey = intFactory.known(BigInteger.TEN);
-            DRes<SInt> plainText = intFactory.known(ten);
-            DRes<SInt> decrypted = null;
-            if (reduced) {
-              DRes<SInt> cipherText =
-                  builder.seq(new MimcEncryptionReducedRounds(plainText, encryptionKey));
-              decrypted = builder.seq(new MimcDecryptionReducedRounds(cipherText, encryptionKey));
-            } else {
-              DRes<SInt> cipherText = builder.seq(new MiMCEncryption(plainText, encryptionKey));
-              decrypted = builder.seq(new MiMCDecryption(cipherText, encryptionKey));
-            }
-            return builder.numeric().open(decrypted);
-          };
+          Application<BigInteger, ProtocolBuilderNumeric> app =
+              builder -> {
+                Numeric intFactory = builder.numeric();
+                DRes<SInt> encryptionKey = intFactory.known(BigInteger.TEN);
+                DRes<SInt> plainText = intFactory.known(ten);
+                DRes<SInt> decrypted = null;
+                if (reduced) {
+                  DRes<SInt> cipherText =
+                      builder.seq(new MimcEncryptionReducedRounds(plainText, encryptionKey));
+                  decrypted =
+                      builder.seq(new MimcDecryptionReducedRounds(cipherText, encryptionKey));
+                } else {
+                  DRes<SInt> cipherText = builder.seq(new MiMCEncryption(plainText, encryptionKey));
+                  decrypted = builder.seq(new MiMCDecryption(cipherText, encryptionKey));
+                }
+                return builder.numeric().open(decrypted);
+              };
 
           BigInteger result = runApplication(app);
           Assert.assertEquals(ten, result);
@@ -150,14 +158,17 @@ public class MiMCTests {
         @Override
         public void test() throws Exception {
           BigInteger ten = BigInteger.TEN;
-          Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
-            Numeric intFactory = builder.numeric();
-            DRes<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527619));
-            DRes<SInt> plainText = intFactory.known(ten);
-            DRes<SInt> cipherText = builder.seq(new MiMCEncryption(plainText, encryptionKey, 17));
-            DRes<SInt> decrypted = builder.seq(new MiMCDecryption(cipherText, encryptionKey, 17));
-            return builder.numeric().open(decrypted);
-          };
+          Application<BigInteger, ProtocolBuilderNumeric> app =
+              builder -> {
+                Numeric intFactory = builder.numeric();
+                DRes<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527619));
+                DRes<SInt> plainText = intFactory.known(ten);
+                DRes<SInt> cipherText =
+                    builder.seq(new MiMCEncryption(plainText, encryptionKey, 17));
+                DRes<SInt> decrypted =
+                    builder.seq(new MiMCDecryption(cipherText, encryptionKey, 17));
+                return builder.numeric().open(decrypted);
+              };
 
           BigInteger result = runApplication(app);
           Assert.assertEquals(ten, result);

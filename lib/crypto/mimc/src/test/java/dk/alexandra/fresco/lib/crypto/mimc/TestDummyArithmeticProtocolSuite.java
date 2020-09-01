@@ -8,8 +8,6 @@ import org.junit.Test;
 
 public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTest {
 
-
-
   @Test
   public void test_leaky_aggregate_two() {
     runTest(LeakyAggregationTests.aggregate(), new TestParameters().numParties(2));
@@ -29,7 +27,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_leaky_aggregate_empty() {
     runTest(LeakyAggregationTests.aggregateEmpty(), new TestParameters().numParties(2));
   }
-
 
   @Test
   public void test_MiMC_DifferentPlainTexts() {
@@ -53,24 +50,21 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_MiMC_EncDec_Reduced() {
-    runTest(new MiMCTests.TestMiMCEncDec<>(true), new TestParameters()
-        .field(getModulus(512)));
+    runTest(new MiMCTests.TestMiMCEncDec<>(true), new TestParameters().field(getModulus(512)));
   }
 
   @Test
   public void test_MiMC_EncDec() {
-    runTest(new MiMCTests.TestMiMCEncDec<>(false), new TestParameters()
-        .field(getModulus(512)));
+    runTest(new MiMCTests.TestMiMCEncDec<>(false), new TestParameters().field(getModulus(512)));
   }
 
   @Test
   public void test_MiMC_EncDecFixedRounds() {
-    runTest(new MiMCTests.TestMiMCEncDecFixedRounds<>(), new TestParameters()
-        .field(getModulus(512)));
+    runTest(
+        new MiMCTests.TestMiMCEncDecFixedRounds<>(), new TestParameters().field(getModulus(512)));
   }
 
   private FieldDefinition getModulus(int i) {
     return new BigIntegerFieldDefinition(ModulusFinder.findSuitableModulus(i));
   }
-
 }

@@ -37,13 +37,13 @@ public class LeakyAggregationTests {
         @Override
         public void test() throws Exception {
           // define functionality to be tested
-          Application<Matrix<BigInteger>, ProtocolBuilderNumeric> testApplication = root -> {
-            DRes<Matrix<DRes<SInt>>> closed = root.collections().closeMatrix(input, 1);
-            DRes<Matrix<DRes<SInt>>> aggregated =
-                root.seq(new MiMCAggregation(closed, 0, 1));
-            DRes<Matrix<DRes<BigInteger>>> opened = root.collections().openMatrix(aggregated);
-            return () -> new MatrixUtils().unwrapMatrix(opened);
-          };
+          Application<Matrix<BigInteger>, ProtocolBuilderNumeric> testApplication =
+              root -> {
+                DRes<Matrix<DRes<SInt>>> closed = root.collections().closeMatrix(input, 1);
+                DRes<Matrix<DRes<SInt>>> aggregated = root.seq(new MiMCAggregation(closed, 0, 1));
+                DRes<Matrix<DRes<BigInteger>>> opened = root.collections().openMatrix(aggregated);
+                return () -> new MatrixUtils().unwrapMatrix(opened);
+              };
           Matrix<BigInteger> actual = runApplication(testApplication);
           // sort by key to undo shuffling
           // (keys are guaranteed to be unique)
@@ -54,51 +54,61 @@ public class LeakyAggregationTests {
     }
   }
 
-  public static <ResourcePoolT extends ResourcePool> TestLeakyAggregationGeneric<ResourcePoolT> aggregate() {
+  public static <ResourcePoolT extends ResourcePool>
+      TestLeakyAggregationGeneric<ResourcePoolT> aggregate() {
     MatrixTestUtils utils = new MatrixTestUtils();
-    BigInteger[][] rawRows = {{BigInteger.valueOf(1), BigInteger.valueOf(7), BigInteger.valueOf(8)},
-        {BigInteger.valueOf(1), BigInteger.valueOf(19), BigInteger.valueOf(20)},
-        {BigInteger.valueOf(1), BigInteger.valueOf(10), BigInteger.valueOf(11)},
-        {BigInteger.valueOf(1), BigInteger.valueOf(4), BigInteger.valueOf(5)},
-        {BigInteger.valueOf(2), BigInteger.valueOf(13), BigInteger.valueOf(14)},
-        {BigInteger.valueOf(2), BigInteger.valueOf(1), BigInteger.valueOf(2)},
-        {BigInteger.valueOf(2), BigInteger.valueOf(22), BigInteger.valueOf(23)},
-        {BigInteger.valueOf(2), BigInteger.valueOf(16), BigInteger.valueOf(17)}};
+    BigInteger[][] rawRows = {
+      {BigInteger.valueOf(1), BigInteger.valueOf(7), BigInteger.valueOf(8)},
+      {BigInteger.valueOf(1), BigInteger.valueOf(19), BigInteger.valueOf(20)},
+      {BigInteger.valueOf(1), BigInteger.valueOf(10), BigInteger.valueOf(11)},
+      {BigInteger.valueOf(1), BigInteger.valueOf(4), BigInteger.valueOf(5)},
+      {BigInteger.valueOf(2), BigInteger.valueOf(13), BigInteger.valueOf(14)},
+      {BigInteger.valueOf(2), BigInteger.valueOf(1), BigInteger.valueOf(2)},
+      {BigInteger.valueOf(2), BigInteger.valueOf(22), BigInteger.valueOf(23)},
+      {BigInteger.valueOf(2), BigInteger.valueOf(16), BigInteger.valueOf(17)}
+    };
     Matrix<BigInteger> input = utils.getInputMatrix(rawRows);
-    BigInteger[][] expectedRows = {{BigInteger.valueOf(1), BigInteger.valueOf(40)},
-        {BigInteger.valueOf(2), BigInteger.valueOf(52)}};
+    BigInteger[][] expectedRows = {
+      {BigInteger.valueOf(1), BigInteger.valueOf(40)},
+      {BigInteger.valueOf(2), BigInteger.valueOf(52)}
+    };
     Matrix<BigInteger> expected = utils.getInputMatrix(expectedRows);
     return new TestLeakyAggregationGeneric<>(input, expected);
   }
 
-  public static <ResourcePoolT extends ResourcePool> TestLeakyAggregationGeneric<ResourcePoolT> aggregateUniqueKeys() {
+  public static <ResourcePoolT extends ResourcePool>
+      TestLeakyAggregationGeneric<ResourcePoolT> aggregateUniqueKeys() {
     MatrixTestUtils utils = new MatrixTestUtils();
-    BigInteger[][] rawRows = {{BigInteger.valueOf(1), BigInteger.valueOf(7), BigInteger.valueOf(8)},
-        {BigInteger.valueOf(2), BigInteger.valueOf(19), BigInteger.valueOf(20)},
-        {BigInteger.valueOf(3), BigInteger.valueOf(10), BigInteger.valueOf(11)},
-        {BigInteger.valueOf(4), BigInteger.valueOf(4), BigInteger.valueOf(5)},
-        {BigInteger.valueOf(5), BigInteger.valueOf(13), BigInteger.valueOf(14)},
-        {BigInteger.valueOf(6), BigInteger.valueOf(1), BigInteger.valueOf(2)},
-        {BigInteger.valueOf(7), BigInteger.valueOf(22), BigInteger.valueOf(23)},
-        {BigInteger.valueOf(8), BigInteger.valueOf(16), BigInteger.valueOf(17)}};
+    BigInteger[][] rawRows = {
+      {BigInteger.valueOf(1), BigInteger.valueOf(7), BigInteger.valueOf(8)},
+      {BigInteger.valueOf(2), BigInteger.valueOf(19), BigInteger.valueOf(20)},
+      {BigInteger.valueOf(3), BigInteger.valueOf(10), BigInteger.valueOf(11)},
+      {BigInteger.valueOf(4), BigInteger.valueOf(4), BigInteger.valueOf(5)},
+      {BigInteger.valueOf(5), BigInteger.valueOf(13), BigInteger.valueOf(14)},
+      {BigInteger.valueOf(6), BigInteger.valueOf(1), BigInteger.valueOf(2)},
+      {BigInteger.valueOf(7), BigInteger.valueOf(22), BigInteger.valueOf(23)},
+      {BigInteger.valueOf(8), BigInteger.valueOf(16), BigInteger.valueOf(17)}
+    };
     Matrix<BigInteger> input = utils.getInputMatrix(rawRows);
-    BigInteger[][] expectedRows = {{BigInteger.valueOf(1), BigInteger.valueOf(7)},
-        {BigInteger.valueOf(2), BigInteger.valueOf(19)},
-        {BigInteger.valueOf(3), BigInteger.valueOf(10)},
-        {BigInteger.valueOf(4), BigInteger.valueOf(4)},
-        {BigInteger.valueOf(5), BigInteger.valueOf(13)},
-        {BigInteger.valueOf(6), BigInteger.valueOf(1)},
-        {BigInteger.valueOf(7), BigInteger.valueOf(22)},
-        {BigInteger.valueOf(8), BigInteger.valueOf(16)}};
+    BigInteger[][] expectedRows = {
+      {BigInteger.valueOf(1), BigInteger.valueOf(7)},
+      {BigInteger.valueOf(2), BigInteger.valueOf(19)},
+      {BigInteger.valueOf(3), BigInteger.valueOf(10)},
+      {BigInteger.valueOf(4), BigInteger.valueOf(4)},
+      {BigInteger.valueOf(5), BigInteger.valueOf(13)},
+      {BigInteger.valueOf(6), BigInteger.valueOf(1)},
+      {BigInteger.valueOf(7), BigInteger.valueOf(22)},
+      {BigInteger.valueOf(8), BigInteger.valueOf(16)}
+    };
     Matrix<BigInteger> expected = utils.getInputMatrix(expectedRows);
     return new TestLeakyAggregationGeneric<>(input, expected);
   }
 
-  public static <ResourcePoolT extends ResourcePool> TestLeakyAggregationGeneric<ResourcePoolT> aggregateEmpty() {
+  public static <ResourcePoolT extends ResourcePool>
+      TestLeakyAggregationGeneric<ResourcePoolT> aggregateEmpty() {
     MatrixTestUtils utils = new MatrixTestUtils();
     Matrix<BigInteger> input = utils.getInputMatrix(0, 0);
     Matrix<BigInteger> expected = utils.getInputMatrix(0, 0);
     return new TestLeakyAggregationGeneric<>(input, expected);
   }
 }
-
