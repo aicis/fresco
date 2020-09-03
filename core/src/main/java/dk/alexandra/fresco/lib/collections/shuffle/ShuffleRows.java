@@ -27,14 +27,14 @@ public class ShuffleRows implements Computation<Matrix<DRes<SInt>>, ProtocolBuil
   }
 
   private int[] getIdxPerm(int n) {
-    List<Integer> indeces = new ArrayList<>();
+    List<Integer> indices = new ArrayList<>();
     for (int i = 0; i < n; i++) {
-      indeces.add(i);
+      indices.add(i);
     }
-    Collections.shuffle(indeces, rand);
-    int[] idxPerm = new int[indeces.size()];
-    for (int i = 0; i < indeces.size(); i++) {
-      idxPerm[indeces.get(i)] = i;
+    Collections.shuffle(indices, rand);
+    int[] idxPerm = new int[indices.size()];
+    for (int i = 0; i < indices.size(); i++) {
+      idxPerm[indices.get(i)] = i;
     }
     return idxPerm;
   }

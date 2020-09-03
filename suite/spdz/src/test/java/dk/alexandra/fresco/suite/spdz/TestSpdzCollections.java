@@ -8,7 +8,6 @@ import dk.alexandra.fresco.lib.collections.io.CloseListTests;
 import dk.alexandra.fresco.lib.collections.io.CloseMatrixTests;
 import dk.alexandra.fresco.lib.collections.permute.PermuteRows;
 import dk.alexandra.fresco.lib.collections.permute.PermuteRowsTests;
-import dk.alexandra.fresco.lib.collections.relational.LeakyAggregationTests;
 import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRowsTests;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import java.util.ArrayList;
@@ -80,24 +79,6 @@ public class TestSpdzCollections extends AbstractSpdzTest {
   @Test
   public void test_shuffle_rows_empty() {
     runTest(ShuffleRowsTests.shuffleRowsEmpty(),
-        PreprocessingStrategy.DUMMY, 2);
-  }
-
-  @Test
-  public void test_MiMC_aggregate_two() {
-    runTest(LeakyAggregationTests.aggregate(),
-        PreprocessingStrategy.DUMMY, 2);
-  }
-
-  @Test
-  public void test_MiMC_aggregate_three() {
-    runTest(LeakyAggregationTests.aggregate(),
-        PreprocessingStrategy.DUMMY, 3);
-  }
-
-  @Test
-  public void test_MiMC_aggregate_empty() {
-    runTest(LeakyAggregationTests.aggregateEmpty(),
         PreprocessingStrategy.DUMMY, 2);
   }
 }

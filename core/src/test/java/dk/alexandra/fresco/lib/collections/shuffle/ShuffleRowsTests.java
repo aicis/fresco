@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.lib.collections.shuffle;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
@@ -37,23 +36,43 @@ public class ShuffleRowsTests {
 
         @Override
         public void test() throws Exception {
-          Application<Matrix<BigInteger>, ProtocolBuilderNumeric> testApplication = root -> {
-            DRes<Matrix<DRes<SInt>>> closed = root.collections().closeMatrix(input, 1);
-            // use package-private constructor to fix randomness
-            DRes<Matrix<DRes<SInt>>> shuffled = root.seq(
-                new ShuffleRows(closed, new Random(42 + root.getBasicNumericContext().getMyId())));
-            DRes<Matrix<DRes<BigInteger>>> opened = root.collections().openMatrix(shuffled);
-            return () -> new MatrixUtils().unwrapMatrix(opened);
-          };
+          Application<Matrix<BigInteger>, ProtocolBuilderNumeric> testApplication =
+              root -> {
+                DRes<Matrix<DRes<SInt>>> closed = root.collections().closeMatrix(input, 1);
+                // use package-private constructor to fix randomness
+                DRes<Matrix<DRes<SInt>>> shuffled = root.collections().shuffle(closed);
+                DRes<Matrix<DRes<BigInteger>>> opened = root.collections().openMatrix(shuffled);
+                return () -> new MatrixUtils().unwrapMatrix(opened);
+              };
           Matrix<BigInteger> actual = runApplication(testApplication);
-          assertThat(actual.getRows(), is(expected.getRows()));
+          assertTrue(containsSameRows(actual.getRows(), expected.getRows()));
         }
       };
     }
   }
 
-  private static Matrix<BigInteger> clearTextShuffle(int[] pids, int seed,
-      Matrix<BigInteger> input) {
+  private static boolean containsSameRows(
+      ArrayList<ArrayList<BigInteger>> first, ArrayList<ArrayList<BigInteger>> second) {
+    for (ArrayList<BigInteger> row : first) {
+      if (!containsRow(second, row)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private static boolean containsRow(
+      ArrayList<ArrayList<BigInteger>> rows, ArrayList<BigInteger> row) {
+    for (ArrayList<BigInteger> r : rows) {
+      if (row.equals(r)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static Matrix<BigInteger> clearTextShuffle(
+      int[] pids, int seed, Matrix<BigInteger> input) {
     Random[] rands = new Random[pids.length];
     for (int i = 0; i < pids.length; i++) {
       rands[i] = new Random(seed + pids[i]);
@@ -66,7 +85,8 @@ public class ShuffleRowsTests {
   }
 
   // result depends on number of parties
-  public static <ResourcePoolT extends ResourcePool> TestShuffleRowsGeneric<ResourcePoolT> shuffleRowsTwoParties() {
+  public static <ResourcePoolT extends ResourcePool>
+      TestShuffleRowsGeneric<ResourcePoolT> shuffleRowsTwoParties() {
     // define input matrix
     MatrixTestUtils utils = new MatrixTestUtils();
     Matrix<BigInteger> input = utils.getInputMatrix(8, 3);
@@ -76,7 +96,8 @@ public class ShuffleRowsTests {
   }
 
   // result depends on number of parties
-  public static <ResourcePoolT extends ResourcePool> TestShuffleRowsGeneric<ResourcePoolT> shuffleRowsThreeParties() {
+  public static <ResourcePoolT extends ResourcePool>
+      TestShuffleRowsGeneric<ResourcePoolT> shuffleRowsThreeParties() {
     // define input matrix
     MatrixTestUtils utils = new MatrixTestUtils();
     Matrix<BigInteger> input = utils.getInputMatrix(8, 3);
@@ -85,7 +106,8 @@ public class ShuffleRowsTests {
     return new TestShuffleRowsGeneric<>(input, expected);
   }
 
-  public static <ResourcePoolT extends ResourcePool> TestShuffleRowsGeneric<ResourcePoolT> shuffleRowsEmpty() {
+  public static <ResourcePoolT extends ResourcePool>
+      TestShuffleRowsGeneric<ResourcePoolT> shuffleRowsEmpty() {
     // define input matrix
     MatrixTestUtils utils = new MatrixTestUtils();
     Matrix<BigInteger> input = utils.getInputMatrix(0, 0);

@@ -10,11 +10,9 @@ import java.util.List;
 /**
  * Deterministically seeded generator for MiMC round constants.
  *
- * <p>
- * Constants are sampled from a DRNG with seed set to 0 (this should be sufficiently "random" for
+ * <p>Constants are sampled from a DRNG with seed set to 0 (this should be sufficiently "random" for
  * MiMC). Each round constant is sampled in order of the round numbers. This should ensure that each
  * party samples the same round constants in the same order.
- * </p>
  */
 public final class MimcConstants implements MimcRoundConstantFactory {
 

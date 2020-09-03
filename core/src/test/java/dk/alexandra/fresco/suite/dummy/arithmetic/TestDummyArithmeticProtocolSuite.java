@@ -11,7 +11,6 @@ import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests.TestMinInfFrac;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
-import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.arithmetic.ParallelAndSequenceTests.TestSumAndProduct;
 import dk.alexandra.fresco.lib.arithmetic.SearchingTests;
 import dk.alexandra.fresco.lib.arithmetic.SortingTests;
@@ -20,7 +19,6 @@ import dk.alexandra.fresco.lib.collections.io.CloseListTests;
 import dk.alexandra.fresco.lib.collections.io.CloseMatrixTests;
 import dk.alexandra.fresco.lib.collections.permute.PermuteRows;
 import dk.alexandra.fresco.lib.collections.permute.PermuteRowsTests;
-import dk.alexandra.fresco.lib.collections.relational.LeakyAggregationTests;
 import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRowsTests;
 import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelectTests;
@@ -248,66 +246,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_shuffle_rows_empty() {
     runTest(ShuffleRowsTests.shuffleRowsEmpty(), new TestParameters().numParties(2));
-  }
-
-  @Test
-  public void test_leaky_aggregate_two() {
-    runTest(LeakyAggregationTests.aggregate(), new TestParameters().numParties(2));
-  }
-
-  @Test
-  public void test_leaky_aggregate_unique_keys_two() {
-    runTest(LeakyAggregationTests.aggregateUniqueKeys(), new TestParameters().numParties(2));
-  }
-
-  @Test
-  public void test_leaky_aggregate_three() {
-    runTest(LeakyAggregationTests.aggregate(), new TestParameters().numParties(3));
-  }
-
-  @Test
-  public void test_leaky_aggregate_empty() {
-    runTest(LeakyAggregationTests.aggregateEmpty(), new TestParameters().numParties(2));
-  }
-
-  //
-
-  @Test
-  public void test_MiMC_DifferentPlainTexts() {
-    runTest(new MiMCTests.TestMiMCDifferentPlainTexts<>(false), new TestParameters());
-  }
-
-  @Test
-  public void test_MiMC_DifferentPlainTexts_Reduced() {
-    runTest(new MiMCTests.TestMiMCDifferentPlainTexts<>(true), new TestParameters());
-  }
-
-  @Test
-  public void test_MiMC_EncSameEnc() {
-    runTest(new MiMCTests.TestMiMCEncSameEnc<>(false), new TestParameters());
-  }
-
-  @Test
-  public void test_MiMC_EncSameEncReduced() {
-    runTest(new MiMCTests.TestMiMCEncSameEnc<>(true), new TestParameters());
-  }
-
-  @Test
-  public void test_MiMC_EncDec_Reduced() {
-    runTest(new MiMCTests.TestMiMCEncDec<>(true), new TestParameters()
-        .field(getModulus(512)));
-  }
-
-  @Test
-  public void test_MiMC_EncDec() {
-    runTest(new MiMCTests.TestMiMCEncDec<>(false), new TestParameters()
-        .field(getModulus(512)));
-  }
-
-  @Test
-  public void test_MiMC_EncDecFixedRounds() {
-    runTest(new MiMCTests.TestMiMCEncDecFixedRounds<>(), new TestParameters()
-        .field(getModulus(512)));
   }
 
   // lib.list

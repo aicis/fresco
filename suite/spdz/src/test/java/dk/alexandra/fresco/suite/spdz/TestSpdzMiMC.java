@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
+import dk.alexandra.fresco.lib.crypto.mimc.MiMCTests;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import org.junit.Test;
 
@@ -54,5 +54,4 @@ public class TestSpdzMiMC extends AbstractSpdzTest {
     runTest(new MiMCTests.TestMiMCEncDec<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.MASCOT, 2, 16, 16, 4);
   }
-
 }

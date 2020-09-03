@@ -99,7 +99,7 @@ public class TestCmdLineUtil {
   }
 
   @Test
-  public void testSpdzAritmeticStaticFromCmdLine() throws IOException {
+  public void testSpdzAritmeticStaticFromCmdLine() throws IOException, InterruptedException {
     InitializeStorage
         .initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2, 1, 1, 1, 1,
             1);
@@ -115,7 +115,7 @@ public class TestCmdLineUtil {
   }
 
   @Test
-  public void testSpdzAritmeticMascotFromCmdLine() throws IOException {
+  public void testSpdzAritmeticMascotFromCmdLine() throws IOException, InterruptedException {
     CmdLineUtil<SpdzResourcePool, ProtocolBuilderNumeric> cmd =
             parseAndCloseNetwork("spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=MASCOT");
     assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);

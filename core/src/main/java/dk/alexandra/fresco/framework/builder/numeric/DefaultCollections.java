@@ -5,14 +5,8 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.RowPairD;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
-import dk.alexandra.fresco.lib.collections.io.CloseList;
-import dk.alexandra.fresco.lib.collections.io.CloseMatrix;
-import dk.alexandra.fresco.lib.collections.io.OpenList;
-import dk.alexandra.fresco.lib.collections.io.OpenMatrix;
-import dk.alexandra.fresco.lib.collections.io.OpenPair;
-import dk.alexandra.fresco.lib.collections.io.OpenRowPair;
+import dk.alexandra.fresco.lib.collections.io.*;
 import dk.alexandra.fresco.lib.collections.permute.PermuteRows;
-import dk.alexandra.fresco.lib.collections.relational.MiMCAggregation;
 import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRows;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelectRow;
 import dk.alexandra.fresco.lib.conditional.SwapNeighborsIf;
@@ -71,45 +65,36 @@ public class DefaultCollections implements Collections {
   }
 
   @Override
-  public <T extends DRes<SInt>> DRes<List<DRes<SInt>>> condSelect(DRes<SInt> condition,
-      DRes<List<T>> left,
-      DRes<List<T>> right) {
+  public <T extends DRes<SInt>> DRes<List<DRes<SInt>>> condSelect(
+      DRes<SInt> condition, DRes<List<T>> left, DRes<List<T>> right) {
     return builder.par(new ConditionalSelectRow<>(condition, left, right));
   }
 
   @Override
-  public <T extends DRes<SInt>> DRes<RowPairD<SInt, SInt>> swapIf(DRes<SInt> condition,
-      DRes<List<T>> left,
-      DRes<List<T>> right) {
+  public <T extends DRes<SInt>> DRes<RowPairD<SInt, SInt>> swapIf(
+      DRes<SInt> condition, DRes<List<T>> left, DRes<List<T>> right) {
     return builder.par(new SwapRowsIf<>(condition, left, right));
   }
 
   @Override
-  public <T extends DRes<SInt>> DRes<Matrix<DRes<SInt>>> swapNeighborsIf(DRes<List<T>> conditions,
-      DRes<Matrix<T>> rows) {
+  public <T extends DRes<SInt>> DRes<Matrix<DRes<SInt>>> swapNeighborsIf(
+      DRes<List<T>> conditions, DRes<Matrix<T>> rows) {
     return builder.par(new SwapNeighborsIf<>(conditions, rows));
   }
 
   @Override
   public DRes<Matrix<DRes<SInt>>> permute(DRes<Matrix<DRes<SInt>>> values, int[] idxPerm) {
-    return builder
-        .seq(new PermuteRows(values, idxPerm, builder.getBasicNumericContext().getMyId(), true));
+    return builder.seq(
+        new PermuteRows(values, idxPerm, builder.getBasicNumericContext().getMyId(), true));
   }
 
   @Override
   public DRes<Matrix<DRes<SInt>>> permute(DRes<Matrix<DRes<SInt>>> values, int permProviderPid) {
-    return builder.seq(new PermuteRows(values, new int[]{}, permProviderPid, false));
+    return builder.seq(new PermuteRows(values, new int[] {}, permProviderPid, false));
   }
 
   @Override
   public DRes<Matrix<DRes<SInt>>> shuffle(DRes<Matrix<DRes<SInt>>> values) {
     return builder.seq(new ShuffleRows(values));
   }
-
-  @Override
-  public DRes<Matrix<DRes<SInt>>> leakyAggregateSum(DRes<Matrix<DRes<SInt>>> values,
-      int groupColIdx, int aggColIdx) {
-    return builder.seq(new MiMCAggregation(values, groupColIdx, aggColIdx));
-  }
-
 }
