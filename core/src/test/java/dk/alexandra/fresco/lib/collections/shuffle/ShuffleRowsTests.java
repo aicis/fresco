@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.lib.collections.shuffle;
 
+import static org.junit.Assert.assertTrue;
+
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -14,8 +16,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
-
-import static org.junit.Assert.assertTrue;
 
 public class ShuffleRowsTests {
 
