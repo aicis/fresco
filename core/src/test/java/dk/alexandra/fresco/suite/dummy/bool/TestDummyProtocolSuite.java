@@ -200,6 +200,11 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
   }
 
   @Test
+  public void test_Uneven_Odd_Even_Merge_sort_2_parties() throws Exception {
+    runTest(new CollectionsSortingTests.TestOddEvenMergeSort<>(), EvaluationStrategy.SEQUENTIAL);
+  }
+
+  @Test
   public void test_Keyed_Compare_And_Swap_2_parties() throws Exception {
     runTest(new CollectionsSortingTests.TestKeyedCompareAndSwap<>(), EvaluationStrategy.SEQUENTIAL);
   }

@@ -2,9 +2,9 @@ package dk.alexandra.fresco.lib.collections.sort;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.framework.value.SInt;
 import java.util.List;
 
 /**
@@ -12,27 +12,28 @@ import java.util.List;
  * implementation only supports lists where the size is a power of 2. (i.e. 4, 8, 16 etc.)
  *
  */
-public class OddEvenMerge implements
-    Computation<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>, ProtocolBuilderBinary> {
+public class OddEvenIntegerMerge implements
+    Computation<List<Pair<DRes<SInt>, List<DRes<SInt>>>>, ProtocolBuilderNumeric> {
 
-  private List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> numbers;
+  private List<Pair<DRes<SInt>, List<DRes<SInt>>>> numbers;
 
-  public OddEvenMerge(
-      List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unsortedNumbers) {
+  public OddEvenIntegerMerge(
+      List<Pair<DRes<SInt>, List<DRes<SInt>>>> unsortedNumbers) {
     super();
     this.numbers = unsortedNumbers;
   }
 
   @Override
-  public DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> buildComputation(
-      ProtocolBuilderBinary builder) {
+  public DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> buildComputation(
+      ProtocolBuilderNumeric builder) {
+    // TODO verify that all payloads are equal size
     return builder.seq(seq -> {
       sort(0, numbers.size(), seq);
       return () -> numbers;
     });
   }
 
-  private void sort(int i, int length, ProtocolBuilderBinary builder) {
+  private void sort(int i, int length, ProtocolBuilderNumeric builder) {
     if (length > 1) {
       sort(i, length / 2, builder);
       sort(i + length / 2, length / 2, builder);
@@ -44,17 +45,17 @@ public class OddEvenMerge implements
 //    }
   }
 
-  private void compareAndSwapAtIndices(int i, int j, ProtocolBuilderBinary builder) {
-    builder.seq(seq -> {
-      return seq.advancedBinary().keyedCompareAndSwap(numbers.get(i), numbers.get(j));
-    }).seq((seq, res) -> {
-      numbers.set(i, res.get(0));
-      numbers.set(j, res.get(1));
-      return null;
-    });
+  private void compareAndSwapAtIndices(int i, int j, ProtocolBuilderNumeric builder) {
+//    builder.seq(seq -> {
+//      return seq.advancedNumeric().swapIf(numbers.get(i), numbers.get(i), numbers.get(j));
+//    }).seq((seq, res) -> {
+//      numbers.set(i, res.get(0));
+//      numbers.set(j, res.get(1));
+//      return null;
+//    });
   }
 
-  private void merge(int first, int length, int step, ProtocolBuilderBinary builder) {
+  private void merge(int first, int length, int step, ProtocolBuilderNumeric builder) {
     int doubleStep = step * 2;
     if (length > 2) {
       builder.seq((seq) -> {

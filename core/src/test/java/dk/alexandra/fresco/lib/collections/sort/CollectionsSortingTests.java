@@ -202,4 +202,118 @@ public class CollectionsSortingTests {
       };
     }
   }
+
+  public static class TestOddEvenMergeSort<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+
+    public TestOddEvenMergeSort() {}
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
+        @Override
+        public void test() throws Exception {
+
+          Boolean[] left1 = ByteAndBitConverter.toBoolean("01");
+          Boolean[] left2 = ByteAndBitConverter.toBoolean("08");
+          Boolean[] left3 = ByteAndBitConverter.toBoolean("07");
+          Boolean[] left4 = ByteAndBitConverter.toBoolean("03");
+          Boolean[] left5 = ByteAndBitConverter.toBoolean("00");
+          Boolean[] left6 = ByteAndBitConverter.toBoolean("06");
+          Boolean[] left7 = ByteAndBitConverter.toBoolean("02");
+          Boolean[] left8 = ByteAndBitConverter.toBoolean("05");
+
+          Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary> app =
+              new Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary>() {
+
+                @Override
+                public DRes<List<Pair<List<Boolean>, List<Boolean>>>> buildComputation(
+                    ProtocolBuilderBinary producer) {
+                  return producer.seq(seq -> {
+                    Binary builder = seq.binary();
+                    List<DRes<SBool>> l1 =
+                        Arrays.asList(left1).stream().map(builder::known).collect(Collectors.toList());
+                    List<DRes<SBool>> l2 =
+                        Arrays.asList(left2).stream().map(builder::known).collect(Collectors.toList());
+                    List<DRes<SBool>> l3 =
+                        Arrays.asList(left3).stream().map(builder::known).collect(Collectors.toList());
+                    List<DRes<SBool>> l4 =
+                        Arrays.asList(left4).stream().map(builder::known).collect(Collectors.toList());
+                    List<DRes<SBool>> l5 =
+                        Arrays.asList(left5).stream().map(builder::known).collect(Collectors.toList());
+                    List<DRes<SBool>> l6 =
+                        Arrays.asList(left6).stream().map(builder::known).collect(Collectors.toList());
+                    List<DRes<SBool>> l7 =
+                        Arrays.asList(left7).stream().map(builder::known).collect(Collectors.toList());
+                    List<DRes<SBool>> l8 =
+                        Arrays.asList(left8).stream().map(builder::known).collect(Collectors.toList());
+
+                    // Constant data payloads
+                    List<DRes<SBool>> falseSingleton =
+                        Arrays.asList(false).stream().map(builder::known).collect(Collectors.toList());
+                    List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unSorted = new ArrayList<>();
+
+                    unSorted.add(new Pair<>(l1, falseSingleton));
+                    unSorted.add(new Pair<>(l2, falseSingleton));
+                    unSorted.add(new Pair<>(l3, falseSingleton));
+                    unSorted.add(new Pair<>(l4, falseSingleton));
+                    unSorted.add(new Pair<>(l5, falseSingleton));
+                    unSorted.add(new Pair<>(l6, falseSingleton));
+                    unSorted.add(new Pair<>(l7, falseSingleton));
+                    unSorted.add(new Pair<>(l8, falseSingleton));
+
+                    DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> sorted =
+                        new OddEvenMerge(unSorted).buildComputation(seq);
+                    return sorted;
+                  }).seq((seq, sorted) -> {
+                    Binary builder = seq.binary();
+                    List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> opened = new ArrayList<>();
+                    for (Pair<List<DRes<SBool>>, List<DRes<SBool>>> p : sorted) {
+                      List<DRes<Boolean>> oKeys = new ArrayList<>();
+                      for (DRes<SBool> key : p.getFirst()) {
+                        oKeys.add(builder.open(key));
+                      }
+                      List<DRes<Boolean>> oValues = new ArrayList<>();
+                      for (DRes<SBool> value : p.getSecond()) {
+                        oValues.add(builder.open(value));
+                      }
+                      opened.add(new Pair<>(oKeys, oValues));
+                    }
+                    return () -> opened;
+                  }).seq((seq, opened) -> {
+                    return () -> opened.stream().map((p) -> {
+                      List<Boolean> key =
+                          p.getFirst().stream().map(DRes::out).collect(Collectors.toList());
+                      List<Boolean> value =
+                          p.getSecond().stream().map(DRes::out).collect(Collectors.toList());
+                      return new Pair<>(key, value);
+                    }).collect(Collectors.toList());
+                  });
+                }
+
+              };
+
+          List<Pair<List<Boolean>, List<Boolean>>> results = runApplication(app);
+
+          // The payload for all is simply the value false
+          Assert.assertEquals(Arrays.asList(left2), results.get(0).getFirst());
+          Assert.assertEquals(Arrays.asList(false), results.get(0).getSecond());
+          Assert.assertEquals(Arrays.asList(left3), results.get(1).getFirst());
+          Assert.assertEquals(Arrays.asList(false), results.get(1).getSecond());
+          Assert.assertEquals(Arrays.asList(left6), results.get(2).getFirst());
+          Assert.assertEquals(Arrays.asList(false), results.get(2).getSecond());
+          Assert.assertEquals(Arrays.asList(left8), results.get(3).getFirst());
+          Assert.assertEquals(Arrays.asList(false), results.get(3).getSecond());
+          Assert.assertEquals(Arrays.asList(left4), results.get(4).getFirst());
+          Assert.assertEquals(Arrays.asList(false), results.get(4).getSecond());
+          Assert.assertEquals(Arrays.asList(left7), results.get(5).getFirst());
+          Assert.assertEquals(Arrays.asList(false), results.get(5).getSecond());
+          Assert.assertEquals(Arrays.asList(left1), results.get(6).getFirst());
+          Assert.assertEquals(Arrays.asList(false), results.get(6).getSecond());
+          Assert.assertEquals(Arrays.asList(left5), results.get(7).getFirst());
+          Assert.assertEquals(Arrays.asList(false), results.get(7).getSecond());
+        }
+      };
+    }
+  }
 }

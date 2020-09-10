@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.binary.RandomBitMask;
-
 import java.math.BigInteger;
 import java.util.List;
 
@@ -281,6 +280,18 @@ public interface AdvancedNumeric extends ComputationDirectory {
    */
   DRes<Pair<DRes<SInt>, DRes<SInt>>> swapIf(DRes<SInt> condition, DRes<SInt> left,
       DRes<SInt> right);
+
+  /**
+   * Compares the keys of two key-value pairs and produce a list of pairs so that the first pair has
+   * the largest key.
+   *
+   * @param leftKeyAndValue A pair of first the key and then a list of its associated values.
+   * @param rightKeyAndValue A pair of first the key and then a list of its associated values.
+   * @return A deferred result computing a list of pairs where the first pair has the largest key.
+   */
+  DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> keyedCompareAndSwap(
+      Pair<DRes<SInt>, List<DRes<SInt>>> leftKeyAndValue,
+      Pair<DRes<SInt>, List<DRes<SInt>>> rightKeyAndValue);
 
   /**
    * Container holding the deferred result and remainder of shifting a number.
