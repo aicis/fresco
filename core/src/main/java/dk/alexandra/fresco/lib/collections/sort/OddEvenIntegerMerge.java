@@ -20,13 +20,22 @@ public class OddEvenIntegerMerge implements
   public OddEvenIntegerMerge(
       List<Pair<DRes<SInt>, List<DRes<SInt>>>> unsortedNumbers) {
     super();
+    // Verify that the input is a two power
+    if (Integer.bitCount(unsortedNumbers.size()) != 1) {
+      throw new UnsupportedOperationException("Implementation only supports computation on list of a two-power size");
+    }
+    // Verify that the payloads all have the same size, to avoid leaking info based on this
+    unsortedNumbers.forEach( current -> {
+      if (current.getSecond().size() != unsortedNumbers.get(0).getSecond().size()) {
+        throw new UnsupportedOperationException("All payload lists must have equal length to avoid leaking info");
+      }
+    });
     this.numbers = unsortedNumbers;
   }
 
   @Override
   public DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> buildComputation(
       ProtocolBuilderNumeric builder) {
-    // TODO verify that all payloads are equal size
     return builder.seq(seq -> {
       sort(0, numbers.size(), seq);
       return () -> numbers;
@@ -39,16 +48,12 @@ public class OddEvenIntegerMerge implements
       sort(i + length / 2, length / 2, builder);
       merge(i, length, 1, builder);
     }
-//    else {
-//      if (i + length < numbers.size())
-//        compareAndSwapAtIndices(i, i + length, builder);
-//    }
   }
 
   private void compareAndSwapAtIndices(int i, int j, ProtocolBuilderNumeric builder) {
-    builder.seq(seq -> {
-      return seq.advancedNumeric().keyedCompareAndSwap(numbers.get(i), numbers.get(j));
-    }).seq((seq, res) -> {
+    builder.par(par -> {
+      return par.advancedNumeric().keyedCompareAndSwap(numbers.get(i), numbers.get(j));
+    }).par((par, res) -> {
       numbers.set(i, res.get(0));
       numbers.set(j, res.get(1));
       return null;

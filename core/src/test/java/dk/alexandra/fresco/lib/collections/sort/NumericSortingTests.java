@@ -152,8 +152,8 @@ public class NumericSortingTests {
                 @Override
                 public DRes<List<Pair<BigInteger, List<BigInteger>>>> buildComputation(
                     ProtocolBuilderNumeric producer) {
-                  return producer.seq(seq -> {
-                    Numeric builder = seq.numeric();
+                  return producer.par(par -> {
+                    Numeric builder = par.numeric();
                     // Input the unsorted list into the MPC as public values
                     List<Pair<DRes<SInt>, List<DRes<SInt>>>> sharedUnsorted = new ArrayList<>();
                     unsorted.stream().forEach(current -> sharedUnsorted.add(
@@ -161,16 +161,16 @@ public class NumericSortingTests {
                             current.getSecond().stream().map( currentPayload -> builder.known(currentPayload))
                                 .collect(Collectors.toList()))));
                     // Sort the list in MPC
-                    return new OddEvenIntegerMerge(sharedUnsorted).buildComputation(seq);
-                  }).seq((seq, sorted) -> {
-                    Numeric builder = seq.numeric();
+                    return new OddEvenIntegerMerge(sharedUnsorted).buildComputation(par);
+                  }).par((par, sorted) -> {
+                    Numeric builder = par.numeric();
                     // Open the sorted list
                     List<Pair<DRes<BigInteger>, List<DRes<BigInteger>>>> opened = new ArrayList<>();
                     sorted.forEach(current -> opened.add(new Pair<>(builder.open(current.getFirst()),
                         current.getSecond().stream().map(currentPayload -> builder.open(currentPayload))
                             .collect(Collectors.toList()))));
                     return () -> opened;
-                  }).seq((seq, opened) -> {
+                  }).par((par, opened) -> {
                     // Return as defered output
                     return () -> opened.stream().map((p) ->
                         new Pair<>(p.getFirst().out(),

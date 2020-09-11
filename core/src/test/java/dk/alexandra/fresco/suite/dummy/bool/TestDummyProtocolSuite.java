@@ -3,10 +3,14 @@ package dk.alexandra.fresco.suite.dummy.bool;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
 import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.collections.sort.CollectionsSortingTests;
+import dk.alexandra.fresco.lib.collections.sort.OddEvenMerge;
 import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.crypto.BadBristolCryptoTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
@@ -17,6 +21,11 @@ import dk.alexandra.fresco.lib.math.bool.log.LogTests;
 import dk.alexandra.fresco.lib.math.bool.mult.MultTests;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.binary.BinaryLoggingDecorator;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.Test;
 
 
@@ -202,6 +211,22 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
   @Test
   public void test_Uneven_Odd_Even_Merge_sort_2_parties() throws Exception {
     runTest(new CollectionsSortingTests.TestOddEvenMergeSort<>(), EvaluationStrategy.SEQUENTIAL);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void test_Odd_Even_Merge_wrong_size() {
+    List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> list = IntStream
+        .range(0, 3).mapToObj(i -> new Pair<List<DRes<SBool>>, List<DRes<SBool>>>(null, null)).collect(
+            Collectors.toList());
+    new OddEvenMerge(list);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void test_Odd_Even_Merge_uneven_payload() {
+    List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> list = Arrays.asList(
+        new Pair<List<DRes<SBool>>, List<DRes<SBool>>>(null, Arrays.asList(null, null)),
+        new Pair<List<DRes<SBool>>, List<DRes<SBool>>>(null, new ArrayList<>()));
+    new OddEvenMerge(list);
   }
 
   @Test
