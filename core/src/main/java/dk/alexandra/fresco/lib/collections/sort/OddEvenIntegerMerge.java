@@ -46,13 +46,13 @@ public class OddEvenIntegerMerge implements
   }
 
   private void compareAndSwapAtIndices(int i, int j, ProtocolBuilderNumeric builder) {
-//    builder.seq(seq -> {
-//      return seq.advancedNumeric().swapIf(numbers.get(i), numbers.get(i), numbers.get(j));
-//    }).seq((seq, res) -> {
-//      numbers.set(i, res.get(0));
-//      numbers.set(j, res.get(1));
-//      return null;
-//    });
+    builder.seq(seq -> {
+      return seq.advancedNumeric().keyedCompareAndSwap(numbers.get(i), numbers.get(j));
+    }).seq((seq, res) -> {
+      numbers.set(i, res.get(0));
+      numbers.set(j, res.get(1));
+      return null;
+    });
   }
 
   private void merge(int first, int length, int step, ProtocolBuilderNumeric builder) {

@@ -5,7 +5,6 @@ import static org.junit.Assert.assertThat;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests;
-import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests;
@@ -22,7 +21,7 @@ import dk.alexandra.fresco.lib.collections.permute.PermuteRows;
 import dk.alexandra.fresco.lib.collections.permute.PermuteRowsTests;
 import dk.alexandra.fresco.lib.collections.relational.LeakyAggregationTests;
 import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRowsTests;
-import dk.alexandra.fresco.lib.collections.sort.CollectionsSortingTests;
+import dk.alexandra.fresco.lib.collections.sort.NumericSortingTests;
 import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.compare.CompareTests.TestLessThanLogRounds;
 import dk.alexandra.fresco.lib.compare.lt.BitLessThanOpenTests.TestBitLessThanOpen;
@@ -942,13 +941,25 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   // collections.sort
   @Test
-  public void test_Uneven_Odd_Even_Merge_2_parties() throws Exception {
-    runTest(new CollectionsSortingTests.TestOddEvenMerge<>(), EvaluationStrategy.SEQUENTIAL);
+  public void test_Odd_Even_Merge_2_parties() {
+    BigInteger modulus = ModulusFinder.findSuitableModulus(128);
+    int maxBitLength = 64;
+    TestParameters parameters = new TestParameters()
+        .numParties(2)
+        .modulus(modulus)
+        .maxBitLength(maxBitLength);
+    runTest(new NumericSortingTests.TestOddEvenMergeSort<>(), parameters);
   }
 
   @Test
-  public void test_Uneven_Odd_Even_Merge_sort_2_parties() throws Exception {
-    runTest(new CollectionsSortingTests.TestOddEvenMergeSort<>(), EvaluationStrategy.SEQUENTIAL);
+  public void test_Odd_Even_Merge_large_list() {
+    BigInteger modulus = ModulusFinder.findSuitableModulus(128);
+    int maxBitLength = 64;
+    TestParameters parameters = new TestParameters()
+        .numParties(2)
+        .modulus(modulus)
+        .maxBitLength(maxBitLength);
+    runTest(new NumericSortingTests.TestOddEvenMergeSortLargeList<>(), parameters);
   }
 
 }

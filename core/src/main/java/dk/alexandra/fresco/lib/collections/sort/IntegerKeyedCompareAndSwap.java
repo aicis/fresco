@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class IntegerKeyCompareAndSwap implements
+public class IntegerKeyedCompareAndSwap implements
     Computation<List<Pair<DRes<SInt>, List<DRes<SInt>>>>, ProtocolBuilderNumeric> {
 
   private DRes<SInt> leftKey, rightKey;
@@ -25,7 +25,7 @@ public class IntegerKeyCompareAndSwap implements
    * @param leftKeyAndValue the key-value of the left pair
    * @param rightKeyAndValue the key-value of the right pair
    */
-  public IntegerKeyCompareAndSwap(
+  public IntegerKeyedCompareAndSwap(
       Pair<DRes<SInt>, List<DRes<SInt>>> leftKeyAndValue,
       Pair<DRes<SInt>, List<DRes<SInt>>> rightKeyAndValue) {
     this.leftKey = leftKeyAndValue.getFirst();
@@ -38,7 +38,7 @@ public class IntegerKeyCompareAndSwap implements
   public DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> buildComputation(
       ProtocolBuilderNumeric builder) {
     return builder.par(par -> {
-
+      // Left and right key are switched since we want the largest value in the first position of the result
       DRes<SInt> comparison = par.comparison().compareLT(rightKey, leftKey);
 
       additiveKey = par.numeric().add(leftKey, rightKey);
@@ -46,9 +46,9 @@ public class IntegerKeyCompareAndSwap implements
           leftValue.indexOf(e)))).collect(Collectors.toList());
       return () -> comparison;
     }).par((par, data) -> {
-
-      DRes<SInt> firstKey = par.advancedNumeric().condSelect(data, rightKey, leftKey);
-      List<DRes<SInt>> firstValue = leftValue.stream().map(e -> par.advancedNumeric().condSelect(data, e, rightValue.get(
+      DRes<SInt> firstKey = par.advancedNumeric().condSelect(data, leftKey, rightKey);
+      List<DRes<SInt>> firstValue = leftValue.stream().map(e ->
+          par.advancedNumeric().condSelect(data, e, rightValue.get(
           leftValue.indexOf(e)))).collect(Collectors.toList());
 
       return () -> new Pair<>(firstKey, firstValue);
