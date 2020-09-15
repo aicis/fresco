@@ -262,9 +262,7 @@ public class CollectionsSortingTests {
                     unSorted.add(new Pair<>(l7, falseSingleton));
                     unSorted.add(new Pair<>(l8, falseSingleton));
 
-                    DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> sorted =
-                        new OddEvenMerge(unSorted).buildComputation(seq);
-                    return sorted;
+                    return seq.advancedBinary().sort(unSorted);
                   }).seq((seq, sorted) -> {
                     Binary builder = seq.binary();
                     List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> opened = new ArrayList<>();
