@@ -1,15 +1,15 @@
 package dk.alexandra.fresco.demo;
 
-import com.sun.tools.corba.se.idl.constExpr.Or;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,23 +62,35 @@ public class OrderMatchingDemo implements
   public DRes<List<List<BigInteger>>> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.par(par -> {
       // Input values
-      List<DRes<SInt>> buyUserIds = new ArrayList<>();
-      List<DRes<SInt>> buyRates = new ArrayList<>();
-      List<DRes<SInt>> sellUserIds = new ArrayList<>();
-      List<DRes<SInt>> sellRates = new ArrayList<>();
+      List<Pair<DRes<SInt>, List<DRes<SInt>>>> buys = new ArrayList<>();
+      List<Pair<DRes<SInt>, List<DRes<SInt>>>> sells = new ArrayList<>();
       for (int i = 0; i < buySize; i++) {
         DRes<SInt> currentUserId = serverId == 1 ? par.numeric().input(BigInteger.valueOf(buyOrders.get(i).userId), 1) :
             par.numeric().input(null, 1);
-        buyUserIds.add(currentUserId);
+        DRes<SInt> currentBuyRate = serverId == 1 ? par.numeric().input(BigInteger.valueOf(buyOrders.get(i).limitRate), 1) :
+            par.numeric().input(null, 1);
+        Pair<DRes<SInt>, List<DRes<SInt>>> currentBuy = new Pair<>(currentBuyRate, Arrays.asList(currentUserId));
+        buys.add(currentBuy);
       }
       for (int i = 0; i < sellSize; i++) {
-        DRes<SInt> currentUserId = serverId == 1 ? par.numeric().input(BigInteger.valueOf(sellOrders.get(i).userId), 1) :
+        DRes<SInt> currentUserId = serverId == 1 ? par.numeric().input(BigInteger.valueOf(buyOrders.get(i).userId), 1) :
             par.numeric().input(null, 1);
-        buyUserIds.add(currentUserId);
+        DRes<SInt> currentBuyRate = serverId == 1 ? par.numeric().input(BigInteger.valueOf(buyOrders.get(i).limitRate), 1) :
+            par.numeric().input(null, 1);
+        Pair<DRes<SInt>, List<DRes<SInt>>> currentBuy = new Pair<>(currentBuyRate, Arrays.asList(currentUserId));
+        buys.add(currentBuy);
       }
-      return () -> Arrays.asList(buyUserIds, buyRates, sellUserIds, sellRates);
+      return () -> new Pair<List<Pair<DRes<SInt>, List<DRes<SInt>>>>, List<Pair<DRes<SInt>, List<DRes<SInt>>>>>(buys, sells);
     }).par((par, input) -> {
-      par.advancedNumeric().
+      DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> sortedBuys = par.advancedNumeric().sort(input.getFirst();
+      DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> sortedSells = par.advancedNumeric().sort(input.getSecond());
+      return () -> new Pair<>(sortedBuys, sortedSells);
+    }).seq((seq, input) -> {
+      List<Pair<DRes<SInt>, List<DRes<SInt>>>> sortedBuys = input.getFirst().out();
+      List<Pair<DRes<SInt>, List<DRes<SInt>>>> sortedSells = input.getSecond().out();
+      for (int i = 0; i < Math.min(sortedBuys.size(), sortedSells.size(); i++) {
+        seq.advancedNumeric().
+      }
     });
   }
 
