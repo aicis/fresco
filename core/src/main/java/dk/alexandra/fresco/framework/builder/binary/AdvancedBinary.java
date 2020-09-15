@@ -172,4 +172,16 @@ public interface AdvancedBinary extends ComputationDirectory {
       Pair<List<DRes<SBool>>, List<DRes<SBool>>> leftKeyAndValue,
       Pair<List<DRes<SBool>>, List<DRes<SBool>>> rightKeyAndValue);
 
+  /**
+   * Odd-Even merge sort. Returning the largest element first.
+   * NOTE: The amount of elements to sort must be a two-power and, for secrecy reasons,
+   * the values associated to the keys must all be lists of equal length.
+   *
+   * @param input A Key-value pair where the key is being sorted on. A key is viewed as a binary
+   * representation of an unsigned integer. The value is a list of
+   * other elements being associated to the key.
+   * @return Returns the sorted list with the largest element in the first position
+   */
+  DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> sort(
+      List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> input);
 }

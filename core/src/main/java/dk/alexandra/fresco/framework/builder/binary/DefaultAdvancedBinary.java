@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.collections.sort.KeyedCompareAndSwap;
+import dk.alexandra.fresco.lib.collections.sort.OddEvenMerge;
 import dk.alexandra.fresco.lib.field.bool.ConditionalSelect;
 import dk.alexandra.fresco.lib.field.bool.generic.AndFromPublicValue;
 import dk.alexandra.fresco.lib.field.bool.generic.NandFromAndAndNot;
@@ -117,7 +118,13 @@ public class DefaultAdvancedBinary implements AdvancedBinary {
   public DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> keyedCompareAndSwap(
       Pair<List<DRes<SBool>>, List<DRes<SBool>>> leftKeyAndValue,
       Pair<List<DRes<SBool>>, List<DRes<SBool>>> rightKeyAndValue) {
-    return builder.seq(new KeyedCompareAndSwap(leftKeyAndValue, rightKeyAndValue));
+    return builder.par(new KeyedCompareAndSwap(leftKeyAndValue, rightKeyAndValue));
+  }
+
+  @Override
+  public DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> sort(
+      List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> input) {
+    return builder.par(new OddEvenMerge(input));
   }
 
 }
