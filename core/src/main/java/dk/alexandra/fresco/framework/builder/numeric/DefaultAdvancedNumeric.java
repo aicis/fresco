@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.sort.IntegerKeyedCompareAndSwap;
-import dk.alexandra.fresco.lib.collections.sort.OddEvenIntegerMerge;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
 import dk.alexandra.fresco.lib.conditional.SwapIf;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsByShift;
@@ -212,11 +211,5 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
       Pair<DRes<SInt>, List<DRes<SInt>>> leftKeyAndValue,
       Pair<DRes<SInt>, List<DRes<SInt>>> rightKeyAndValue) {
     return builder.par(new IntegerKeyedCompareAndSwap(leftKeyAndValue, rightKeyAndValue));
-  }
-
-  @Override
-  public DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> sort(
-      List<Pair<DRes<SInt>, List<DRes<SInt>>>> input) {
-    return builder.par(new OddEvenIntegerMerge(input));
   }
 }

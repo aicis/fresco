@@ -296,18 +296,6 @@ public interface AdvancedNumeric extends ComputationDirectory {
 
 
   /**
-   * Odd-Even merge sort. Returning the largest element first.
-   * NOTE: The amount of elements to sort must be a two-power and, for secrecy reasons,
-   * the values associated to the keys must all be lists of equal length.
-   *
-   * @param input A Key-value pair where the key is being sorted on and the value is a list of
-   * other elements being associated to the key.
-   * @return Returns the sorted list with the largest element in the first position
-   */
-  DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> sort(
-      List<Pair<DRes<SInt>, List<DRes<SInt>>>> input);
-
-  /**
    * Container holding the deferred result and remainder of shifting a number.
    */
   class RightShiftResult {

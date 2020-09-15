@@ -14,6 +14,7 @@ import dk.alexandra.fresco.lib.collections.io.OpenRowPair;
 import dk.alexandra.fresco.lib.collections.permute.PermuteRows;
 import dk.alexandra.fresco.lib.collections.relational.MiMCAggregation;
 import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRows;
+import dk.alexandra.fresco.lib.collections.sort.OddEvenIntegerMerge;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelectRow;
 import dk.alexandra.fresco.lib.conditional.SwapNeighborsIf;
 import dk.alexandra.fresco.lib.conditional.SwapRowsIf;
@@ -115,6 +116,12 @@ public class DefaultCollections implements Collections {
   @Override
   public DRes<Matrix<DRes<SInt>>> shuffle(DRes<Matrix<DRes<SInt>>> values) {
     return builder.seq(new ShuffleRows(values));
+  }
+
+  @Override
+  public DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> sort(
+      List<Pair<DRes<SInt>, List<DRes<SInt>>>> input) {
+    return builder.par(new OddEvenIntegerMerge(input));
   }
 
   @Override
