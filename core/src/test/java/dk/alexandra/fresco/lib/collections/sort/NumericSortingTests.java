@@ -161,7 +161,7 @@ public class NumericSortingTests {
                             current.getSecond().stream().map( currentPayload -> builder.known(currentPayload))
                                 .collect(Collectors.toList()))));
                     // Sort the list in MPC
-                    return new OddEvenIntegerMerge(sharedUnsorted).buildComputation(par);
+                    return par.collections().sort(sharedUnsorted);
                   }).par((par, sorted) -> {
                     Numeric builder = par.numeric();
                     // Open the sorted list
