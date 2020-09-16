@@ -121,7 +121,7 @@ public class DefaultCollections implements Collections {
   @Override
   public DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> sort(
       List<Pair<DRes<SInt>, List<DRes<SInt>>>> input) {
-    return builder.par(new OddEvenIntegerMerge(input));
+    return builder.seq(new OddEvenIntegerMerge(input));
   }
 
   @Override

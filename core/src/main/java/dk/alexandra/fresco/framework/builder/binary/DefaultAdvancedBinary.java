@@ -124,7 +124,7 @@ public class DefaultAdvancedBinary implements AdvancedBinary {
   @Override
   public DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> sort(
       List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> input) {
-    return builder.par(new OddEvenMerge(input));
+    return builder.seq(new OddEvenMerge(input));
   }
 
 }
