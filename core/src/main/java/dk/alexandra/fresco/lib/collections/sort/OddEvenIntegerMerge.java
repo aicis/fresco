@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.lib.collections.sort;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.ComputationParallel;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -13,7 +13,7 @@ import java.util.List;
  *
  */
 public class OddEvenIntegerMerge implements
-    ComputationParallel<List<Pair<DRes<SInt>, List<DRes<SInt>>>>, ProtocolBuilderNumeric> {
+    Computation<List<Pair<DRes<SInt>, List<DRes<SInt>>>>, ProtocolBuilderNumeric> {
 
   private List<Pair<DRes<SInt>, List<DRes<SInt>>>> numbers;
 
@@ -70,7 +70,10 @@ public class OddEvenIntegerMerge implements
         for (int i = 1; i < length - 2; i += 2) {
           int low = first + i * step;
           int high = low + step;
-          compareAndSwapAtIndices(low, high, seq);
+          seq.par((par) -> {
+            compareAndSwapAtIndices(low, high, par);
+            return null;
+          });
         }
         return null;
       });
