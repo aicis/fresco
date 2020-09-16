@@ -5,11 +5,11 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +60,9 @@ public class OrderMatchingDemo implements
 
   @Override
   public DRes<List<List<BigInteger>>> buildComputation(ProtocolBuilderNumeric builder) {
+    final BigInteger max = BigInteger.ONE.shiftLeft(builder.getBasicNumericContext().getMaxBitLength());
+    // We use the maximal integer to be used as indicator for a non-match
+    final DRes<SInt> blankVal = builder.numeric().known(max.multiply(new BigInteger("2")).subtract(BigInteger.ONE));
     return builder.par(par -> {
       // Input values
       List<Pair<DRes<SInt>, List<DRes<SInt>>>> buys = new ArrayList<>();
@@ -73,24 +76,60 @@ public class OrderMatchingDemo implements
         buys.add(currentBuy);
       }
       for (int i = 0; i < sellSize; i++) {
-        DRes<SInt> currentUserId = serverId == 1 ? par.numeric().input(BigInteger.valueOf(buyOrders.get(i).userId), 1) :
+        DRes<SInt> currentUserId = serverId == 1 ? par.numeric().input(BigInteger.valueOf(sellOrders.get(i).userId), 1) :
             par.numeric().input(null, 1);
-        DRes<SInt> currentBuyRate = serverId == 1 ? par.numeric().input(BigInteger.valueOf(buyOrders.get(i).limitRate), 1) :
+        DRes<SInt> currentSellRate = serverId == 1 ? par.numeric().input(BigInteger.valueOf(sellOrders.get(i).limitRate), 1) :
             par.numeric().input(null, 1);
-        Pair<DRes<SInt>, List<DRes<SInt>>> currentBuy = new Pair<>(currentBuyRate, Arrays.asList(currentUserId));
-        buys.add(currentBuy);
+        Pair<DRes<SInt>, List<DRes<SInt>>> currentSell = new Pair<>(currentSellRate, Arrays.asList(currentUserId));
+        sells.add(currentSell);
       }
       return () -> new Pair<List<Pair<DRes<SInt>, List<DRes<SInt>>>>, List<Pair<DRes<SInt>, List<DRes<SInt>>>>>(buys, sells);
     }).par((par, input) -> {
-      DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> sortedBuys = par.advancedNumeric().sort(input.getFirst();
-      DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> sortedSells = par.advancedNumeric().sort(input.getSecond());
+      DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> sortedBuys = par.collections().sort(input.getFirst());
+      DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> sortedSells = par.collections().sort(input.getSecond());
       return () -> new Pair<>(sortedBuys, sortedSells);
-    }).seq((seq, input) -> {
+    }).par((par, input) -> {
+      List<DRes<List<DRes<SInt>>>> res = new ArrayList<>();
       List<Pair<DRes<SInt>, List<DRes<SInt>>>> sortedBuys = input.getFirst().out();
       List<Pair<DRes<SInt>, List<DRes<SInt>>>> sortedSells = input.getSecond().out();
-      for (int i = 0; i < Math.min(sortedBuys.size(), sortedSells.size(); i++) {
-        seq.advancedNumeric().
+      int minListSize = Math.min(sortedBuys.size(), sortedSells.size());
+      for (int i = 0; i < minListSize; i++) {
+        final int currentIdx = i;
+        // Construct list as a keyed pair based on the buyer ID, to check if it is blank
+        res.add(par.seq( (seq) -> {
+          // Select the user ID of the buyer if the buy price is >= sell price
+        DRes<SInt> condition = seq.comparison()
+            .compareLT(sortedBuys.get(currentIdx).getFirst(), sortedSells.get(minListSize-currentIdx-1).getFirst());
+        DRes<SInt> currentBuyer = seq.advancedNumeric()
+            .condSelect(condition, blankVal, sortedBuys.get(currentIdx).getSecond().get(0));
+        DRes<SInt> currentSeller = seq.advancedNumeric()
+            .condSelect(condition, blankVal, sortedSells.get(minListSize-currentIdx-1).getSecond().get(0));
+        // Compute the average of buy and sell price
+        DRes<SInt> price = seq.numeric().add(sortedBuys.get(currentIdx).getFirst(),
+            sortedSells.get(minListSize-currentIdx-1).getFirst());
+        DRes<SInt> hiddenPrice = seq.advancedNumeric()
+            .condSelect(condition, blankVal, price);
+        return () -> Arrays.asList(currentBuyer, currentSeller, hiddenPrice);
+        }));
       }
+      return () -> res;
+    }).par((par, input) -> {
+      List<List<DRes<BigInteger>>> temp = input.stream().map(current ->
+          current.out().stream().map(internal -> par.numeric().open(internal)).collect(Collectors.toList())).
+          collect(Collectors.toList());
+      return () -> temp.stream().map(current ->
+          current.stream().map(internal -> internal.out()).collect(Collectors.toList()))
+          .collect(Collectors.toList());
+    }).par((par, input) -> {
+      // Clean up the result by removing "blank" elements in the list and computing the actual price
+      List<List<BigInteger>> res = new ArrayList<>();
+      for (int i = 0; i < input.size(); i++) {
+        if (input.get(i).get(0) != max) {
+          res.add(Arrays.asList(input.get(i).get(0), input.get(i).get(1),
+              input.get(i).get(2).shiftRight(1)));
+        }
+      }
+      return () -> res;
     });
   }
 
