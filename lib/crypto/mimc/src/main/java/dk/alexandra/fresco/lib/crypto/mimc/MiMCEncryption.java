@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
@@ -80,7 +81,7 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
         .seq(
             seq -> {
               DRes<SInt> add = seq.numeric().add(plainText, encryptionKey);
-              return new IterationState(1, seq.advancedNumeric().exp(add, THREE));
+              return new IterationState(1, new DefaultAdvancedNumeric(seq).exp(add, THREE));
             })
         .whileLoop(
             (state) -> state.round < requiredRounds,
@@ -94,7 +95,7 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
               Numeric numeric = seq.numeric();
               DRes<SInt> masked =
                   numeric.add(roundConstantInteger, numeric.add(state.value, encryptionKey));
-              DRes<SInt> updatedValue = seq.advancedNumeric().exp(masked, THREE);
+              DRes<SInt> updatedValue = new DefaultAdvancedNumeric(seq).exp(masked, THREE);
               return new IterationState(state.round + 1, updatedValue);
             })
         .seq(

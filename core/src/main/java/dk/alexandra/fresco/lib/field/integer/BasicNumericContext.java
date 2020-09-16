@@ -13,6 +13,12 @@ public class BasicNumericContext {
   private final int noOfParties;
   private final FieldDefinition fieldDefinition;
 
+  public int getPrecision() {
+    return precition;
+  }
+
+  private final int precition;
+
   /**
    * Construct a new BasicNumericContext.
    *
@@ -23,11 +29,12 @@ public class BasicNumericContext {
    * @param fieldDefinition the field definition used in the application
    */
   public BasicNumericContext(int maxBitLength, int myId, int noOfParties,
-      FieldDefinition fieldDefinition) {
+      FieldDefinition fieldDefinition, int precision) {
     this.maxBitLength = maxBitLength;
     this.myId = myId;
     this.noOfParties = noOfParties;
     this.fieldDefinition = fieldDefinition;
+    this.precition = precision;
   }
 
   /**

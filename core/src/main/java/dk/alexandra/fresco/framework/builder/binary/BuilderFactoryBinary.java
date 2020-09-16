@@ -20,13 +20,13 @@ public interface BuilderFactoryBinary extends BuilderFactory<ProtocolBuilderBina
 
   Binary createBinary(ProtocolBuilderBinary builder);
 
-  default Comparison createComparison(ProtocolBuilderBinary builder) {
-    return new DefaultComparison(builder);
-  }
-
-  default AdvancedBinary createAdvancedBinary(ProtocolBuilderBinary builder) {
-    return new DefaultAdvancedBinary(builder);
-  }
+//  default Comparison createComparison(ProtocolBuilderBinary builder) {
+//    return new DefaultComparison(builder);
+//  }
+//
+//  default AdvancedBinary createAdvancedBinary(ProtocolBuilderBinary builder) {
+//    return new DefaultAdvancedBinary(builder);
+//  }
 
   default BristolCrypto createBristolCrypto(ProtocolBuilderBinary builder) {
     return new DefaultBristolCrypto(builder);
@@ -39,9 +39,9 @@ public interface BuilderFactoryBinary extends BuilderFactory<ProtocolBuilderBina
    * @param builder The ProtocolBuilderBinary to use for constructing protocols
    * @return By default a standard debugger which opens values and prints them.
    */
-  default Debug createDebug(ProtocolBuilderBinary builder) {
-    return new DefaultDebug(builder);
-  }
+//  default Debug createDebug(ProtocolBuilderBinary builder) {
+//    return new DefaultDebug(builder);
+//  }
 
   default ProtocolBuilderBinary createSequential() {
     return new ProtocolBuilderBinary(this, false);

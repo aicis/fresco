@@ -2,15 +2,7 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
-import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
-import dk.alexandra.fresco.lib.real.AdvancedRealNumeric;
-import dk.alexandra.fresco.lib.real.RealLinearAlgebra;
-import dk.alexandra.fresco.lib.real.RealNumeric;
-import dk.alexandra.fresco.lib.real.RealNumericContext;
-import dk.alexandra.fresco.lib.real.fixed.AdvancedFixedNumeric;
-import dk.alexandra.fresco.lib.real.fixed.FixedLinearAlgebra;
-import dk.alexandra.fresco.lib.real.fixed.FixedNumeric;
 
 /**
  * The core factory to implement when creating a numeric protocol. Every
@@ -30,51 +22,51 @@ public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNum
 
   BasicNumericContext getBasicNumericContext();
 
-  RealNumericContext getRealNumericContext();
+//  RealNumericContext getRealNumericContext();
   
   Numeric createNumeric(ProtocolBuilderNumeric builder);
 
-  MiscBigIntegerGenerators getBigIntegerHelper();
-
-  default Comparison createComparison(ProtocolBuilderNumeric builder) {
-    return new DefaultComparison(this, builder);
-  }
-
-  default AdvancedNumeric createAdvancedNumeric(ProtocolBuilderNumeric builder) {
-    return new DefaultAdvancedNumeric(this, builder);
-  }
-  
-  default Collections createCollections(ProtocolBuilderNumeric builder) {
-    return new DefaultCollections(builder);
-  }
+//  MiscBigIntegerGenerators getBigIntegerHelper();
+//
+//  default Comparison createComparison(ProtocolBuilderNumeric builder) {
+//    return new DefaultComparison(this, builder);
+//  }
+//
+//  default AdvancedNumeric createAdvancedNumeric(ProtocolBuilderNumeric builder) {
+//    return new DefaultAdvancedNumeric(this, builder);
+//  }
+//
+//  default Collections createCollections(ProtocolBuilderNumeric builder) {
+//    return new DefaultCollections(builder);
+//  }
   
   default PreprocessedValues createPreprocessedValues(ProtocolBuilderNumeric builder) {
     return new DefaultPreprocessedValues(builder);
   }
-  
-  default RealNumeric createRealNumeric(ProtocolBuilderNumeric builder) {
-    return new FixedNumeric(builder);
-  }
-  
-  default AdvancedRealNumeric createAdvancedRealNumeric(ProtocolBuilderNumeric builder) {
-    return new AdvancedFixedNumeric(builder);
-  }
+//
+//  default RealNumeric createRealNumeric(ProtocolBuilderNumeric builder) {
+//    return new FixedNumeric(builder);
+//  }
+//
+//  default AdvancedRealNumeric createAdvancedRealNumeric(ProtocolBuilderNumeric builder) {
+//    return new AdvancedFixedNumeric(builder);
+//  }
+//
+//  default RealLinearAlgebra createRealLinearAlgebra(ProtocolBuilderNumeric builder) {
+//    return new FixedLinearAlgebra(builder);
+//  }
 
-  default RealLinearAlgebra createRealLinearAlgebra(ProtocolBuilderNumeric builder) {
-    return new FixedLinearAlgebra(builder);
-  }
-
   
-  /**
-   * Returns a builder which can be helpful while developing a new protocol. Be very careful though,
-   * to include this in any production code since the debugging opens values to all parties.
-   *
-   * @param builder the current builder that will have the protocols inserted
-   * @return By default a standard debugger which opens values and prints them.
-   */
-  default Debug createDebug(ProtocolBuilderNumeric builder) {
-    return new DefaultDebug(builder);
-  }
+//  /**
+//   * Returns a builder which can be helpful while developing a new protocol. Be very careful though,
+//   * to include this in any production code since the debugging opens values to all parties.
+//   *
+//   * @param builder the current builder that will have the protocols inserted
+//   * @return By default a standard debugger which opens values and prints them.
+//   */
+//  default Debug createDebug(ProtocolBuilderNumeric builder) {
+//    return new DefaultDebug(builder);
+//  }
 
   @Override
   default ProtocolBuilderNumeric createSequential() {

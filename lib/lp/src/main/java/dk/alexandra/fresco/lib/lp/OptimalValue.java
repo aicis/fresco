@@ -2,10 +2,11 @@ package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
-import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.collections.Matrix;
+import dk.alexandra.fresco.lib.common.collections.Matrix;
+import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
 import java.util.ArrayList;
 
 /**
@@ -41,7 +42,7 @@ public class OptimalValue implements
     ArrayList<DRes<SInt>> column = new ArrayList<>(row.size());
     column.addAll(tableau.getB());
     column.add(tableau.getZ());
-    AdvancedNumeric advanced = builder.advancedNumeric();
+    AdvancedNumeric advanced = new DefaultAdvancedNumeric(builder);
     DRes<SInt> numerator = advanced.innerProduct(row, column);
     DRes<SInt> invDenominator = advanced.invert(pivot);
     DRes<SInt> mult = builder.numeric().mult(numerator, invDenominator);

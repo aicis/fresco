@@ -21,10 +21,28 @@
       <artifactId>core</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
+
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>real</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
       <artifactId>mascot</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>list</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -73,6 +91,27 @@
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
       <artifactId>mimc</artifactId>
+      <version>1.2.2-SNAPSHOT</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>common</artifactId>
+      <version>1.2.2-SNAPSHOT</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>real</artifactId>
+      <version>1.2.2-SNAPSHOT</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>list</artifactId>
       <version>1.2.2-SNAPSHOT</version>
       <type>test-jar</type>
       <scope>test</scope>

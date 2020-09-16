@@ -6,9 +6,7 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.PreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
-import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
@@ -29,22 +27,14 @@ import java.math.BigInteger;
 public class SpdzBuilder implements BuilderFactoryNumeric {
 
   private BasicNumericContext basicNumericContext;
-  private MiscBigIntegerGenerators miscOIntGenerators;
-  private RealNumericContext realNumericContext;
 
-  SpdzBuilder(BasicNumericContext basicNumericContext, RealNumericContext realNumericContext) {
+  SpdzBuilder(BasicNumericContext basicNumericContext) {
     this.basicNumericContext = basicNumericContext;
-    this.realNumericContext = realNumericContext;
   }
 
   @Override
   public BasicNumericContext getBasicNumericContext() {
     return basicNumericContext;
-  }
-
-  @Override
-  public RealNumericContext getRealNumericContext() {
-    return realNumericContext;
   }
 
   @Override
@@ -139,11 +129,4 @@ public class SpdzBuilder implements BuilderFactoryNumeric {
     };
   }
 
-  @Override
-  public MiscBigIntegerGenerators getBigIntegerHelper() {
-    if (miscOIntGenerators == null) {
-      miscOIntGenerators = new MiscBigIntegerGenerators(basicNumericContext.getModulus());
-    }
-    return miscOIntGenerators;
-  }
 }

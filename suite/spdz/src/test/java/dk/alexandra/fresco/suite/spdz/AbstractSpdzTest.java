@@ -189,8 +189,7 @@ public abstract class AbstractSpdzTest {
 
     ProtocolBuilderNumeric sequential = new SpdzBuilder(
         new BasicNumericContext(maxBitLength, myId, noOfPlayers,
-            tripleSupplier.getFieldDefinition()),
-        new RealNumericContext(fixedPointPrecision)).createSequential();
+            tripleSupplier.getFieldDefinition(), fixedPointPrecision)).createSequential();
     SpdzResourcePoolImpl tripleResourcePool =
         new SpdzResourcePoolImpl(myId, noOfPlayers, new OpenedValueStoreImpl<>(), tripleSupplier,
             AesCtrDrbg::new);

@@ -134,7 +134,7 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
             this.getNoOfParties(),
             network);
     BuilderFactoryNumeric builderFactory = new Spdz2kBuilder<>(factory,
-        new BasicNumericContext(effectiveBitLength, getMyId(), getNoOfParties(), null));
+        new BasicNumericContext(effectiveBitLength, getMyId(), getNoOfParties(), null, getMaxBitLength()));
     ProtocolBuilderNumeric root = builderFactory.createSequential();
     DRes<byte[]> jointSeed = coinTossing
         .buildComputation(root);

@@ -4,10 +4,11 @@ import static dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryption.USE_DEFAULT_ROU
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
-import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
@@ -95,7 +96,9 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
                * where K is the symmetric key i is the reverse of the current round count r_{i} is the round
                * constant c_{i - 1} is the cipher text we have computed in the previous round
                */
-              DRes<SInt> inverted = seq.advancedNumeric().exp(state.value, threeInverse);
+
+              AdvancedNumeric advancedNumeric = new DefaultAdvancedNumeric(seq);
+              DRes<SInt> inverted = advancedNumeric.exp(state.value, threeInverse);
 
               /*
                * In order to obtain the correct round constants we will use the reverse round count (since
@@ -117,7 +120,7 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
               /*
                * We're in the last round so we just need to compute c^{-3} - K
                */
-              AdvancedNumeric advancedNumericBuilder = seq.advancedNumeric();
+              AdvancedNumeric advancedNumericBuilder = new DefaultAdvancedNumeric(seq);
               DRes<SInt> inverted = advancedNumericBuilder.exp(state.value, threeInverse);
 
               return seq.numeric().sub(inverted, encryptionKey);

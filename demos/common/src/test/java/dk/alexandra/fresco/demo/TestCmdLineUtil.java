@@ -111,7 +111,7 @@ public class TestCmdLineUtil {
     assertTrue(cmd.getProtocolSuite() instanceof SpdzProtocolSuite);
     assertTrue(cmd.getResourcePool() instanceof ResourcePoolImpl);
     assertTrue(cmd.getSce() instanceof SecureComputationEngineImpl);
-    InitializeStorage.cleanup();
+//    InitializeStorage.cleanup();
   }
 
   @Test
@@ -124,7 +124,7 @@ public class TestCmdLineUtil {
     assertTrue(cmd.getProtocolSuite() instanceof SpdzProtocolSuite);
     assertTrue(cmd.getResourcePool() instanceof ResourcePoolImpl);
     assertTrue(cmd.getSce() instanceof SecureComputationEngineImpl);
-    InitializeStorage.cleanup();
+   // InitializeStorage.cleanup();
   }
 
   @Test(expected = IllegalArgumentException.class)

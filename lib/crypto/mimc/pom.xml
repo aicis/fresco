@@ -7,7 +7,6 @@
     <artifactId>fresco-lib-pom</artifactId>
     <groupId>dk.alexandra.fresco</groupId>
     <version>1.2.2-SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -35,10 +34,21 @@
       <groupId>dk.alexandra.fresco</groupId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <artifactId>common</artifactId>
+      <groupId>dk.alexandra.fresco</groupId>
+      <version>${project.version}</version>
+    </dependency>
 
-    <!-- Tests depends on AbstractDummyArithmeticTest -->
     <dependency>
       <artifactId>core</artifactId>
+      <groupId>dk.alexandra.fresco</groupId>
+      <scope>test</scope>
+      <type>test-jar</type>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>common</artifactId>
       <groupId>dk.alexandra.fresco</groupId>
       <scope>test</scope>
       <type>test-jar</type>

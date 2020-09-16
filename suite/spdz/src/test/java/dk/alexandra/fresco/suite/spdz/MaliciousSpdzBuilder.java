@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
-import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
@@ -21,8 +20,8 @@ import java.math.BigInteger;
 
 public class MaliciousSpdzBuilder extends SpdzBuilder {
 
-  MaliciousSpdzBuilder(BasicNumericContext spdzFactory, RealNumericContext realNumericContext) {
-    super(spdzFactory, realNumericContext);
+  MaliciousSpdzBuilder(BasicNumericContext spdzFactory) {
+    super(spdzFactory);
   }
 
   @Override

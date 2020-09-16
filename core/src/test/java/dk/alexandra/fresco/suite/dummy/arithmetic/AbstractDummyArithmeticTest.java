@@ -14,7 +14,6 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.lib.real.BasicFixedPointTests;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
 import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
@@ -39,7 +38,7 @@ public abstract class AbstractDummyArithmeticTest {
   protected static final FieldDefinition DEFAULT_FIELD =
       new MersennePrimeFieldDefinition(512, 569);
   protected static final int DEFAULT_MAX_BIT_LENGTH = 200;
-  protected static final int DEFAULT_FIXED_POINT_PRECISION = BasicFixedPointTests.DEFAULT_PRECISION;
+  protected static final int DEFAULT_FIXED_POINT_PRECISION = 16;
   protected static final int DEFAULT_PARTIES = 1;
   protected static final EvaluationStrategy DEFAULT_EVALUATION_STRATEGY
       = EvaluationStrategy.SEQUENTIAL_BATCHED;

@@ -5,8 +5,13 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.collections.Matrix;
-import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
+import dk.alexandra.fresco.lib.common.collections.Matrix;
+import dk.alexandra.fresco.lib.common.compare.DefaultComparison;
+import dk.alexandra.fresco.lib.common.conditional.ConditionalSelect;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
+import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
+import dk.alexandra.fresco.lib.debug.Debug;
+import dk.alexandra.fresco.lib.debug.DefaultDebug;
 import dk.alexandra.fresco.lib.lp.LPSolver.LPOutput;
 import java.io.PrintStream;
 import java.math.BigInteger;
@@ -110,7 +115,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
         int phaseOneResult = phaseOneOutput.getSecond().intValue();
         if (phaseOneResult == 0) {
           if (isDebug()) {
-            inner.debug()
+            new DefaultDebug(inner)
                 .openAndPrint("Entering Variable [" + state.iteration + "]: ",
                     phaseOneOutput.getFirst(), System.out);
           }
@@ -145,10 +150,9 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
         new ExitingVariable(state.tableau, state.updateMatrix, entering, state.basis)))
         .pairInPar((seq, exitingVariable) -> {
           ArrayList<DRes<SInt>> exitingIndex = exitingVariable.exitingIndex;
+          AdvancedNumeric advancedNumeric = new DefaultAdvancedNumeric(seq);
+          final DRes<SInt>  ent = advancedNumeric.innerProductWithPublicPart(state.enumeratedVariables,entering);
           // Update Basis
-          DRes<SInt> ent =
-              seq.advancedNumeric().innerProductWithPublicPart(state.enumeratedVariables,
-                  entering);
           return seq.par((par) -> {
             ArrayList<DRes<SInt>> nextBasis = new ArrayList<>(noConstraints);
             for (int i = 0; i < noConstraints; i++) {
@@ -190,7 +194,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
           List<DRes<SInt>> entering = enteringAndMinimum.getFirst();
           SInt minimum = enteringAndMinimum.getSecond();
           // Check if the entry in F is non-negative
-          DRes<SInt> positive = seq.comparison().compareLEQLong(zero, () -> minimum);
+          DRes<SInt> positive = new DefaultComparison(seq).compareLEQLong(zero, () -> minimum);
           DRes<BigInteger> terminationOut = seq.numeric().open(positive);
           return () -> new Pair<>(entering, terminationOut.out());
         });
@@ -253,11 +257,12 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
   private void printInitialState(ProtocolBuilderNumeric builder, LpState state) {
     PrintStream stream = System.out;
     int iterations = state.iteration;
-    builder.debug().marker("Initial Tableau [" + iterations + "]: ", stream);
+    Debug debug = new DefaultDebug(builder);
+    debug.marker("Initial Tableau [" + iterations + "]: ", stream);
     state.tableau.debugInfo(builder, stream);
-    builder.debug().openAndPrint("Basis [" + iterations + "]: ", state.basis, stream);
-    builder.debug().openAndPrint("Update Matrix [" + iterations + "]: ", updateMatrix, stream);
-    builder.debug().openAndPrint("Pivot [" + iterations + "]: ", state.prevPivot, stream);
+    debug.openAndPrint("Basis [" + iterations + "]: ", state.basis, stream);
+    debug.openAndPrint("Update Matrix [" + iterations + "]: ", updateMatrix, stream);
+    debug.openAndPrint("Pivot [" + iterations + "]: ", state.prevPivot, stream);
   }
 
   /**
@@ -267,9 +272,10 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
   private void printState(ProtocolBuilderNumeric builder, LpState state) {
     PrintStream stream = System.out;
     int iterations = state.iteration;
-    builder.debug().openAndPrint("Basis [" + iterations + "]: ", state.basis, stream);
-    builder.debug().openAndPrint("Update Matrix [" + iterations + "]: ", updateMatrix, stream);
-    builder.debug().openAndPrint("Pivot [" + iterations + "]: ", state.prevPivot, stream);
+    Debug debug = new DefaultDebug(builder);
+    debug.openAndPrint("Basis [" + iterations + "]: ", state.basis, stream);
+    debug.openAndPrint("Update Matrix [" + iterations + "]: ", updateMatrix, stream);
+    debug.openAndPrint("Pivot [" + iterations + "]: ", state.prevPivot, stream);
   }
 
   public enum PivotRule {

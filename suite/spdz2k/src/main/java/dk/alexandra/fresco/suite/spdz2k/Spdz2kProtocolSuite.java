@@ -63,6 +63,7 @@ public abstract class Spdz2kProtocolSuite<
         resourcePool.getMaxBitLength(),
         resourcePool.getMyId(),
         resourcePool.getNoOfParties(),
-        resourcePool.getFieldDefinition());
+        resourcePool.getFieldDefinition(),
+        resourcePool.getMaxBitLength());
   }
 }

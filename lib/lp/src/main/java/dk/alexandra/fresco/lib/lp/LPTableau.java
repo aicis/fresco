@@ -3,7 +3,9 @@ package dk.alexandra.fresco.lib.lp;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.collections.Matrix;
+import dk.alexandra.fresco.lib.common.collections.Matrix;
+import dk.alexandra.fresco.lib.debug.Debug;
+import dk.alexandra.fresco.lib.debug.DefaultDebug;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
@@ -52,9 +54,10 @@ public class LPTableau {
    * @param ps      a PrintStream on which to print the debugging information
    */
   public void debugInfo(ProtocolBuilderNumeric builder, PrintStream ps) {
-    builder.debug().openAndPrint("C: ", C, ps);
-    builder.debug().openAndPrint("B: ", B, ps);
-    builder.debug().openAndPrint("F: ", F, ps);
-    builder.debug().openAndPrint("z: ", z, ps);
+    Debug debug = new DefaultDebug(builder);
+    debug.openAndPrint("C: ", C, ps);
+    debug.openAndPrint("B: ", B, ps);
+    debug.openAndPrint("F: ", F, ps);
+    debug.openAndPrint("z: ", z, ps);
   }
 }

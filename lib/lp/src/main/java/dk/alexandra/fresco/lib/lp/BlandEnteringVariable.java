@@ -2,12 +2,14 @@ package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
-import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
-import dk.alexandra.fresco.framework.builder.numeric.Comparison;
+import dk.alexandra.fresco.lib.common.compare.DefaultComparison;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
+import dk.alexandra.fresco.lib.common.compare.Comparison;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.collections.Matrix;
+import dk.alexandra.fresco.lib.common.collections.Matrix;
+import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +40,7 @@ public class BlandEnteringVariable
         constraintColumn.addAll(tableau.getC().getColumn(i));
         constraintColumn.add(tableau.getF().get(i));
 
-        AdvancedNumeric advancedNumericBuilder = par.advancedNumeric();
+        AdvancedNumeric advancedNumericBuilder = new DefaultAdvancedNumeric(par);
         updatedF.add(
             advancedNumericBuilder.innerProduct(
                 constraintColumn,
@@ -50,7 +52,7 @@ public class BlandEnteringVariable
         seq.par(par -> {
           ArrayList<DRes<SInt>> signs = new ArrayList<>(updatedF.size());
           for (DRes<SInt> f : updatedF) {
-            signs.add(par.comparison().compareLEQ(f, negativeOne));
+            signs.add(new DefaultComparison(par).compareLEQ(f, negativeOne));
           }
           return () -> signs;
         }).seq((seq2, signs) -> {
@@ -75,13 +77,13 @@ public class BlandEnteringVariable
         }).par((par, pairwiseSums) -> {
           ArrayList<DRes<SInt>> enteringIndex = new ArrayList<>();
           int bitlength = (int) Math.log(pairwiseSums.size()) * 2 + 1;
-          Comparison comparison = par.comparison();
+          Comparison comparison = new DefaultComparison(par);
           for (int i = 0; i < updatedF.size(); i++) {
             enteringIndex.add(comparison.equals(bitlength, pairwiseSums.get(i), one));
           }
           return () -> enteringIndex;
         })).seq((seq, enteringIndex) -> {
-      DRes<SInt> terminationSum = seq.advancedNumeric().sum(enteringIndex);
+      DRes<SInt> terminationSum = new DefaultAdvancedNumeric(seq).sum(enteringIndex);
       DRes<SInt> termination = seq.numeric().sub(one, terminationSum);
       return () -> new Pair<>(enteringIndex, termination.out());
     });

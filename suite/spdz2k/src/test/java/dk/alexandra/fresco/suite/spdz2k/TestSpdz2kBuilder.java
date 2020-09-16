@@ -5,9 +5,9 @@ import org.junit.Test;
 
 public class TestSpdz2kBuilder {
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void getBigIntegerHelper() {
-    new Spdz2kBuilder<CompUInt128>(null, null).getBigIntegerHelper();
-  }
+//  @Test(expected = UnsupportedOperationException.class)
+//  public void getBigIntegerHelper() {
+//    new Spdz2kBuilder<CompUInt128>(null, null);
+//  }
 
 }

@@ -1,14 +1,10 @@
 package dk.alexandra.fresco.logging;
 
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.numeric.Comparison;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
-import dk.alexandra.fresco.lib.real.RealNumericContext;
-import dk.alexandra.fresco.logging.arithmetic.ComparisonLoggerDecorator;
 import dk.alexandra.fresco.logging.arithmetic.NumericLoggingDecorator;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import java.util.Map;
@@ -52,23 +48,18 @@ public class NumericSuiteLogging<ResourcePoolT extends NumericResourcePool>
         return numericLoggingDecorator;
       }
 
-      @Override
-      public MiscBigIntegerGenerators getBigIntegerHelper() {
-        return delegateFactory.getBigIntegerHelper();
-      }
-
-      @Override
-      public Comparison createComparison(ProtocolBuilderNumeric builder) {
-        ComparisonLoggerDecorator comparisonLoggerDecorator =
-            new ComparisonLoggerDecorator(delegateFactory.createComparison(builder));
-        aggregate.add(comparisonLoggerDecorator);
-        return comparisonLoggerDecorator;
-      }
-
-      @Override
-      public RealNumericContext getRealNumericContext() {
-        return delegateFactory.getRealNumericContext();
-      }
+//      @Override
+//      public MiscBigIntegerGenerators getBigIntegerHelper() {
+//        return delegateFactory.getBigIntegerHelper();
+//      }
+//
+//      @Override
+//      public Comparison createComparison(ProtocolBuilderNumeric builder) {
+//        ComparisonLoggerDecorator comparisonLoggerDecorator =
+//            new ComparisonLoggerDecorator(delegateFactory.createComparison(builder));
+//        aggregate.add(comparisonLoggerDecorator);
+//        return comparisonLoggerDecorator;
+//      }
     };
   }
 

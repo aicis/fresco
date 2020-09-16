@@ -7,7 +7,7 @@ import static org.junit.Assert.fail;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.collections.Matrix;
+import dk.alexandra.fresco.lib.common.collections.Matrix;
 import dk.alexandra.fresco.lib.lp.LPSolver.PivotRule;
 import java.util.ArrayList;
 import java.util.Arrays;

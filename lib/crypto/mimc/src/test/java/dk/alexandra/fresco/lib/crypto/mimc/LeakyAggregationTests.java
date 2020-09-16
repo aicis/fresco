@@ -10,9 +10,10 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.collections.Matrix;
-import dk.alexandra.fresco.lib.collections.MatrixTestUtils;
-import dk.alexandra.fresco.lib.collections.MatrixUtils;
+import dk.alexandra.fresco.lib.common.collections.DefaultCollections;
+import dk.alexandra.fresco.lib.common.collections.Matrix;
+import dk.alexandra.fresco.lib.common.collections.MatrixTestUtils;
+import dk.alexandra.fresco.lib.common.collections.MatrixUtils;
 import java.math.BigInteger;
 import java.util.Collections;
 
@@ -37,9 +38,10 @@ public class LeakyAggregationTests {
           // define functionality to be tested
           Application<Matrix<BigInteger>, ProtocolBuilderNumeric> testApplication =
               root -> {
-                DRes<Matrix<DRes<SInt>>> closed = root.collections().closeMatrix(input, 1);
+                dk.alexandra.fresco.lib.common.collections.Collections collections = new DefaultCollections(root);
+                DRes<Matrix<DRes<SInt>>> closed = collections.closeMatrix(input, 1);
                 DRes<Matrix<DRes<SInt>>> aggregated = root.seq(new MiMCAggregation(closed, 0, 1));
-                DRes<Matrix<DRes<BigInteger>>> opened = root.collections().openMatrix(aggregated);
+                DRes<Matrix<DRes<BigInteger>>> opened = collections.openMatrix(aggregated);
                 return () -> new MatrixUtils().unwrapMatrix(opened);
               };
           Matrix<BigInteger> actual = runApplication(testApplication);
