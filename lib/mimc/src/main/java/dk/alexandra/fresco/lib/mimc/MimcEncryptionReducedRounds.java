@@ -1,9 +1,10 @@
-package dk.alexandra.fresco.lib.crypto.mimc;
+package dk.alexandra.fresco.lib.mimc;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
 
 /**
  * A version of MiMC with a reduced number of rounds suitable when using as PRF. As described in <a
@@ -15,31 +16,41 @@ import dk.alexandra.fresco.framework.value.SInt;
  * &lt; &lceil;log<sub>3</sub>(p) - 2log<sub>3</sub>(log<sub>3</sub>(p))&rceil;</i>, where <i>p</i>
  * is the modulus.
  */
-public class MimcDecryptionReducedRounds implements Computation<SInt, ProtocolBuilderNumeric> {
+public class MimcEncryptionReducedRounds implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final DRes<SInt> cipherText;
+  private final DRes<SInt> plainText;
   private final DRes<SInt> encryptionKey;
+  private static final double LOG_THREE = Math.log(3);
 
   /**
-   * Reduced round MiMC decryption.
+   * Reduced round MiMC encryption.
    *
    * <p>This implementation is suitable only when using MIMC as an PRF and an adversary has access
    * to at most <i>n</i> ciphertexts where <i>&lceil;log<sub>3</sub>(n)&rceil; &lt;
    * &lceil;log<sub>3</sub>(p) - 2log<sub>3</sub>(log<sub>3</sub>(p))&rceil;</i>
    *
-   * @param cipherText the ciphertext to decrypt.
-   * @param encryptionKey the symmetric key used to decrypt.
+   * @param plainText the plain text to encrypt.
+   * @param encryptionKey the symmetric key used to encrypt.
    */
-  public MimcDecryptionReducedRounds(DRes<SInt> cipherText, DRes<SInt> encryptionKey) {
-    this.cipherText = cipherText;
+  public MimcEncryptionReducedRounds(DRes<SInt> plainText, DRes<SInt> encryptionKey) {
+    this.plainText = plainText;
     this.encryptionKey = encryptionKey;
   }
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    int reducedRounds =
-        MimcEncryptionReducedRounds.computeReducedRounds(
-            builder.getBasicNumericContext().getModulus());
-    return (new MiMCDecryption(cipherText, encryptionKey, reducedRounds)).buildComputation(builder);
+    int reducedRounds = computeReducedRounds(builder.getBasicNumericContext().getModulus());
+    return (new MiMCEncryption(plainText, encryptionKey, reducedRounds)).buildComputation(builder);
+  }
+
+  /**
+   * Computes the number of rounds required for the given modulus.
+   *
+   * @param modulus the modulus
+   * @return the number of required rounds
+   */
+  static int computeReducedRounds(BigInteger modulus) {
+    double logThreeMod = Math.log(modulus.doubleValue()) / LOG_THREE;
+    return (int) Math.ceil(logThreeMod - 2 * (Math.log(logThreeMod) / LOG_THREE));
   }
 }

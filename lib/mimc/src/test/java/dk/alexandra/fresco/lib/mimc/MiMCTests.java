@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.crypto.mimc;
+package dk.alexandra.fresco.lib.mimc;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;

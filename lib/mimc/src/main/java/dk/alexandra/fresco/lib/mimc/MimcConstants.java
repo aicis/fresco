@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.crypto.mimc;
+package dk.alexandra.fresco.lib.mimc;
 
 import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drng;

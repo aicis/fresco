@@ -1,6 +1,6 @@
-package dk.alexandra.fresco.lib.crypto.mimc;
+package dk.alexandra.fresco.lib.mimc;
 
-import static dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryption.USE_DEFAULT_ROUNDS;
+import static dk.alexandra.fresco.lib.mimc.MiMCEncryption.USE_DEFAULT_ROUNDS;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;

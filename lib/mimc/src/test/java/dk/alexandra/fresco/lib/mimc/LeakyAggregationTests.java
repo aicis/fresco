@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.crypto.mimc;
+package dk.alexandra.fresco.lib.mimc;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
