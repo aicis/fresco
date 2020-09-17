@@ -28,7 +28,7 @@ import org.junit.Test;
 public class BenchMatching extends AbstractSpdz2kTest<Spdz2kResourcePool<CompUInt64>> {
   public static class TestOrderMatchingBig<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-    private static final int AMOUNT = 128;
+    private static final int AMOUNT = 64;
     private final List<Order> buyOrders = generateOrders(AMOUNT, true);
     private final List<Order> sellOrders = generateOrders(AMOUNT, false);
 
@@ -58,6 +58,7 @@ public class BenchMatching extends AbstractSpdz2kTest<Spdz2kResourcePool<CompUIn
           for (int i = 0; i < sortedReference.size(); i++) {
             // TODO the OddEven mergesort is not stable so equal bits don't get stay in order based on user ID and are instead shuffeled arbitrary
             // this is fine now since we only have one round but needs to be fixed for multiple rounds
+//            System.out.println(i);
 //            Assert.assertEquals(sortedReference.get(i).firstId,
 //                sortedReal.get(i).firstId);
 //            Assert.assertEquals(sortedReference.get(i).secondId,
@@ -108,7 +109,7 @@ public class BenchMatching extends AbstractSpdz2kTest<Spdz2kResourcePool<CompUIn
     List<Order> orders = new ArrayList<>();
     for (int i = 0; i < amount; i++) {
       int mean = buy ? 1000100 : 999900;
-      int rate = gaussianInt(rand, mean, 50+2*i);
+      int rate = gaussianInt(rand, mean, 100+2*i);
       orders.add(new Order(buy ? i : amount + i, rate, buy));
     }
     return orders;

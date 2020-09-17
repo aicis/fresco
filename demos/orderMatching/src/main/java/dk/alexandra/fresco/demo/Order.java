@@ -18,6 +18,10 @@ public class Order implements Comparable {
       return 1;
     }
     int res = Integer.valueOf(limitRate).compareTo(Integer.valueOf(((Order) o).limitRate));
+    // A buy order is sorted with the largest element first, but secondary with the smallest user ID first
+    if (buy) {
+      res *= -1;
+    }
     if (res == 0) {
       res = Integer.valueOf(userId).compareTo(Integer.valueOf(((Order) o).userId));
     }

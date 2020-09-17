@@ -47,15 +47,28 @@ public class OrderMatchingDemo implements
   // Right now we assume that all transactions must be of a static amount in a a base currency
   // and there is only one other currency to exchange against, and then the quantity and rate will
   // be directly depended.
+
+  /**
+   * NEED: the orders to be sorted according to user ID. That is in chronological order.
+   * This is not secret since in the outsourced setting all servers know when they receive an
+   * outsourced order by a given user.
+   * @param serverId
+   * @param buySize
+   * @param buyOrders
+   * @param sellSize
+   * @param sellOrders
+   */
   public OrderMatchingDemo(int serverId, int buySize, List<Order> buyOrders, int sellSize, List<Order> sellOrders) {
     if (serverId == 1 && (buySize != buyOrders.size() || sellSize != sellOrders.size())) {
       throw new IllegalArgumentException("Size must match list of orders from player 1");
     }
     this.serverId = serverId;
     this.buySize = buySize;
-    this.buyOrders = buyOrders;
+    this.buyOrders = new ArrayList<>(buyOrders);
     this.sellSize = sellSize;
-    this.sellOrders = sellOrders;
+    this.sellOrders = new ArrayList<>(sellOrders);
+    // This is needed since the internal MPC sorting will leave the largest first
+//    Collections.reverse(this.buyOrders);
   }
 
   @Override

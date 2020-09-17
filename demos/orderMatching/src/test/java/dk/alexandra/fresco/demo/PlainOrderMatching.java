@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.demo;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,7 +16,6 @@ public class PlainOrderMatching {
     List<Order> buyOrders = orders.stream().filter(c -> c.buy == true).sorted()
         .collect(Collectors.toList());
     // Reverse to get highest orders first
-    Collections.reverse(buyOrders);
     List<Order> sellOrders = orders.stream().filter(c -> c.buy == false).sorted()
         .collect(Collectors.toList());
     List<OrderMatch> res = new ArrayList<>();

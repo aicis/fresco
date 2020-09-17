@@ -64,14 +64,6 @@ public class TestOrderMatchingDemo extends AbstractSpdz2kTest<Spdz2kResourcePool
           List<OrderMatch> res = runApplication(distDemo);
           Assert.assertTrue(TestOrderMatchingSimple.expected.containsAll(res));
           Assert.assertEquals(TestOrderMatchingSimple.expected.size(), res.size());
-//          for (int i = 0; i < expected.size(); i++) {
-//            Assert.assertEquals(processedOrders.get(i).firstId,
-//                expected.get(i).firstId);
-//            Assert.assertEquals(processedOrders.get(i).secondId,
-//                expected.get(i).secondId);
-//            Assert.assertEquals(processedOrders.get(i).rate,
-//                expected.get(i).rate);
-//          }
         }
       };
     }
@@ -110,10 +102,5 @@ public class TestOrderMatchingDemo extends AbstractSpdz2kTest<Spdz2kResourcePool
     Set<OrderMatch> res = new HashSet<>(matching.compute());
     Assert.assertTrue(TestOrderMatchingSimple.expected.containsAll(res));
     Assert.assertEquals(TestOrderMatchingSimple.expected.size(), res.size());
-//    for (int i = 0; i < res.size(); i++) {
-//      Assert.assertEquals(TestOrderMatchingSimple.expected.get(i).firstId, res.get(i).firstId);
-//      Assert.assertEquals(TestOrderMatchingSimple.expected.get(i).secondId, res.get(i).secondId);
-//      Assert.assertEquals(TestOrderMatchingSimple.expected.get(i).rate, res.get(i).rate);
-//    }
   }
 }
