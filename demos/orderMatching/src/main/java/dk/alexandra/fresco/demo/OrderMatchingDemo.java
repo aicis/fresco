@@ -1,15 +1,22 @@
 package dk.alexandra.fresco.demo;
 
+import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
+import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,39 +154,78 @@ public class OrderMatchingDemo implements
     });
   }
 
-//  public static <ResourcePoolT extends ResourcePool> void main(String[] args) throws IOException {
-//    CmdLineUtil<ResourcePoolT, ProtocolBuilderNumeric> cmdUtil = new CmdLineUtil<>();
-//    int limit = 0;
-//    boolean buy = false;
-//    cmdUtil.addOption(Option.builder("limit").desc("Must express the limit rates for transaction"
-//        + " using the option \"limit\".").hasArg().build());
-////    cmdUtil.addOption(Option.builder("quantity").desc("Must express the quantity for the "
-////        + "transaction using the option \"quantity\".").hasArg().build());
-//    cmdUtil.addOption(Option.builder("buy").desc("Must express whether the transaction is a buy"
-//        + "(or sell) transaction using the option \"buy\" followed by a list of integers, non-zero for buy and "
-//        + "zero for sell.").hasArg().build());
-//    CommandLine cmd = cmdUtil.parse(args);
-//    NetworkConfiguration networkConfiguration = cmdUtil.getNetworkConfiguration();
-//
-//    if (!cmd.hasOption("limit") || !cmd.hasOption("buy")) {
-//      cmdUtil.displayHelp();
-//      throw new IllegalArgumentException("Parties must submit input");
-//    } else {
-//      limit = Integer.parseInt(cmd.getOptionValue("limit"));
-//      buy = Integer.parseInt(cmd.getOptionValue("buy")) != 0 ? true : false;
+  /** FOLLOWING CODE FOR BENCHMARKING **/
+  static final int AMOUNT_OF_ORDERS = 16;
+  static final int WARM_UP = 10;
+  static final int ITERATIONS = 30;
+
+  /**
+   * Simulate a list of orders, around 1000000
+   * @param amount amount of orders in the list
+   * @param buy true if it is a list of buy orders
+   * @return list of orders, buy orders have userid [0;amount[ and sell orders [amount:2*amount[
+   */
+  static List<Order> generateOrders(int amount, boolean buy) {
+    Random rand = new Random(buy ? 1 : 0);
+    List<Order> orders = new ArrayList<>();
+    for (int i = 0; i < amount; i++) {
+      int mean = buy ? 1000100 : 999900;
+      int rate = gaussianInt(rand, mean, 100+2*i);
+      orders.add(new Order(buy ? i : amount + i, rate, buy));
+    }
+    return orders;
+  }
+
+  private static int gaussianInt(Random rand, int mean, int standardDeviation) {
+    int gauss = (int) (rand.nextGaussian() * standardDeviation + mean);
+    return gauss < 0 ? 0 : gauss;
+  }
+
+  private static double mean(List<Long> times) {
+    return ((double) times.stream().mapToInt(t -> t.intValue()).sum())/ITERATIONS;
+  }
+
+  private static double std(List<Long> times ) {
+    double mean = mean(times);
+    double temp = 0.0;
+    for (long current : times) {
+      temp += (((double)current) - mean)*(((double)current) - mean);
+    }
+    return Math.sqrt(temp/((double)(ITERATIONS - 1)));
+  }
+
+  public static <ResourcePoolT extends ResourcePool> void main(String[] args) throws IOException {
+    CmdLineUtil<ResourcePoolT, ProtocolBuilderNumeric> cmdUtil = new CmdLineUtil<>();
+    CommandLine cmd = cmdUtil.parse(args);
+    NetworkConfiguration networkConfiguration = cmdUtil.getNetworkConfiguration();
+    List<Order> inputBuy = new ArrayList<>();
+    List<Order> inputSell = new ArrayList<>();
+    if (networkConfiguration.getMyId() == 1) {
+      // For the simple case we simply have one party supply all orders in plain
+      inputBuy = generateOrders(AMOUNT_OF_ORDERS, true);
+      inputSell = generateOrders(AMOUNT_OF_ORDERS, false);
+    }
+    OrderMatchingDemo orderDemo = new OrderMatchingDemo(networkConfiguration.getMyId(),
+        AMOUNT_OF_ORDERS, inputBuy, AMOUNT_OF_ORDERS, inputSell);
+    SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce = cmdUtil.getSce();
+    cmdUtil.startNetwork();
+    ResourcePoolT resourcePool = cmdUtil.getResourcePool();
+    List<Long> times = new ArrayList<>();
+    for (int i = 0; i < WARM_UP+ITERATIONS; i++) {
+      long start = System.currentTimeMillis();
+      List<OrderMatch> orders = sce.runApplication(orderDemo, resourcePool, cmdUtil.getNetwork());
+      long end = System.currentTimeMillis();
+      if (i >= WARM_UP) {
+        times.add(end - start);
+      }
+    }
+    System.out.println("Average time :" + mean(times) + ", std:" + std(times));
+//    System.out.println("Orders are:");
+//    for (OrderMatch currentOrder : orders) {
+//      System.out.println("Transfer between " + currentOrder.firstId + " and " + currentOrder.secondId +
+//          ". With rate " + currentOrder.rate + ".");
 //    }
-//
-//    OrderMatchingDemo orderDemo = new OrderMatchingDemo(networkConfiguration.getMyId(), limit, buy);
-//    SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce = cmdUtil.getSce();
-//    cmdUtil.startNetwork();
-//    ResourcePoolT resourcePool = cmdUtil.getResourcePool();
-//    List<List<BigInteger>> orders = sce.runApplication(orderDemo, resourcePool, cmdUtil.getNetwork());
-//    log.info("Orders are:");
-//    for (List<BigInteger> currentOrder : orders) {
-//      log.info("Transfer between " + currentOrder.get(0) + " and " + currentOrder.get(1) +
-//          ". With rate " + currentOrder.get(2) + ".");
-//    }
-//    cmdUtil.closeNetwork();
-//    sce.shutdownSCE();
-//  }
+    cmdUtil.closeNetwork();
+    sce.shutdownSCE();
+  }
 }

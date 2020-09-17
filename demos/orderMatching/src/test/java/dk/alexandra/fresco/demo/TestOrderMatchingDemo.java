@@ -1,14 +1,21 @@
 package dk.alexandra.fresco.demo;
 
+import dk.alexandra.fresco.framework.ProtocolEvaluator;
+import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.configuration.NetworkUtil;
+import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
-import dk.alexandra.fresco.suite.spdz2k.AbstractSpdz2kTest;
 import dk.alexandra.fresco.suite.spdz2k.Spdz2kProtocolSuite64;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt64;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt64Factory;
@@ -19,15 +26,64 @@ import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDummyDataSupplier
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kOpenedValueStoreImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestOrderMatchingDemo extends AbstractSpdz2kTest<Spdz2kResourcePool<CompUInt64>> {
+public class TestOrderMatchingDemo {
+  protected void runTest(
+      TestThreadRunner.TestThreadFactory<Spdz2kResourcePool, ProtocolBuilderNumeric> f,
+      EvaluationStrategy evalStrategy, int noOfParties) {
+    List<Integer> ports = NetworkUtil.getFreePorts(2 * noOfParties);
+    Map<Integer, NetworkConfiguration> netConf =
+        NetworkUtil.getNetworkConfigurations(ports.subList(0, noOfParties));
+    Map<Integer, NetworkConfiguration> coinTossingNetConf = NetworkUtil
+        .getNetworkConfigurations(ports.subList(noOfParties, ports.size()));
+    Map<Integer, TestThreadRunner.TestThreadConfiguration<Spdz2kResourcePool, ProtocolBuilderNumeric>> conf =
+        new HashMap<>();
+    for (int playerId : netConf.keySet()) {
+      ProtocolSuite protocolSuite = new Spdz2kProtocolSuite64(true);
+      NetworkConfiguration coinTossingPartyNetConf = coinTossingNetConf.get(playerId);
+      NetworkConfiguration partyNetConf = netConf.get(playerId);
+      ProtocolEvaluator<Spdz2kResourcePool> evaluator =
+          new BatchedProtocolEvaluator<Spdz2kResourcePool>(evalStrategy.getStrategy(), protocolSuite);
+
+      TestThreadRunner.TestThreadConfiguration<Spdz2kResourcePool, ProtocolBuilderNumeric> ttc =
+          new TestThreadRunner.TestThreadConfiguration<Spdz2kResourcePool, ProtocolBuilderNumeric>(
+              new SecureComputationEngineImpl<>(protocolSuite, evaluator),
+              () -> createResourcePool(playerId, noOfParties, () -> new AsyncNetwork(coinTossingPartyNetConf)),
+              () -> new AsyncNetwork(partyNetConf));
+      conf.put(playerId, ttc);
+    }
+    TestThreadRunner.run(f, conf);
+  }
+
+  protected Spdz2kResourcePool<CompUInt64> createResourcePool(int playerId, int noOfParties,
+      Supplier<Network> networkSupplier) {
+    CompUIntFactory<CompUInt64> factory = new CompUInt64Factory();
+    CompUInt64 keyShare = factory.createRandom();
+    Spdz2kResourcePool<CompUInt64> resourcePool =
+        new Spdz2kResourcePoolImpl<>(
+            playerId,
+            noOfParties, new AesCtrDrbg(new byte[32]),
+            new Spdz2kOpenedValueStoreImpl<>(),
+            new Spdz2kDummyDataSupplier<>(playerId, noOfParties, keyShare, factory),
+            factory);
+    resourcePool.initializeJointRandomness(networkSupplier, AesCtrDrbg::new, 32);
+    return resourcePool;
+  }
+
+  protected ProtocolSuiteNumeric<Spdz2kResourcePool<CompUInt64>> createProtocolSuite() {
+    return new Spdz2kProtocolSuite64(true);
+  }
+
+
   public static class TestOrderMatchingSimple<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
@@ -69,31 +125,11 @@ public class TestOrderMatchingDemo extends AbstractSpdz2kTest<Spdz2kResourcePool
     }
   }
 
-  @Override
-  protected Spdz2kResourcePool<CompUInt64> createResourcePool(int playerId, int noOfParties,
-      Supplier<Network> networkSupplier) {
-    CompUIntFactory<CompUInt64> factory = new CompUInt64Factory();
-    CompUInt64 keyShare = factory.createRandom();
-    Spdz2kResourcePool<CompUInt64> resourcePool =
-        new Spdz2kResourcePoolImpl<>(
-            playerId,
-            noOfParties, new AesCtrDrbg(new byte[32]),
-            new Spdz2kOpenedValueStoreImpl<>(),
-            new Spdz2kDummyDataSupplier<>(playerId, noOfParties, keyShare, factory),
-            factory);
-    resourcePool.initializeJointRandomness(networkSupplier, AesCtrDrbg::new, 32);
-    return resourcePool;
-  }
-
-  @Override
-  protected ProtocolSuiteNumeric<Spdz2kResourcePool<CompUInt64>> createProtocolSuite() {
-    return new Spdz2kProtocolSuite64(true);
-  }
-
 
   @Test
   public void testSimpleMatching() {
-    runTest(new TestOrderMatchingSimple<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+    int noParties = 2;
+    runTest(new TestOrderMatchingSimple<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, noParties);
   }
 
   @Test
