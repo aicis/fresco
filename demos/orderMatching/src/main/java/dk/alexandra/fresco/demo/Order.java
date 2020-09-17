@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.demo;
 
+import java.util.Objects;
+
 public class Order implements Comparable {
   public Order(int userId, int limitRate, boolean buy) {
     this.userId = userId;
@@ -15,6 +17,32 @@ public class Order implements Comparable {
     if (!(o instanceof Order)) {
       return 1;
     }
-    return Integer.valueOf(limitRate).compareTo(Integer.valueOf(((Order) o).limitRate));
+    int res = Integer.valueOf(limitRate).compareTo(Integer.valueOf(((Order) o).limitRate));
+    if (res == 0) {
+      res = Integer.valueOf(userId).compareTo(Integer.valueOf(((Order) o).userId));
+    }
+    if (res == 0) {
+      res = Boolean.valueOf(buy).compareTo(Boolean.valueOf(((Order) o).buy));
+    }
+    return res;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Order order = (Order) o;
+    return userId == order.userId &&
+        limitRate == order.limitRate &&
+        buy == order.buy;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(userId, limitRate, buy);
   }
 }

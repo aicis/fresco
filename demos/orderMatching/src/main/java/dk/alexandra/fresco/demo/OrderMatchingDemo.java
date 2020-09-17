@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * The approach leverages the fact that Odd Even merge is stable.
  */
 public class OrderMatchingDemo implements
-    Application<List<List<BigInteger>>, ProtocolBuilderNumeric> {
+    Application<List<OrderMatch>, ProtocolBuilderNumeric> {
 
   private static Logger log = LoggerFactory.getLogger(OrderMatchingDemo.class);
 
@@ -59,10 +59,10 @@ public class OrderMatchingDemo implements
   }
 
   @Override
-  public DRes<List<List<BigInteger>>> buildComputation(ProtocolBuilderNumeric builder) {
-    final BigInteger max = BigInteger.ONE.shiftLeft(builder.getBasicNumericContext().getMaxBitLength());
+  public DRes<List<OrderMatch>> buildComputation(ProtocolBuilderNumeric builder) {
+    final BigInteger max = BigInteger.ONE.shiftLeft(builder.getBasicNumericContext().getMaxBitLength()).subtract(BigInteger.ONE);
     // We use the maximal integer to be used as indicator for a non-match
-    final DRes<SInt> blankVal = builder.numeric().known(max.multiply(new BigInteger("2")).subtract(BigInteger.ONE));
+    final DRes<SInt> blankVal = builder.numeric().known(max);
     return builder.par(par -> {
       // Input values
       List<Pair<DRes<SInt>, List<DRes<SInt>>>> buys = new ArrayList<>();
@@ -122,11 +122,12 @@ public class OrderMatchingDemo implements
           .collect(Collectors.toList());
     }).par((par, input) -> {
       // Clean up the result by removing "blank" elements in the list and computing the actual price
-      List<List<BigInteger>> res = new ArrayList<>();
+      List<OrderMatch> res = new ArrayList<>();
       for (int i = 0; i < input.size(); i++) {
-        if (input.get(i).get(0) != max) {
-          res.add(Arrays.asList(input.get(i).get(0), input.get(i).get(1),
-              input.get(i).get(2).shiftRight(1)));
+        if (!input.get(i).get(0).equals(max)) {
+          res.add(new OrderMatch(input.get(i).get(0).intValueExact(), input.get(i).get(1).intValueExact(),
+                  input.get(i).get(2).shiftRight(1).intValueExact()));
+
         }
       }
       return () -> res;
