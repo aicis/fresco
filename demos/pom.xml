@@ -18,6 +18,11 @@
     </dependency>
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>spdz2k</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
       <artifactId>tinytables</artifactId>
       <version>${project.version}</version>
     </dependency>
