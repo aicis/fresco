@@ -245,8 +245,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
       parseAndSetupNetwork();
 
       CmdLineProtocolSuite protocolSuiteParser = new CmdLineProtocolSuite(protocolSuiteName,
-          cmd.getOptionProperties("D"), this.networkConfiguration.getMyId(),
-          this.networkConfiguration.noOfParties());
+          cmd.getOptionProperties("D"), this.networkConfiguration);
       protocolSuite = (ProtocolSuite<ResourcePoolT, BuilderT>)
           protocolSuiteParser.getProtocolSuite();
       resourcePool = (ResourcePoolT) protocolSuiteParser.getResourcePool();

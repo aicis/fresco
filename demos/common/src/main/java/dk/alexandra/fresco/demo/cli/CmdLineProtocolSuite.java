@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.demo.cli;
 
+import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
@@ -18,6 +20,18 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDataSupplier;
+import dk.alexandra.fresco.suite.spdz2k.Spdz2kProtocolSuite128;
+import dk.alexandra.fresco.suite.spdz2k.Spdz2kProtocolSuite64;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128Factory;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt64;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt64Factory;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
+import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
+import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePoolImpl;
+import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDataSupplier;
+import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDummyDataSupplier;
+import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kOpenedValueStoreImpl;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.ot.TinyTablesNaorPinkasOt;
 import dk.alexandra.fresco.suite.tinytables.ot.TinyTablesOt;
@@ -44,14 +58,13 @@ public class CmdLineProtocolSuite {
   private final ResourcePool resourcePool;
 
   static String getSupportedProtocolSuites() {
-    String[] strings = {"dummybool", "dummyarithmetic", "spdz", "tinytables", "tinytablesprepro"};
+    String[] strings = {"dummybool", "dummyarithmetic", "spdz", "spdz2k32",  "spdz2k64", "tinytables", "tinytablesprepro"};
     return Arrays.toString(strings);
   }
 
-  CmdLineProtocolSuite(String protocolSuiteName, Properties properties, int myId,
-      int noOfPlayers) throws ParseException, NoSuchAlgorithmException {
-    this.myId = myId;
-    this.noOfPlayers = noOfPlayers;
+  CmdLineProtocolSuite(String protocolSuiteName, Properties properties, NetworkConfiguration conf) throws ParseException, NoSuchAlgorithmException {
+    this.myId = conf.getMyId();
+    this.noOfPlayers = conf.noOfParties();
     if (protocolSuiteName.equals("dummybool")) {
       this.protocolSuite = new DummyBooleanProtocolSuite();
       this.resourcePool =
@@ -67,6 +80,14 @@ public class CmdLineProtocolSuite {
       this.protocolSuite = getSpdzProtocolSuite(properties);
       this.resourcePool =
           createSpdzResourcePool(properties);
+    } else if (protocolSuiteName.equals("spdz2k32")) {
+      this.protocolSuite = getSpdz2kProtocolSuite(properties, false);
+      this.resourcePool =
+          createSpdz2kResourcePool(properties, false, conf);
+    } else if (protocolSuiteName.equals("spdz2k64")) {
+      this.protocolSuite = getSpdz2kProtocolSuite(properties, true);
+      this.resourcePool =
+          createSpdz2kResourcePool(properties, true, conf);
     } else if (protocolSuiteName.equals("tinytablesprepro")) {
       String tinytablesFileOption = "tinytables.file";
       String tinyTablesFilePath = properties.getProperty(tinytablesFileOption, "tinytables");
@@ -113,6 +134,11 @@ public class CmdLineProtocolSuite {
     return new SpdzProtocolSuite(maxBitLength);
   }
 
+  private ProtocolSuite<?, ?> getSpdz2kProtocolSuite(Properties properties, boolean large) {
+    Properties p = getProperties(properties);
+    return large ? new Spdz2kProtocolSuite128(true) : new Spdz2kProtocolSuite64(true);
+  }
+
   private Properties getProperties(Properties properties) {
     return properties;
   }
@@ -135,6 +161,43 @@ public class CmdLineProtocolSuite {
     }
     return new SpdzResourcePoolImpl(myId, noOfPlayers, new SpdzOpenedValueStoreImpl(), supplier,
         new AesCtrDrbg(new byte[32]));
+  }
+
+  private Spdz2kResourcePool createSpdz2kResourcePool(Properties properties, boolean large, NetworkConfiguration conf) {
+    String strat = properties.getProperty("spdz2k.preprocessingStrategy");
+    final PreprocessingStrategy strategy = PreprocessingStrategy.valueOf(strat);
+    Spdz2kDataSupplier supplier = null;
+    if (strategy == PreprocessingStrategy.DUMMY) {
+      if (large) {
+        CompUIntFactory<CompUInt128> factory = new CompUInt128Factory();
+        CompUInt128 keyShare = factory.createRandom();
+        Spdz2kResourcePool<CompUInt128> resourcePool =
+            new Spdz2kResourcePoolImpl<>(
+                myId,
+                noOfPlayers, new AesCtrDrbg(new byte[32]),
+                new Spdz2kOpenedValueStoreImpl<>(),
+                new Spdz2kDummyDataSupplier<>(myId, noOfPlayers, keyShare, factory),
+                factory);
+        resourcePool.initializeJointRandomness(() -> new AsyncNetwork(conf), AesCtrDrbg::new, 32);
+        return resourcePool;
+      } else {
+        CompUIntFactory<CompUInt64> factory = new CompUInt64Factory();
+        CompUInt64 keyShare = factory.createRandom();
+        Spdz2kResourcePool<CompUInt64> resourcePool =
+            new Spdz2kResourcePoolImpl<>(
+                myId,
+                noOfPlayers, new AesCtrDrbg(new byte[32]),
+                new Spdz2kOpenedValueStoreImpl<>(),
+                new Spdz2kDummyDataSupplier<>(myId, noOfPlayers, keyShare, factory),
+                factory);
+        resourcePool.initializeJointRandomness(() -> new AsyncNetwork(conf), AesCtrDrbg::new, 32);
+        return resourcePool;
+      }
+    }
+    if (strategy == PreprocessingStrategy.STATIC) {
+      throw new UnsupportedOperationException("Real SPDZ2k supplier from commandline not implemented yet");
+    }
+    throw new UnsupportedOperationException("Unknown SPDZ2k supplier");
   }
 
   private ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(Properties properties) {
