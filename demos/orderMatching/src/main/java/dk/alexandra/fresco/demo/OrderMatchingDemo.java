@@ -155,8 +155,8 @@ public class OrderMatchingDemo implements
   }
 
   /** FOLLOWING CODE FOR BENCHMARKING **/
-  static final int AMOUNT_OF_ORDERS = 16;
-  static final int WARM_UP = 10;
+  static final int AMOUNT_OF_ORDERS = 64;
+  static final int WARM_UP = 30;
   static final int ITERATIONS = 30;
 
   /**
@@ -215,6 +215,7 @@ public class OrderMatchingDemo implements
       long start = System.currentTimeMillis();
       List<OrderMatch> orders = sce.runApplication(orderDemo, resourcePool, cmdUtil.getNetwork());
       long end = System.currentTimeMillis();
+      System.out.println("Size: " + orders.size());
       if (i >= WARM_UP) {
         times.add(end - start);
       }
