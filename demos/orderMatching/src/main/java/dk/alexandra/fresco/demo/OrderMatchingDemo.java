@@ -112,33 +112,50 @@ public class OrderMatchingDemo implements
       DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> sortedSells = par.collections().sort(input.getSecond());
       return () -> new Pair<>(sortedBuys, sortedSells);
     }).par((par, input) -> {
-      List<DRes<List<DRes<SInt>>>> res = new ArrayList<>();
+//      List<DRes<List<DRes<SInt>>>> res = new ArrayList<>();
       List<Pair<DRes<SInt>, List<DRes<SInt>>>> sortedBuys = input.getFirst().out();
       List<Pair<DRes<SInt>, List<DRes<SInt>>>> sortedSells = input.getSecond().out();
       int minListSize = Math.min(sortedBuys.size(), sortedSells.size());
+      List<DRes<SInt>> conditions = new ArrayList<>();
       for (int i = 0; i < minListSize; i++) {
         final int currentIdx = i;
         // Construct list as a keyed pair based on the buyer ID, to check if it is blank
-        res.add(par.seq( (seq) -> {
-          // Select the user ID of the buyer if the buy price is >= sell price
-        DRes<SInt> condition = seq.comparison()
-            .compareLT(sortedBuys.get(currentIdx).getFirst(), sortedSells.get(minListSize-currentIdx-1).getFirst());
-        DRes<SInt> currentBuyer = seq.advancedNumeric()
-            .condSelect(condition, blankVal, sortedBuys.get(currentIdx).getSecond().get(0));
-        DRes<SInt> currentSeller = seq.advancedNumeric()
-            .condSelect(condition, blankVal, sortedSells.get(minListSize-currentIdx-1).getSecond().get(0));
-        // Compute the average of buy and sell price
-        DRes<SInt> price = seq.numeric().add(sortedBuys.get(currentIdx).getFirst(),
-            sortedSells.get(minListSize-currentIdx-1).getFirst());
-        DRes<SInt> hiddenPrice = seq.advancedNumeric()
-            .condSelect(condition, blankVal, price);
-        return () -> Arrays.asList(currentBuyer, currentSeller, hiddenPrice);
-        }));
+//        res.add(par.seq( (seq) -> {
+        // Select the user ID of the buyer if the buy price is >= sell price
+        DRes<SInt> condition = par.comparison()
+            .compareLT(sortedBuys.get(currentIdx).getFirst(),
+                sortedSells.get(minListSize - currentIdx - 1).getFirst());
+        conditions.add(condition);
       }
-      return () -> res;
+      return () -> new Pair<>(conditions, Arrays.asList(sortedBuys, sortedSells));
+    }).par((par, input) -> {
+      List<Pair<DRes<SInt>, List<DRes<SInt>>>> sortedBuys = input.getSecond().get(0);
+      List<Pair<DRes<SInt>, List<DRes<SInt>>>> sortedSells = input.getSecond().get(1);
+      int minListSize = Math.min(sortedBuys.size(), sortedSells.size());
+      List<DRes<SInt>> buyers = new ArrayList<>();
+      List<DRes<SInt>> sellers = new ArrayList<>();
+      List<DRes<SInt>> prices = new ArrayList<>();
+      for (int i = 0; i < input.getFirst().size(); i++) {
+        DRes<SInt> currentBuyer = par.advancedNumeric()
+            .condSelect(input.getFirst().get(i), blankVal, sortedBuys.get(i).getSecond().get(0));
+        DRes<SInt> currentSeller = par.advancedNumeric()
+            .condSelect(input.getFirst().get(i), blankVal,
+                sortedSells.get(minListSize - i - 1).getSecond().get(0));
+        // Compute the average of buy and sell price
+        DRes<SInt> price = par.numeric().add(sortedBuys.get(i).getFirst(),
+            sortedSells.get(minListSize - i - 1).getFirst());
+        DRes<SInt> hiddenPrice = par.advancedNumeric()
+            .condSelect(input.getFirst().get(i), blankVal, price);
+        buyers.add(currentBuyer);
+        sellers.add(currentSeller);
+        prices.add(hiddenPrice);
+      }
+      return () -> Arrays.asList(buyers, sellers, prices);
+//    }));
+
     }).par((par, input) -> {
       List<List<DRes<BigInteger>>> temp = input.stream().map(current ->
-          current.out().stream().map(internal -> par.numeric().open(internal)).collect(Collectors.toList())).
+          current.stream().map(internal -> par.numeric().open(internal)).collect(Collectors.toList())).
           collect(Collectors.toList());
       return () -> temp.stream().map(current ->
           current.stream().map(internal -> internal.out()).collect(Collectors.toList()))
@@ -146,11 +163,10 @@ public class OrderMatchingDemo implements
     }).par((par, input) -> {
       // Clean up the result by removing "blank" elements in the list and computing the actual price
       List<OrderMatch> res = new ArrayList<>();
-      for (int i = 0; i < input.size(); i++) {
-        if (!input.get(i).get(0).equals(max)) {
-          res.add(new OrderMatch(input.get(i).get(0).intValueExact(), input.get(i).get(1).intValueExact(),
-                  input.get(i).get(2).shiftRight(1).intValueExact()));
-
+      for (int i = 0; i < input.get(0).size(); i++) {
+        if (!input.get(0).get(i).equals(max)) {
+          res.add(new OrderMatch(input.get(0).get(i).intValueExact(), input.get(1).get(i).intValueExact(),
+                  input.get(2).get(i).shiftRight(1).intValueExact()));
         }
       }
       return () -> res;
@@ -159,8 +175,8 @@ public class OrderMatchingDemo implements
 
   /** FOLLOWING CODE FOR BENCHMARKING **/
   static final int[] AMOUNTS = {4, 8, 16, 32, 64, 128};
-  static final int WARM_UP = 30;
-  static final int ITERATIONS = 30;
+  static final int WARM_UP = 3;
+  static final int ITERATIONS = 3;
 
   /**
    * Simulate a list of orders, around 1000000
