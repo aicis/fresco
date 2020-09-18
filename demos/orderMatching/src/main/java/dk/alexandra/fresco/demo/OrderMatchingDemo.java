@@ -159,8 +159,8 @@ public class OrderMatchingDemo implements
 
   /** FOLLOWING CODE FOR BENCHMARKING **/
   static final int[] AMOUNTS = {4, 8, 16, 32, 64, 128};
-  static final int WARM_UP = 3;
-  static final int ITERATIONS = 3;
+  static final int WARM_UP = 30;
+  static final int ITERATIONS = 30;
 
   /**
    * Simulate a list of orders, around 1000000
