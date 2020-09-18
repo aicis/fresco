@@ -36,17 +36,51 @@ public class OddEvenIntegerMerge implements
   @Override
   public DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> buildComputation(
       ProtocolBuilderNumeric builder) {
-    return builder.seq(seq -> {
-      sort(0, numbers.size(), seq);
+    // This is sufficient since we know the size is a two-power
+    int t = (int) Math.ceil(Math.log(numbers.size())/Math.log(2.0));//Integer.highestOneBit(numbers.size());
+    int p0 = (1 << t);
+    return builder.seq( (seq) -> {
+      iterativeSort(p0, seq);
       return () -> numbers;
     });
   }
 
-  private void sort(int i, int length, ProtocolBuilderNumeric builder) {
-    if (length > 1) {
-      sort(i, length / 2, builder);
-      sort(i + length / 2, length / 2, builder);
-      merge(i, length, 1, builder);
+  private void iterativeSort(int p0, ProtocolBuilderNumeric builder) {
+    builder.seq((seq) -> {
+      return new Iteration(p0, 0, p0, p0);
+    }).whileLoop((iteration) -> iteration.p > 0, (seq, iteration) -> {
+      seq.seq(innerSeq -> {
+        return () -> iteration;
+      }).whileLoop((state) -> state.d > 0, (whileSeq, state) -> {
+        whileSeq.par((par) -> {
+          for (int i = 0; i < numbers.size() - state.d; i++) {
+            if ((i & state.p) == state.r) {
+              compareAndSwapAtIndices(i, i + state.d, par);
+            }
+          }
+          return null;
+        });
+        return new Iteration(state.q >> 1, state.p, state.q - state.p, state.p);
+      });
+      return new Iteration(p0, 0, iteration.p >> 1, iteration.p >> 1);
+    });
+  }
+
+  private static final class Iteration implements DRes<Iteration> {
+    final int q;
+    final int r;
+    final int d;
+    final int p;
+
+    private Iteration(int q, int r, int d, int p) {
+      this.q = q;
+      this.r = r;
+      this.d = d;
+      this.p = p;
+    }
+    @Override
+    public Iteration out() {
+      return this;
     }
   }
 
@@ -58,24 +92,5 @@ public class OddEvenIntegerMerge implements
       numbers.set(j, res.get(1));
       return null;
     });
-  }
-
-  private void merge(int first, int length, int step, ProtocolBuilderNumeric builder) {
-    int doubleStep = step * 2;
-    if (length > 2) {
-      int newLength = length / 2;
-      merge(first, newLength, doubleStep, builder);
-      merge(first + step, length - newLength, doubleStep, builder);
-      builder.par((par) -> {
-        for (int i = 1; i < length - 2; i += 2) {
-          int low = first + i * step;
-          int high = low + step;
-          compareAndSwapAtIndices(low, high, par);
-        }
-        return null;
-      });
-    } else {
-      compareAndSwapAtIndices(first, first + step, builder);
-    }
   }
 }
