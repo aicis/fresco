@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.demo;
 
+import static java.lang.System.exit;
+
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
@@ -13,10 +15,11 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
-import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -155,9 +158,9 @@ public class OrderMatchingDemo implements
   }
 
   /** FOLLOWING CODE FOR BENCHMARKING **/
-  static final int AMOUNT_OF_ORDERS = 64;
-  static final int WARM_UP = 30;
-  static final int ITERATIONS = 30;
+  static final int[] AMOUNTS = {4, 8, 16, 32, 64, 128};
+  static final int WARM_UP = 3;
+  static final int ITERATIONS = 3;
 
   /**
    * Simulate a list of orders, around 1000000
@@ -194,21 +197,19 @@ public class OrderMatchingDemo implements
     return Math.sqrt(temp/((double)(ITERATIONS - 1)));
   }
 
-  public static <ResourcePoolT extends ResourcePool> void main(String[] args) throws IOException {
-    CmdLineUtil<ResourcePoolT, ProtocolBuilderNumeric> cmdUtil = new CmdLineUtil<>();
-    CommandLine cmd = cmdUtil.parse(args);
+  private static <ResourcePoolT extends ResourcePool> List<Long> runExperiment(
+      int amount, CmdLineUtil<ResourcePoolT, ProtocolBuilderNumeric> cmdUtil) {
     NetworkConfiguration networkConfiguration = cmdUtil.getNetworkConfiguration();
     List<Order> inputBuy = new ArrayList<>();
     List<Order> inputSell = new ArrayList<>();
     if (networkConfiguration.getMyId() == 1) {
       // For the simple case we simply have one party supply all orders in plain
-      inputBuy = generateOrders(AMOUNT_OF_ORDERS, true);
-      inputSell = generateOrders(AMOUNT_OF_ORDERS, false);
+      inputBuy = generateOrders(amount, true);
+      inputSell = generateOrders(amount, false);
     }
     OrderMatchingDemo orderDemo = new OrderMatchingDemo(networkConfiguration.getMyId(),
-        AMOUNT_OF_ORDERS, inputBuy, AMOUNT_OF_ORDERS, inputSell);
+        amount, inputBuy, amount, inputSell);
     SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce = cmdUtil.getSce();
-    cmdUtil.startNetwork();
     ResourcePoolT resourcePool = cmdUtil.getResourcePool();
     List<Long> times = new ArrayList<>();
     for (int i = 0; i < WARM_UP+ITERATIONS; i++) {
@@ -220,13 +221,25 @@ public class OrderMatchingDemo implements
         times.add(end - start);
       }
     }
-    System.out.println("Average time :" + mean(times) + ", std:" + std(times));
-//    System.out.println("Orders are:");
-//    for (OrderMatch currentOrder : orders) {
-//      System.out.println("Transfer between " + currentOrder.firstId + " and " + currentOrder.secondId +
-//          ". With rate " + currentOrder.rate + ".");
-//    }
+    return times;
+  }
+
+  public static <ResourcePoolT extends ResourcePool> void main(String[] args) throws IOException {
+    CmdLineUtil<ResourcePoolT, ProtocolBuilderNumeric> cmdUtil = new CmdLineUtil<>();
+    cmdUtil.parse(args);
+    cmdUtil.startNetwork();
+    Map<Integer, List<Long>> times = new HashMap<>();
+    for (int amount : AMOUNTS) {
+      List<Long> currentTimes = runExperiment(amount, cmdUtil);
+      times.put(amount, currentTimes);
+    }
+    // Print result
+    for (int currentAmount : times.keySet()) {
+      System.out.println(currentAmount + ", " + mean(times.get(currentAmount)) +
+          ", " + std(times.get(currentAmount)));
+    }
     cmdUtil.closeNetwork();
-    sce.shutdownSCE();
+    cmdUtil.getSce().shutdownSCE();
+    exit(0);
   }
 }
