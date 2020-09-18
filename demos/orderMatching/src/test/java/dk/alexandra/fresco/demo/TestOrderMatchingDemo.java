@@ -125,11 +125,60 @@ public class TestOrderMatchingDemo {
     }
   }
 
+  public static class TestOrderMatchingBig<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+    static final int AMOUNT = 64;
+    static final List<Order> buyOrders = OrderMatchingDemo.generateOrders(AMOUNT, true);
+    static final List<Order> sellOrders = OrderMatchingDemo.generateOrders(AMOUNT, false);
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Test
+        public void test() {
+          List<Order> inputBuy = new ArrayList<>();
+          List<Order> inputSell = new ArrayList<>();
+          if (conf.getMyId() == 1) {
+            // For the simple case we simply have one party supply all orders in plain
+            inputBuy = buyOrders;
+            inputSell = sellOrders;
+          }
+          OrderMatchingDemo distDemo = new OrderMatchingDemo(conf.getMyId(), AMOUNT, inputBuy,
+              AMOUNT, inputSell);
+          List<OrderMatch> processedOrders = runApplication(distDemo);
+          List<Order> totalOrders = new ArrayList<>(buyOrders);
+          totalOrders.addAll(sellOrders);
+          List<OrderMatch> reference = (new PlainOrderMatching(totalOrders)).compute();
+
+          Assert.assertEquals(reference.size(), processedOrders.size());
+          List<OrderMatch> sortedReal = processedOrders.stream().sorted().collect(Collectors.toList());
+          List<OrderMatch> sortedReference = reference.stream().sorted().collect(Collectors.toList());
+          for (int i = 0; i < sortedReference.size(); i++) {
+            // TODO the OddEven mergesort is not stable so equal bits don't get stay in order based on user ID and are instead shuffeled arbitrary
+            // this is fine now since we only have one round but needs to be fixed for multiple rounds
+//            Assert.assertEquals(sortedReference.get(i).firstId,
+//                sortedReal.get(i).firstId);
+//            Assert.assertEquals(sortedReference.get(i).secondId,
+//                sortedReal.get(i).secondId);
+            Assert.assertEquals(sortedReference.get(i).rate,
+                sortedReal.get(i).rate);
+          }
+        }
+      };
+    }
+  }
+
 
   @Test
   public void testSimpleMatching() {
     int noParties = 2;
     runTest(new TestOrderMatchingSimple<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, noParties);
+  }
+
+  @Test
+  public void testBigMatching() {
+    int noParties = 2;
+    runTest(new TestOrderMatchingBig<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, noParties);
   }
 
   @Test

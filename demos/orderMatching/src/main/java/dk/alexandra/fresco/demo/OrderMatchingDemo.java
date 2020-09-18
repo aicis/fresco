@@ -77,8 +77,6 @@ public class OrderMatchingDemo implements
     this.buyOrders = new ArrayList<>(buyOrders);
     this.sellSize = sellSize;
     this.sellOrders = new ArrayList<>(sellOrders);
-    // This is needed since the internal MPC sorting will leave the largest first
-//    Collections.reverse(this.buyOrders);
   }
 
   @Override
@@ -112,7 +110,6 @@ public class OrderMatchingDemo implements
       DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> sortedSells = par.collections().sort(input.getSecond());
       return () -> new Pair<>(sortedBuys, sortedSells);
     }).par((par, input) -> {
-//      List<DRes<List<DRes<SInt>>>> res = new ArrayList<>();
       List<Pair<DRes<SInt>, List<DRes<SInt>>>> sortedBuys = input.getFirst().out();
       List<Pair<DRes<SInt>, List<DRes<SInt>>>> sortedSells = input.getSecond().out();
       int minListSize = Math.min(sortedBuys.size(), sortedSells.size());
