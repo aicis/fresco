@@ -63,17 +63,14 @@ public class OddEvenIntegerMerge implements
   private void merge(int first, int length, int step, ProtocolBuilderNumeric builder) {
     int doubleStep = step * 2;
     if (length > 2) {
-      builder.seq((seq) -> {
-        int newLength = length / 2;
-        merge(first, newLength, doubleStep, seq);
-        merge(first + step, length - newLength, doubleStep, seq);
+      int newLength = length / 2;
+      merge(first, newLength, doubleStep, builder);
+      merge(first + step, length - newLength, doubleStep, builder);
+      builder.par((par) -> {
         for (int i = 1; i < length - 2; i += 2) {
           int low = first + i * step;
           int high = low + step;
-          seq.par((par) -> {
-            compareAndSwapAtIndices(low, high, par);
-            return null;
-          });
+          compareAndSwapAtIndices(low, high, par);
         }
         return null;
       });
