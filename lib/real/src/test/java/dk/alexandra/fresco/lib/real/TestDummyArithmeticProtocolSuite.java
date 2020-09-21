@@ -28,6 +28,9 @@ import dk.alexandra.fresco.lib.common.conditional.SwapIfTests;
 import dk.alexandra.fresco.lib.common.math.integer.binary.BinaryOperationsTests;
 import dk.alexandra.fresco.lib.common.math.integer.division.DivisionTests;
 import dk.alexandra.fresco.lib.common.math.integer.exp.ExponentiationTests;
+import dk.alexandra.fresco.lib.common.math.integer.inv.InversionTests;
+import dk.alexandra.fresco.lib.common.math.integer.inv.InversionTests.TestInversion;
+import dk.alexandra.fresco.lib.common.math.integer.inv.InversionTests.TestInvertZero;
 import dk.alexandra.fresco.lib.common.math.integer.linalg.LinAlgTests;
 import dk.alexandra.fresco.lib.common.math.integer.log.LogTests;
 import dk.alexandra.fresco.lib.common.math.integer.min.MinTests;
@@ -339,6 +342,16 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_InnerProductOpen() {
     runTest(new LinAlgTests.TestInnerProductOpen<>(), new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void test_inversion() {
+    runTest(new TestInversion<>(), new TestParameters().numParties(2));
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void test_invert_zero() {
+    runTest(new TestInvertZero<>(), new TestParameters().numParties(2));
   }
 
   @Test
