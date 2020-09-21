@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.field;
+package dk.alexandra.fresco.lib.common.math.field;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;

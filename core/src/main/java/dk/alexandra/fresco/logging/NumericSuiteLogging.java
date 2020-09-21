@@ -26,8 +26,14 @@ public class NumericSuiteLogging<ResourcePoolT extends NumericResourcePool>
    * @param protocolSuite the original protocol suite to log for.
    */
   public NumericSuiteLogging(ProtocolSuiteNumeric<ResourcePoolT> protocolSuite) {
+    this(protocolSuite, new PerformanceLoggerCountingAggregate());
+  }
+
+  protected NumericSuiteLogging(ProtocolSuiteNumeric<ResourcePoolT> protocolSuite,
+      PerformanceLoggerCountingAggregate aggregate) {
     this.delegateSuite = protocolSuite;
-    this.aggregate = new PerformanceLoggerCountingAggregate();
+    this.aggregate = aggregate;
+
   }
 
   @Override

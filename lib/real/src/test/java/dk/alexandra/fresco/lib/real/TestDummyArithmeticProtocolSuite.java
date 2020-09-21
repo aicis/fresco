@@ -34,10 +34,8 @@ import dk.alexandra.fresco.lib.common.math.integer.min.MinTests;
 import dk.alexandra.fresco.lib.common.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.lib.common.math.integer.stat.StatisticsTests;
 import dk.alexandra.fresco.lib.common.math.polynomial.PolynomialTests;
-import dk.alexandra.fresco.lib.debug.ArithmeticDebugTests;
 import dk.alexandra.fresco.lib.list.EliminateDuplicatesTests;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
-import dk.alexandra.fresco.lib.common.logging.ComparisonLoggerDecorator;
 import dk.alexandra.fresco.logging.arithmetic.NumericLoggingDecorator;
 import dk.alexandra.fresco.suite.dummy.arithmetic.AbstractDummyArithmeticTest;
 import java.util.ArrayList;
@@ -396,12 +394,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_Polynomial_Evaluator_2_parties() {
     runTest(new PolynomialTests.TestPolynomialEvaluator<>(), new TestParameters().numParties(2));
-  }
-
-  @Test
-  public void test_debug_tools() {
-    runTest(new ArithmeticDebugTests.TestArithmeticOpenAndPrint<>(),
-        new TestParameters().numParties(2));
   }
 
   @Test

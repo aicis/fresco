@@ -22,8 +22,6 @@ public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNum
 
   BasicNumericContext getBasicNumericContext();
 
-//  RealNumericContext getRealNumericContext();
-  
   Numeric createNumeric(ProtocolBuilderNumeric builder);
 
 //  MiscBigIntegerGenerators getBigIntegerHelper();

@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.framework.util;
+package dk.alexandra.fresco.lib.common.util;
 
 import dk.alexandra.fresco.framework.DRes;
 import java.util.List;

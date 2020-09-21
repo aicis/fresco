@@ -6,6 +6,8 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.binary.BristolCrypto;
+import dk.alexandra.fresco.framework.builder.binary.DefaultBristolCrypto;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -430,6 +432,7 @@ public class BristolCryptoTests {
             inputs.add(in2);
             return () -> inputs;
           }).seq((seq, inputs) -> {
+            BristolCrypto bristolCrypto = new DefaultBristolCrypto(seq);
             DRes<List<SBool>> l = seq.bristol().mult32x32(inputs.get(0), inputs.get(1));
             return l;
           }).seq((seq, res) -> {

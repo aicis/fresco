@@ -30,6 +30,18 @@ public class MersennePrimeFieldDefinitionTest {
     testValues(3, 3);
     testValues(31, 37);
   }
+  @Test
+  public void convertToSigned() {
+    MersennePrimeFieldDefinition definition_1 = new MersennePrimeFieldDefinition(3,1);
+    testConversions(definition_1,3,3);
+    testConversions(definition_1,4,-3);
+    testConversions(definition_1,6,-1);
+    testConversions(definition_1,7,0);
+  }
+
+  private void testConversions(MersennePrimeFieldDefinition definition, int input, int expected){
+    Assert.assertEquals(BigInteger.valueOf(expected),definition.convertToSigned(BigInteger.valueOf(input)));
+  }
 
   private void testValues(int bitLength, int constant) {
     int expected = (1 << bitLength) - constant;

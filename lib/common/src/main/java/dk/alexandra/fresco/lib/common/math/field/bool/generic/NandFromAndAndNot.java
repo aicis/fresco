@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.field.bool.generic;
+package dk.alexandra.fresco.lib.common.math.field.bool.generic;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;

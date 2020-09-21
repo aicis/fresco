@@ -116,22 +116,10 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
     };
   }
 
-//  @Override
-//  public MiscBigIntegerGenerators getBigIntegerHelper() {
-//    throw new UnsupportedOperationException();
-//  }
-
   /**
    * Get result from deferred and downcast result to {@link Spdz2kSInt<PlainT>}.
    */
   private Spdz2kSInt<PlainT> toSpdz2kSInt(DRes<SInt> value) {
     return Objects.requireNonNull((Spdz2kSInt<PlainT>) value.out());
   }
-
-//  @Override
-//  public RealNumericContext getRealNumericContext() {
-//    // TODO Auto-generated method stub
-//    return null;
-//  }
-
 }

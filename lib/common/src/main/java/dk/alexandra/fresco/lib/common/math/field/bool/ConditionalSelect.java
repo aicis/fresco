@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.field.bool;
+package dk.alexandra.fresco.lib.common.math.field.bool;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;

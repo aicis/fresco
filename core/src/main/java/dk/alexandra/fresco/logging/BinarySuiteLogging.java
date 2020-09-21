@@ -25,8 +25,13 @@ public class BinarySuiteLogging<ResourcePoolT extends ResourcePool>
    * @param protocolSuite the original protocol suite to log for.
    */
   public BinarySuiteLogging(ProtocolSuiteBinary<ResourcePoolT> protocolSuite) {
+    this(protocolSuite,new PerformanceLoggerCountingAggregate());
+  }
+
+  protected BinarySuiteLogging(ProtocolSuiteBinary<ResourcePoolT> protocolSuite,
+      PerformanceLoggerCountingAggregate aggregate) {
     this.delegateSuite = protocolSuite;
-    this.aggregate = new PerformanceLoggerCountingAggregate();
+    this.aggregate = aggregate;
   }
 
   @Override

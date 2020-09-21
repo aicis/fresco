@@ -8,8 +8,7 @@ import dk.alexandra.fresco.lib.real.SReal;
 /**
  * Closed datatype for representing binary fixed point numbers, e.g. represent a fraction <i>x</i>
  * as <i>m 2<sup>n</sup></i> where <i>m</i> is an {@link SInt}, <i>n &ge; 0</i> is a precision which
- * is defined by the context and can be accessed through
- * {@link ProtocolBuilderNumeric#getRealNumericContext}.
+ * is defined by the context.
  */
 public class SFixed implements SReal, DRes<SReal> {
   private final DRes<SInt> value;

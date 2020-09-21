@@ -45,38 +45,6 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
     assertThat(performanceLoggers.get(1).get(5).getLoggedValues()
         .get(BinaryLoggingDecorator.BINARY_BASIC_RANDOM), is((long) 1));
   }
-//
-//  // lib.field.bool.generic
-//  // Slightly more advanced protocols for lowlevel logic operations
-//  @Test
-//  public void test_XNor() {
-//    runTest(new FieldBoolTests.TestXNorFromXorAndNot<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-//    runTest(new FieldBoolTests.TestXNorFromOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-//  }
-//
-//  @Test
-//  public void test_OR() {
-//    runTest(new FieldBoolTests.TestOrFromXorAnd<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-//    runTest(new FieldBoolTests.TestOrFromCopyConst<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-//  }
-//
-//  @Test
-//  public void testOpen() {
-//    runTest(new FieldBoolTests.TestOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, true);
-//    assertThat(performanceLoggers.get(1).get(0).getLoggedValues()
-//        .get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is((long) 4));
-//  }
-//
-//  @Test
-//  public void test_NAND() {
-//    runTest(new FieldBoolTests.TestNandFromAndAndNot<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-//    runTest(new FieldBoolTests.TestNandFromOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-//  }
-//
-//  @Test
-//  public void test_AndFromCopy() {
-//    runTest(new FieldBoolTests.TestAndFromCopyConst<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-//  }
 
   // lib.math.bool
   @Test
@@ -223,18 +191,6 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
   public void test_Compare_And_Swap() {
     runTest(new CompareTests.CompareAndSwapTest<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
-
-
-//  @Test
-//  public void test_Debug_Marker() {
-//    runTest(new BinaryDebugTests.TestBinaryOpenAndPrint<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-//  }
-//
-//  @Test
-//  public void test_Debug_OpenAndPrintSysout() {
-//    runTest(new BinaryDebugTests.TestBinaryDebugToNullStream<>(),
-//        EvaluationStrategy.SEQUENTIAL_BATCHED);
-//  }
 
   @Test
   public void test_Binary_Log_Nice() {

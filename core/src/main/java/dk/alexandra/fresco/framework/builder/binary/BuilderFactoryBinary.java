@@ -51,5 +51,4 @@ public interface BuilderFactoryBinary extends BuilderFactory<ProtocolBuilderBina
     return new ProtocolBuilderBinary(this, true);
   }
 
-
 }

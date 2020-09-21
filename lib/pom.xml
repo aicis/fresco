@@ -12,7 +12,6 @@
     <module>debug</module>
     <module>list</module>
     <module>real</module>
-    <module>field</module>
   </modules>
   <packaging>pom</packaging>
 

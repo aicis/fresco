@@ -43,10 +43,8 @@
     </dependency>
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
-      <artifactId>field</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
+      <artifactId>common</artifactId>
+      <version>1.2.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>

@@ -5,18 +5,18 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.common.collections.sort.KeyedCompareAndSwap;
-import dk.alexandra.fresco.lib.field.bool.ConditionalSelect;
-import dk.alexandra.fresco.lib.field.bool.generic.AndFromPublicValue;
-import dk.alexandra.fresco.lib.field.bool.generic.NandFromAndAndNot;
-import dk.alexandra.fresco.lib.field.bool.generic.OrFromPublicValue;
-import dk.alexandra.fresco.lib.field.bool.generic.OrFromXorAnd;
-import dk.alexandra.fresco.lib.field.bool.generic.XnorFromXorAndNot;
 import dk.alexandra.fresco.lib.common.math.bool.add.BitIncrementer;
 import dk.alexandra.fresco.lib.common.math.bool.add.FullAdder;
 import dk.alexandra.fresco.lib.common.math.bool.add.OneBitFullAdder;
 import dk.alexandra.fresco.lib.common.math.bool.add.OneBitHalfAdder;
 import dk.alexandra.fresco.lib.common.math.bool.log.Logarithm;
 import dk.alexandra.fresco.lib.common.math.bool.mult.BinaryMultiplication;
+import dk.alexandra.fresco.lib.common.math.field.bool.ConditionalSelect;
+import dk.alexandra.fresco.lib.common.math.field.bool.generic.AndFromPublicValue;
+import dk.alexandra.fresco.lib.common.math.field.bool.generic.NandFromAndAndNot;
+import dk.alexandra.fresco.lib.common.math.field.bool.generic.OrFromPublicValue;
+import dk.alexandra.fresco.lib.common.math.field.bool.generic.OrFromXorAnd;
+import dk.alexandra.fresco.lib.common.math.field.bool.generic.XnorFromXorAndNot;
 import java.util.List;
 
 public class DefaultAdvancedBinary implements AdvancedBinary {

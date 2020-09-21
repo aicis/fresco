@@ -3,8 +3,8 @@ package dk.alexandra.fresco.lib.common.collections;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.util.RowPairD;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.common.util.RowPairD;
 import java.math.BigInteger;
 import java.util.List;
 

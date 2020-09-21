@@ -103,6 +103,28 @@ public class BigIntegerFieldElementTest {
   }
 
   @Test
+  public void multiply() {
+    FieldElement element1 = BigIntegerFieldElement.create(1, modulus);
+    FieldElement element2 = BigIntegerFieldElement.create(2, modulus);
+    FieldElement element3 = BigIntegerFieldElement.create(4, modulus);
+    BigInteger result1 = BigIntegerFieldElement
+        .extractValue(BigIntegerFieldElement.create(27, modulus).multiply(element1));
+    BigInteger result2 = BigIntegerFieldElement
+        .extractValue(BigIntegerFieldElement.create(43, modulus).multiply(element2));
+    BigInteger result3 = BigIntegerFieldElement
+        .extractValue(BigIntegerFieldElement.create(76, modulus).multiply(element3));
+    BigInteger result4 = BigIntegerFieldElement
+        .extractValue(BigIntegerFieldElement.create(98, modulus).multiply(element2));
+    BigInteger result5 = BigIntegerFieldElement
+        .extractValue(BigIntegerFieldElement.create(112, modulus).multiply(element3));
+    assertThat(result1, Is.is(BigInteger.valueOf(27)));
+    assertThat(result2, Is.is(BigInteger.valueOf(86)));
+    assertThat(result3, Is.is(BigInteger.valueOf(78)));
+    assertThat(result4, Is.is(BigInteger.valueOf(83)));
+    assertThat(result5, Is.is(BigInteger.valueOf(109)));
+  }
+
+  @Test
   public void toStringTest() {
     FieldElement element = BigIntegerFieldElement.create(BigInteger.valueOf(7854), bigModulus);
     assertThat(element.toString(), StringContains.containsString("7854"));

@@ -3,7 +3,6 @@ package dk.alexandra.fresco.lib.common.collections;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.util.RowPairD;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.common.collections.io.CloseList;
 import dk.alexandra.fresco.lib.common.collections.io.CloseMatrix;
@@ -16,6 +15,7 @@ import dk.alexandra.fresco.lib.common.collections.shuffle.ShuffleRows;
 import dk.alexandra.fresco.lib.common.conditional.ConditionalSelectRow;
 import dk.alexandra.fresco.lib.common.conditional.SwapNeighborsIf;
 import dk.alexandra.fresco.lib.common.conditional.SwapRowsIf;
+import dk.alexandra.fresco.lib.common.util.RowPairD;
 import java.math.BigInteger;
 import java.util.List;
 

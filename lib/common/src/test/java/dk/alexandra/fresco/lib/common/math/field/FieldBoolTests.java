@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.field;
+package dk.alexandra.fresco.lib.common.math.field;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
