@@ -21,13 +21,18 @@ public class MiscBigIntegerGenerators {
   private ModularReductionAlgorithm reducer;
 
   public MiscBigIntegerGenerators(BigInteger modulus) {
-    coefficientsOfPolynomiums = new HashMap<>();
+    this(modulus,new HashMap<>());
+  }
+
+  protected MiscBigIntegerGenerators(BigInteger modulus, HashMap<Integer, BigInteger[]> coefficientsOfPolynomiums) {
+    this.coefficientsOfPolynomiums = coefficientsOfPolynomiums;
 
     this.modulus = modulus;
     twoPowersList = new ArrayList<>(1);
     twoPowersList.add(BigInteger.ONE);
-    
+
     this.reducer = ModularReductionAlgorithm.getReductionAlgorithm(modulus);
+
   }
 
 
