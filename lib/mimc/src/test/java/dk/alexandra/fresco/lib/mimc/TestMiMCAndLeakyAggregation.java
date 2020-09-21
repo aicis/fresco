@@ -6,7 +6,7 @@ import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.suite.dummy.arithmetic.AbstractDummyArithmeticTest;
 import org.junit.Test;
 
-public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTest {
+public class TestMiMCAndLeakyAggregation extends AbstractDummyArithmeticTest {
 
   @Test
   public void test_leaky_aggregate_two() {

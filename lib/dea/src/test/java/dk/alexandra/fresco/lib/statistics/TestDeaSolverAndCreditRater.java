@@ -5,9 +5,9 @@ import dk.alexandra.fresco.suite.dummy.arithmetic.AbstractDummyArithmeticTest;
 import java.util.Random;
 import org.junit.Test;
 
-public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTest {
+public class TestDeaSolverAndCreditRater extends AbstractDummyArithmeticTest {
 
-  // Creditrater
+  // CreditRater
   @Test
   public void test_CreditRater_Single_Value_2_parties() {
     int[] values = {2};
