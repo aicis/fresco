@@ -10,6 +10,7 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.lib.bristol.BristolCrypto;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -141,7 +142,7 @@ public class AesDemo implements Application<List<Boolean>, ProtocolBuilderBinary
           plainInputs.add(bin.input(b, 2));
         }
       }
-      DRes<List<SBool>> res = seq.bristol().AES(plainInputs, keyInputs);
+      DRes<List<SBool>> res = BristolCrypto.using(seq).AES(plainInputs, keyInputs);
       return res;
     }).seq((seq, aesRes) -> {
       List<DRes<Boolean>> outs = new ArrayList<>();

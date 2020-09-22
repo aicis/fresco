@@ -21,7 +21,7 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
 import dk.alexandra.fresco.lib.common.bool.ComparisonBooleanTests;
-import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
+import dk.alexandra.fresco.lib.bristol.BristolCryptoTests;
 import dk.alexandra.fresco.lib.common.math.field.FieldBoolTests;
 import dk.alexandra.fresco.lib.common.math.bool.add.AddTests;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;

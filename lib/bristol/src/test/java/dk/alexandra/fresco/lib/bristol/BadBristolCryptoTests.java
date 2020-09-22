@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  *******************************************************************************/
-package dk.alexandra.fresco.lib.crypto;
+package dk.alexandra.fresco.lib.bristol;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
@@ -28,7 +28,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.helper.bristol.BristolCircuitParser;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.ArrayList;

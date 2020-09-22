@@ -12,11 +12,8 @@ import dk.alexandra.fresco.lib.common.compare.CompareTests;
 import dk.alexandra.fresco.lib.common.math.bool.add.AddTests;
 import dk.alexandra.fresco.lib.common.math.bool.log.LogTests;
 import dk.alexandra.fresco.lib.common.math.bool.mult.MultTests;
-import dk.alexandra.fresco.lib.crypto.BadBristolCryptoTests;
-import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
 import dk.alexandra.fresco.logging.binary.BinaryLoggingDecorator;
 import org.junit.Test;
-
 
 /**
  * Various tests of the dummy protocol suite.
@@ -70,79 +67,6 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
   @Test
   public void test_Binary_Mult() {
     runTest(new MultTests.TestBinaryMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-  }
-
-  // Bristol tests
-  @Test
-  public void test_Mult32x32_Sequential() {
-    runTest(new BristolCryptoTests.Mult32x32Test<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED);
-  }
-
-  @Test
-  public void test_AES_Sequential() {
-    runTest(new BristolCryptoTests.AesTest<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED);
-  }
-
-  @Test
-  public void test_AES_Multi_Sequential() {
-    runTest(new BristolCryptoTests.MultiAesTest<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED);
-  }
-
-  @Test
-  public void test_AES_SequentialBatched() {
-    runTest(new BristolCryptoTests.AesTest<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED);
-  }
-
-  @Test
-  public void test_DES_Sequential() {
-    runTest(new BristolCryptoTests.DesTest<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED);
-  }
-
-  @Test
-  public void test_MD5_Sequential() {
-    runTest(new BristolCryptoTests.MD5Test<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED);
-  }
-
-  @Test
-  public void test_SHA1_Sequential() {
-    runTest(new BristolCryptoTests.Sha1Test<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED);
-  }
-
-  @Test
-  public void test_SHA256_Sequential() {
-    runTest(new BristolCryptoTests.Sha256Test<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED);
-  }
-
-  @Test
-  public void test_Bristol_Errors_XOR() {
-    runTest(new BadBristolCryptoTests.XorTest1<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-    runTest(new BadBristolCryptoTests.XorTest2<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-    runTest(new BadBristolCryptoTests.XorTest3<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-    runTest(new BadBristolCryptoTests.XorTest4<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-    runTest(new BadBristolCryptoTests.XorTest5<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-  }
-
-  @Test
-  public void test_Bristol_Errors_AND() {
-    runTest(new BadBristolCryptoTests.AndTest1<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-    runTest(new BadBristolCryptoTests.AndTest2<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-    runTest(new BadBristolCryptoTests.AndTest3<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-    runTest(new BadBristolCryptoTests.AndTest4<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-    runTest(new BadBristolCryptoTests.AndTest5<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-  }
-
-  @Test
-  public void test_Bristol_Errors_INV() {
-    runTest(new BadBristolCryptoTests.InvTest1<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-    runTest(new BadBristolCryptoTests.InvTest2<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-    runTest(new BadBristolCryptoTests.InvTest3<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-    runTest(new BadBristolCryptoTests.InvTest4<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-  }
-
-  @Test
-  public void test_Bristol_Errors_NOSUCHOPERATION() {
-    runTest(new BadBristolCryptoTests.BadOperationTest<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-    runTest(new BadBristolCryptoTests.NoCircuitTest<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test

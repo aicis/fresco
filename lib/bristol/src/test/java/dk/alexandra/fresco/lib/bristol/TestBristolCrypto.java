@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.crypto;
+package dk.alexandra.fresco.lib.bristol;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;

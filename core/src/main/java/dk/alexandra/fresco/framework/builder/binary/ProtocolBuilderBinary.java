@@ -14,7 +14,7 @@ public class ProtocolBuilderBinary extends ProtocolBuilderImpl<ProtocolBuilderBi
   private BuilderFactoryBinary factory;
   private Binary binaryBuilder;
 //  private Comparison comparison;
-  private BristolCrypto bristolCrypto;
+//  private BristolCrypto bristolCrypto;
 
   ProtocolBuilderBinary(BuilderFactoryBinary factory, boolean parallel) {
     super(factory, parallel);
@@ -62,18 +62,18 @@ public class ProtocolBuilderBinary extends ProtocolBuilderImpl<ProtocolBuilderBi
 //    return this.comparison;
 //  }
 
-  /**
-   * Creates a {@link BristolCrypto} computation directory for this instance - i.e. this intended
-   * producer. Contains various cryptographic primitives such as AES and SHA-256.
-   * 
-   * @return The bristol crypto computation directory.
-   */
-  public BristolCrypto bristol() {
-    if (this.bristolCrypto == null) {
-      this.bristolCrypto = this.factory.createBristolCrypto(this);
-    }
-    return this.bristolCrypto;
-  }
+//  /**
+//   * Creates a {@link BristolCrypto} computation directory for this instance - i.e. this intended
+//   * producer. Contains various cryptographic primitives such as AES and SHA-256.
+//   *
+//   * @return The bristol crypto computation directory.
+//   */
+//  public BristolCrypto bristol() {
+//    if (this.bristolCrypto == null) {
+//      this.bristolCrypto = this.factory.createBristolCrypto(this);
+//    }
+//    return this.bristolCrypto;
+//  }
 
 //  /**
 //   * Creates a computation directory for for this instance - i.e. this intended

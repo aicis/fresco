@@ -1,7 +1,9 @@
-package dk.alexandra.fresco.framework.builder.binary;
+package dk.alexandra.fresco.lib.bristol;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
+import dk.alexandra.fresco.framework.builder.binary.BuilderFactoryBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.List;
 
@@ -13,6 +15,14 @@ import java.util.List;
  * {@link BuilderFactoryBinary}.
  */
 public interface BristolCrypto extends ComputationDirectory {
+
+  /**
+   * Creates a {@link BristolCrypto} computation directory for this instance - i.e. this intended
+   * producer. Contains various cryptographic primitives such as AES and SHA-256.
+   */
+  static BristolCrypto using(ProtocolBuilderBinary builder) {
+    return new DefaultBristolCrypto(builder);
+  }
 
   /**
    * Computes the multiplication of two 32 bit numbers. The result will contain 64 bits.

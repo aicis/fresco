@@ -12,6 +12,7 @@
     <module>debug</module>
     <module>list</module>
     <module>fixed</module>
+    <module>bristol</module>
   </modules>
   <packaging>pom</packaging>
 

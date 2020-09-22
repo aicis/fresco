@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.helper.bristol;
+package dk.alexandra.fresco.lib.bristol;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;

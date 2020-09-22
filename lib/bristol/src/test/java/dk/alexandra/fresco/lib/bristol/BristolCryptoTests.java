@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.crypto;
+package dk.alexandra.fresco.lib.bristol;
 
 import static org.junit.Assert.assertTrue;
 
@@ -6,8 +6,6 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.binary.BristolCrypto;
-import dk.alexandra.fresco.framework.builder.binary.DefaultBristolCrypto;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -94,7 +92,7 @@ public class BristolCryptoTests {
             inputs.add(key);
             return () -> inputs;
           }).seq((seq, inputs) -> {
-            DRes<List<SBool>> l = seq.bristol().AES(inputs.get(0), inputs.get(1));
+            DRes<List<SBool>> l = BristolCrypto.using(seq).AES(inputs.get(0), inputs.get(1));
             return l;
           }).seq((seq, res) -> {
             List<DRes<Boolean>> outputs = new ArrayList<>();
@@ -158,8 +156,8 @@ public class BristolCryptoTests {
                 return () -> inputs;
               }).seq((seq, inputs) -> {
                 List<DRes<List<SBool>>> ciphers = new ArrayList<>();
-                DRes<List<SBool>> l = seq.bristol().AES(inputs.get(0), inputs.get(2));
-                DRes<List<SBool>> l2 = seq.bristol().AES(inputs.get(1), inputs.get(2));
+                DRes<List<SBool>> l = BristolCrypto.using(seq).AES(inputs.get(0), inputs.get(2));
+                DRes<List<SBool>> l2 = BristolCrypto.using(seq).AES(inputs.get(1), inputs.get(2));
                 ciphers.add(l);
                 ciphers.add(l2);
                 return () -> ciphers;
@@ -231,7 +229,7 @@ public class BristolCryptoTests {
             inputs.add(input1);
             return () -> inputs;
           }).seq((seq, inputs) -> {
-            DRes<List<SBool>> list = seq.bristol().SHA1(inputs.get(0));
+            DRes<List<SBool>> list = BristolCrypto.using(seq).SHA1(inputs.get(0));
             return list;
           }).seq((seq, res) -> {
             List<DRes<Boolean>> outputs = new ArrayList<>();
@@ -304,7 +302,7 @@ public class BristolCryptoTests {
             inputs.add(input1);
             return () -> inputs;
           }).seq((seq, inputs) -> {
-            DRes<List<SBool>> list = seq.bristol().SHA256(inputs.get(0));
+            DRes<List<SBool>> list = BristolCrypto.using(seq).SHA256(inputs.get(0));
             return list;
           }).seq((seq, res) -> {
             List<DRes<Boolean>> outputs = new ArrayList<>();
@@ -373,7 +371,7 @@ public class BristolCryptoTests {
             inputs.add(input1);
             return () -> inputs;
           }).seq((seq, inputs) -> {
-            DRes<List<SBool>> list = seq.bristol().MD5(inputs.get(0));
+            DRes<List<SBool>> list = BristolCrypto.using(seq).MD5(inputs.get(0));
             return list;
           }).seq((seq, res) -> {
             List<DRes<Boolean>> outputs = new ArrayList<>();
@@ -432,8 +430,8 @@ public class BristolCryptoTests {
             inputs.add(in2);
             return () -> inputs;
           }).seq((seq, inputs) -> {
-            BristolCrypto bristolCrypto = new DefaultBristolCrypto(seq);
-            DRes<List<SBool>> l = seq.bristol().mult32x32(inputs.get(0), inputs.get(1));
+            BristolCrypto bristolCrypto = BristolCrypto.using(seq);
+            DRes<List<SBool>> l = BristolCrypto.using(seq).mult32x32(inputs.get(0), inputs.get(1));
             return l;
           }).seq((seq, res) -> {
             List<DRes<Boolean>> outputs = new ArrayList<>();
@@ -493,7 +491,7 @@ public class BristolCryptoTests {
             inputs.add(keyMaterial);
             return () -> inputs;
           }).seq((seq, inputs) -> {
-            DRes<List<SBool>> l = seq.bristol().DES(inputs.get(0), inputs.get(1));
+            DRes<List<SBool>> l = BristolCrypto.using(seq).DES(inputs.get(0), inputs.get(1));
             return l;
           }).seq((seq, res) -> {
             List<DRes<Boolean>> outputs = new ArrayList<>();

@@ -1,8 +1,8 @@
-package dk.alexandra.fresco.framework.builder.binary;
+package dk.alexandra.fresco.lib.bristol;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.helper.bristol.BristolCircuitParser;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -11,6 +11,7 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.lib.bristol.BristolCrypto;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -212,10 +213,10 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
     }).par((par, inputs) -> {
       List<DRes<List<SBool>>> aesResults = new ArrayList<>();
       for (List<DRes<SBool>> set : inputs.set1) {
-        aesResults.add(par.bristol().AES(set, inputs.commonKey));
+        aesResults.add(BristolCrypto.using(par).AES(set, inputs.commonKey));
       }
       for (List<DRes<SBool>> set : inputs.set2) {
-        aesResults.add(par.bristol().AES(set, inputs.commonKey));
+        aesResults.add(BristolCrypto.using(par).AES(set, inputs.commonKey));
       }
       return () -> aesResults;
     }).seq((seq, aesResults) -> {
