@@ -30,7 +30,7 @@
 
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
-      <artifactId>real</artifactId>
+      <artifactId>fixed</artifactId>
       <version>${project.version}</version>
     </dependency>
 
