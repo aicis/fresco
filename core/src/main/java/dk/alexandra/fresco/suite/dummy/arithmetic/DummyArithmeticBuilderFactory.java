@@ -180,12 +180,4 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
       }
     };
   }
-//
-//  @Override
-//  public MiscBigIntegerGenerators getBigIntegerHelper() {
-//    if (mog == null) {
-//      mog = new MiscBigIntegerGenerators(basicNumericContext.getModulus());
-//    }
-//    return mog;
-//  }
 }

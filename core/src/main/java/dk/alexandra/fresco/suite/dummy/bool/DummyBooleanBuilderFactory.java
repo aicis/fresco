@@ -24,11 +24,6 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
     this.rand = new Random(0);
   }
 
-//  @Override
-//  public Comparison createComparison(ProtocolBuilderBinary builder) {
-//    return BuilderFactoryBinary.super.createComparison(builder);
-//  }
-
   @Override
   public Binary createBinary(ProtocolBuilderBinary builder) {
     return new Binary() {
