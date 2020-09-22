@@ -7,18 +7,6 @@ import org.junit.Test;
 
 public class TestReal extends AbstractDummyArithmeticTest {
 
-  // lib.list
-  @Test
-  public void test_findDuplicatesOne() {
-    runTest(
-        new EliminateDuplicatesTests.TestFindDuplicatesOne<>(), new TestParameters().numParties(2));
-  }
-
-  @Test
-  public void test_exponentiation_pipe_preprocessed() {
-    runTest(new ExponentiationPipeTests.TestPreprocessedValues<>(), new TestParameters());
-  }
-
   @Test
   public void test_Real_Input_Sequential() {
     runTest(new BasicFixedPointTests.TestInput<>(), new TestParameters().numParties(2));
