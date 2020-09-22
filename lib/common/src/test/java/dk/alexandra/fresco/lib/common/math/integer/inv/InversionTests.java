@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,7 +41,7 @@ public class InversionTests {
 
             for (BigInteger input : inputs) {
               DRes<SInt> base = numeric.input(input, 1);
-              outputs.add(new DefaultAdvancedNumeric(producer).invert(base));
+              outputs.add(AdvancedNumeric.using(producer).invert(base));
             }
 
             List<DRes<BigInteger>> open = outputs.stream().map(numeric::open)
@@ -73,7 +73,7 @@ public class InversionTests {
             Numeric numeric = producer.numeric();
 
             DRes<SInt> base = numeric.known(0);
-            DRes<SInt> output = new DefaultAdvancedNumeric(producer).invert(base);
+            DRes<SInt> output = AdvancedNumeric.using(producer).invert(base);
             DRes<BigInteger> open = numeric.open(output);
 
             return () -> open.out();

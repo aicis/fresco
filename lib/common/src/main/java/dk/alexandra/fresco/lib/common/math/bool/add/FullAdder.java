@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedBinary;
+import dk.alexandra.fresco.lib.common.math.AdvancedBinary;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +42,7 @@ public class FullAdder implements Computation<List<DRes<SBool>>, ProtocolBuilder
     return builder.seq(seq -> {
       int idx = this.lefts.size() - 1;
       IterationState is = new IterationState(idx,
-          new DefaultAdvancedBinary(seq).oneBitFullAdder(lefts.get(idx), rights.get(idx), inCarry));
+          AdvancedBinary.using(seq).oneBitFullAdder(lefts.get(idx), rights.get(idx), inCarry));
       return is;
     }).whileLoop(
         (state) -> state.round >= 1,
@@ -50,7 +50,7 @@ public class FullAdder implements Computation<List<DRes<SBool>>, ProtocolBuilder
           int idx = state.round - 1;
 
           result.add(0, state.value.out().getFirst());
-          IterationState is = new IterationState(idx, new DefaultAdvancedBinary(seq)
+          IterationState is = new IterationState(idx, AdvancedBinary.using(seq)
               .oneBitFullAdder(lefts.get(idx), rights.get(idx), state.value.out().getSecond()));
           return is;
         }

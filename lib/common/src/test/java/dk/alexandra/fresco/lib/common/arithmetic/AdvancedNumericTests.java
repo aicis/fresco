@@ -9,7 +9,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import dk.alexandra.fresco.lib.common.math.integer.min.MinInfFrac;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -42,7 +42,7 @@ public class AdvancedNumericTests {
             DRes<SInt> p = builder.numeric().known(BigInteger.valueOf(numerator));
             DRes<SInt> q = builder.numeric().known(BigInteger.valueOf(denominator));
 
-            DRes<SInt> result = new DefaultAdvancedNumeric(builder).div(p, q);
+            DRes<SInt> result = AdvancedNumeric.using(builder).div(p, q);
 
             return builder.numeric().open(result);
           };
@@ -77,7 +77,7 @@ public class AdvancedNumericTests {
           Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
             fieldDefinition = builder.getBasicNumericContext().getFieldDefinition();
             DRes<SInt> p = builder.numeric().known(numerator);
-            DRes<SInt> result = new DefaultAdvancedNumeric(builder).div(p, (long) denominator);
+            DRes<SInt> result = AdvancedNumeric.using(builder).div(p, (long) denominator);
             return builder.numeric().open(result);
           };
 
@@ -104,7 +104,7 @@ public class AdvancedNumericTests {
         public void test() {
           Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
             DRes<SInt> p = builder.numeric().known(BigInteger.valueOf(numerator));
-            DRes<SInt> result = new DefaultAdvancedNumeric(builder).mod(p, denominator);
+            DRes<SInt> result = AdvancedNumeric.using(builder).mod(p, denominator);
             return builder.numeric().open(result);
           };
 

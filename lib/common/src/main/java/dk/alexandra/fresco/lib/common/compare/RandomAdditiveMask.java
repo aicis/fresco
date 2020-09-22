@@ -6,7 +6,6 @@ import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +33,7 @@ public class RandomAdditiveMask implements
     }
 
     MiscBigIntegerGenerators oIntGenerators = new MiscBigIntegerGenerators(builder.getBasicNumericContext().getModulus());
-    AdvancedNumeric advancedNumeric = new DefaultAdvancedNumeric(builder);
+    AdvancedNumeric advancedNumeric = AdvancedNumeric.using(builder);
     List<BigInteger> twoPows = oIntGenerators.getTwoPowersList(noOfBits);
     value = advancedNumeric.innerProductWithPublicPart(twoPows, bits);
     return () -> new AdvancedNumeric.RandomAdditiveMask(

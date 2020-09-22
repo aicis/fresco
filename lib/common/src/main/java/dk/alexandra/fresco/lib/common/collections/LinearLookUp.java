@@ -4,8 +4,8 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.compare.DefaultComparison;
-import dk.alexandra.fresco.lib.common.conditional.ConditionalSelect;
+import dk.alexandra.fresco.lib.common.compare.Comparison;
+import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSelect;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,7 +49,7 @@ public class LinearLookUp implements Computation<SInt, ProtocolBuilderNumeric> {
       int n = keys.size();
       List<DRes<SInt>> index = new ArrayList<>(n);
       for (DRes<SInt> key : keys) {
-        index.add(new DefaultComparison(par).equals(lookUpKey, key));
+        index.add(Comparison.using(par).equals(lookUpKey, key));
       }
       return () -> index;
     }).seq((seq, index) -> {

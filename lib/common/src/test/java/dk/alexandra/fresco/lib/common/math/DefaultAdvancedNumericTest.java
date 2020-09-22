@@ -38,7 +38,7 @@ public class DefaultAdvancedNumericTest extends AbstractDummyArithmeticTest {
                 .map(sIntFactory::known).collect(Collectors.toList());
             List<DRes<SInt>> input2 = data2.stream().map(BigInteger::valueOf)
                 .map(sIntFactory::known).collect(Collectors.toList());
-            AdvancedNumeric numeric = new DefaultAdvancedNumeric(builder);
+            AdvancedNumeric numeric = AdvancedNumeric.using(builder);
             DRes<SInt> min = numeric.innerProduct(input1, input2);
 
             return builder.numeric().open(min);

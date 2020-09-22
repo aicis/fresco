@@ -10,7 +10,7 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,7 +41,7 @@ public class ExponentiationTests {
             DRes<SInt> base = numeric.input(input, 1);
             DRes<SInt> exponent = numeric.input(BigInteger.valueOf(exp), 1);
 
-            DRes<SInt> result = new DefaultAdvancedNumeric(producer).exp(base, exponent, 5);
+            DRes<SInt> result = AdvancedNumeric.using(producer).exp(base, exponent, 5);
 
             return numeric.open(result);
           };
@@ -72,7 +72,7 @@ public class ExponentiationTests {
               ).par((par, base) -> {
                 List<DRes<SInt>> closedResults = new ArrayList<>(exps.size());
                 for (int exp : exps) {
-                  DRes<SInt> res = new DefaultAdvancedNumeric(par).exp(base, exp);
+                  DRes<SInt> res = AdvancedNumeric.using(par).exp(base, exp);
                   closedResults.add(res);
                 }
                 return () -> closedResults;
@@ -114,7 +114,7 @@ public class ExponentiationTests {
             Numeric numeric = producer.numeric();
             DRes<SInt> exponent = numeric.known(BigInteger.valueOf(exp));
 
-            DRes<SInt> result = new DefaultAdvancedNumeric(producer).exp(input, exponent, 5);
+            DRes<SInt> result = AdvancedNumeric.using(producer).exp(input, exponent, 5);
 
             return numeric.open(result);
           };
@@ -143,7 +143,7 @@ public class ExponentiationTests {
             DRes<SInt> base = numeric.known(input);
             BigInteger exponent = BigInteger.ZERO;
 
-            DRes<SInt> result = new DefaultAdvancedNumeric(producer).exp(base, exponent);
+            DRes<SInt> result = AdvancedNumeric.using(producer).exp(base, exponent);
 
             return numeric.open(result);
           };

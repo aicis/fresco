@@ -5,9 +5,9 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.compare.DefaultComparison;
+import dk.alexandra.fresco.lib.common.compare.Comparison;
 import dk.alexandra.fresco.lib.common.math.integer.min.MinInfFrac.MinInfOutput;
-import dk.alexandra.fresco.lib.common.conditional.ConditionalSelect;
+import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSelect;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -109,7 +109,7 @@ public class MinInfFrac implements Computation<MinInfOutput, ProtocolBuilderNume
                                 SInt p1 = pair.getFirst();
                                 SInt p2 = pair.getSecond();
                                 Numeric numeric = seq13.numeric();
-                                DRes<SInt> tmpC = new DefaultComparison(seq13)
+                                DRes<SInt> tmpC = Comparison.using(seq13)
                                     .compareLEQLong(() -> p1, () -> p2);
                                 DRes<SInt> notInf0 = numeric
                                     .sub(BigInteger.ONE, fs.get(finalI * 2).inf);

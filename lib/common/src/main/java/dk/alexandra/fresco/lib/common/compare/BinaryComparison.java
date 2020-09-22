@@ -3,6 +3,7 @@ package dk.alexandra.fresco.lib.common.compare;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.builder.binary.Binary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.List;
 
@@ -12,6 +13,16 @@ import java.util.List;
  * efficient version.
  */
 public interface BinaryComparison extends ComputationDirectory {
+
+  /**
+   * Create a new BinaryComparison using the given builder.
+   *
+   * @param builder The root builder to use.
+   * @return A new BinaryComparison computation directory.
+   */
+  static BinaryComparison using(ProtocolBuilderBinary builder) {
+    return new DefaultBinaryComparison(builder);
+  }
 
   /**
    * Performs a greater than operation on two bit strings which each represents a number

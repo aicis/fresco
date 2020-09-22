@@ -11,9 +11,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.common.collections.Collections;
-import dk.alexandra.fresco.lib.common.collections.DefaultCollections;
 import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +67,7 @@ public class BasicArithmeticTests {
             for (int i = 1; i <= noOfParties; i++) {
               inputs.add(numeric.input(BigInteger.valueOf(i), i));
             }
-            DRes<List<DRes<BigInteger>>> opened = new DefaultCollections(producer).openList(() -> inputs);
+            DRes<List<DRes<BigInteger>>> opened = Collections.using(producer).openList(() -> inputs);
             return () -> new Pair<>(noOfParties, opened.out());
           };
           Pair<Integer, List<DRes<BigInteger>>> output = runApplication(app);
@@ -392,7 +390,7 @@ public class BasicArithmeticTests {
         public void test() {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> {
             Numeric numeric = producer.numeric();
-            Collections collections = new DefaultCollections(producer);
+            Collections collections = Collections.using(producer);
             int numBits = 10;
             List<DRes<SInt>> bits = new ArrayList<>(numBits);
             for (int i = 0; i < numBits; i++) {
@@ -422,7 +420,7 @@ public class BasicArithmeticTests {
         public void test() {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> {
             Numeric numeric = producer.numeric();
-            Collections collections = new DefaultCollections(producer);
+            Collections collections = Collections.using(producer);
             int numElements = 10;
             List<DRes<SInt>> elements = new ArrayList<>(numElements);
             for (int i = 0; i < numElements; i++) {
@@ -510,7 +508,7 @@ public class BasicArithmeticTests {
                 openInputs.stream().map(numeric::known).collect(Collectors.toList());
             return () -> result;
           }).seq((seq, closed) -> {
-            AdvancedNumeric advancedNumeric = new DefaultAdvancedNumeric(seq);
+            AdvancedNumeric advancedNumeric = AdvancedNumeric.using(seq);
             DRes<SInt> sum = advancedNumeric.sum(closed);
             DRes<SInt> mult = seq.numeric().mult(sum, sum);
             return seq.numeric().open(mult);

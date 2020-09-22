@@ -2,12 +2,23 @@ package dk.alexandra.fresco.lib.common.compare;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 
 /**
  * Interface for comparing numeric values.
  */
 public interface Comparison extends ComputationDirectory {
+
+  /**
+   * Create a new Comparison using the given builder.
+   *
+   * @param builder The root builder to use.
+   * @return A new Comparison computation directory.
+   */
+  static Comparison using(ProtocolBuilderNumeric builder) {
+    return new DefaultComparison(builder);
+  }
 
   /**
    * Compares two values and return x == y

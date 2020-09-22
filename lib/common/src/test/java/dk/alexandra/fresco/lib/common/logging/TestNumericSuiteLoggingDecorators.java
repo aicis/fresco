@@ -17,9 +17,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
-import dk.alexandra.fresco.lib.common.compare.CompareTests;
-import dk.alexandra.fresco.lib.common.conditional.ConditionalSelectTests;
-import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
+import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSelectTests;
 import dk.alexandra.fresco.logging.NumericSuiteLogging;
 import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.logging.arithmetic.NumericLoggingDecorator;
@@ -30,7 +28,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestNumericSuiteLoggingDecorators {

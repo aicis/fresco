@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.builder.ComputationParallel;
 import dk.alexandra.fresco.lib.common.collections.Collections;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.collections.DefaultCollections;
 import dk.alexandra.fresco.lib.common.collections.Matrix;
 import dk.alexandra.fresco.lib.common.collections.MatrixUtils;
 import java.math.BigInteger;
@@ -23,7 +22,7 @@ public class OpenMatrix<T extends DRes<SInt>>
 
   @Override
   public DRes<Matrix<DRes<BigInteger>>> buildComputation(ProtocolBuilderNumeric builder) {
-    Collections collections = new DefaultCollections(builder);
+    Collections collections = Collections.using(builder);
     List<DRes<List<DRes<BigInteger>>>> closedRows = new ArrayList<>();
     for (List<? extends DRes<SInt>> row : closedMatrix.out().getRows()) {
       // still sort of hacky: need to artificially wrap row in computation

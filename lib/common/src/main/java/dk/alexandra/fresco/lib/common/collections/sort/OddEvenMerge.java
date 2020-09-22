@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedBinary;
+import dk.alexandra.fresco.lib.common.math.AdvancedBinary;
 import java.util.List;
 
 /**
@@ -73,7 +73,7 @@ public class OddEvenMerge implements
 
   private void compareAndSwapAtIndices(int i, int j, ProtocolBuilderBinary builder) {
     builder.seq(
-        seq -> new DefaultAdvancedBinary(seq).keyedCompareAndSwap(keyValuePairs.get(i), keyValuePairs.get(j)))
+        seq -> AdvancedBinary.using(seq).keyedCompareAndSwap(keyValuePairs.get(i), keyValuePairs.get(j)))
         .seq((seq, res) -> {
           keyValuePairs.set(i, res.get(0));
           keyValuePairs.set(j, res.get(1));

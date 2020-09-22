@@ -8,7 +8,6 @@ import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +23,7 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
   private final DRes<SInt> encryptionKey;
   private final DRes<SInt> cipherText;
   private final int requestedRounds;
-  private final MimcRoundConstantFactory roundConstants;
+  private final MiMCRoundConstantFactory roundConstants;
   private static final BigInteger THREE = BigInteger.valueOf(3);
   private static final Map<BigInteger, BigInteger> threeInverse = new HashMap<>();
 
@@ -42,7 +41,7 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
       DRes<SInt> cipherText,
       DRes<SInt> encryptionKey,
       int requiredRounds,
-      MimcRoundConstantFactory roundConstantFactory) {
+      MiMCRoundConstantFactory roundConstantFactory) {
     this.roundConstants = roundConstantFactory;
     this.cipherText = cipherText;
     this.encryptionKey = encryptionKey;
@@ -57,7 +56,7 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
    * @param requiredRounds The number of rounds to use.
    */
   public MiMCDecryption(DRes<SInt> cipherText, DRes<SInt> encryptionKey, int requiredRounds) {
-    this(cipherText, encryptionKey, requiredRounds, new MimcConstants());
+    this(cipherText, encryptionKey, requiredRounds, new MiMCConstants());
   }
 
   /**
@@ -97,7 +96,7 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
                * constant c_{i - 1} is the cipher text we have computed in the previous round
                */
 
-              AdvancedNumeric advancedNumeric = new DefaultAdvancedNumeric(seq);
+              AdvancedNumeric advancedNumeric = AdvancedNumeric.using(seq);
               DRes<SInt> inverted = advancedNumeric.exp(state.value, threeInverse);
 
               /*
@@ -120,7 +119,7 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
               /*
                * We're in the last round so we just need to compute c^{-3} - K
                */
-              AdvancedNumeric advancedNumericBuilder = new DefaultAdvancedNumeric(seq);
+              AdvancedNumeric advancedNumericBuilder = AdvancedNumeric.using(seq);
               DRes<SInt> inverted = advancedNumericBuilder.exp(state.value, threeInverse);
 
               return seq.numeric().sub(inverted, encryptionKey);

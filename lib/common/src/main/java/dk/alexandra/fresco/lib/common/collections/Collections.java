@@ -2,14 +2,26 @@ package dk.alexandra.fresco.lib.common.collections;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
 import dk.alexandra.fresco.lib.common.util.RowPairD;
 import java.math.BigInteger;
 import java.util.List;
 
 /** Interface for operations on collections. This also includes opening and closing values. */
 public interface Collections extends ComputationDirectory {
+
+  /**
+   * Create a new Collections using the given builder.
+   *
+   * @param builder The root builder to use.
+   * @return A new Collections computation directory.
+   */
+  static Collections using(ProtocolBuilderNumeric builder) {
+    return new DefaultCollections(builder);
+  }
 
   // I/O
 

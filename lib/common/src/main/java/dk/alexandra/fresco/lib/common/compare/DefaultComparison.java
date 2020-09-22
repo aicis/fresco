@@ -22,7 +22,7 @@ public class DefaultComparison implements Comparison {
   private final int maxBitLength;
   private final ProtocolBuilderNumeric builder;
 
-  public DefaultComparison(ProtocolBuilderNumeric builder) {
+  DefaultComparison(ProtocolBuilderNumeric builder) {
     this.maxBitLength = builder.getBasicNumericContext().getMaxBitLength();
     this.builder = builder;
   }

@@ -21,11 +21,11 @@ public interface BuilderFactoryBinary extends BuilderFactory<ProtocolBuilderBina
   Binary createBinary(ProtocolBuilderBinary builder);
 
 //  default Comparison createComparison(ProtocolBuilderBinary builder) {
-//    return new DefaultComparison(builder);
+//    return Comparison.create(builder);
 //  }
 //
 //  default AdvancedBinary createAdvancedBinary(ProtocolBuilderBinary builder) {
-//    return new DefaultAdvancedBinary(builder);
+//    return AdvancedBinary.create(builder);
 //  }
 
   default BristolCrypto createBristolCrypto(ProtocolBuilderBinary builder) {

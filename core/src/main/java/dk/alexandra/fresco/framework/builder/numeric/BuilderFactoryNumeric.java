@@ -27,15 +27,15 @@ public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNum
 //  MiscBigIntegerGenerators getBigIntegerHelper();
 //
 //  default Comparison createComparison(ProtocolBuilderNumeric builder) {
-//    return new DefaultComparison(this, builder);
+//    return Comparison.create(this, builder);
 //  }
 //
 //  default AdvancedNumeric createAdvancedNumeric(ProtocolBuilderNumeric builder) {
-//    return new DefaultAdvancedNumeric(this, builder);
+//    return AdvancedNumeric.create(this, builder);
 //  }
 //
 //  default Collections createCollections(ProtocolBuilderNumeric builder) {
-//    return new DefaultCollections(builder);
+//    return Collections.create(builder);
 //  }
   
   default PreprocessedValues createPreprocessedValues(ProtocolBuilderNumeric builder) {

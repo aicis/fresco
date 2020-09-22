@@ -23,7 +23,7 @@ public class DefaultAdvancedBinary implements AdvancedBinary {
 
   private final ProtocolBuilderBinary builder;
 
-  public DefaultAdvancedBinary(ProtocolBuilderBinary builder) {
+  DefaultAdvancedBinary(ProtocolBuilderBinary builder) {
     super();
     this.builder = builder;
   }

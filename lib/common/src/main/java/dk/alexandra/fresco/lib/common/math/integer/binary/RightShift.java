@@ -10,7 +10,6 @@ import dk.alexandra.fresco.lib.common.math.AdvancedNumeric.RightShiftResult;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
 import java.math.BigInteger;
 
 /**
@@ -54,7 +53,7 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
        * leakage.
        */
 
-      AdvancedNumeric additiveMaskBuilder = new DefaultAdvancedNumeric(seq);
+      AdvancedNumeric additiveMaskBuilder = AdvancedNumeric.using(seq);
       DRes<RandomAdditiveMask> randomAdditiveMask = additiveMaskBuilder.additiveMask(bitLength);
       DRes<SInt> result = seq.numeric().add(input, () -> randomAdditiveMask.out().random);
       DRes<BigInteger> open = seq.numeric().open(result);
@@ -93,7 +92,7 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
       /*
        * rBottom = r (mod 2^shifts).
        */
-      AdvancedNumeric advancedNumeric = new DefaultAdvancedNumeric(seq);
+      AdvancedNumeric advancedNumeric = AdvancedNumeric.using(seq);
       MiscBigIntegerGenerators bigIntegerGenerators = new MiscBigIntegerGenerators(builder.getBasicNumericContext().getModulus());
       final DRes<SInt> rBottom = advancedNumeric.innerProductWithPublicPart(
           bigIntegerGenerators.getTwoPowersList(shifts), mask.bits);

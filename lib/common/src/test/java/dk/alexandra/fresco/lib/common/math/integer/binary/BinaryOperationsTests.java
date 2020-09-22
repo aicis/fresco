@@ -10,7 +10,6 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +45,7 @@ public class BinaryOperationsTests {
         public void test() throws Exception {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               (ProtocolBuilderNumeric builder) -> {
-                AdvancedNumeric rightShift = new DefaultAdvancedNumeric(builder);
+                AdvancedNumeric rightShift = AdvancedNumeric.using(builder);
                 DRes<SInt> encryptedInput = builder.numeric().known(input);
                 DRes<RightShiftResult> shiftedRight =
                     rightShift.rightShiftWithRemainder(encryptedInput, shifts);
@@ -82,7 +81,7 @@ public class BinaryOperationsTests {
         public void test() throws Exception {
           Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
             DRes<SInt> sharedInput = builder.numeric().known(input);
-            AdvancedNumeric bitLengthBuilder = new DefaultAdvancedNumeric(builder);
+            AdvancedNumeric bitLengthBuilder = AdvancedNumeric.using(builder);
             DRes<SInt> bitLength = bitLengthBuilder.bitLength(sharedInput, input.bitLength() * 2);
             return builder.numeric().open(bitLength);
           };
@@ -112,7 +111,7 @@ public class BinaryOperationsTests {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               producer -> producer.seq(builder -> {
                 DRes<SInt> sharedInput = builder.numeric().known(input);
-                return new DefaultAdvancedNumeric(builder).toBits(sharedInput, max);
+                return AdvancedNumeric.using(builder).toBits(sharedInput, max);
               }).seq((seq, result) -> {
                 List<DRes<BigInteger>> outs =
                     result.stream().map(seq.numeric()::open).collect(Collectors.toList());
@@ -151,7 +150,7 @@ public class BinaryOperationsTests {
 
                 List<DRes<Pair<DRes<SInt>, DRes<SInt>>>> result = new ArrayList<>();
                 for (DRes<SInt> inputX : closed1) {
-                  result.add(new DefaultAdvancedNumeric(producer).normalize(inputX, l));
+                  result.add(AdvancedNumeric.using(producer).normalize(inputX, l));
                 }
                 return () -> result;
               }).seq((producer, result) -> {
@@ -203,7 +202,7 @@ public class BinaryOperationsTests {
 
             List<DRes<SInt>> result = new ArrayList<>();
             for (DRes<SInt> inputX : closed1) {
-              result.add(new DefaultAdvancedNumeric(producer).truncate(inputX, shifts));
+              result.add(AdvancedNumeric.using(producer).truncate(inputX, shifts));
             }
 
             List<DRes<BigInteger>> opened =

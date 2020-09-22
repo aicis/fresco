@@ -6,7 +6,6 @@ import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
 import java.math.BigInteger;
 
 /**
@@ -31,7 +30,7 @@ public class KnownDivisorRemainder implements Computation<SInt, ProtocolBuilderN
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    AdvancedNumeric advancedNumericBuilder = new DefaultAdvancedNumeric(builder);
+    AdvancedNumeric advancedNumericBuilder = AdvancedNumeric.using(builder);
     DRes<SInt> divisionResult = advancedNumericBuilder.div(dividend, divisor);
 
     Numeric numeric = builder.numeric();

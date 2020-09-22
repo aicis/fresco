@@ -8,7 +8,6 @@ import dk.alexandra.fresco.lib.common.math.AdvancedNumeric.RandomAdditiveMask;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
 import java.math.BigInteger;
 
 /**
@@ -40,7 +39,7 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
        * leakage.
        */
 
-      AdvancedNumeric additiveMaskBuilder = new DefaultAdvancedNumeric(builder);
+      AdvancedNumeric additiveMaskBuilder = AdvancedNumeric.using(builder);
       DRes<RandomAdditiveMask> mask =
           additiveMaskBuilder.additiveMask(sequential.getBasicNumericContext().getMaxBitLength());
       return mask;
@@ -55,7 +54,7 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
       /*
        * rBottom = r (mod 2^shifts).
        */
-      AdvancedNumeric advancedNumeric = new DefaultAdvancedNumeric(seq);
+      AdvancedNumeric advancedNumeric = AdvancedNumeric.using(seq);
       MiscBigIntegerGenerators bigIntegerGenerators = new MiscBigIntegerGenerators(seq.getBasicNumericContext().getModulus());
       final DRes<SInt> rBottom = advancedNumeric.innerProductWithPublicPart(
           bigIntegerGenerators.getTwoPowersList(shifts), mask.bits);

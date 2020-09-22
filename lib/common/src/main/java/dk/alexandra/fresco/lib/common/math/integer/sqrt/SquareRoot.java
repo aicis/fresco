@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
 import java.math.BigInteger;
 
 /**
@@ -41,7 +40,7 @@ public class SquareRoot implements Computation<SInt, ProtocolBuilderNumeric> {
      * First guess is 2 ^ (bitlength / 2)
      */
     return builder.seq((seq) -> {
-      AdvancedNumeric advancedNumeric = new DefaultAdvancedNumeric(seq);
+      AdvancedNumeric advancedNumeric = AdvancedNumeric.using(seq);
       DRes<SInt> bitlength = advancedNumeric.bitLength(input, maxInputLength);
       DRes<SInt> halfBitlength = advancedNumeric.rightShift(bitlength);
       DRes<SInt> estimate = advancedNumeric.exp(BigInteger.valueOf(2), halfBitlength,
@@ -53,7 +52,7 @@ public class SquareRoot implements Computation<SInt, ProtocolBuilderNumeric> {
     }).whileLoop((iterationState) -> iterationState.iteration < iterations,
         (seq, iterationState) -> {
           DRes<SInt> value = iterationState.value;
-          AdvancedNumeric advancedNumeric = new DefaultAdvancedNumeric(seq);
+          AdvancedNumeric advancedNumeric = AdvancedNumeric.using(seq);
 
           DRes<SInt> quotient = advancedNumeric.div(input, value);
           DRes<SInt> sum = seq.numeric().add(value, quotient);

@@ -11,7 +11,6 @@ import dk.alexandra.fresco.lib.common.collections.Collections;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.collections.DefaultCollections;
 import dk.alexandra.fresco.lib.common.collections.Matrix;
 import dk.alexandra.fresco.lib.common.collections.MatrixTestUtils;
 import dk.alexandra.fresco.lib.common.collections.MatrixUtils;
@@ -41,7 +40,7 @@ public class PermuteRowsTests {
         public void test() throws Exception {
           // define functionality to be tested
           Application<Matrix<BigInteger>, ProtocolBuilderNumeric> testApplication = root -> {
-            Collections collections = new DefaultCollections(root);
+            Collections collections = Collections.using(root);
             DRes<Matrix<DRes<SInt>>> closed = collections.closeMatrix(input, 1);
             DRes<Matrix<DRes<SInt>>> permuted = null;
             if (root.getBasicNumericContext().getMyId() == 1) {

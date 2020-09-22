@@ -4,11 +4,10 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.collections.DefaultCollections;
+import dk.alexandra.fresco.lib.common.collections.Collections;
 import dk.alexandra.fresco.lib.common.collections.Matrix;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -32,7 +31,7 @@ public class ShuffleRows implements Computation<Matrix<DRes<SInt>>, ProtocolBuil
     for (int i = 0; i < n; i++) {
       indices.add(i);
     }
-    Collections.shuffle(indices, rand);
+    java.util.Collections.shuffle(indices, rand);
     int[] idxPerm = new int[indices.size()];
     for (int i = 0; i < indices.size(); i++) {
       idxPerm[indices.get(i)] = i;
@@ -60,7 +59,7 @@ public class ShuffleRows implements Computation<Matrix<DRes<SInt>>, ProtocolBuil
     ).whileLoop((state) -> state.round < numPids, (seq, state) -> {
       int thisRoundPid = state.round + 1; // parties start from 1
       DRes<Matrix<DRes<SInt>>> permuted;
-      dk.alexandra.fresco.lib.common.collections.Collections collections = new DefaultCollections(seq);
+      Collections collections = Collections.using(seq);
       if (pid == thisRoundPid) {
         permuted = collections.permute(state.intermediate, getIdxPerm(height));
       } else {

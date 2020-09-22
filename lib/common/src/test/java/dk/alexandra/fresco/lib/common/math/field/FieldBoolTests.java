@@ -8,7 +8,6 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.common.math.AdvancedBinary;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedBinary;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +30,7 @@ public class FieldBoolTests {
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> app =
               producer -> producer.seq(builder -> {
-                AdvancedBinary prov = new DefaultAdvancedBinary(builder);
+                AdvancedBinary prov = AdvancedBinary.using(builder);
                 List<DRes<Boolean>> results = new ArrayList<>();
                 DRes<SBool> inp100 = builder.binary().known(false);
                 DRes<SBool> inp200 = builder.binary().known(false);
@@ -78,7 +77,7 @@ public class FieldBoolTests {
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> app =
               producer -> producer.seq(builder -> {
-                AdvancedBinary prov = new DefaultAdvancedBinary(builder);
+                AdvancedBinary prov = AdvancedBinary.using(builder);
                 List<DRes<Boolean>> results = new ArrayList<>();
 
                 DRes<SBool> inp100 = builder.binary().known(false);
@@ -124,7 +123,7 @@ public class FieldBoolTests {
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> app =
               producer -> producer.seq(builder -> {
-                AdvancedBinary prov = new DefaultAdvancedBinary(builder);
+                AdvancedBinary prov = AdvancedBinary.using(builder);
                 List<DRes<Boolean>> results = new ArrayList<>();
                 DRes<SBool> inp100 = builder.binary().known(false);
                 DRes<SBool> inp200 = builder.binary().known(false);
@@ -172,7 +171,7 @@ public class FieldBoolTests {
 
           Application<List<Boolean>, ProtocolBuilderBinary> app =
               producer -> producer.seq(builder -> {
-                AdvancedBinary prov = new DefaultAdvancedBinary(builder);
+                AdvancedBinary prov = AdvancedBinary.using(builder);
                 List<DRes<Boolean>> results = new ArrayList<>();
                 DRes<SBool> inp100 = builder.binary().known(false);
                 results.add(builder.binary().open(prov.or(inp100, false)));
@@ -252,7 +251,7 @@ public class FieldBoolTests {
 
           Application<List<Boolean>, ProtocolBuilderBinary> app =
               producer -> producer.seq(builder -> {
-                AdvancedBinary prov = new DefaultAdvancedBinary(builder);
+                AdvancedBinary prov = AdvancedBinary.using(builder);
                 List<DRes<Boolean>> results = new ArrayList<>();
                 DRes<SBool> inp100 = builder.binary().known(false);
                 DRes<SBool> inp200 = builder.binary().known(false);
@@ -301,7 +300,7 @@ public class FieldBoolTests {
 
           Application<List<Boolean>, ProtocolBuilderBinary> app =
               producer -> producer.seq(builder -> {
-                AdvancedBinary prov = new DefaultAdvancedBinary(builder);
+                AdvancedBinary prov = AdvancedBinary.using(builder);
 
                 List<DRes<Boolean>> results = new ArrayList<>();
                 DRes<SBool> inp100 = builder.binary().known(false);
@@ -348,7 +347,7 @@ public class FieldBoolTests {
 
           Application<List<Boolean>, ProtocolBuilderBinary> app =
               producer -> producer.seq(builder -> {
-                AdvancedBinary prov = new DefaultAdvancedBinary(builder);
+                AdvancedBinary prov = AdvancedBinary.using(builder);
                 List<DRes<Boolean>> results = new ArrayList<>();
 
                 DRes<SBool> inp100 = builder.binary().known(false);

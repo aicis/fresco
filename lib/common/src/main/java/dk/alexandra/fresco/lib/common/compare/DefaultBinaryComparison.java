@@ -17,7 +17,7 @@ public class DefaultBinaryComparison implements BinaryComparison {
 
   private final ProtocolBuilderBinary builder;
 
-  public DefaultBinaryComparison(ProtocolBuilderBinary builder) {
+  DefaultBinaryComparison(ProtocolBuilderBinary builder) {
     this.builder = builder;
   }
 

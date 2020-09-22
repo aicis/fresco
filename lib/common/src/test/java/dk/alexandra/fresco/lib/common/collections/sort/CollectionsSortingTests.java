@@ -10,7 +10,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedBinary;
+import dk.alexandra.fresco.lib.common.math.AdvancedBinary;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -54,7 +54,7 @@ public class CollectionsSortingTests {
                     rawRightValue.stream().map(builder.binary()::known)
                         .collect(Collectors.toList());
 
-                return new DefaultAdvancedBinary(seq).keyedCompareAndSwap(new Pair<>(leftKey, leftValue),
+                return AdvancedBinary.using(seq).keyedCompareAndSwap(new Pair<>(leftKey, leftValue),
                     new Pair<>(rightKey, rightValue));
               }).seq((seq, data) -> {
                 List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> open = new ArrayList<>();

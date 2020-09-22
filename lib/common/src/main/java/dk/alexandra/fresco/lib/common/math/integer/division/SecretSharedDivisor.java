@@ -7,8 +7,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.common.compare.Comparison;
-import dk.alexandra.fresco.lib.common.compare.DefaultComparison;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import java.math.BigInteger;
 
@@ -57,14 +56,14 @@ public class SecretSharedDivisor
         ).pairInPar((seq, pair) -> {
           // Determine sign of numerator and ensure positive
           DRes<SInt> numerator = pair.getFirst();
-          Comparison comparison = new DefaultComparison(seq);
+          Comparison comparison = Comparison.using(seq);
           DRes<SInt> sign = comparison.sign(numerator);
 
           return Pair.lazy(sign, seq.numeric().mult(sign, numerator));
         }, (seq, pair) -> {
             // Determine sign of denominator and ensure positive
             DRes<SInt> denominator = pair.getSecond();
-            Comparison comparison = new DefaultComparison(seq);
+            Comparison comparison = Comparison.using(seq);
             DRes<SInt> sign = comparison.sign(denominator);
 
             return Pair.lazy(sign, seq.numeric().mult(sign, denominator));
@@ -140,13 +139,13 @@ public class SecretSharedDivisor
 
   private DRes<SInt> getBitLength(ProtocolBuilderNumeric builder, DRes<SInt> input,
       int maximumBitLength) {
-    return new DefaultAdvancedNumeric(builder)
+    return AdvancedNumeric.using(builder)
         .bitLength(input, maximumBitLength);
   }
 
   private DRes<SInt> exp2(ProtocolBuilderNumeric builder, DRes<SInt> exponent,
       int maxExponentLength) {
-    return new DefaultAdvancedNumeric(builder).exp(
+    return AdvancedNumeric.using(builder).exp(
         BigInteger.valueOf(2),
         exponent,
         maxExponentLength
@@ -155,7 +154,7 @@ public class SecretSharedDivisor
 
   private DRes<SInt> shiftRight(ProtocolBuilderNumeric builder, DRes<SInt> input,
       int numberOfPositions) {
-    return new DefaultAdvancedNumeric(builder)
+    return AdvancedNumeric.using(builder)
         .rightShift(input, numberOfPositions);
   }
 }

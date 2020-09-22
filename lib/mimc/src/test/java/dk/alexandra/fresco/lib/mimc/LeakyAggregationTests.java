@@ -10,12 +10,12 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.collections.DefaultCollections;
+import dk.alexandra.fresco.lib.common.collections.Collections;
 import dk.alexandra.fresco.lib.common.collections.Matrix;
 import dk.alexandra.fresco.lib.common.collections.MatrixTestUtils;
 import dk.alexandra.fresco.lib.common.collections.MatrixUtils;
 import java.math.BigInteger;
-import java.util.Collections;
+import java.util.Comparator;
 
 public class LeakyAggregationTests {
 
@@ -38,7 +38,7 @@ public class LeakyAggregationTests {
           // define functionality to be tested
           Application<Matrix<BigInteger>, ProtocolBuilderNumeric> testApplication =
               root -> {
-                dk.alexandra.fresco.lib.common.collections.Collections collections = new DefaultCollections(root);
+                dk.alexandra.fresco.lib.common.collections.Collections collections = Collections.using(root);
                 DRes<Matrix<DRes<SInt>>> closed = collections.closeMatrix(input, 1);
                 DRes<Matrix<DRes<SInt>>> aggregated = root.seq(new MiMCAggregation(closed, 0, 1));
                 DRes<Matrix<DRes<BigInteger>>> opened = collections.openMatrix(aggregated);
@@ -47,7 +47,7 @@ public class LeakyAggregationTests {
           Matrix<BigInteger> actual = runApplication(testApplication);
           // sort by key to undo shuffling
           // (keys are guaranteed to be unique)
-          Collections.sort(actual.getRows(), (r1, r2) -> r1.get(0).compareTo(r2.get(0)));
+          java.util.Collections.sort(actual.getRows(), Comparator.comparing(r -> r.get(0)));
           assertThat(actual.getRows(), is(expected.getRows()));
         }
       };

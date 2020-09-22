@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.common.collections.Collections;
-import dk.alexandra.fresco.lib.common.collections.DefaultCollections;
 import dk.alexandra.fresco.lib.common.collections.Matrix;
 import java.util.ArrayList;
 
@@ -106,7 +105,7 @@ public class PermuteRows implements Computation<Matrix<DRes<SInt>>, ProtocolBuil
 
     // non-empty input, i.e., main protocol
     return builder.seq(seq -> {
-      Collections collections = new DefaultCollections(seq);
+      Collections collections = Collections.using(seq);
       if (isPermProvider) {
         return collections.closeMatrix(wutils.setControlBits(idxPerm), permProviderPid);
       } else {
@@ -118,7 +117,7 @@ public class PermuteRows implements Computation<Matrix<DRes<SInt>>, ProtocolBuil
       // initiate loop
       return new IterationState(0, values);
     }).whileLoop((state) -> state.round < numRounds - 1, (seq, state) -> {
-      Collections collections = new DefaultCollections(seq);
+      Collections collections = Collections.using(seq);
 
       // apply swapper gates for this round
       DRes<Matrix<DRes<SInt>>> swapped =
@@ -128,7 +127,7 @@ public class PermuteRows implements Computation<Matrix<DRes<SInt>>, ProtocolBuil
       return new IterationState(state.round + 1, () -> reroute(swapped.out(), numRows, numCols,
           numSwapperRows, numSwapperCols, state.round));
     }).seq((seq, state) -> {
-      Collections collections = new DefaultCollections(seq);
+      Collections collections = Collections.using(seq);
       // Apply last column of swapper gates
       return collections.swapNeighborsIf(() -> cbits.getColumn(state.round),
           state.intermediate);

@@ -5,9 +5,9 @@ import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.conditional.ConditionalSelect;
-import dk.alexandra.fresco.lib.common.conditional.SwapIf;
-import dk.alexandra.fresco.lib.common.conversion.IntegerToBitsByShift;
+import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSelect;
+import dk.alexandra.fresco.lib.common.math.integer.conditional.SwapIf;
+import dk.alexandra.fresco.lib.common.math.integer.binary.IntegerToBitsByShift;
 import dk.alexandra.fresco.lib.common.math.integer.ProductSIntList;
 import dk.alexandra.fresco.lib.common.math.integer.SumSIntList;
 import dk.alexandra.fresco.lib.common.math.integer.binary.BitLength;
@@ -37,7 +37,7 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
 
   private final ProtocolBuilderNumeric builder;
 
-  public DefaultAdvancedNumeric(ProtocolBuilderNumeric builder) {
+  DefaultAdvancedNumeric(ProtocolBuilderNumeric builder) {
     this.builder = builder;
   }
 

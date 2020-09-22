@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedBinary;
+import dk.alexandra.fresco.lib.common.math.AdvancedBinary;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,7 +49,7 @@ public class Logarithm implements
       List<DRes<SBool>> ors = new ArrayList<>();
       ors.add(number.get(0));
       for (int i = 1; i < number.size(); i++) {
-        ors.add(new DefaultAdvancedBinary(seq).or(number.get(i), ors.get(i - 1)));
+        ors.add(AdvancedBinary.using(seq).or(number.get(i), ors.get(i - 1)));
       }
       return () -> ors;
     }).seq((seq, ors) -> {

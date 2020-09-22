@@ -11,7 +11,7 @@
     <module>common</module>
     <module>debug</module>
     <module>list</module>
-    <module>real</module>
+    <module>fixed</module>
   </modules>
   <packaging>pom</packaging>
 

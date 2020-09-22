@@ -5,7 +5,6 @@ import dk.alexandra.fresco.lib.common.compare.Comparison;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.compare.DefaultComparison;
 
 /**
  * Helper class for the find duplicates functionality.
@@ -33,7 +32,7 @@ public class FindDuplicatesHelper {
     for (int i = 0; i < list1.size(); i++) {
       int finalI = i;
       builder.seq(seq -> {
-        Comparison comparison = new DefaultComparison(seq);
+        Comparison comparison = Comparison.using(seq);
         for (int j = 0; j < list2.size(); j++) {
           DRes<SInt> equals = comparison.equals(list1.getId(finalI), list2.getId(j));
           list1.setDuplicate(finalI,

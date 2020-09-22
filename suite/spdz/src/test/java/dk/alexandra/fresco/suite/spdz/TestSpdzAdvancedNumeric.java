@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.common.arithmetic.AdvancedNumericTests;
 import dk.alexandra.fresco.lib.common.math.integer.exp.ExponentiationTests.TestExponentiation;
 import dk.alexandra.fresco.lib.common.math.polynomial.PolynomialTests.TestPolynomialEvaluator;
-import dk.alexandra.fresco.lib.real.MathTests;
+import dk.alexandra.fresco.lib.fixed.MathTests;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import org.junit.Test;
 

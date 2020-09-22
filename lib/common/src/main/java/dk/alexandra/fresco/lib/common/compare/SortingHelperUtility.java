@@ -2,12 +2,10 @@ package dk.alexandra.fresco.lib.common.compare;
 
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.lib.common.compare.Comparison;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +15,7 @@ public class SortingHelperUtility {
   public DRes<SInt> isSorted(ProtocolBuilderNumeric builder,
       List<DRes<SInt>> values) {
     return builder.par(par -> {
-      Comparison comparison = new DefaultComparison(par);
+      Comparison comparison = Comparison.using(par);
       ArrayList<DRes<SInt>> comparisons = new ArrayList<>();
       boolean first = true;
 
@@ -32,7 +30,7 @@ public class SortingHelperUtility {
       }
       return () -> comparisons;
     }).seq((seq, comparison) -> {
-      AdvancedNumeric advancedNumeric = new DefaultAdvancedNumeric(seq);
+      AdvancedNumeric advancedNumeric = AdvancedNumeric.using(seq);
       return advancedNumeric.product(comparison);
     });
   }
@@ -56,7 +54,7 @@ public class SortingHelperUtility {
 
     DRes<SInt> valueA = values.get(a);
     DRes<SInt> valueB = values.get(b);
-    Comparison comparison = new DefaultComparison(builder);
+    Comparison comparison = Comparison.using(builder);
     DRes<SInt> compareLEQ = comparison.compareLEQ(valueA, valueB);
     DRes<SInt> sub = numeric.sub(valueA, valueB);
     DRes<SInt> c = numeric.mult(compareLEQ, sub);

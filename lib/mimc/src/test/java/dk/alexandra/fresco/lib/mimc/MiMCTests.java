@@ -39,9 +39,9 @@ public class MiMCTests {
                 DRes<SInt> cipherText2;
                 if (reduced) {
                   cipherText =
-                      builder.seq(new MimcEncryptionReducedRounds(plainText, encryptionKey));
+                      builder.seq(new MiMCEncryptionReducedRounds(plainText, encryptionKey));
                   cipherText2 =
-                      builder.seq(new MimcEncryptionReducedRounds(plainText, encryptionKey));
+                      builder.seq(new MiMCEncryptionReducedRounds(plainText, encryptionKey));
                 } else {
                   cipherText = builder.seq(new MiMCEncryption(plainText, encryptionKey));
                   cipherText2 = builder.seq(new MiMCEncryption(plainText, encryptionKey));
@@ -85,9 +85,9 @@ public class MiMCTests {
                 DRes<SInt> cipherTextB = null;
                 if (reduced) {
                   cipherTextA =
-                      builder.seq(new MimcEncryptionReducedRounds(plainTextA, encryptionKey));
+                      builder.seq(new MiMCEncryptionReducedRounds(plainTextA, encryptionKey));
                   cipherTextB =
-                      builder.seq(new MimcEncryptionReducedRounds(plainTextB, encryptionKey));
+                      builder.seq(new MiMCEncryptionReducedRounds(plainTextB, encryptionKey));
                 } else {
                   cipherTextA = builder.seq(new MiMCEncryption(plainTextA, encryptionKey));
                   cipherTextB = builder.seq(new MiMCEncryption(plainTextB, encryptionKey));
@@ -130,9 +130,9 @@ public class MiMCTests {
                 DRes<SInt> decrypted = null;
                 if (reduced) {
                   DRes<SInt> cipherText =
-                      builder.seq(new MimcEncryptionReducedRounds(plainText, encryptionKey));
+                      builder.seq(new MiMCEncryptionReducedRounds(plainText, encryptionKey));
                   decrypted =
-                      builder.seq(new MimcDecryptionReducedRounds(cipherText, encryptionKey));
+                      builder.seq(new MiMCDecryptionReducedRounds(cipherText, encryptionKey));
                 } else {
                   DRes<SInt> cipherText = builder.seq(new MiMCEncryption(plainText, encryptionKey));
                   decrypted = builder.seq(new MiMCDecryption(cipherText, encryptionKey));

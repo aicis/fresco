@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +36,6 @@ public class InnerProductOpen implements Computation<SInt, ProtocolBuilderNumeri
         result.add(numericBuilder.mult(nextA, nextB));
       }
       return () -> result;
-    }).seq((seq, list) -> new DefaultAdvancedNumeric(seq).sum(list));
+    }).seq((seq, list) -> AdvancedNumeric.using(seq).sum(list));
   }
 }

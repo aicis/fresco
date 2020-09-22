@@ -7,7 +7,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.common.compare.MiscBigIntegerGenerators;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,7 +63,7 @@ public class ZeroTestBruteforce implements Computation<SInt, ProtocolBuilderNume
       BigInteger[] mostSignificantPolynomialCoefficients = new BigInteger[maxLength];
       System.arraycopy(polynomialCoefficients, 1,
           mostSignificantPolynomialCoefficients, 0, maxLength);
-      DRes<SInt> tmp = new DefaultAdvancedNumeric(seq)
+      DRes<SInt> tmp = AdvancedNumeric.using(seq)
           .innerProductWithPublicPart(Arrays.asList(mostSignificantPolynomialCoefficients), powers);
       return seq.numeric().add(polynomialCoefficients[0], tmp);
     });

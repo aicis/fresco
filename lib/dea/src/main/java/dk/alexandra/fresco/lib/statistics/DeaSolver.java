@@ -6,7 +6,9 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.common.collections.Matrix;
+import dk.alexandra.fresco.lib.common.compare.Comparison;
 import dk.alexandra.fresco.lib.common.compare.DefaultComparison;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
 import dk.alexandra.fresco.lib.lp.LPSolver;
 import dk.alexandra.fresco.lib.lp.LPTableau;
@@ -146,7 +148,7 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
                 () -> new OptimalValue.Result(null, null, null));
           }
           // Compute peers from lpOutput
-          DRes<SInt> invPivot = new dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric(optSec).invert(lpOutput.pivot);
+          DRes<SInt> invPivot = AdvancedNumeric.using(optSec).invert(lpOutput.pivot);
           List<DRes<SInt>> column = new LinkedList<>(tableau.getB());
           column.add(tableau.getZ());
           List<ArrayList<DRes<SInt>>> umRows = lpOutput.updateMatrix.getRows();
@@ -160,7 +162,7 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
           // These could be done in parallel
           return optSec.par(innerPar -> {
             List<DRes<SInt>> upColumn =
-                umRows.stream().map(row -> new DefaultAdvancedNumeric(innerPar).innerProduct(row, column))
+                umRows.stream().map(row -> AdvancedNumeric.using(innerPar).innerProduct(row, column))
                     .collect(Collectors.toList());
             return () -> upColumn;
           }).par((innerPar, upColumn) -> {
@@ -169,11 +171,12 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
                 .map(n -> innerPar.numeric().mult(invPivot, n)).collect(Collectors.toList());
             return () -> basisValues;
           }).par((innerPar, basisValues) -> {
+            Comparison comparison = Comparison.using(innerPar);
             List<DRes<SInt>> above =
-                lpOutput.basis.stream().map(n -> new DefaultComparison(innerPar).compareLEQ(firstPeer, n))
+                lpOutput.basis.stream().map(n -> comparison.compareLEQ(firstPeer, n))
                     .collect(Collectors.toList());
             List<DRes<SInt>> below =
-                lpOutput.basis.stream().map(n -> new DefaultComparison(innerPar).compareLEQ(n, lastPeer))
+                lpOutput.basis.stream().map(n -> comparison.compareLEQ(n, lastPeer))
                     .collect(Collectors.toList());
             List<List<DRes<SInt>>> newState = new ArrayList<>(3);
             newState.add(above);

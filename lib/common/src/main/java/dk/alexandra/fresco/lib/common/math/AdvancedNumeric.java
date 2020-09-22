@@ -2,6 +2,7 @@ package dk.alexandra.fresco.lib.common.math;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -11,6 +12,16 @@ import java.util.List;
  * Interface for advanced functionality applicable to numeric type applications.
  */
 public interface AdvancedNumeric extends ComputationDirectory {
+
+  /**
+   * Create a new AdvancedNumeric using the given builder.
+   *
+   * @param builder The root builder to use.
+   * @return A new AdvancedNumeric computation directory.
+   */
+  static AdvancedNumeric using(ProtocolBuilderNumeric builder) {
+    return new DefaultAdvancedNumeric(builder);
+  }
 
   /**
    * Calculates the sum of all elements in the list.

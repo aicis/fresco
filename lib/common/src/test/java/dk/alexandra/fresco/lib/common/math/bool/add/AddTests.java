@@ -10,7 +10,6 @@ import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.common.math.AdvancedBinary;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedBinary;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +35,7 @@ public class AddTests {
             List<DRes<Pair<SBool, SBool>>> data = new ArrayList<>();
 
             return producer.seq(seq -> {
-              AdvancedBinary prov = new DefaultAdvancedBinary(seq);
+              AdvancedBinary prov = AdvancedBinary.using(seq);
               DRes<SBool> inp0 = seq.binary().known(false);
               DRes<SBool> inp1 = seq.binary().known(true);
               data.add(prov.oneBitHalfAdder(inp0, inp0));
@@ -84,7 +83,7 @@ public class AddTests {
             List<DRes<Pair<SBool, SBool>>> data = new ArrayList<>();
 
             return producer.seq(seq -> {
-              AdvancedBinary prov = new DefaultAdvancedBinary(seq);
+              AdvancedBinary prov = AdvancedBinary.using(seq);
               DRes<SBool> inp0 = seq.binary().known(false);
               DRes<SBool> inp1 = seq.binary().known(true);
               data.add(prov.oneBitFullAdder(inp0, inp0, inp0));
@@ -151,7 +150,7 @@ public class AddTests {
         @Override
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
-            AdvancedBinary prov = new DefaultAdvancedBinary(seq);
+            AdvancedBinary prov = AdvancedBinary.using(seq);
             DRes<SBool> carry = seq.binary().known(true);
 
             List<DRes<SBool>> first =
@@ -196,7 +195,7 @@ public class AddTests {
         @Override
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
-            AdvancedBinary prov = new DefaultAdvancedBinary(seq);
+            AdvancedBinary prov = AdvancedBinary.using(seq);
             DRes<SBool> increment = seq.binary().known(true);
 
             List<DRes<SBool>> large =

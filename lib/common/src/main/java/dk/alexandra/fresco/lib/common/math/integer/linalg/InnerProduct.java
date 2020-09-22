@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.RandomAccess;
@@ -47,7 +47,7 @@ public class InnerProduct implements Computation<SInt, ProtocolBuilderNumeric> {
           }
           return () -> products;
         })
-        .seq((seq, list) -> new DefaultAdvancedNumeric(seq).sum(list)
+        .seq((seq, list) -> AdvancedNumeric.using(seq).sum(list)
         );
   }
 }

@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import java.math.BigInteger;
 
 /**
@@ -28,7 +28,7 @@ public class Exponentiation implements Computation<SInt, ProtocolBuilderNumeric>
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) ->
-        new DefaultAdvancedNumeric(seq).toBits(exponent, maxExponentBitLength)
+        AdvancedNumeric.using(seq).toBits(exponent, maxExponentBitLength)
     ).seq((seq, bits) -> {
       DRes<SInt> e = input;
       DRes<SInt> result = null;

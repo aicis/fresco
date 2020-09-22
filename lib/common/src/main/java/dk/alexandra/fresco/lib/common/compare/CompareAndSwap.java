@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedBinary;
+import dk.alexandra.fresco.lib.common.math.AdvancedBinary;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,18 +27,18 @@ public class CompareAndSwap implements Computation<List<List<DRes<SBool>>>, Prot
   @Override
   public DRes<List<List<DRes<SBool>>>> buildComputation(ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
-      return new DefaultBinaryComparison(seq).greaterThan(right, left);
+      return BinaryComparison.using(seq).greaterThan(right, left);
     }).par((par, data) -> {
      
       List<DRes<SBool>> first = left.stream()
-          .map(e -> {return new DefaultAdvancedBinary(par).condSelect(data, e, right.get(left.indexOf(e)));})
+          .map(e -> AdvancedBinary.using(par).condSelect(data, e, right.get(left.indexOf(e))))
           .collect(Collectors.toList());
 
       List<DRes<SBool>> second = right.stream()
-          .map(e -> {return new DefaultAdvancedBinary(par).condSelect(data, e, left.get(right.indexOf(e)));})
+          .map(e -> AdvancedBinary.using(par).condSelect(data, e, left.get(right.indexOf(e))))
           .collect(Collectors.toList());
 
-      List<List<DRes<SBool>>> result = new ArrayList<List<DRes<SBool>>>();
+      List<List<DRes<SBool>>> result = new ArrayList<>();
       result.add(first);
       result.add(second);
       return () -> result; 

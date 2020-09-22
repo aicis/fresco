@@ -6,8 +6,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.lib.common.collections.Collections;
-import dk.alexandra.fresco.lib.common.collections.DefaultCollections;
-import dk.alexandra.fresco.lib.common.compare.Comparison;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -92,7 +90,7 @@ public class CompareTests {
             Numeric input = builder.numeric();
             DRes<SInt> x = input.input(BigInteger.valueOf(3), 1);
             DRes<SInt> y = input.input(BigInteger.valueOf(5), 1);
-            Comparison comparison = new DefaultComparison(builder);
+            Comparison comparison = Comparison.using(builder);
             DRes<SInt> compResult1 = comparison.compareLEQ(x, y);
             DRes<SInt> compResult2 = comparison.compareLEQ(y, x);
             DRes<SInt> compResult3 = comparison.compareLEQ(x, x);
@@ -130,7 +128,7 @@ public class CompareTests {
             Numeric input = builder.numeric();
             DRes<SInt> x = input.known(BigInteger.valueOf(3));
             DRes<SInt> y = input.known(BigInteger.valueOf(5));
-            Comparison comparison = new DefaultComparison(builder);
+            Comparison comparison = Comparison.using(builder);
             DRes<SInt> compResult1 = comparison.equals(x, x);
             DRes<SInt> compResult2 = comparison.equals(x, y);
             DRes<SInt> compResult3 = comparison.equals(1, x, y);
@@ -165,7 +163,7 @@ public class CompareTests {
         public void test() throws Exception {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
             Numeric input = builder.numeric();
-            Comparison comparison = new DefaultComparison(builder);
+            Comparison comparison = Comparison.using(builder);
             BigInteger modulus = builder.getBasicNumericContext().getModulus();
 
             // check (mod / 2) == (mod / 2)
@@ -196,7 +194,7 @@ public class CompareTests {
             List<DRes<SInt>> comps = Arrays
                 .asList(compResultOne, compResultTwo, compResultThree, compResultFour,
                     compResultFive, compResultSix, compResultSeven);
-            DRes<List<DRes<BigInteger>>> opened = new DefaultCollections(builder).openList(() -> comps);
+            DRes<List<DRes<BigInteger>>> opened = Collections.using(builder).openList(() -> comps);
 
             return builder.seq((seq) -> {
               return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());
@@ -231,7 +229,7 @@ public class CompareTests {
         public void test() throws Exception {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
             Numeric input = builder.numeric();
-            Comparison comparison = new DefaultComparison(builder);
+            Comparison comparison = Comparison.using(builder);
             int maxBitLength = builder.getBasicNumericContext().getMaxBitLength();
 
             List<DRes<SInt>> comps = Arrays.asList(
@@ -260,7 +258,7 @@ public class CompareTests {
                     input.known(BigInteger.valueOf(-3)),
                     input.known(BigInteger.valueOf(1)))
             );
-            DRes<List<DRes<BigInteger>>> opened = new DefaultCollections(builder).openList(() -> comps);
+            DRes<List<DRes<BigInteger>>> opened = Collections.using(builder).openList(() -> comps);
 
             return builder.seq((seq) -> {
               return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());

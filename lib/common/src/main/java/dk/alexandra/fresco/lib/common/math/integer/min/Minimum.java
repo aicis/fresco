@@ -7,8 +7,7 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.compare.DefaultComparison;
-import dk.alexandra.fresco.lib.common.conditional.ConditionalSelect;
+import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSelect;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,7 +36,7 @@ public class Minimum implements
       ProtocolBuilderNumeric builder) {
     BigInteger one = BigInteger.ONE;
     if (this.size == 2) {
-      Comparison comparison = new DefaultComparison(builder);
+      Comparison comparison = Comparison.using(builder);
       Numeric numeric = builder.numeric();
       DRes<SInt> firstValue = this.xs.get(0);
       DRes<SInt> secondValue = this.xs.get(1);
@@ -50,7 +49,7 @@ public class Minimum implements
           Arrays.asList(firstCompare, secondCompare),
           minimum.out());
     } else if (this.size == 3) {
-      Comparison comparison =  new DefaultComparison(builder);
+      Comparison comparison =  Comparison.using(builder);
       Numeric numeric = builder.numeric();
       DRes<SInt> firstValue = this.xs.get(0);
       DRes<SInt> secondValue = this.xs.get(1);
@@ -80,7 +79,7 @@ public class Minimum implements
           (seq, pair) -> seq.seq(new Minimum(pair.getFirst())),
           (seq, pair) -> seq.seq(new Minimum(pair.getSecond()))
       ).seq((seq, pair) -> {
-        Comparison comparison =  new DefaultComparison(seq);
+        Comparison comparison =  Comparison.using(seq);
         Numeric numeric = seq.numeric();
         Pair<List<DRes<SInt>>, SInt> minimum1 = pair.getFirst();
         Pair<List<DRes<SInt>>, SInt> minimum2 = pair.getSecond();

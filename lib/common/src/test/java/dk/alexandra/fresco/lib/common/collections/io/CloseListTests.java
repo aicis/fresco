@@ -12,7 +12,6 @@ import dk.alexandra.fresco.lib.common.collections.Collections;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.collections.DefaultCollections;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +38,7 @@ public class CloseListTests {
           List<BigInteger> input = new ArrayList<>();
           // define functionality to be tested
           Application<List<SInt>, ProtocolBuilderNumeric> testApplication = root -> {
-            Collections collections = new DefaultCollections(root);
+            Collections collections = Collections.using(root);
             DRes<List<DRes<SInt>>> closed = collections.closeList(input, 1);
             return () -> closed.out().stream().map(DRes::out).collect(Collectors.toList());
           };
@@ -71,7 +70,7 @@ public class CloseListTests {
           }
           // define functionality to be tested
           Application<List<BigInteger>, ProtocolBuilderNumeric> testApplication = root -> {
-            Collections collections = new DefaultCollections(root);
+            Collections collections = Collections.using(root);
             DRes<List<DRes<SInt>>> closed;
             if (root.getBasicNumericContext().getMyId() == 1) {
               // party 1 provides input

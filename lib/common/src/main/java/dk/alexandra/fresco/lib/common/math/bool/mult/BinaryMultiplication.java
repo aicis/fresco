@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedBinary;
+import dk.alexandra.fresco.lib.common.math.AdvancedBinary;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +53,7 @@ public class BinaryMultiplication implements
             tmp.add(0, seq.binary().known(false));
           }
           IterationState is = new IterationState(idx,
-              new DefaultAdvancedBinary(seq).fullAdder(state.value.out(), res, seq.binary().known(false)));
+              AdvancedBinary.using(seq).fullAdder(state.value.out(), res, seq.binary().known(false)));
           return is;
         }
     ).seq((seq, state) -> state.value

@@ -10,6 +10,7 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.common.compare.Comparison;
 import dk.alexandra.fresco.lib.common.compare.DefaultComparison;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -49,7 +50,7 @@ public class EqualsDemo implements Application<BigInteger, ProtocolBuilderNumeri
       Pair<DRes<SInt>, DRes<SInt>> input = new Pair<>(x1, x2);
       return () -> input;
     }).seq((seq, input) -> {
-      DRes<SInt> equals = new DefaultComparison(seq).equals(32, input.getFirst(), input.getSecond());
+      DRes<SInt> equals = Comparison.using(seq).equals(32, input.getFirst(), input.getSecond());
       DRes<BigInteger> open = seq.numeric().open(equals);
       return open;
     });

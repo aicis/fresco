@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.builder.ComputationParallel;
 import dk.alexandra.fresco.lib.common.collections.Collections;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.collections.DefaultCollections;
 import dk.alexandra.fresco.lib.common.collections.Matrix;
 import dk.alexandra.fresco.lib.common.collections.MatrixUtils;
 import java.math.BigInteger;
@@ -67,7 +66,7 @@ public class CloseMatrix
 
   @Override
   public DRes<Matrix<DRes<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
-    Collections collections = new DefaultCollections(builder);
+    Collections collections = Collections.using(builder);
     List<DRes<List<DRes<SInt>>>> closed =
         isInputProvider ? buildAsProvider(collections) : buildAsReceiver(collections);
     return () -> new MatrixUtils().unwrapRows(closed);

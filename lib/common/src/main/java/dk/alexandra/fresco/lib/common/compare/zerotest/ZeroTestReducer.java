@@ -5,8 +5,8 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
-import dk.alexandra.fresco.lib.common.math.integer.HammingDistance;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
+import dk.alexandra.fresco.lib.common.compare.HammingDistance;
 import java.math.BigInteger;
 
 public class ZeroTestReducer implements Computation<SInt, ProtocolBuilderNumeric> {
@@ -23,7 +23,7 @@ public class ZeroTestReducer implements Computation<SInt, ProtocolBuilderNumeric
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    return builder.seq((seq) -> new DefaultAdvancedNumeric(seq)
+    return builder.seq((seq) -> AdvancedNumeric.using(seq)
         .additiveMask(bitLength + securityParameter)
     ).seq((seq, mask) -> {
       DRes<SInt> mS = seq.numeric().add(input, () -> mask.random);

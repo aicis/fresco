@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.common.math.AdvancedBinary;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedBinary;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,7 +40,7 @@ public class MultTests {
             ProtocolBuilderBinary builder = (ProtocolBuilderBinary) producer;
 
             return builder.seq(seq -> {
-              AdvancedBinary prov = new DefaultAdvancedBinary(seq);
+              AdvancedBinary prov = AdvancedBinary.using(seq);
               List<DRes<SBool>> first =
                   rawFirst.stream().map(seq.binary()::known).collect(Collectors.toList());
               List<DRes<SBool>> second =

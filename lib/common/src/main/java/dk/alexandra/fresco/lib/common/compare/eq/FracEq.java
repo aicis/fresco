@@ -6,7 +6,7 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.compare.DefaultComparison;
+import dk.alexandra.fresco.lib.common.compare.Comparison;
 
 /**
  * <p>
@@ -43,7 +43,7 @@ public class FracEq implements Computation<SInt, ProtocolBuilderNumeric> {
           numeric.mult(d1, n0)
       );
     }).seq((seq, pair) ->
-        new DefaultComparison(seq).equals(pair.getFirst(), pair.getSecond())
+        Comparison.using(seq).equals(pair.getFirst(), pair.getSecond())
     );
   }
 

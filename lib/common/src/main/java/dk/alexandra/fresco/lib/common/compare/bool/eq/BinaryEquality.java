@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.common.math.AdvancedBinary;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedBinary;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +32,7 @@ public class BinaryEquality implements Computation<SBool, ProtocolBuilderBinary>
   @Override
   public DRes<SBool> buildComputation(ProtocolBuilderBinary builder) {
     return builder.par(par -> {
-      AdvancedBinary bb = new DefaultAdvancedBinary(par);
+      AdvancedBinary bb = AdvancedBinary.using(par);
       List<DRes<SBool>> xnors = new ArrayList<>();
       for (int i = 0; i < length; i++) {
         xnors.add(bb.xnor(inLeft.get(i), inRight.get(i)));

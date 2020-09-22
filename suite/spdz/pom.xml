@@ -104,7 +104,7 @@
     </dependency>
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
-      <artifactId>real</artifactId>
+      <artifactId>fixed</artifactId>
       <version>1.2.2-SNAPSHOT</version>
       <type>test-jar</type>
       <scope>test</scope>

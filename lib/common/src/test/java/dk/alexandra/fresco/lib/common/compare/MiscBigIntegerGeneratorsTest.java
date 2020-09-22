@@ -16,6 +16,6 @@ public class MiscBigIntegerGeneratorsTest {
     MiscBigIntegerGenerators generators =
         new MiscBigIntegerGenerators(BigInteger.valueOf(5), mockMap);
 
-    Assert.assertEquals(mockEntry, generators.getPoly(2));
+    Assert.assertArrayEquals(mockEntry, generators.getPoly(2));
   }
 }

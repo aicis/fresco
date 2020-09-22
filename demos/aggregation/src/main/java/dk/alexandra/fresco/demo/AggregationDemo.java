@@ -10,7 +10,6 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.common.collections.Collections;
-import dk.alexandra.fresco.lib.common.collections.DefaultCollections;
 import dk.alexandra.fresco.lib.common.collections.Matrix;
 import dk.alexandra.fresco.lib.mimc.MiMCAggregation;
 import dk.alexandra.fresco.lib.common.collections.MatrixUtils;
@@ -74,7 +73,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     Application<Matrix<BigInteger>, ProtocolBuilderNumeric> aggApp =
         root -> {
           DRes<Matrix<DRes<SInt>>> closed;
-          Collections collections = new DefaultCollections(root);
+          Collections collections = Collections.using(root);
           // player 1 provides input
           if (rp.getMyId() == 1) {
             closed = collections.closeMatrix(readInputs(), 1);

@@ -7,9 +7,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.common.compare.Comparison;
-import dk.alexandra.fresco.lib.common.compare.DefaultComparison;
 import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import java.math.BigInteger;
 
@@ -61,7 +59,7 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
       /*
        * Compute the sign of the dividend
        */
-      Comparison comparison = new DefaultComparison(seq);
+      Comparison comparison = Comparison.using(seq);
       DRes<SInt> dividendSign = comparison.sign(dividend);
       DRes<SInt> dividendAbs = numeric.mult(dividend, dividendSign);
 
@@ -89,7 +87,7 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
        * result in absolute value. Only the most significant bits of mx0 may influence mx1 so a truncate
        * is sufficient here.
        */
-      AdvancedNumeric advancedNumeric = new DefaultAdvancedNumeric(seq);
+      AdvancedNumeric advancedNumeric = AdvancedNumeric.using(seq);
       DRes<SInt> q = advancedNumeric
           .rightShift(seq.numeric().add(mx1, advancedNumeric.truncate(mx0, n)), n - 1);
 

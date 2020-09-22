@@ -9,7 +9,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -128,7 +128,7 @@ public class DivisionTests {
             DRes<SInt> divisor = numericBuilder.input(openDivisor, 1);
             for (BigInteger value : openDividends) {
               DRes<SInt> dividend = numericBuilder.input(value, 1);
-              DRes<SInt> division = new DefaultAdvancedNumeric(builder).div(dividend, divisor);
+              DRes<SInt> division = AdvancedNumeric.using(builder).div(dividend, divisor);
               results.add(builder.numeric().open(division));
             }
             return () -> results.stream().map(DRes::out).collect(Collectors.toList());

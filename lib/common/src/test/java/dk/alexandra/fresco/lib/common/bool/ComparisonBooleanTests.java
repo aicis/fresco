@@ -7,6 +7,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.lib.common.compare.BinaryComparison;
 import dk.alexandra.fresco.lib.common.compare.DefaultBinaryComparison;
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,8 +42,8 @@ public class ComparisonBooleanTests {
           Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
             List<DRes<SBool>> in1 = BooleanHelper.known(comp1, seq.binary());
             List<DRes<SBool>> in2 = BooleanHelper.known(comp2, seq.binary());
-            DRes<SBool> res1 = new DefaultBinaryComparison(seq).greaterThan(in1, in2);
-            DRes<SBool> res2 = new DefaultBinaryComparison(seq).greaterThan(in2, in1);
+            DRes<SBool> res1 = BinaryComparison.using(seq).greaterThan(in1, in2);
+            DRes<SBool> res2 = BinaryComparison.using(seq).greaterThan(in2, in1);
             DRes<Boolean> open1 = seq.binary().open(res1);
             DRes<Boolean> open2 = seq.binary().open(res2);
             return () -> Arrays.asList(open1, open2);
@@ -85,8 +86,8 @@ public class ComparisonBooleanTests {
           Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
             List<DRes<SBool>> in1 = BooleanHelper.known(comp1, seq.binary());
             List<DRes<SBool>> in2 = BooleanHelper.known(comp2, seq.binary());
-            DRes<SBool> res1 = new DefaultBinaryComparison(seq).equal(in1, in2);
-            DRes<SBool> res2 = new DefaultBinaryComparison(seq).equal(in1, in1);
+            DRes<SBool> res1 = BinaryComparison.using(seq).equal(in1, in2);
+            DRes<SBool> res2 = BinaryComparison.using(seq).equal(in1, in1);
             DRes<Boolean> open1 = seq.binary().open(res1);
             DRes<Boolean> open2 = seq.binary().open(res2);
             return () -> Arrays.asList(open1, open2);
@@ -121,7 +122,7 @@ public class ComparisonBooleanTests {
           Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
             List<DRes<SBool>> in1 = BooleanHelper.known(comp1, seq.binary());
             List<DRes<SBool>> in2 = BooleanHelper.known(comp2, seq.binary());
-            DRes<SBool> res1 = new DefaultBinaryComparison(seq).greaterThan(in1, in2);
+            DRes<SBool> res1 = BinaryComparison.using(seq).greaterThan(in1, in2);
             DRes<Boolean> open1 = seq.binary().open(res1);
             return () -> Collections.singletonList(open1);
           }).seq(

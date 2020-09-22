@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
@@ -55,7 +55,7 @@ public class ParallelAndSequenceTests {
           Arrays.stream(inputAsArray)
               .map((integer) -> convertToSInt(integer, producer))
               .collect(Collectors.toList());
-      DRes<SInt> result = new DefaultAdvancedNumeric(producer).sum(input);
+      DRes<SInt> result = AdvancedNumeric.using(producer).sum(input);
       return producer.numeric().open(result);
     }
 
@@ -66,7 +66,7 @@ public class ParallelAndSequenceTests {
     @Override
     public DRes<BigInteger> buildComputation(
         ProtocolBuilderNumeric producer) {
-      DRes<SInt> result = new DefaultAdvancedNumeric(producer).product(
+      DRes<SInt> result = AdvancedNumeric.using(producer).product(
           Arrays.stream(inputAsArray)
               .map((integer) -> convertToSInt(integer, producer))
               .collect(Collectors.toList()));

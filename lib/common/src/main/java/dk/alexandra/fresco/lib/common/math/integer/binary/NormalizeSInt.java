@@ -6,10 +6,8 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.common.compare.Comparison;
-import dk.alexandra.fresco.lib.common.compare.DefaultComparison;
 import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
-import dk.alexandra.fresco.lib.common.conditional.ConditionalSelectRow;
+import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSelectRow;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
@@ -33,11 +31,11 @@ public class NormalizeSInt
   @Override
   public DRes<Pair<DRes<SInt>, DRes<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.par(par -> {
-      AdvancedNumeric advancedNumeric = new DefaultAdvancedNumeric(par);
+      AdvancedNumeric advancedNumeric = AdvancedNumeric.using(par);
       DRes<List<SInt>> bits = advancedNumeric.toBits(input, l);
 
       // Sign bit (0 or 1)
-      Comparison comparison = new DefaultComparison(par);
+      Comparison comparison = Comparison.using(par);
       DRes<SInt> signBit = comparison.compareLEQ(input, par.numeric().known(-1));
 
       return () -> new Pair<>(bits, signBit);      

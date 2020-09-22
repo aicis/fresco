@@ -3,6 +3,8 @@ package dk.alexandra.fresco.lib.common.math;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.builder.binary.Binary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.List;
@@ -14,6 +16,16 @@ import java.util.List;
  * {@link Binary} computation directory.
  */
 public interface AdvancedBinary extends ComputationDirectory {
+
+  /**
+   * Create a new AdvancedBinary using the given builder.
+   *
+   * @param builder The root builder to use.
+   * @return A new AdvancedBinary computation directory.
+   */
+  static AdvancedBinary using(ProtocolBuilderBinary builder) {
+    return new DefaultAdvancedBinary(builder);
+  }
 
   /**
    * Computes the OR of the two inputs.

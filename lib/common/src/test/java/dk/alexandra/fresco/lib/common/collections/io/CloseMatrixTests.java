@@ -12,7 +12,6 @@ import dk.alexandra.fresco.lib.common.collections.Collections;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.collections.DefaultCollections;
 import dk.alexandra.fresco.lib.common.collections.Matrix;
 import dk.alexandra.fresco.lib.common.collections.MatrixUtils;
 import java.math.BigInteger;
@@ -34,7 +33,7 @@ public class CloseMatrixTests {
           // functionality to be tested
           Application<Matrix<SInt>, ProtocolBuilderNumeric> testApplication = root -> {
             // close inputs
-            Collections collections = new DefaultCollections(root);
+            Collections collections = Collections.using(root);
             DRes<Matrix<DRes<SInt>>> mat = collections.closeMatrix(input, 1);
             // unwrap and return result
             return () -> new MatrixUtils().unwrapMatrix(mat);
@@ -71,7 +70,7 @@ public class CloseMatrixTests {
 
           // define functionality to be tested
           Application<Matrix<BigInteger>, ProtocolBuilderNumeric> testApplication = root -> {
-            Collections collections = new DefaultCollections(root);
+            Collections collections = Collections.using(root);
             DRes<Matrix<DRes<SInt>>> closed = collections.closeMatrix(input, 1);
             DRes<Matrix<DRes<BigInteger>>> opened = collections.openMatrix(closed);
             return () -> new MatrixUtils().unwrapMatrix(opened);

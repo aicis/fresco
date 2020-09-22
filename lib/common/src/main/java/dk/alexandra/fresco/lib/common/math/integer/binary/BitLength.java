@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
 import java.math.BigInteger;
 
 /**
@@ -34,7 +33,7 @@ public class BitLength implements Computation<SInt, ProtocolBuilderNumeric> {
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) -> {
-      AdvancedNumeric advancedNumeric = new DefaultAdvancedNumeric(seq);
+      AdvancedNumeric advancedNumeric = AdvancedNumeric.using(seq);
       //Find the bit representation of the input
       return advancedNumeric.toBits(input, maxBitLength);
     }).seq((seq, bits) -> {

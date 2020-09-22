@@ -2,15 +2,14 @@ package dk.alexandra.fresco.lib.common.compare.gt;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
-import dk.alexandra.fresco.lib.common.compare.DefaultComparison;
+import dk.alexandra.fresco.lib.common.compare.Comparison;
 import dk.alexandra.fresco.lib.common.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.conditional.ConditionalSelect;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
+import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSelect;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -44,7 +43,7 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
     final BigInteger one = BigInteger.ONE;
 
     return builder
-        .seq((seq) -> new DefaultAdvancedNumeric(seq).additiveMask(bitLength + securityParameter))
+        .seq((seq) -> AdvancedNumeric.using(seq).additiveMask(bitLength + securityParameter))
         .pairInPar(
             (seq, mask) -> {
               List<DRes<SInt>> bits = mask.bits.subList(0, bitLength);
@@ -54,7 +53,7 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
                       .getTwoPowersList(bitLengthBottom);
               return Pair.lazy(
                   mask.random,
-                  new DefaultAdvancedNumeric(seq)
+                  AdvancedNumeric.using(seq)
                       .innerProductWithPublicPart(twoPowsBottom, rBottomBits));
             },
             (seq, mask) -> {
@@ -62,7 +61,7 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
                   mask.bits.subList(bitLengthBottom, bitLengthBottom + bitLengthTop);
               List<BigInteger> twoPowsTop =
                   new MiscBigIntegerGenerators(seq.getBasicNumericContext().getModulus()).getTwoPowersList(bitLengthTop);
-              AdvancedNumeric innerProduct = new DefaultAdvancedNumeric(seq);
+              AdvancedNumeric innerProduct = AdvancedNumeric.using(seq);
 
               return innerProduct.innerProductWithPublicPart(twoPowsTop, rTopBits);
             })
@@ -110,7 +109,7 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
               DRes<SInt> dif = numeric.sub(mTop, rTop);
 
               // eqResult <- execute eq.test
-              DRes<SInt> eqResult = new DefaultComparison(seq).compareZero(dif, bitLengthTop);
+              DRes<SInt> eqResult = Comparison.using(seq).compareZero(dif, bitLengthTop);
               return () -> new Object[] {eqResult, rBottom, rTop, mBot, mTop, mBar, rBar, z};
             })
         .seq(

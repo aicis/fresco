@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.common.compare.Comparison;
-import dk.alexandra.fresco.lib.common.compare.DefaultComparison;
 
 /**
  * Implements an equality protocol -- given inputs x, y set output to x==y.
@@ -36,7 +35,7 @@ public class Equality implements Computation<SInt, ProtocolBuilderNumeric> {
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     DRes<SInt> diff = builder.numeric().sub(left, right);
-    Comparison comparison = new DefaultComparison(builder);
+    Comparison comparison = Comparison.using(builder);
     return comparison.compareZero(diff, bitLength);
   }
 }

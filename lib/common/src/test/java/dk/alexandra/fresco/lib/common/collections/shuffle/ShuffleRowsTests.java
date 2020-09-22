@@ -9,13 +9,12 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.collections.DefaultCollections;
+import dk.alexandra.fresco.lib.common.collections.Collections;
 import dk.alexandra.fresco.lib.common.collections.Matrix;
 import dk.alexandra.fresco.lib.common.collections.MatrixTestUtils;
 import dk.alexandra.fresco.lib.common.collections.MatrixUtils;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Random;
 
 public class ShuffleRowsTests {
@@ -39,8 +38,8 @@ public class ShuffleRowsTests {
         public void test() throws Exception {
           Application<Matrix<BigInteger>, ProtocolBuilderNumeric> testApplication =
               root -> {
-                dk.alexandra.fresco.lib.common.collections.Collections
-                    collections = new DefaultCollections(root);
+                Collections
+                    collections = Collections.using(root);
                 DRes<Matrix<DRes<SInt>>> closed = collections.closeMatrix(input, 1);
                 // use package-private constructor to fix randomness
                 DRes<Matrix<DRes<SInt>>> shuffled = collections.shuffle(closed);
@@ -82,7 +81,7 @@ public class ShuffleRowsTests {
     }
     ArrayList<ArrayList<BigInteger>> rows = input.getRows();
     for (int pid : pids) {
-      Collections.shuffle(rows, rands[pid - 1]);
+      java.util.Collections.shuffle(rows, rands[pid - 1]);
     }
     return new Matrix<>(input.getHeight(), input.getWidth(), rows);
   }

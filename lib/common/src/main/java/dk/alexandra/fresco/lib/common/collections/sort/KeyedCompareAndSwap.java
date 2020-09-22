@@ -5,8 +5,8 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.common.compare.DefaultBinaryComparison;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedBinary;
+import dk.alexandra.fresco.lib.common.compare.BinaryComparison;
+import dk.alexandra.fresco.lib.common.math.AdvancedBinary;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,7 +39,7 @@ public class KeyedCompareAndSwap implements
       ProtocolBuilderBinary builder) {
     return builder.par(seq -> {
 
-      DRes<SBool> comparison = new DefaultBinaryComparison(seq).greaterThan(leftKey, rightKey);
+      DRes<SBool> comparison = BinaryComparison.using(seq).greaterThan(leftKey, rightKey);
       xorKey = leftKey.stream().map(e -> seq.binary().xor(e, rightKey.get(leftKey.indexOf(e))))
           .collect(Collectors.toList());
 
@@ -50,11 +50,11 @@ public class KeyedCompareAndSwap implements
     }).par((par, data) -> {
 
       List<DRes<SBool>> firstValue = leftValue.stream()
-          .map(e -> new DefaultAdvancedBinary(par).condSelect(data, e, rightValue.get(leftValue.indexOf(e))))
+          .map(e -> AdvancedBinary.using(par).condSelect(data, e, rightValue.get(leftValue.indexOf(e))))
           .collect(Collectors.toList());
 
       List<DRes<SBool>> firstKey = leftKey.stream()
-          .map(e -> new DefaultAdvancedBinary(par).condSelect(data, e, rightKey.get(leftKey.indexOf(e))))
+          .map(e -> AdvancedBinary.using(par).condSelect(data, e, rightKey.get(leftKey.indexOf(e))))
           .collect(Collectors.toList());
 
       return () -> new Pair<>(firstKey, firstValue);

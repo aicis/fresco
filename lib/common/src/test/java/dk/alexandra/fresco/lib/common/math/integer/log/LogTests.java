@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +43,7 @@ public class LogTests {
             ArrayList<DRes<BigInteger>> results = new ArrayList<>();
             for (BigInteger input : x) {
               DRes<SInt> actualInput = sIntFactory.input(input, 1);
-              DRes<SInt> result = new DefaultAdvancedNumeric(builder).log(actualInput, input.bitLength());
+              DRes<SInt> result = AdvancedNumeric.using(builder).log(actualInput, input.bitLength());
               DRes<BigInteger> openResult = builder.numeric().open(result);
               results.add(openResult);
             }

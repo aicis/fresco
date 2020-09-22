@@ -12,9 +12,9 @@ import dk.alexandra.fresco.lib.common.collections.io.OpenPair;
 import dk.alexandra.fresco.lib.common.collections.io.OpenRowPair;
 import dk.alexandra.fresco.lib.common.collections.permute.PermuteRows;
 import dk.alexandra.fresco.lib.common.collections.shuffle.ShuffleRows;
-import dk.alexandra.fresco.lib.common.conditional.ConditionalSelectRow;
-import dk.alexandra.fresco.lib.common.conditional.SwapNeighborsIf;
-import dk.alexandra.fresco.lib.common.conditional.SwapRowsIf;
+import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSelectRow;
+import dk.alexandra.fresco.lib.common.math.integer.conditional.SwapNeighborsIf;
+import dk.alexandra.fresco.lib.common.math.integer.conditional.SwapRowsIf;
 import dk.alexandra.fresco.lib.common.util.RowPairD;
 import java.math.BigInteger;
 import java.util.List;
@@ -23,7 +23,7 @@ public class DefaultCollections implements Collections {
 
   private final ProtocolBuilderNumeric builder;
 
-  public DefaultCollections(ProtocolBuilderNumeric builder) {
+  DefaultCollections(ProtocolBuilderNumeric builder) {
     this.builder = builder;
   }
 

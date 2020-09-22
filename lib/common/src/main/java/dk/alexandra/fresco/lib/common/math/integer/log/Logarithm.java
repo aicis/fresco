@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
 import java.math.BigInteger;
 
 /**
@@ -43,7 +42,7 @@ public class Logarithm implements Computation<SInt, ProtocolBuilderNumeric> {
      * Find the bit length of the input. Note that bit length - 1 is the floor of the the logartihm
      * with base 2 of the input.
      */
-    AdvancedNumeric advancedNumeric = new DefaultAdvancedNumeric(builder);
+    AdvancedNumeric advancedNumeric = AdvancedNumeric.using(builder);
     DRes<SInt> bitLength = advancedNumeric.bitLength(input, maxInputLength);
     DRes<SInt> log2 = builder.numeric().sub(bitLength, BigInteger.ONE);
 

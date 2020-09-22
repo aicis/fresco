@@ -6,8 +6,7 @@ import dk.alexandra.fresco.lib.common.compare.Comparison;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.compare.DefaultComparison;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +67,7 @@ public class CreditRater implements
           }
           return () -> scores;
         }
-    ).seq((seq, list) -> new DefaultAdvancedNumeric(seq).sum(list));
+    ).seq((seq, list) -> AdvancedNumeric.using(seq).sum(list));
   }
 
   private static class ComputeIntervalScore implements
@@ -96,7 +95,7 @@ public class CreditRater implements
     public DRes<SInt> buildComputation(ProtocolBuilderNumeric rootBuilder) {
       return rootBuilder.par((parallelBuilder) -> {
         List<DRes<SInt>> result = new ArrayList<>();
-        Comparison builder = new DefaultComparison(parallelBuilder);
+        Comparison builder = Comparison.using(parallelBuilder);
 
         // Compare if "x <= the n interval definitions"
         for (DRes<SInt> anInterval : interval) {
@@ -131,7 +130,7 @@ public class CreditRater implements
         innerScores.add(numericBuilder.mult(a, b));
         return () -> innerScores;
 
-      }).seq((seq, list) -> new DefaultAdvancedNumeric(seq).sum(list));
+      }).seq((seq, list) -> AdvancedNumeric.using(seq).sum(list));
     }
   }
 }

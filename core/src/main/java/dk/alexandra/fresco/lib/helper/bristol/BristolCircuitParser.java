@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.lib.helper.bristol;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.io.BufferedReader;
@@ -22,7 +23,7 @@ import java.util.stream.Stream;
  * Reading is done in a streamed fashion.
  */
 public class BristolCircuitParser implements
-    dk.alexandra.fresco.framework.builder.Computation<List<SBool>, ProtocolBuilderBinary> {
+    Computation<List<SBool>, ProtocolBuilderBinary> {
 
   private Stream<String> lines;
   private Iterator<String> linesIter;

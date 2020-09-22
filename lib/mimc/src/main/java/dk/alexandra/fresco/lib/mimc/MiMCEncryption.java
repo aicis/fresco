@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +23,7 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
   private final DRes<SInt> encryptionKey;
   private final DRes<SInt> plainText;
   private final int requestedRounds;
-  private final MimcRoundConstantFactory roundConstants;
+  private final MiMCRoundConstantFactory roundConstants;
   private static final Map<BigInteger, Integer> rounds = new HashMap<>();
   private static final BigInteger THREE = BigInteger.valueOf(3);
 
@@ -35,7 +35,7 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
    * @param requiredRounds The number of rounds to use.
    */
   public MiMCEncryption(DRes<SInt> plainText, DRes<SInt> encryptionKey, int requiredRounds) {
-    this(plainText, encryptionKey, requiredRounds, new MimcConstants());
+    this(plainText, encryptionKey, requiredRounds, new MiMCConstants());
   }
 
   /**
@@ -52,7 +52,7 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
       DRes<SInt> plainText,
       DRes<SInt> encryptionKey,
       int requiredRounds,
-      MimcRoundConstantFactory roundConstantFactory) {
+      MiMCRoundConstantFactory roundConstantFactory) {
     this.roundConstants = roundConstantFactory;
     this.encryptionKey = encryptionKey;
     this.plainText = plainText;
@@ -81,7 +81,7 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
         .seq(
             seq -> {
               DRes<SInt> add = seq.numeric().add(plainText, encryptionKey);
-              return new IterationState(1, new DefaultAdvancedNumeric(seq).exp(add, THREE));
+              return new IterationState(1, AdvancedNumeric.using(seq).exp(add, THREE));
             })
         .whileLoop(
             (state) -> state.round < requiredRounds,
@@ -95,7 +95,7 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
               Numeric numeric = seq.numeric();
               DRes<SInt> masked =
                   numeric.add(roundConstantInteger, numeric.add(state.value, encryptionKey));
-              DRes<SInt> updatedValue = new DefaultAdvancedNumeric(seq).exp(masked, THREE);
+              DRes<SInt> updatedValue = AdvancedNumeric.using(seq).exp(masked, THREE);
               return new IterationState(state.round + 1, updatedValue);
             })
         .seq(

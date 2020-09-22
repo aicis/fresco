@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.common.collections.Collections;
 import dk.alexandra.fresco.lib.common.collections.DefaultCollections;
 import dk.alexandra.fresco.lib.common.collections.Matrix;
 import java.math.BigInteger;
@@ -52,7 +53,7 @@ public class MiMCAggregation implements Computation<Matrix<DRes<SInt>>, Protocol
   @Override
   public DRes<Matrix<DRes<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
     // shuffle input
-    DRes<Matrix<DRes<SInt>>> shuffled = new DefaultCollections(builder).shuffle(values);
+    DRes<Matrix<DRes<SInt>>> shuffled = Collections.using(builder).shuffle(values);
     // generate encryption key
     DRes<SInt> mimcKey = builder.numeric().randomElement();
     return builder

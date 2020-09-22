@@ -6,10 +6,9 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.common.collections.Matrix;
-import dk.alexandra.fresco.lib.common.compare.DefaultComparison;
-import dk.alexandra.fresco.lib.common.conditional.ConditionalSelect;
+import dk.alexandra.fresco.lib.common.compare.Comparison;
+import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSelect;
 import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
 import dk.alexandra.fresco.lib.debug.Debug;
 import dk.alexandra.fresco.lib.debug.DefaultDebug;
 import dk.alexandra.fresco.lib.lp.LPSolver.LPOutput;
@@ -150,7 +149,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
         new ExitingVariable(state.tableau, state.updateMatrix, entering, state.basis)))
         .pairInPar((seq, exitingVariable) -> {
           ArrayList<DRes<SInt>> exitingIndex = exitingVariable.exitingIndex;
-          AdvancedNumeric advancedNumeric = new DefaultAdvancedNumeric(seq);
+          AdvancedNumeric advancedNumeric = AdvancedNumeric.using(seq);
           final DRes<SInt>  ent = advancedNumeric.innerProductWithPublicPart(state.enumeratedVariables,entering);
           // Update Basis
           return seq.par((par) -> {
@@ -194,7 +193,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
           List<DRes<SInt>> entering = enteringAndMinimum.getFirst();
           SInt minimum = enteringAndMinimum.getSecond();
           // Check if the entry in F is non-negative
-          DRes<SInt> positive = new DefaultComparison(seq).compareLEQLong(zero, () -> minimum);
+          DRes<SInt> positive = Comparison.using(seq).compareLEQLong(zero, () -> minimum);
           DRes<BigInteger> terminationOut = seq.numeric().open(positive);
           return () -> new Pair<>(entering, terminationOut.out());
         });

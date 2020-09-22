@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.common.math.DefaultAdvancedBinary;
+import dk.alexandra.fresco.lib.common.math.AdvancedBinary;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,14 +34,14 @@ public class BitIncrementer
     return builder.seq(seq -> {
       int idx = base.size() - 1;
       IterationState is =
-          new IterationState(idx, new DefaultAdvancedBinary(seq).oneBitHalfAdder(base.get(idx), increment));
+          new IterationState(idx, AdvancedBinary.using(seq).oneBitHalfAdder(base.get(idx), increment));
       return is;
     }).whileLoop((state) -> state.round >= 1, (seq, state) -> {
       int idx = state.round - 1;
 
       result.add(0, state.value.out().getFirst());
       IterationState is = new IterationState(idx,
-          new DefaultAdvancedBinary(seq).oneBitHalfAdder(base.get(idx), state.value.out().getSecond()));
+          AdvancedBinary.using(seq).oneBitHalfAdder(base.get(idx), state.value.out().getSecond()));
       return is;
     }).seq((seq, state) -> {
       result.add(0, state.value.out().getFirst());
