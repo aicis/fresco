@@ -1,8 +1,7 @@
-package dk.alexandra.fresco.commitment;
+package dk.alexandra.fresco.tools.commitment;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 

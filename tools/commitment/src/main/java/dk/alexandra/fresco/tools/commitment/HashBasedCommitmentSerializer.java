@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.commitment;
+package dk.alexandra.fresco.tools.commitment;
 
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 

@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz2k.resource;
 
-import dk.alexandra.fresco.commitment.HashBasedCommitment;
-import dk.alexandra.fresco.commitment.HashBasedCommitmentSerializer;
+import dk.alexandra.fresco.tools.commitment.HashBasedCommitment;
+import dk.alexandra.fresco.tools.commitment.HashBasedCommitmentSerializer;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;

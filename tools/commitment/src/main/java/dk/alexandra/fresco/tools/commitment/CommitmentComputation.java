@@ -1,12 +1,13 @@
-package dk.alexandra.fresco.lib.generic;
+package dk.alexandra.fresco.tools.commitment;
 
-import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.lib.generic.BroadcastComputation;
+import dk.alexandra.fresco.lib.generic.InsecureBroadcastProtocol;
 import java.util.ArrayList;
 import java.util.List;
 

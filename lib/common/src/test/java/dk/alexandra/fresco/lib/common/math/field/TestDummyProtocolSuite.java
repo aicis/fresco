@@ -4,7 +4,6 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.lib.common.dummy.bool.AbstractDummyBooleanTest;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import org.junit.Test;
 

@@ -3,6 +3,7 @@ package dk.alexandra.fresco.lib.common.dummy.arithmetic;
 import dk.alexandra.fresco.lib.common.arithmetic.AdvancedNumericTests;
 import dk.alexandra.fresco.lib.common.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.common.math.integer.exp.ExponentiationTests;
+import dk.alexandra.fresco.suite.dummy.arithmetic.AbstractDummyArithmeticTest;
 import org.junit.Test;
 
 public class TestNumericSuite extends AbstractDummyArithmeticTest {

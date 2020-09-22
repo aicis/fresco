@@ -12,28 +12,34 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>mascot</artifactId>
-  <name>mascot</name>
+  <artifactId>commitment</artifactId>
+  <packaging>jar</packaging>
+  <name>commitment</name>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.2</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
   <dependencies>
     <dependency>
-      <groupId>dk.alexandra.fresco</groupId>
       <artifactId>core</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
+      <groupId>dk.alexandra.fresco</groupId>
       <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>dk.alexandra.fresco</groupId>
-      <artifactId>ot</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>dk.alexandra.fresco</groupId>
-      <artifactId>commitment</artifactId>
-      <version>${project.version}</version>
+      <type>test-jar</type>
+      <version>1.2.2-SNAPSHOT</version>
     </dependency>
   </dependencies>
 

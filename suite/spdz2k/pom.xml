@@ -26,6 +26,11 @@
       <artifactId>common</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>commitment</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <!-- TODO Proper handling would imply these utilities to be present in a seperate module -->
     <dependency>

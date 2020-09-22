@@ -13,6 +13,7 @@ import dk.alexandra.fresco.lib.common.math.bool.add.AddTests;
 import dk.alexandra.fresco.lib.common.math.bool.log.LogTests;
 import dk.alexandra.fresco.lib.common.math.bool.mult.MultTests;
 import dk.alexandra.fresco.logging.binary.BinaryLoggingDecorator;
+import dk.alexandra.fresco.suite.dummy.bool.AbstractDummyBooleanTest;
 import org.junit.Test;
 
 /**
@@ -21,27 +22,6 @@ import org.junit.Test;
  * Currently, we simply test that AES works using the dummy protocol suite.
  */
 public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
-
-  // Basic tests for boolean suites
-  @Test
-  public void test_basic_logic() {
-    runTest(new BasicBooleanTests.TestInput<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED, true);
-    runTest(new BasicBooleanTests.TestInputDifferentSender<>(true),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        true, 2);
-    runTest(new BasicBooleanTests.TestXOR<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED, true);
-    runTest(new BasicBooleanTests.TestAND<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED, true);
-    runTest(new BasicBooleanTests.TestNOT<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED, true);
-    runTest(new BasicBooleanTests.TestRandomBit<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        true);
-
-    assertThat(performanceLoggers.get(1).get(2).getLoggedValues()
-        .get(BinaryLoggingDecorator.BINARY_BASIC_XOR), is((long) 4));
-    assertThat(performanceLoggers.get(1).get(3).getLoggedValues()
-        .get(BinaryLoggingDecorator.BINARY_BASIC_AND), is((long) 4));
-    assertThat(performanceLoggers.get(1).get(5).getLoggedValues()
-        .get(BinaryLoggingDecorator.BINARY_BASIC_RANDOM), is((long) 1));
-  }
 
   // lib.math.bool
   @Test

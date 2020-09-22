@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.spdz2k.protocols.computations;
 
-import dk.alexandra.fresco.commitment.HashBasedCommitment;
+import dk.alexandra.fresco.tools.commitment.CommitmentComputation;
+import dk.alexandra.fresco.tools.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.builder.Computation;
@@ -9,7 +10,6 @@ import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.lib.generic.BroadcastComputation;
-import dk.alexandra.fresco.lib.generic.CommitmentComputation;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntConverter;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;

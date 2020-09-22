@@ -1,6 +1,5 @@
-package dk.alexandra.fresco.lib.generic;
+package dk.alexandra.fresco.tools.commitment;
 
-import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;

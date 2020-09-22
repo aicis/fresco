@@ -15,4 +15,11 @@
   <packaging>jar</packaging>
   <name>ot</name>
 
+  <dependencies>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>commitment</artifactId>
+      <version>1.2.2-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
 </project>

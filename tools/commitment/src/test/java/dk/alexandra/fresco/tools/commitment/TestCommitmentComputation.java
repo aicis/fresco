@@ -1,11 +1,9 @@
-package dk.alexandra.fresco.lib.generic;
+package dk.alexandra.fresco.tools.commitment;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import dk.alexandra.fresco.commitment.HashBasedCommitmentSerializer;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
