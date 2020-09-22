@@ -53,19 +53,6 @@ public class NumericSuiteLogging<ResourcePoolT extends NumericResourcePool>
         aggregate.add(numericLoggingDecorator);
         return numericLoggingDecorator;
       }
-
-//      @Override
-//      public MiscBigIntegerGenerators getBigIntegerHelper() {
-//        return delegateFactory.getBigIntegerHelper();
-//      }
-//
-//      @Override
-//      public Comparison createComparison(ProtocolBuilderNumeric builder) {
-//        ComparisonLoggerDecorator comparisonLoggerDecorator =
-//            new ComparisonLoggerDecorator(delegateFactory.createComparison(builder));
-//        aggregate.add(comparisonLoggerDecorator);
-//        return comparisonLoggerDecorator;
-//      }
     };
   }
 

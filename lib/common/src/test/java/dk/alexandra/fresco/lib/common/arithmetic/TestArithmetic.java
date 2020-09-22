@@ -283,8 +283,6 @@ public class TestArithmetic extends AbstractDummyArithmeticTest {
   @Test
   public void test_ss_division() {
     runTest(new DivisionTests.TestDivision<>(), new TestParameters().performanceLogging(true));
-    //    assertThat(performanceLoggers.get(1).getLoggedValues()
-    //        .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_COMP0), is((long) 80));
   }
 
   @Test
@@ -350,8 +348,6 @@ public class TestArithmetic extends AbstractDummyArithmeticTest {
     runTest(
         new MinTests.TestMinimumProtocol<>(),
         new TestParameters().numParties(2).performanceLogging(true));
-    //    assertThat(performanceLoggers.get(1).getLoggedValues()
-    //        .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), is((long) 10));
   }
 
   @Test
@@ -359,8 +355,6 @@ public class TestArithmetic extends AbstractDummyArithmeticTest {
     runTest(
         new MinTests.TestMinInfFraction<>(),
         new TestParameters().numParties(2).performanceLogging(true));
-    //    assertThat(performanceLoggers.get(1).getLoggedValues()
-    //        .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), is((long) 10));
   }
 
   @Test

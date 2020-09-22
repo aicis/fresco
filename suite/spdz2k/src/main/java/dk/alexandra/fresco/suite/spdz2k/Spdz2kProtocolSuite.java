@@ -64,6 +64,6 @@ public abstract class Spdz2kProtocolSuite<
         resourcePool.getMyId(),
         resourcePool.getNoOfParties(),
         resourcePool.getFieldDefinition(),
-        resourcePool.getMaxBitLength());
+        resourcePool.getMaxBitLength() / 8); // Fixed point precision
   }
 }

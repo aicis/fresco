@@ -48,14 +48,6 @@ public class BinarySuiteLogging<ResourcePoolT extends ResourcePool>
         aggregate.add(binaryLogger);
         return binaryLogger;
       }
-      
-//      @Override
-//      public Comparison createComparison(ProtocolBuilderBinary builder) {
-//        BinaryComparisonLoggingDecorator comparison =
-//            new BinaryComparisonLoggingDecorator(delegateFactory.createComparison(builder));
-//        aggregate.add(comparison);
-//        return comparison;
-//      }
     };
   }
 
