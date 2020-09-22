@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
+import dk.alexandra.fresco.suite.dummy.bool.AbstractDummyBooleanTest;
 import org.junit.Test;
 
 
