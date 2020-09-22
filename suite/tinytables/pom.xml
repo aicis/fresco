@@ -43,6 +43,12 @@
     </dependency>
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>bristol</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
       <artifactId>common</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
