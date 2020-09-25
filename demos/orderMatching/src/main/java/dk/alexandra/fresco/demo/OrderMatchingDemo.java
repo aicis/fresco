@@ -23,11 +23,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//enum Currency {
-//  ETH,
-//  BTC
-//}
-
 /**
  * Compute the order matching demo for exchange.
  * Currently every party inputs a list of order parameters that then get matched up in MPC.
@@ -110,14 +105,13 @@ public class OrderMatchingDemo implements
       DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> sortedSells = par.collections().sort(input.getSecond());
       return () -> new Pair<>(sortedBuys, sortedSells);
     }).par((par, input) -> {
+      // Make all necesarely comparisons to construct the list of matches
       List<Pair<DRes<SInt>, List<DRes<SInt>>>> sortedBuys = input.getFirst().out();
       List<Pair<DRes<SInt>, List<DRes<SInt>>>> sortedSells = input.getSecond().out();
       int minListSize = Math.min(sortedBuys.size(), sortedSells.size());
       List<DRes<SInt>> conditions = new ArrayList<>();
       for (int i = 0; i < minListSize; i++) {
         final int currentIdx = i;
-        // Construct list as a keyed pair based on the buyer ID, to check if it is blank
-//        res.add(par.seq( (seq) -> {
         // Select the user ID of the buyer if the buy price is >= sell price
         DRes<SInt> condition = par.comparison()
             .compareLT(sortedBuys.get(currentIdx).getFirst(),
@@ -126,6 +120,7 @@ public class OrderMatchingDemo implements
       }
       return () -> new Pair<>(conditions, Arrays.asList(sortedBuys, sortedSells));
     }).par((par, input) -> {
+      // Compute the list of matches along with price
       List<Pair<DRes<SInt>, List<DRes<SInt>>>> sortedBuys = input.getSecond().get(0);
       List<Pair<DRes<SInt>, List<DRes<SInt>>>> sortedSells = input.getSecond().get(1);
       int minListSize = Math.min(sortedBuys.size(), sortedSells.size());
@@ -148,9 +143,8 @@ public class OrderMatchingDemo implements
         prices.add(hiddenPrice);
       }
       return () -> Arrays.asList(buyers, sellers, prices);
-//    }));
-
     }).par((par, input) -> {
+      // Open the list of resulting orders
       List<List<DRes<BigInteger>>> temp = input.stream().map(current ->
           current.stream().map(internal -> par.numeric().open(internal)).collect(Collectors.toList())).
           collect(Collectors.toList());
@@ -172,8 +166,8 @@ public class OrderMatchingDemo implements
 
   /** FOLLOWING CODE FOR BENCHMARKING **/
   static final int[] AMOUNTS = {4, 8, 16, 32, 64, 128};
-  static final int WARM_UP = 3;
-  static final int ITERATIONS = 3;
+  static final int WARM_UP = 30;
+  static final int ITERATIONS = 30;
 
   /**
    * Simulate a list of orders, around 1000000
@@ -229,7 +223,6 @@ public class OrderMatchingDemo implements
       long start = System.currentTimeMillis();
       List<OrderMatch> orders = sce.runApplication(orderDemo, resourcePool, cmdUtil.getNetwork());
       long end = System.currentTimeMillis();
-      System.out.println("Size: " + orders.size());
       if (i >= WARM_UP) {
         times.add(end - start);
       }

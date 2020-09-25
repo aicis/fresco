@@ -7,7 +7,6 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class IntegerKeyedCompareAndSwap implements
     ComputationParallel<List<Pair<DRes<SInt>, List<DRes<SInt>>>>, ProtocolBuilderNumeric> {
@@ -42,21 +41,24 @@ public class IntegerKeyedCompareAndSwap implements
       DRes<SInt> comparison = par.comparison().compareLT(rightKey, leftKey);
 
       additiveKey = par.numeric().add(leftKey, rightKey);
-      additiveValue = leftValue.stream().map(e -> par.numeric().add(e, rightValue.get(
-          leftValue.indexOf(e)))).collect(Collectors.toList());
+      additiveValue = new ArrayList<DRes<SInt>>();
+      for (int i = 0; i < leftValue.size(); i++) {
+        additiveValue.add(par.numeric().add(leftValue.get(i), rightValue.get(i)));
+      }
       return () -> comparison;
     }).par((par, data) -> {
       DRes<SInt> firstKey = par.advancedNumeric().condSelect(data, leftKey, rightKey);
-      List<DRes<SInt>> firstValue = leftValue.stream().map(e ->
-          par.advancedNumeric().condSelect(data, e, rightValue.get(
-          leftValue.indexOf(e)))).collect(Collectors.toList());
-
+      List<DRes<SInt>> firstValue = new ArrayList<DRes<SInt>>();
+      for (int i = 0; i < leftValue.size(); i++) {
+        firstValue.add(par.advancedNumeric().condSelect(data, leftValue.get(i), rightValue.get(i)));
+      }
       return () -> new Pair<>(firstKey, firstValue);
     }).par((par, data) -> {
       DRes<SInt> lastKey = par.numeric().sub(additiveKey, data.getFirst());
-      List<DRes<SInt>> lastValue = additiveValue.stream().map(e ->
-          par.numeric().sub(e, data.getSecond().get(additiveValue.indexOf(e))))
-          .collect(Collectors.toList());
+      List<DRes<SInt>> lastValue = new ArrayList<DRes<SInt>>();
+      for (int i = 0; i < additiveValue.size(); i++) {
+        lastValue.add(par.numeric().sub(additiveValue.get(i), data.getSecond().get(i)));
+      }
 
       List<Pair<DRes<SInt>, List<DRes<SInt>>>> result = new ArrayList<>();
       result.add(data);
