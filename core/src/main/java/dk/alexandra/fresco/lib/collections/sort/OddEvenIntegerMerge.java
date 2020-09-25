@@ -20,10 +20,6 @@ public class OddEvenIntegerMerge implements
   public OddEvenIntegerMerge(
       List<Pair<DRes<SInt>, List<DRes<SInt>>>> unsortedNumbers) {
     super();
-    // Verify that the input is a two power
-    if (Integer.bitCount(unsortedNumbers.size()) != 1) {
-      throw new UnsupportedOperationException("Implementation only supports computation on list of a two-power size");
-    }
     // Verify that the payloads all have the same size, to avoid leaking info based on this
     unsortedNumbers.forEach( current -> {
       if (current.getSecond().size() != unsortedNumbers.get(0).getSecond().size()) {
@@ -36,8 +32,7 @@ public class OddEvenIntegerMerge implements
   @Override
   public DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> buildComputation(
       ProtocolBuilderNumeric builder) {
-    // This is sufficient since we know the size is a two-power
-    int t = (int) Math.ceil(Math.log(numbers.size())/Math.log(2.0));//Integer.highestOneBit(numbers.size());
+    int t = (int) Math.ceil(Math.log(numbers.size())/Math.log(2.0));
     int p0 = (1 << t);
     return builder.seq( (seq) -> {
       iterativeSort(p0, seq);

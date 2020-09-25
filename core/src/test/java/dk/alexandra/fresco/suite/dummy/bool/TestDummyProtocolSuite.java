@@ -24,8 +24,6 @@ import dk.alexandra.fresco.logging.binary.BinaryLoggingDecorator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.junit.Test;
 
 
@@ -203,22 +201,10 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
   }
 
   // collections.sort
-  @Test
-  public void test_Uneven_Odd_Even_Merge_2_parties() throws Exception {
-    runTest(new CollectionsSortingTests.TestOddEvenMerge<>(), EvaluationStrategy.SEQUENTIAL);
-  }
 
   @Test
   public void test_Uneven_Odd_Even_Merge_sort_2_parties() throws Exception {
     runTest(new CollectionsSortingTests.TestOddEvenMergeSort<>(), EvaluationStrategy.SEQUENTIAL);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void test_Odd_Even_Merge_wrong_size() {
-    List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> list = IntStream
-        .range(0, 3).mapToObj(i -> new Pair<List<DRes<SBool>>, List<DRes<SBool>>>(null, null)).collect(
-            Collectors.toList());
-    new OddEvenMerge(list);
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -227,6 +213,11 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
         new Pair<List<DRes<SBool>>, List<DRes<SBool>>>(null, Arrays.asList(null, null)),
         new Pair<List<DRes<SBool>>, List<DRes<SBool>>>(null, new ArrayList<>()));
     new OddEvenMerge(list);
+  }
+
+  @Test
+  public void test_Odd_Even_Merge_large_list() {
+    runTest(new CollectionsSortingTests.TestOddEvenMergeSortLargeList<>(), EvaluationStrategy.SEQUENTIAL);
   }
 
   @Test

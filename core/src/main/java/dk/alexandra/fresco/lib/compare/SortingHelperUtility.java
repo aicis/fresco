@@ -32,6 +32,7 @@ public class SortingHelperUtility {
     }).seq((seq, comparison) -> seq.advancedNumeric().product(comparison));
   }
 
+  // ***** TODO EVERYTHING BELOW IS OBSOLETE, SEE ODDEVENINTERMERGER ****/
 
   private static int FloorLog2(int value) {
     int result = -1;
@@ -43,6 +44,7 @@ public class SortingHelperUtility {
 
   final BigInteger minusOne = BigInteger.valueOf(-1L);
 
+  @Deprecated
   public void compareAndSwap(ProtocolBuilderNumeric builder, int a, int b,
       List<DRes<SInt>> values) {
     //Non splitting version
@@ -65,7 +67,7 @@ public class SortingHelperUtility {
     });
   }
 
-
+  @Deprecated
   public void sort(ProtocolBuilderNumeric builder, List<DRes<SInt>> values) {
     //sort using Batcher´s Merge Exchange
 

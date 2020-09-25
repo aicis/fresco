@@ -10,10 +10,14 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.Assert;
 
 /**
@@ -99,105 +103,6 @@ public class CollectionsSortingTests {
           Assert.assertEquals("49", ByteAndBitConverter.toHex(result.get(1).getFirst()));
 
           Assert.assertEquals("00", ByteAndBitConverter.toHex(result.get(1).getSecond()));
-        }
-      };
-    }
-  }
-
-  public static class TestOddEvenMerge<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
-
-    public TestOddEvenMerge() {}
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
-      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
-        @Override
-        public void test() throws Exception {
-
-          Boolean[] left11 = ByteAndBitConverter.toBoolean("01");
-          Boolean[] left12 = ByteAndBitConverter.toBoolean("08");
-          Boolean[] left21 = ByteAndBitConverter.toBoolean("03");
-          Boolean[] left22 = ByteAndBitConverter.toBoolean("07");
-          Boolean[] left31 = ByteAndBitConverter.toBoolean("00");
-          Boolean[] left32 = ByteAndBitConverter.toBoolean("06");
-          Boolean[] left41 = ByteAndBitConverter.toBoolean("02");
-          Boolean[] left42 = ByteAndBitConverter.toBoolean("05");
-
-          Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary> app =
-              new Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary>() {
-
-            @Override
-            public DRes<List<Pair<List<Boolean>, List<Boolean>>>> buildComputation(
-                ProtocolBuilderBinary producer) {
-              return producer.seq(seq -> {
-                Binary builder = seq.binary();
-                List<DRes<SBool>> l11 =
-                    Arrays.asList(left11).stream().map(builder::known).collect(Collectors.toList());
-                List<DRes<SBool>> l12 =
-                    Arrays.asList(left12).stream().map(builder::known).collect(Collectors.toList());
-                List<DRes<SBool>> l21 =
-                    Arrays.asList(left21).stream().map(builder::known).collect(Collectors.toList());
-                List<DRes<SBool>> l22 =
-                    Arrays.asList(left22).stream().map(builder::known).collect(Collectors.toList());
-                List<DRes<SBool>> l31 =
-                    Arrays.asList(left31).stream().map(builder::known).collect(Collectors.toList());
-                List<DRes<SBool>> l32 =
-                    Arrays.asList(left32).stream().map(builder::known).collect(Collectors.toList());
-
-                List<DRes<SBool>> l41 =
-                    Arrays.asList(left41).stream().map(builder::known).collect(Collectors.toList());
-                List<DRes<SBool>> l42 =
-                    Arrays.asList(left42).stream().map(builder::known).collect(Collectors.toList());
-
-                List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unSorted = new ArrayList<>();
-
-                unSorted.add(new Pair<>(l11, l12));
-                unSorted.add(new Pair<>(l21, l22));
-                unSorted.add(new Pair<>(l31, l32));
-                unSorted.add(new Pair<>(l41, l42));
-
-                DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> sorted =
-                    new OddEvenMerge(unSorted).buildComputation(seq);
-                return sorted;
-              }).seq((seq, sorted) -> {
-                Binary builder = seq.binary();
-                List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> opened = new ArrayList<>();
-                for (Pair<List<DRes<SBool>>, List<DRes<SBool>>> p : sorted) {
-                  List<DRes<Boolean>> oKeys = new ArrayList<>();
-                  for (DRes<SBool> key : p.getFirst()) {
-                    oKeys.add(builder.open(key));
-                  }
-                  List<DRes<Boolean>> oValues = new ArrayList<>();
-                  for (DRes<SBool> value : p.getSecond()) {
-                    oValues.add(builder.open(value));
-                  }
-                  opened.add(new Pair<>(oKeys, oValues));
-                }
-                return () -> opened;
-              }).seq((seq, opened) -> {
-                return () -> opened.stream().map((p) -> {
-                  List<Boolean> key =
-                      p.getFirst().stream().map(DRes::out).collect(Collectors.toList());
-                  List<Boolean> value =
-                      p.getSecond().stream().map(DRes::out).collect(Collectors.toList());
-                  return new Pair<>(key, value);
-                }).collect(Collectors.toList());
-              });
-            }
-
-          };
-
-          List<Pair<List<Boolean>, List<Boolean>>> results = runApplication(app);
-
-          Assert.assertEquals(Arrays.asList(left21), results.get(0).getFirst());
-          Assert.assertEquals(Arrays.asList(left22), results.get(0).getSecond());
-          Assert.assertEquals(Arrays.asList(left41), results.get(1).getFirst());
-          Assert.assertEquals(Arrays.asList(left42), results.get(1).getSecond());
-          Assert.assertEquals(Arrays.asList(left11), results.get(2).getFirst());
-          Assert.assertEquals(Arrays.asList(left12), results.get(2).getSecond());
-          Assert.assertEquals(Arrays.asList(left31), results.get(3).getFirst());
-          Assert.assertEquals(Arrays.asList(left32), results.get(3).getSecond());
         }
       };
     }
@@ -312,6 +217,99 @@ public class CollectionsSortingTests {
           Assert.assertEquals(Arrays.asList(false), results.get(7).getSecond());
         }
       };
+    }
+  }
+
+  public static class TestOddEvenMergeSortLargeList<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+
+    public TestOddEvenMergeSortLargeList() {}
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
+        @Override
+        public void test() throws Exception {
+          int size = 83;
+          Random rand = new Random();
+
+          List<BigInteger> keys = IntStream.range(0, size).mapToObj(i ->
+              // Ensure that we are only using 1 for simplicity in conversion to hex
+              new BigInteger(String.valueOf(Math.abs(rand.nextInt() % 256 ))))
+              .collect(Collectors.toList());
+          List<BigInteger> payload = IntStream.range(0, size).mapToObj(j ->
+             keys.get(j))
+              .collect(Collectors.toList());
+
+          // We sort random integers, each with a copy of the same payload
+          List<Pair<BigInteger, BigInteger>> unsorted = new ArrayList<>(size);
+          IntStream.range(0, size).forEach(i ->
+              unsorted.add(new Pair<>(keys.get(i), payload.get(i))));
+
+          Application<List<Pair<BigInteger, BigInteger>>, ProtocolBuilderBinary> app =
+              new Application<List<Pair<BigInteger, BigInteger>>, ProtocolBuilderBinary>() {
+
+                @Override
+                public DRes<List<Pair<BigInteger, BigInteger>>> buildComputation(
+                    ProtocolBuilderBinary producer) {
+                  return producer.par(par -> {
+                    Binary builder = par.binary();
+                    // Input the unsorted list into the MPC as public values
+                    List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> sharedUnsorted = new ArrayList<>();
+                    unsorted.stream().forEach(current -> {
+                      List<DRes<SBool>> key = Arrays.stream(
+                          ByteAndBitConverter.toBoolean(toHex(current.getFirst())))
+                          .map(c -> builder.known(c)).collect(Collectors.toList());
+                      List<DRes<SBool>> value = Arrays.stream(
+                          ByteAndBitConverter.toBoolean(toHex(current.getSecond())))
+                          .map(c -> builder.known(c)).collect(Collectors.toList());
+                      sharedUnsorted.add(new Pair<>(key, value));
+                    });
+                    // Sort the list in MPC
+                    return par.advancedBinary().sort(sharedUnsorted);
+                  }).par((par, sorted) -> {
+                    Binary builder = par.binary();
+                    // Open the sorted list
+                    List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> opened = new ArrayList<>();
+                    sorted.forEach(current -> opened.add(new Pair<>(
+                        current.getFirst().stream().map(currentPayload -> builder.open(currentPayload))
+                        .collect(Collectors.toList()),
+                        current.getSecond().stream().map(currentPayload -> builder.open(currentPayload))
+                            .collect(Collectors.toList()))));
+                    return () -> opened;
+                  }).par((par, opened) -> {
+                    // Return as defered output
+                    return () -> opened.stream().map((p) ->
+                        new Pair<>(
+                            new BigInteger(ByteAndBitConverter.toHex(
+                                p.getFirst().stream().map(DRes::out).collect(Collectors.toList())), 16),
+                            new BigInteger(ByteAndBitConverter.toHex(
+                                p.getSecond().stream().map(DRes::out).collect(Collectors.toList())), 16)))
+                        .collect(Collectors.toList());
+                  });
+                }
+              };
+
+          List<Pair<BigInteger, BigInteger>> results = runApplication(app);
+
+          // Verify the result
+          Collections.sort(keys);
+          // Reverse since the MPC protocol gives the largest value first
+          Collections.reverse(keys);
+          IntStream.range(0, keys.size()).forEach(i -> {
+            Assert.assertEquals(keys.get(i), results.get(i).getFirst());
+            Assert.assertEquals(keys.get(i), results.get(i).getSecond());
+          });
+        }
+      };
+    }
+    private static String toHex(BigInteger x) {
+      String current = x.toString(16);
+      if (current.length() % 2 != 0) {
+        return "0"+current;
+      } else {
+        return current;
+      }
     }
   }
 }

@@ -129,7 +129,7 @@ public class NumericSortingTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          int size = 64;
+          int size = 83;
           int payloadSize = 2;
           Random rand = new Random();
 

@@ -20,10 +20,6 @@ public class OddEvenMerge implements
   public OddEvenMerge(
       List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unsortedNumbers) {
     super();
-    // Verify that the input is a two power
-    if (Integer.bitCount(unsortedNumbers.size()) != 1) {
-      throw new UnsupportedOperationException("Implementation only supports computation on list of a two-power size");
-    }
     // Verify that the payloads all have the same size, to avoid leaking info based on this
     unsortedNumbers.forEach( current -> {
       if (current.getSecond().size() != unsortedNumbers.get(0).getSecond().size()) {
@@ -36,17 +32,50 @@ public class OddEvenMerge implements
   @Override
   public DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> buildComputation(
       ProtocolBuilderBinary builder) {
-    return builder.seq(seq -> {
-      sort(0, numbers.size(), seq);
+    int t = (int) Math.ceil(Math.log(numbers.size())/Math.log(2.0));
+    int p0 = (1 << t);
+    return builder.seq( (seq) -> {
+      iterativeSort(p0, seq);
       return () -> numbers;
     });
   }
 
-  private void sort(int i, int length, ProtocolBuilderBinary builder) {
-    if (length > 1) {
-      sort(i, length / 2, builder);
-      sort(i + length / 2, length / 2, builder);
-      merge(i, length, 1, builder);
+  private void iterativeSort(int p0, ProtocolBuilderBinary builder) {
+    builder.seq((seq) -> {
+      return new Iteration(p0, 0, p0, p0);
+    }).whileLoop((iteration) -> iteration.p > 0, (seq, iteration) -> {
+      seq.seq(innerSeq -> {
+        return () -> iteration;
+      }).whileLoop((state) -> state.d > 0, (whileSeq, state) -> {
+        whileSeq.par((par) -> {
+          for (int i = 0; i < numbers.size() - state.d; i++) {
+            if ((i & state.p) == state.r) {
+              compareAndSwapAtIndices(i, i + state.d, par);
+            }
+          }
+          return null;
+        });
+        return new Iteration(state.q >> 1, state.p, state.q - state.p, state.p);
+      });
+      return new Iteration(p0, 0, iteration.p >> 1, iteration.p >> 1);
+    });
+  }
+
+  private static final class Iteration implements DRes<OddEvenMerge.Iteration> {
+    final int q;
+    final int r;
+    final int d;
+    final int p;
+
+    private Iteration(int q, int r, int d, int p) {
+      this.q = q;
+      this.r = r;
+      this.d = d;
+      this.p = p;
+    }
+    @Override
+    public OddEvenMerge.Iteration out() {
+      return this;
     }
   }
 
@@ -60,25 +89,4 @@ public class OddEvenMerge implements
     });
   }
 
-  private void merge(int first, int length, int step, ProtocolBuilderBinary builder) {
-    int doubleStep = step * 2;
-    if (length > 2) {
-      builder.seq((seq) -> {
-        int newLength = length / 2;
-        merge(first, newLength, doubleStep, seq);
-        merge(first + step, length - newLength, doubleStep, seq);
-        for (int i = 1; i < length - 2; i += 2) {
-          int low = first + i * step;
-          int high = low + step;
-          seq.par((par) -> {
-            compareAndSwapAtIndices(low, high, par);
-            return null;
-          });
-        }
-        return null;
-      });
-    } else {
-      compareAndSwapAtIndices(first, first + step, builder);
-    }
-  }
 }

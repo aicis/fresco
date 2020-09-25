@@ -74,8 +74,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -966,12 +964,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         .modulus(modulus)
         .maxBitLength(maxBitLength);
     runTest(new NumericSortingTests.TestOddEvenMergeSortLargeList<>(), parameters);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void test_Odd_Even_Merge_wrong_size() {
-    List<Pair<DRes<SInt>, List<DRes<SInt>>>> list = IntStream.range(0, 3).mapToObj(i -> new Pair<DRes<SInt>, List<DRes<SInt>>>(null, null)).collect(Collectors.toList());
-    new OddEvenIntegerMerge(list);
   }
 
   @Test(expected = UnsupportedOperationException.class)
