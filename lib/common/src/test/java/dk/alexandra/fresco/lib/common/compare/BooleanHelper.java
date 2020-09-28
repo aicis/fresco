@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.common.bool;
+package dk.alexandra.fresco.lib.common.compare;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.binary.Binary;

@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.arithmetic;
+package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
@@ -45,6 +45,37 @@ public class BasicArithmeticTests {
           BigInteger output = runApplication(app);
 
           Assert.assertEquals(value, output);
+        }
+      };
+    }
+  }
+
+  public static class TestInputFromAll<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          Application<Pair<Integer, List<DRes<BigInteger>>>, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            int noOfParties = producer.getBasicNumericContext().getNoOfParties();
+            List<DRes<SInt>> inputs = new ArrayList<>(noOfParties);
+            for (int i = 1; i <= noOfParties; i++) {
+              inputs.add(numeric.input(BigInteger.valueOf(i), i));
+            }
+            List<DRes<BigInteger>> opened = inputs.stream().map(producer.numeric()::open).collect(
+                Collectors.toList());
+            return () -> new Pair<>(noOfParties, opened);
+          };
+          Pair<Integer, List<DRes<BigInteger>>> output = runApplication(app);
+          int noOfParties = output.getFirst();
+          List<DRes<BigInteger>> inputs = output.getSecond();
+          Assert.assertEquals(noOfParties, inputs.size());
+          for (int i = 0; i < noOfParties; i++) {
+            Assert.assertEquals(i + 1, inputs.get(i).out().intValue());
+          }
         }
       };
     }
@@ -402,6 +433,40 @@ public class BasicArithmeticTests {
     }
   }
 
+  public static class TestSumAndMult<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      List<BigInteger> openInputs =
+          Stream.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+              .map(BigInteger::valueOf).collect(Collectors.toList());
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> producer.par(par -> {
+            Numeric numeric = par.numeric();
+            List<DRes<SInt>> result =
+                openInputs.stream().map(numeric::known).collect(Collectors.toList());
+            return () -> result;
+          }).seq((seq, closed) -> {
+            DRes<SInt> sum = closed.stream().reduce(seq.numeric().known(0), seq.numeric()::add);
+            DRes<SInt> mult = seq.numeric().mult(sum, sum);
+            return seq.numeric().open(mult);
+          });
+          BigInteger output = runApplication(app);
+
+          int sum = 0;
+          for (BigInteger openInput : openInputs) {
+            sum += openInput.intValue();
+          }
+          sum = sum * sum;
+          Assert.assertEquals(sum, output.intValue());
+        }
+      };
+    }
+  }
+
   public static class TestSimpleMultAndAdd<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
@@ -534,6 +599,64 @@ public class BasicArithmeticTests {
               Assert.assertEquals(add, result);
             }
           }
+        }
+      };
+    }
+  }
+
+  public static class TestRandomBit<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            int numBits = 10;
+            List<DRes<SInt>> bits = new ArrayList<>(numBits);
+            for (int i = 0; i < numBits; i++) {
+              bits.add(numeric.randomBit());
+            }
+            List<DRes<BigInteger>> opened = bits.stream().map(producer.numeric()::open).collect(
+                Collectors.toList());
+            return () -> opened.stream().map(DRes::out)
+                .collect(Collectors.toList());
+          };
+          List<BigInteger> bits = runApplication(app);
+          for (BigInteger bit : bits) {
+            Assert.assertTrue("Expected bit but was " + bit,
+                bit.equals(BigInteger.ZERO) || bit.equals(BigInteger.ONE));
+          }
+        }
+      };
+    }
+  }
+
+  public static class TestRandomElement<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            int numElements = 10;
+            List<DRes<SInt>> elements = new ArrayList<>(numElements);
+            for (int i = 0; i < numElements; i++) {
+              elements.add(numeric.randomElement());
+            }
+            List<DRes<BigInteger>> opened = elements.stream().map(producer.numeric()::open).collect(
+                Collectors.toList());
+            return () -> opened.stream().map(DRes::out)
+                .collect(Collectors.toList());
+          };
+          List<BigInteger> elements = runApplication(app);
+          assertAllDifferent(elements);
+          Assert.assertEquals(10, elements.size());
         }
       };
     }

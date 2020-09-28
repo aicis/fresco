@@ -18,12 +18,12 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
-import dk.alexandra.fresco.lib.common.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.common.compare.CompareTests;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
+import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
@@ -175,9 +175,9 @@ public class TestGenericLoggingDecorators {
 
     PerformanceLogger performanceLogger = decoratedLoggers.get(0);
     Map<String, Long> loggedValues = performanceLogger.getLoggedValues();
-    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_COUNTER), is((long) 8));
+    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_COUNTER), is((long) 25));
     assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_NATIVE_PROTOCOLS),
-        is((long) 43));
+        is((long) 45));
     assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MIN_PROTOCOLS), is((long) 1));
     assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MAX_PROTOCOLS),
         is((long) 21));

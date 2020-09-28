@@ -15,7 +15,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.lib.common.bool.ComparisonBooleanTests;
+import dk.alexandra.fresco.lib.common.compare.ComparisonBooleanTests;
 import dk.alexandra.fresco.logging.BinarySuiteLogging;
 import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.logging.binary.BinaryLoggingDecorator;
@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestBinarySuiteLoggingDecorators {

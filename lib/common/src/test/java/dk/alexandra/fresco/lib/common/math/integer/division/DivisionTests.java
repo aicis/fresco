@@ -38,7 +38,7 @@ public class DivisionTests {
     return (builder) -> {
       Numeric numeric = builder.numeric();
       DRes<SInt> input1 = numeric.input(dividend, 1);
-      DRes<SInt> division = builder.seq(new KnownDivisor(input1, divisor));
+      DRes<SInt> division = AdvancedNumeric.using(builder).div(input1, divisor);
       DRes<SInt> remainder = builder.seq(new KnownDivisorRemainder(input1, divisor));
       DRes<BigInteger> output1 = numeric.open(division);
       DRes<BigInteger> output2 = numeric.open(remainder);
@@ -57,22 +57,35 @@ public class DivisionTests {
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        private final BigInteger dividend = new BigInteger("123978634193227335452");
-        private final BigInteger divisor = new BigInteger("6543212341");
+        private final BigInteger[] openDividends = new BigInteger[] { new BigInteger("1234567"),
+            BigInteger.valueOf(1230121230), BigInteger.valueOf(313222110),
+            BigInteger.valueOf(5111215), BigInteger.valueOf(6537) };
+        private final long openDivisor = 1110;
+        private final int length = openDividends.length;
 
         @Override
         public void test() throws Exception {
-          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app =
-              DivisionTests.createDivideApplication(dividend, divisor);
-          Pair<BigInteger, BigInteger> result = runApplication(app);
-          BigInteger quotient = result.getFirst();
-          BigInteger remainder = result.getSecond();
-          Assert.assertThat(quotient, Is.is(dividend.divide(divisor)));
-          Assert.assertThat(remainder, Is.is(dividend.mod(divisor)));
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = (builder) -> {
+            List<DRes<BigInteger>> results = new ArrayList<>(length);
+            Numeric numericBuilder = builder.numeric();
+            for (BigInteger value : openDividends) {
+              DRes<SInt> dividend = numericBuilder.input(value, 1);
+              DRes<SInt> division = AdvancedNumeric.using(builder).div(dividend, openDivisor);
+              results.add(builder.numeric().open(division));
+            }
+            return () -> results.stream().map(DRes::out).collect(Collectors.toList());
+          };
+          List<BigInteger> results = runApplication(app);
+          for (int i = 0; i < length; i++) {
+            BigInteger actual = results.get(i);
+            BigInteger expected = openDividends[i].divide(BigInteger.valueOf(openDivisor));
+            boolean isCorrect = expected.equals(actual);
+            Assert.assertTrue(isCorrect);
+          }
         }
-
       };
     }
+
   }
 
   /**
@@ -117,7 +130,7 @@ public class DivisionTests {
         private final BigInteger[] openDividends = new BigInteger[] { new BigInteger("1234567"),
             BigInteger.valueOf(1230121230), BigInteger.valueOf(313222110),
             BigInteger.valueOf(5111215), BigInteger.valueOf(6537) };
-        private final BigInteger openDivisor = BigInteger.valueOf(1110);
+        private final long openDivisor = 1110;
         private final int length = openDividends.length;
 
         @Override
@@ -136,7 +149,7 @@ public class DivisionTests {
           List<BigInteger> results = runApplication(app);
           for (int i = 0; i < length; i++) {
             BigInteger actual = results.get(i);
-            BigInteger expected = openDividends[i].divide(openDivisor);
+            BigInteger expected = openDividends[i].divide(BigInteger.valueOf(openDivisor));
             boolean isCorrect = expected.equals(actual);
             Assert.assertTrue(isCorrect);
           }

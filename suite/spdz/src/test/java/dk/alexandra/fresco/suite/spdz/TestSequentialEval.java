@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.lib.common.arithmetic.ParallelAndSequenceTests.TestSumAndProduct;
+import dk.alexandra.fresco.suite.dummy.arithmetic.ParallelAndSequenceTests.TestSumAndProduct;
 import org.junit.Test;
 
 /**

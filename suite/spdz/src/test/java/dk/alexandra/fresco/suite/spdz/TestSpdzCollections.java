@@ -2,8 +2,8 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.arithmetic.SearchingTests;
 import dk.alexandra.fresco.lib.common.collections.Matrix;
+import dk.alexandra.fresco.lib.common.collections.SearchingTests;
 import dk.alexandra.fresco.lib.common.collections.io.CloseListTests;
 import dk.alexandra.fresco.lib.common.collections.io.CloseMatrixTests;
 import dk.alexandra.fresco.lib.common.collections.permute.PermuteRows;

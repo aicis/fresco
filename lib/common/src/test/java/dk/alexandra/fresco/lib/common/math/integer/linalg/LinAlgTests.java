@@ -8,6 +8,7 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -71,7 +72,7 @@ public class LinAlgTests {
                 .map(sIntFactory::known).collect(Collectors.toCollection(LinkedList::new));
             List<DRes<SInt>> input2 = data2.stream().map(BigInteger::valueOf)
                 .map(sIntFactory::known).collect(Collectors.toCollection(LinkedList::new));
-            DRes<SInt> min = builder.seq(new InnerProduct(input1, input2));
+            DRes<SInt> min = AdvancedNumeric.using(builder).innerProduct(input1, input2);
 
             return builder.numeric().open(min);
           };

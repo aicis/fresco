@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.common.arithmetic;
+package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
@@ -8,7 +8,6 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
@@ -18,11 +17,16 @@ import org.junit.Assert;
 /**
  * Tests which ensures that the SecureComputationEngine's parallel and sequential evaluations of
  * application works.
- *
  */
 public class ParallelAndSequenceTests {
 
   private static final Integer[] inputAsArray = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+  private DRes<SInt> convertToSInt(int integer, ProtocolBuilderNumeric producer) {
+    Numeric numeric = producer.numeric();
+    BigInteger value = BigInteger.valueOf(integer);
+    return numeric.input(value, 1);
+  }
 
   // TODO Split these tests into two
   public static class TestSumAndProduct<ResourcePoolT extends ResourcePool>
@@ -55,7 +59,8 @@ public class ParallelAndSequenceTests {
           Arrays.stream(inputAsArray)
               .map((integer) -> convertToSInt(integer, producer))
               .collect(Collectors.toList());
-      DRes<SInt> result = AdvancedNumeric.using(producer).sum(input);
+      DRes<SInt> result = input.stream()
+          .reduce(producer.numeric().known(0), producer.numeric()::add);
       return producer.numeric().open(result);
     }
 
@@ -66,17 +71,12 @@ public class ParallelAndSequenceTests {
     @Override
     public DRes<BigInteger> buildComputation(
         ProtocolBuilderNumeric producer) {
-      DRes<SInt> result = AdvancedNumeric.using(producer).product(
-          Arrays.stream(inputAsArray)
-              .map((integer) -> convertToSInt(integer, producer))
-              .collect(Collectors.toList()));
+      List<DRes<SInt>> input = Arrays.stream(inputAsArray)
+          .map((integer) -> convertToSInt(integer, producer))
+          .collect(Collectors.toList());
+      DRes<SInt> result = input.stream()
+          .reduce(producer.numeric().known(1), producer.numeric()::mult);
       return producer.numeric().open(result);
     }
-  }
-
-  private DRes<SInt> convertToSInt(int integer, ProtocolBuilderNumeric producer) {
-    Numeric numeric = producer.numeric();
-    BigInteger value = BigInteger.valueOf(integer);
-    return numeric.input(value, 1);
   }
 }

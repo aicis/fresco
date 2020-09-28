@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.common.arithmetic;
+package dk.alexandra.fresco.lib.common.collections;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;

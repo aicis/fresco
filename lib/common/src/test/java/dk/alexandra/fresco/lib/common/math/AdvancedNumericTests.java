@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.common.arithmetic;
+package dk.alexandra.fresco.lib.common.math;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import dk.alexandra.fresco.lib.common.math.integer.min.MinInfFrac;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -18,78 +17,6 @@ import java.util.stream.Collectors;
 import org.junit.Assert;
 
 public class AdvancedNumericTests {
-
-  public static class TestDivision<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    private int numerator;
-    private int denominator;
-    private FieldDefinition fieldDefinition;
-
-    public TestDivision(int numerator, int denominator) {
-      this.numerator = numerator;
-      this.denominator = denominator;
-    }
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        @Override
-        public void test() {
-          Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
-            fieldDefinition = builder.getBasicNumericContext().getFieldDefinition();
-
-            DRes<SInt> p = builder.numeric().known(BigInteger.valueOf(numerator));
-            DRes<SInt> q = builder.numeric().known(BigInteger.valueOf(denominator));
-
-            DRes<SInt> result = AdvancedNumeric.using(builder).div(p, q);
-
-            return builder.numeric().open(result);
-          };
-
-          BigInteger result = runApplication(app);
-
-          Assert.assertEquals(
-              BigInteger.valueOf(numerator / denominator),
-              fieldDefinition.convertToSigned(result));
-        }
-      };
-    }
-  }
-
-  public static class TestDivisionWithKnownDenominator<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    private int numerator;
-    private int denominator;
-    private FieldDefinition fieldDefinition;
-
-    public TestDivisionWithKnownDenominator(int numerator, int denominator) {
-      this.numerator = numerator;
-      this.denominator = denominator;
-    }
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        @Override
-        public void test() {
-          Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
-            fieldDefinition = builder.getBasicNumericContext().getFieldDefinition();
-            DRes<SInt> p = builder.numeric().known(numerator);
-            DRes<SInt> result = AdvancedNumeric.using(builder).div(p, (long) denominator);
-            return builder.numeric().open(result);
-          };
-
-          BigInteger result = runApplication(app);
-
-          Assert.assertEquals(
-              BigInteger.valueOf(numerator / denominator),
-              fieldDefinition.convertToSigned(result));
-        }
-      };
-    }
-  }
 
   public static class TestModulus<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {

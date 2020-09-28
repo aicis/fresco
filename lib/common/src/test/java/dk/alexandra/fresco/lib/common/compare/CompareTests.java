@@ -23,56 +23,6 @@ import org.junit.Assert;
 
 public class CompareTests {
 
-  public static class CompareAndSwapTest<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
-
-    public CompareAndSwapTest() {
-    }
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
-      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
-        @Override
-        public void test() throws Exception {
-          List<Boolean> rawLeft = Arrays.asList(ByteAndBitConverter.toBoolean("ee"));
-          List<Boolean> rawRight = Arrays.asList(ByteAndBitConverter.toBoolean("00"));
-
-          Application<List<List<Boolean>>, ProtocolBuilderBinary> app =
-              producer -> producer.seq(seq -> {
-                List<DRes<SBool>> left =
-                    rawLeft.stream().map(seq.binary()::known).collect(Collectors.toList());
-                List<DRes<SBool>> right =
-                    rawRight.stream().map(seq.binary()::known).collect(Collectors.toList());
-
-                DRes<List<List<DRes<SBool>>>> compared =
-                    new CompareAndSwap(left, right).buildComputation(seq);
-                return compared;
-              }).seq((seq, opened) -> {
-                List<List<DRes<Boolean>>> result = new ArrayList<>();
-                for (List<DRes<SBool>> entry : opened) {
-                  result.add(entry.stream().map(DRes::out).map(seq.binary()::open)
-                      .collect(Collectors.toList()));
-                }
-
-                return () -> result;
-              }).seq((seq, opened) -> {
-                List<List<Boolean>> result = new ArrayList<>();
-                for (List<DRes<Boolean>> entry : opened) {
-                  result.add(entry.stream().map(DRes::out).collect(Collectors.toList()));
-                }
-
-                return () -> result;
-              });
-
-          List<List<Boolean>> res = runApplication(app);
-
-          Assert.assertEquals("00", ByteAndBitConverter.toHex(res.get(0)));
-          Assert.assertEquals("ee", ByteAndBitConverter.toHex(res.get(1)));
-        }
-      };
-    }
-  }
-
   /**
    * Compares the two numbers 3 and 5 and checks that 3 <= 5. Also checks that 5 is not <= 3 and
    * that 3 <= 3

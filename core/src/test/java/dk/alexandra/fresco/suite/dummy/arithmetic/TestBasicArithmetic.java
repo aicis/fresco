@@ -1,10 +1,10 @@
-package dk.alexandra.fresco.arithmetic;
+package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+import dk.alexandra.fresco.suite.dummy.arithmetic.ParallelAndSequenceTests.TestSumAndProduct;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
-import dk.alexandra.fresco.suite.dummy.arithmetic.AbstractDummyArithmeticTest;
 import org.junit.Test;
 
 public class TestBasicArithmetic extends AbstractDummyArithmeticTest {
@@ -12,6 +12,11 @@ public class TestBasicArithmetic extends AbstractDummyArithmeticTest {
   @Test
   public void test_Input_Sequential() {
     runTest(new BasicArithmeticTests.TestInput<>(), new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void test_Input_From_All() {
+    runTest(new BasicArithmeticTests.TestInputFromAll<>(), new TestParameters().numParties(2));
   }
 
   @Test
@@ -31,6 +36,11 @@ public class TestBasicArithmetic extends AbstractDummyArithmeticTest {
   @Test
   public void test_KnownSInt_Sequential() {
     runTest(new BasicArithmeticTests.TestKnownSInt<>(), new TestParameters());
+  }
+
+  @Test
+  public void test_SumAndMult_Sequential() {
+    runTest(new BasicArithmeticTests.TestSumAndMult<>(), new TestParameters());
   }
 
   @Test
@@ -101,5 +111,20 @@ public class TestBasicArithmetic extends AbstractDummyArithmeticTest {
   @Test
   public void test_TestMultiplyWithOverflow() {
     runTest(new BasicArithmeticTests.TestMultiplyWithOverflow<>(), new TestParameters());
+  }
+
+  @Test
+  public void testSumAndProduct() {
+    runTest(new TestSumAndProduct<>(), new TestParameters());
+  }
+
+  @Test
+  public void test_TestRandomBit() {
+    runTest(new BasicArithmeticTests.TestRandomBit<>(), new TestParameters());
+  }
+
+  @Test
+  public void test_TestRandomElement() {
+    runTest(new BasicArithmeticTests.TestRandomElement<>(), new TestParameters());
   }
 }

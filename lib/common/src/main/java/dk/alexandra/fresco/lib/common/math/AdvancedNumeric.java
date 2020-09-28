@@ -41,7 +41,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
 
   /**
    * This protocol calculates <code>floor(dividend / divisor)</code>. The result is guaranteed to be
-   * correct if the bit length of the dividend is smaller than {@link BasicNumericContext#getMaxBitLength()}
+   * correct if the bit length of the dividend is smaller than maxBitLength
    * / 2.
    *
    * @param dividend The dividend.
