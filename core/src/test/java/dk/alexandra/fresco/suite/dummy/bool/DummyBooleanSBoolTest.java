@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.suite.dummy.bool;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsNot;
@@ -40,4 +42,9 @@ public class DummyBooleanSBoolTest {
     Assert.assertThat(value1.hashCode(), Is.is(value1.hashCode()));
   }
 
+  @Test
+  public void testOut() {
+    DummyBooleanSBool value = new DummyBooleanSBool(true);
+    Assert.assertThat(value.out(), Is.is(value));
+  }
 }

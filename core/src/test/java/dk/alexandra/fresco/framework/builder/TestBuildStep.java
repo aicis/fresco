@@ -7,7 +7,9 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.dummy.arithmetic.AbstractDummyArithmeticTest;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,6 +38,11 @@ public class TestBuildStep extends AbstractDummyArithmeticTest {
   @Test
   public void test_pair_in_par() {
     runTest(new TestPairInPar<>(1, 2, new Pair<>(1, 2)), new TestParameters());
+  }
+
+  @Test
+  public void test_early_out() {
+    runTest(new TestEarlyOut<>(), new TestParameters());
   }
 
   private static final class IterationState implements DRes<IterationState> {
@@ -138,6 +145,28 @@ public class TestBuildStep extends AbstractDummyArithmeticTest {
 
           Pair<Integer, Integer> actual = runApplication(testApplication);
           Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+  }
+
+  private class TestEarlyOut<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          Application<BigInteger, ProtocolBuilderNumeric> testApplication =
+              root -> {
+                DRes<SInt> x = root.seq(inner -> inner.numeric().input(1, 1));
+                Assert.assertNull(x.out());
+                DRes<BigInteger> out = root.numeric().open(x);
+                return () -> out.out();
+              };
+
+          Assert.assertEquals(BigInteger.ONE, runApplication(testApplication));
         }
       };
     }

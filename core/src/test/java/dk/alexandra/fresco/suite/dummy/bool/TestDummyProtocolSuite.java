@@ -46,7 +46,7 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
 
   @Test
   public void test_multiple_ands() {
-    runTest(new TestMultipleAnds<>(true, 16), EvaluationStrategy.SEQUENTIAL);
+    runTest(new TestMultipleAnds<>(true, 16), EvaluationStrategy.SEQUENTIAL, false, 2);
   }
 
   @Test
