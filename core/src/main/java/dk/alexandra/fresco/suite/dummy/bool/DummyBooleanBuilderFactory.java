@@ -3,7 +3,6 @@ package dk.alexandra.fresco.suite.dummy.bool;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.binary.Binary;
 import dk.alexandra.fresco.framework.builder.binary.BuilderFactoryBinary;
-import dk.alexandra.fresco.framework.builder.binary.Comparison;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.network.Network;
@@ -23,11 +22,6 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
 
   public DummyBooleanBuilderFactory() {
     this.rand = new Random(0);
-  }
-
-  @Override
-  public Comparison createComparison(ProtocolBuilderBinary builder) {
-    return BuilderFactoryBinary.super.createComparison(builder);
   }
 
   @Override

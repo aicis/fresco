@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
-import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 
@@ -32,9 +31,8 @@ public class DummyArithmeticProtocolSuite
   @Override
   public BuilderFactoryNumeric init(DummyArithmeticResourcePool resourcePool) {
     BasicNumericContext basicNumericContext = new BasicNumericContext(maxBitLength,
-        resourcePool.getMyId(), resourcePool.getNoOfParties(), fieldDefinition);
-    RealNumericContext realNumericContext = new RealNumericContext(precision);
-    return new DummyArithmeticBuilderFactory(basicNumericContext, realNumericContext);
+        resourcePool.getMyId(), resourcePool.getNoOfParties(), fieldDefinition, precision);
+    return new DummyArithmeticBuilderFactory(basicNumericContext);
   }
 
   @Override

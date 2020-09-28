@@ -21,11 +21,28 @@
       <artifactId>core</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>commitment</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <!-- TODO Proper handling would imply these utilities to be present in a seperate module -->
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
       <artifactId>core</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>common</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>

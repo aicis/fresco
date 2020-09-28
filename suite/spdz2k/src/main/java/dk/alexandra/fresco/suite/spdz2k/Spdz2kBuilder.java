@@ -5,9 +5,7 @@ import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
-import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
@@ -118,22 +116,10 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
     };
   }
 
-  @Override
-  public MiscBigIntegerGenerators getBigIntegerHelper() {
-    throw new UnsupportedOperationException();
-  }
-
   /**
    * Get result from deferred and downcast result to {@link Spdz2kSInt<PlainT>}.
    */
   private Spdz2kSInt<PlainT> toSpdz2kSInt(DRes<SInt> value) {
     return Objects.requireNonNull((Spdz2kSInt<PlainT>) value.out());
   }
-
-  @Override
-  public RealNumericContext getRealNumericContext() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
 }

@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.lib.math.integer.stat.StatisticsTests;
+import dk.alexandra.fresco.lib.common.math.integer.stat.StatisticsTests;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import org.junit.Test;
 

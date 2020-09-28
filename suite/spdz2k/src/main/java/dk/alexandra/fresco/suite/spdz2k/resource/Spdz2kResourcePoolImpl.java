@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.spdz2k.resource;
 
-import dk.alexandra.fresco.commitment.HashBasedCommitmentSerializer;
+import dk.alexandra.fresco.tools.commitment.CoinTossingComputation;
+import dk.alexandra.fresco.tools.commitment.HashBasedCommitmentSerializer;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.Computation;
@@ -22,7 +23,6 @@ import dk.alexandra.fresco.suite.spdz2k.Spdz2kBuilder;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
-import dk.alexandra.fresco.lib.generic.CoinTossingComputation;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDataSupplier;
 import java.io.Closeable;
 import java.math.BigInteger;
@@ -134,7 +134,7 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
             this.getNoOfParties(),
             network);
     BuilderFactoryNumeric builderFactory = new Spdz2kBuilder<>(factory,
-        new BasicNumericContext(effectiveBitLength, getMyId(), getNoOfParties(), null));
+        new BasicNumericContext(effectiveBitLength, getMyId(), getNoOfParties(), null, getMaxBitLength()));
     ProtocolBuilderNumeric root = builderFactory.createSequential();
     DRes<byte[]> jointSeed = coinTossing
         .buildComputation(root);

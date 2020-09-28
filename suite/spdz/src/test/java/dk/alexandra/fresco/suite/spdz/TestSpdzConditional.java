@@ -1,9 +1,9 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.lib.conditional.ConditionalSelectTests;
-import dk.alexandra.fresco.lib.conditional.ConditionalSwapNeighborsTests;
-import dk.alexandra.fresco.lib.conditional.ConditionalSwapRowsTests;
-import dk.alexandra.fresco.lib.conditional.SwapIfTests;
+import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSelectTests;
+import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSwapNeighborsTests;
+import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSwapRowsTests;
+import dk.alexandra.fresco.lib.common.math.integer.conditional.SwapIfTests;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import org.junit.Test;
 

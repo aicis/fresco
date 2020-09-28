@@ -12,6 +12,7 @@ public class BasicNumericContext {
   private final int myId;
   private final int noOfParties;
   private final FieldDefinition fieldDefinition;
+  private final int defaultFixedPointPrecision;
 
   /**
    * Construct a new BasicNumericContext.
@@ -21,13 +22,15 @@ public class BasicNumericContext {
    * @param myId my party id
    * @param noOfParties number of parties in computation
    * @param fieldDefinition the field definition used in the application
+   * @param defaultFixedPointPrecision the fixed point precision when using the fixed point library
    */
   public BasicNumericContext(int maxBitLength, int myId, int noOfParties,
-      FieldDefinition fieldDefinition) {
+      FieldDefinition fieldDefinition, int defaultFixedPointPrecision) {
     this.maxBitLength = maxBitLength;
     this.myId = myId;
     this.noOfParties = noOfParties;
     this.fieldDefinition = fieldDefinition;
+    this.defaultFixedPointPrecision = defaultFixedPointPrecision;
   }
 
   /**
@@ -68,4 +71,14 @@ public class BasicNumericContext {
   public int getNoOfParties() {
     return noOfParties;
   }
+
+  /**
+   * Returns the fixed point precision used, e.g. the number of bits used to represent the fractional
+   * part of a fixed point number.
+   */
+  public int getDefaultFixedPointPrecision() {
+    return defaultFixedPointPrecision;
+  }
+
+
 }

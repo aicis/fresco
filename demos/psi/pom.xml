@@ -15,6 +15,12 @@
       <artifactId>demos-common</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+		<dependency>
+			<groupId>dk.alexandra.fresco</groupId>
+			<artifactId>bristol</artifactId>
+			<version>1.2.2-SNAPSHOT</version>
+		</dependency>
   </dependencies>
   
   <build>

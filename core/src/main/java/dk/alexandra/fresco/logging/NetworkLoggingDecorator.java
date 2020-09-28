@@ -13,10 +13,15 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
   public static final String NETWORK_TOTAL_BATCHES = "Total amount of batches received";
 
   private Network delegate;
-  private Map<Integer, PartyStats> partyStatsMap = new HashMap<>();
+  private Map<Integer, PartyStats> partyStatsMap;
   
   public NetworkLoggingDecorator(Network network) {
-    this.delegate = network;
+    this(network, new HashMap<>());
+  }
+
+  protected NetworkLoggingDecorator(Network network, Map<Integer, PartyStats> partyStatsMap){
+    this.delegate= network;
+    this.partyStatsMap = partyStatsMap;
   }
 
   @Override
@@ -49,7 +54,7 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
     }
   }
 
-  private class PartyStats {
+  class PartyStats {
     private long count;
     private long noBytes;
 

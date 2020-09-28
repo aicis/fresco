@@ -7,7 +7,12 @@
   <modules>
     <module>lp</module>
     <module>dea</module>
-    <module>crypto/mimc</module>
+    <module>mimc</module>
+    <module>common</module>
+    <module>debug</module>
+    <module>list</module>
+    <module>fixed</module>
+    <module>bristol</module>
   </modules>
   <packaging>pom</packaging>
 

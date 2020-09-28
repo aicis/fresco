@@ -2,7 +2,9 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.BuildStep;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,7 +30,7 @@ public class DefaultPreprocessedValues implements PreprocessedValues {
     BuildStep<Void, ProtocolBuilderNumeric, List<DRes<SInt>>> firstStep =
         builder.seq(b -> {
           DRes<SInt> r = b.numeric().randomElement();
-          DRes<SInt> inverse = b.advancedNumeric().invert(r);
+          DRes<SInt> inverse = b.seq(new Inversion(r));
           List<DRes<SInt>> values = new ArrayList<>(pipeLength + 2);
           values.add(inverse);
           values.add(r);
@@ -52,6 +54,28 @@ public class DefaultPreprocessedValues implements PreprocessedValues {
           values.addAll(newValues);
           return () -> values;
         });
+      });
+    }
+  }
+
+  public static class Inversion implements Computation<SInt, ProtocolBuilderNumeric> {
+
+    private final DRes<SInt> value;
+
+    public Inversion(DRes<SInt> value) {
+      this.value = value;
+    }
+
+    @Override
+    public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+      Numeric numeric = builder.numeric();
+      DRes<SInt> random = numeric.randomElement();
+      DRes<SInt> product = numeric.mult(value, random);
+      DRes<BigInteger> open = numeric.open(product);
+      return builder.seq((seq) -> {
+        BigInteger value = open.out();
+        BigInteger inverse = value.modInverse(seq.getBasicNumericContext().getModulus());
+        return seq.numeric().mult(inverse, random);
       });
     }
   }

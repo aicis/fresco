@@ -6,15 +6,18 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.collections.Matrix;
+import dk.alexandra.fresco.lib.common.collections.Matrix;
 import dk.alexandra.fresco.lib.lp.LPSolver.PivotRule;
+import dk.alexandra.fresco.suite.dummy.arithmetic.AbstractDummyArithmeticTest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 
-public class TestLpBuildingBlocks {
+public class TestLpBuildingBlocks extends AbstractDummyArithmeticTest {
 
   @Test
   public void testEnums() {
@@ -119,5 +122,61 @@ public class TestLpBuildingBlocks {
     LPTableau tab = new LPTableau(matrix, b, f, z);
     new LPSolver(LPSolver.PivotRule.DANZIG, tab, matrix, null, null, 50);
     fail("Should not be reachable");
+  }
+
+  @Test
+  public void test_LpSolverEntering() {
+    runTest(new LpBuildingBlockTests.TestEnteringVariable<>(), new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void test_LpSolverBlandEntering() {
+    runTest(
+        new LpBuildingBlockTests.TestBlandEnteringVariable<>(), new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void test_LpTableauDebug() {
+    runTest(new LpBuildingBlockTests.TestLpTableuDebug<>(), new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void test_LpSolverDanzig() {
+    runTest(
+        new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.DANZIG),
+        new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void test_LpSolverDanzigTooManyIterations() {
+    runTest(
+        new LpBuildingBlockTests.TestLpSolverTooManyIterations<>(LPSolver.PivotRule.DANZIG),
+        new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void test_LpSolverDanzigSmallerMod() {
+    runTest(
+        new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.DANZIG),
+        new TestParameters()
+            .numParties(2)
+            .field(new BigIntegerFieldDefinition(ModulusFinder.findSuitableModulus(128)))
+            .maxBitLength(30)
+            .fixedPointPrecesion(8)
+            .performanceLogging(false));
+  }
+
+  @Test
+  public void test_LpSolverBland() {
+    runTest(
+        new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.BLAND),
+        new TestParameters().numParties(2).performanceLogging(true));
+    //    assertThat(performanceLoggers.get(1).getLoggedValues()
+    //        .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ), is((long) 33));
+  }
+
+  @Test
+  public void test_LpSolverDebug() {
+    runTest(new LpBuildingBlockTests.TestLpSolverDebug<>(), new TestParameters().numParties(2));
   }
 }

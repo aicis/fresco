@@ -2,10 +2,8 @@ package dk.alexandra.fresco.logging;
 
 import dk.alexandra.fresco.framework.builder.binary.Binary;
 import dk.alexandra.fresco.framework.builder.binary.BuilderFactoryBinary;
-import dk.alexandra.fresco.framework.builder.binary.Comparison;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.logging.binary.BinaryComparisonLoggingDecorator;
 import dk.alexandra.fresco.logging.binary.BinaryLoggingDecorator;
 import dk.alexandra.fresco.suite.ProtocolSuiteBinary;
 import java.util.Map;
@@ -27,8 +25,13 @@ public class BinarySuiteLogging<ResourcePoolT extends ResourcePool>
    * @param protocolSuite the original protocol suite to log for.
    */
   public BinarySuiteLogging(ProtocolSuiteBinary<ResourcePoolT> protocolSuite) {
+    this(protocolSuite,new PerformanceLoggerCountingAggregate());
+  }
+
+  protected BinarySuiteLogging(ProtocolSuiteBinary<ResourcePoolT> protocolSuite,
+      PerformanceLoggerCountingAggregate aggregate) {
     this.delegateSuite = protocolSuite;
-    this.aggregate = new PerformanceLoggerCountingAggregate();
+    this.aggregate = aggregate;
   }
 
   @Override
@@ -44,14 +47,6 @@ public class BinarySuiteLogging<ResourcePoolT extends ResourcePool>
             new BinaryLoggingDecorator(delegateFactory.createBinary(builder));
         aggregate.add(binaryLogger);
         return binaryLogger;
-      }
-      
-      @Override
-      public Comparison createComparison(ProtocolBuilderBinary builder) {
-        BinaryComparisonLoggingDecorator comparison = 
-            new BinaryComparisonLoggingDecorator(delegateFactory.createComparison(builder));
-        aggregate.add(comparison);
-        return comparison;
       }
     };
   }

@@ -2,12 +2,12 @@ package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
-import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.collections.Matrix;
-import dk.alexandra.fresco.lib.math.integer.min.Minimum;
+import dk.alexandra.fresco.lib.common.collections.Matrix;
+import dk.alexandra.fresco.lib.common.math.integer.min.Minimum;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +41,7 @@ public class EnteringVariable
         constraintColumn.addAll(tableau.getC().getColumn(i));
         constraintColumn.add(tableau.getF().get(i));
 
-        AdvancedNumeric advancedNumericBuilder = par.advancedNumeric();
+        AdvancedNumeric advancedNumericBuilder = AdvancedNumeric.using(par);
         updatedF.add(
             advancedNumericBuilder.innerProduct(
                 constraintColumn,

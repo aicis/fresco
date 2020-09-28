@@ -2,18 +2,18 @@ package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
-import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
-import dk.alexandra.fresco.framework.builder.numeric.Comparison;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
+import dk.alexandra.fresco.lib.common.compare.Comparison;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.collections.Matrix;
-import dk.alexandra.fresco.lib.compare.eq.FracEq;
-import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
+import dk.alexandra.fresco.lib.common.collections.Matrix;
+import dk.alexandra.fresco.lib.common.compare.eq.FracEq;
+import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSelect;
 import dk.alexandra.fresco.lib.lp.ExitingVariable.ExitingVariableOutput;
-import dk.alexandra.fresco.lib.math.integer.min.MinInfFrac;
-import dk.alexandra.fresco.lib.math.integer.min.Minimum;
+import dk.alexandra.fresco.lib.common.math.integer.min.MinInfFrac;
+import dk.alexandra.fresco.lib.common.math.integer.min.Minimum;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +44,7 @@ public class ExitingVariable implements
     return builder.par((par) -> {
       ArrayList<DRes<SInt>> enteringColumn = new ArrayList<>(tableauHeight);
       // Extract entering column
-      AdvancedNumeric advanced = par.advancedNumeric();
+      AdvancedNumeric advanced = AdvancedNumeric.using(par);;
       for (int i = 0; i < tableauHeight - 1; i++) {
         ArrayList<DRes<SInt>> tableauRow = tableau.getC().getRow(i);
         enteringColumn.add(
@@ -59,7 +59,7 @@ public class ExitingVariable implements
     }).par((par, enteringColumn) -> {
       // Apply update matrix to entering column
       ArrayList<DRes<SInt>> updatedEnteringColumn = new ArrayList<>(tableauHeight);
-      AdvancedNumeric advanced = par.advancedNumeric();
+      AdvancedNumeric advanced = AdvancedNumeric.using(par);
       for (int i = 0; i < tableauHeight; i++) {
         ArrayList<DRes<SInt>> updateRow = updateMatrix.getRow(i);
         updatedEnteringColumn.add(
@@ -81,7 +81,7 @@ public class ExitingVariable implements
       ArrayList<DRes<SInt>> updatedB = pair.getSecond();
       ArrayList<DRes<SInt>> nonApps = new ArrayList<>(updatedB.size());
 
-      Comparison comparison = par.comparison();
+      Comparison comparison = Comparison.using(par);
       for (int i = 0; i < updatedB.size(); i++) {
         nonApps.add(
             comparison.compareLEQLong(updatedEnteringColumn.get(i), zero)
@@ -175,14 +175,16 @@ public class ExitingVariable implements
     }).pairInPar(
         (seq, pair) -> {
           List<DRes<SInt>> updatedEnteringColumn = pair.getSecond().getFirst();
-          DRes<SInt> sum = seq.advancedNumeric().sum(
+          AdvancedNumeric advancedNumeric = AdvancedNumeric.using(seq);
+          DRes<SInt> sum = advancedNumeric.sum(
               updatedEnteringColumn.subList(0, tableauHeight - 1));
           //Propagate exiting variable forward
           return Pair.lazy(pair.getFirst(), sum);
         },
         (seq, pair) -> {
           ArrayList<DRes<SInt>> updateColumn = pair.getSecond().getSecond();
-          DRes<SInt> sum = seq.advancedNumeric()
+          AdvancedNumeric advancedNumeric = AdvancedNumeric.using(seq);
+          DRes<SInt> sum = advancedNumeric
               .sum(updateColumn.subList(0, tableauHeight - 1));
           return Pair.lazy(updateColumn, sum);
         }

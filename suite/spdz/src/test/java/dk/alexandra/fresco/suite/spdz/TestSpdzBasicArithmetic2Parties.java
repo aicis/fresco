@@ -1,13 +1,14 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests.TestMinInfFrac;
-import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
-import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests.TestOpenNoConversionByDefault;
-import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestDivision;
-import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestKnownDivisorDivision;
-import dk.alexandra.fresco.lib.math.integer.log.LogTests.TestLogarithm;
-import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests.TestSquareRoot;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumericTests.TestMinInfFrac;
+import dk.alexandra.fresco.lib.common.math.integer.division.DivisionTests.TestDivision;
+import dk.alexandra.fresco.lib.common.math.integer.division.DivisionTests.TestKnownDivisorDivision;
+import dk.alexandra.fresco.lib.common.math.integer.log.LogTests.TestLogarithm;
+import dk.alexandra.fresco.lib.common.math.integer.sqrt.SqrtTests.TestSquareRoot;
+import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests;
+import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests.TestInputFromAll;
+import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests.TestOpenNoConversionByDefault;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -107,7 +108,7 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
 
   @Test
   public void testInputFromAllMascot() {
-    runTest(new BasicArithmeticTests.TestInputFromAll<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new TestInputFromAll<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.MASCOT, 2, 16, 16, 16);
   }
 

@@ -17,11 +17,10 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
-import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
-import dk.alexandra.fresco.lib.compare.CompareTests;
+import dk.alexandra.fresco.lib.common.compare.CompareTests;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
-import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
+import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.suite.spdz.maccheck.MaliciousSpdzMacCheckComputation;
 import dk.alexandra.fresco.suite.spdz.maccheck.MaliciousSpdzRoundSynchronization;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
@@ -160,11 +159,10 @@ public class TestMaliciousBehaviour {
     @Override
     public BuilderFactoryNumeric init(SpdzResourcePool resourcePool) {
       BasicNumericContext numericContext = createNumericContext(resourcePool);
-      RealNumericContext realNumericContext = createRealNumericContext();
       if (resourcePool.getMyId() == cheatingParty && corrupt.compareTo(Corrupt.INPUT) == 0) {
-        return new MaliciousSpdzBuilder(numericContext, realNumericContext);
+        return new MaliciousSpdzBuilder(numericContext);
       } else {
-        return new SpdzBuilder(numericContext, realNumericContext);
+        return new SpdzBuilder(numericContext);
       }
     }
 
@@ -172,11 +170,10 @@ public class TestMaliciousBehaviour {
     public RoundSynchronization<SpdzResourcePool> createRoundSynchronization() {
       return new MaliciousSpdzRoundSynchronization(this, (resPool) -> {
         BasicNumericContext numericContext = createNumericContext(resPool);
-        RealNumericContext realNumericContext = createRealNumericContext();
         if (resPool.getMyId() == cheatingParty && corrupt.compareTo(Corrupt.INPUT) == 0) {
-          return new MaliciousSpdzBuilder(numericContext, realNumericContext);
+          return new MaliciousSpdzBuilder(numericContext);
         } else {
-          return new SpdzBuilder(numericContext, realNumericContext);
+          return new SpdzBuilder(numericContext);
         }
       });
     }

@@ -7,9 +7,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
-import dk.alexandra.fresco.lib.real.RealNumericContext;
 import java.math.BigInteger;
 import java.util.Random;
 
@@ -21,32 +19,22 @@ import java.util.Random;
 public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
   private BasicNumericContext basicNumericContext;
-  private RealNumericContext realNumericContext;
-  private MiscBigIntegerGenerators mog;
   private Random rand;
 
   /**
    * Creates a dummy arithmetic builder factory which creates basic numeric operations.
    *
    * @param basicNumericContext The numeric context we work within.
-   * @param realNumericContext The real numeric context we work within.
    */
-  public DummyArithmeticBuilderFactory(BasicNumericContext basicNumericContext,
-      RealNumericContext realNumericContext) {
+  public DummyArithmeticBuilderFactory(BasicNumericContext basicNumericContext) {
     super();
     this.basicNumericContext = basicNumericContext;
-    this.realNumericContext = realNumericContext;
     this.rand = new Random(0);
   }
 
   @Override
   public BasicNumericContext getBasicNumericContext() {
     return basicNumericContext;
-  }
-
-  @Override
-  public RealNumericContext getRealNumericContext() {
-    return realNumericContext;
   }
 
   @Override
@@ -89,7 +77,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
             BigInteger r;
             BigInteger modulus = basicNumericContext.getModulus();
             do {
-              r = new BigInteger(modulus.bitLength(), rand);
+              r = new BigInteger(modulus.bitLength() + 1, rand);
             } while (r.compareTo(modulus) >= 0);
             elm = createSIntFromConstant(r);
             return EvaluationStatus.IS_DONE;
@@ -191,13 +179,5 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
         return builder.append(c);
       }
     };
-  }
-
-  @Override
-  public MiscBigIntegerGenerators getBigIntegerHelper() {
-    if (mog == null) {
-      mog = new MiscBigIntegerGenerators(basicNumericContext.getModulus());
-    }
-    return mog;
   }
 }

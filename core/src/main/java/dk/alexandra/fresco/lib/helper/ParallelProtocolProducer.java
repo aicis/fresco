@@ -38,7 +38,11 @@ public class ParallelProtocolProducer implements ProtocolProducer {
   @Override
   public <ResourcePoolT extends ResourcePool> void getNextProtocols(
       ProtocolCollection<ResourcePoolT> protocolCollection) {
-    Iterator<ProtocolProducer> iterator = subProducers.iterator();
+    iterate(subProducers.iterator(), protocolCollection);
+  }
+
+  protected <ResourcePoolT extends ResourcePool> void iterate(
+      Iterator<ProtocolProducer> iterator, ProtocolCollection<ResourcePoolT> protocolCollection) {
     while (iterator.hasNext() && protocolCollection.hasFreeCapacity()) {
       ProtocolProducer producer = iterator.next();
       if (producer.hasNextProtocols()) {
@@ -48,5 +52,4 @@ public class ParallelProtocolProducer implements ProtocolProducer {
       }
     }
   }
-
 }

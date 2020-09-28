@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
-import dk.alexandra.fresco.commitment.HashBasedCommitmentSerializer;
+import dk.alexandra.fresco.tools.commitment.CoinTossingComputation;
+import dk.alexandra.fresco.tools.commitment.CommitmentComputation;
+import dk.alexandra.fresco.tools.commitment.HashBasedCommitmentSerializer;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.builder.Computation;
@@ -10,8 +12,6 @@ import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.lib.generic.CoinTossingComputation;
-import dk.alexandra.fresco.lib.generic.CommitmentComputation;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import java.math.BigInteger;
 import java.util.List;

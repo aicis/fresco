@@ -30,7 +30,6 @@ import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.OpenedValueStoreImpl;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
-import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
 import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
@@ -189,8 +188,7 @@ public abstract class AbstractSpdzTest {
 
     ProtocolBuilderNumeric sequential = new SpdzBuilder(
         new BasicNumericContext(maxBitLength, myId, noOfPlayers,
-            tripleSupplier.getFieldDefinition()),
-        new RealNumericContext(fixedPointPrecision)).createSequential();
+            tripleSupplier.getFieldDefinition(), fixedPointPrecision)).createSequential();
     SpdzResourcePoolImpl tripleResourcePool =
         new SpdzResourcePoolImpl(myId, noOfPlayers, new OpenedValueStoreImpl<>(), tripleSupplier,
             AesCtrDrbg::new);

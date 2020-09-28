@@ -6,8 +6,10 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.collections.Matrix;
-import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
+import dk.alexandra.fresco.lib.common.collections.Matrix;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
+import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSelect;
+import dk.alexandra.fresco.lib.common.math.DefaultAdvancedNumeric;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +60,7 @@ public class UpdateMatrix implements
       );
       DRes<Pair<List<DRes<SInt>>, DRes<SInt>>> scaledCAndPP =
           par1.seq(seq_pp -> {
-            DRes<SInt> pp_inv = seq_pp.advancedNumeric().invert(p_prime);
+            DRes<SInt> pp_inv = AdvancedNumeric.using(seq_pp).invert(p_prime);
             DRes<SInt> pp = seq_pp.numeric().mult(p, pp_inv);
             return seq_pp.par((par) -> {
               List<DRes<SInt>> scaledC = new ArrayList<>(C.size());
@@ -98,7 +100,7 @@ public class UpdateMatrix implements
             return newRow;
           });
       for (int i = 0; i < width; i++) {
-        lambdas_i.add(gpAddAndSub.advancedNumeric().sum(lambdas_i_jOuts.getColumn(i)));
+        lambdas_i.add(AdvancedNumeric.using(gpAddAndSub).sum(lambdas_i_jOuts.getColumn(i)));
       }
       return () -> new Pair<>(
           new Pair<>(scaledC, pp), new Pair<>(subOuts, lambdas_i));

@@ -19,10 +19,15 @@ public class EvaluatorLoggingDecorator<
   public static final String SCE_RUNNINGTIMES = "Evaluation time for evaluator ";
 
   private ProtocolEvaluator<ResourcePoolT> delegate;
-  private List<Long> runtimeLogger = new ArrayList<>();
+  private List<Long> runtimeLogger;
 
   public EvaluatorLoggingDecorator(ProtocolEvaluator<ResourcePoolT> delegate) {
+    this(delegate, new ArrayList<>());
+  }
+
+  EvaluatorLoggingDecorator(ProtocolEvaluator<ResourcePoolT> delegate, List<Long> runtimeLogger){
     this.delegate = delegate;
+    this.runtimeLogger = runtimeLogger;
   }
 
   @Override

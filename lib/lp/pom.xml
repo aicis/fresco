@@ -25,6 +25,16 @@
       <groupId>dk.alexandra.fresco</groupId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <artifactId>common</artifactId>
+      <groupId>dk.alexandra.fresco</groupId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>debug</artifactId>
+      <groupId>dk.alexandra.fresco</groupId>
+      <version>${project.version}</version>
+    </dependency>
 
     <!-- Tests depends on AbstractDummyArithmeticTest -->
     <dependency>
