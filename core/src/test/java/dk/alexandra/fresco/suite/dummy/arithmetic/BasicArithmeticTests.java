@@ -50,6 +50,37 @@ public class BasicArithmeticTests {
     }
   }
 
+  public static class TestInputFromDifferentParties<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger value1 = BigInteger.valueOf(10);
+      BigInteger value2 = BigInteger.valueOf(3);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            DRes<SInt> a,b;
+            if (producer.getBasicNumericContext().getMyId() == 1) {
+              a = numeric.input(value1, 1);
+              b = numeric.input(null, 2);
+            } else {
+              a = numeric.input(null, 1);
+              b = numeric.input(value2, 2);
+            }
+            DRes<SInt> c = numeric.add(a,b);
+            return numeric.open(c);
+          };
+          BigInteger output = runApplication(app);
+
+          Assert.assertEquals(value1.add(value2), output);
+        }
+      };
+    }
+  }
+
   public static class TestInputFromAll<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 

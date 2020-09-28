@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests.TestInputFromDifferentParties;
 import dk.alexandra.fresco.suite.dummy.arithmetic.ParallelAndSequenceTests.TestSumAndProduct;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import org.junit.Test;
@@ -17,6 +18,11 @@ public class TestBasicArithmetic extends AbstractDummyArithmeticTest {
   @Test
   public void test_Input_From_All() {
     runTest(new BasicArithmeticTests.TestInputFromAll<>(), new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void test_input_from_different_parties() {
+    runTest(new TestInputFromDifferentParties<>(), new TestParameters().numParties(2));
   }
 
   @Test
