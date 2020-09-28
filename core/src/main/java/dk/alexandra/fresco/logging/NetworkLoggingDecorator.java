@@ -54,7 +54,7 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
     }
   }
 
-  protected class PartyStats {
+  class PartyStats {
     private long count;
     private long noBytes;
 

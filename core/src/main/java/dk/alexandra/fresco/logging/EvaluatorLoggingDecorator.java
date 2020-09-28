@@ -25,7 +25,7 @@ public class EvaluatorLoggingDecorator<
     this(delegate, new ArrayList<>());
   }
 
-  protected EvaluatorLoggingDecorator(ProtocolEvaluator<ResourcePoolT> delegate, List<Long> runtimeLogger){
+  EvaluatorLoggingDecorator(ProtocolEvaluator<ResourcePoolT> delegate, List<Long> runtimeLogger){
     this.delegate = delegate;
     this.runtimeLogger = runtimeLogger;
   }

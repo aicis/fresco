@@ -29,7 +29,7 @@ public class NumericSuiteLogging<ResourcePoolT extends NumericResourcePool>
     this(protocolSuite, new PerformanceLoggerCountingAggregate());
   }
 
-  protected NumericSuiteLogging(ProtocolSuiteNumeric<ResourcePoolT> protocolSuite,
+  NumericSuiteLogging(ProtocolSuiteNumeric<ResourcePoolT> protocolSuite,
       PerformanceLoggerCountingAggregate aggregate) {
     this.delegateSuite = protocolSuite;
     this.aggregate = aggregate;
