@@ -77,7 +77,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
             BigInteger r;
             BigInteger modulus = basicNumericContext.getModulus();
             do {
-              r = new BigInteger(modulus.bitLength(), rand);
+              r = new BigInteger(modulus.bitLength() + 1, rand);
             } while (r.compareTo(modulus) >= 0);
             elm = createSIntFromConstant(r);
             return EvaluationStatus.IS_DONE;
