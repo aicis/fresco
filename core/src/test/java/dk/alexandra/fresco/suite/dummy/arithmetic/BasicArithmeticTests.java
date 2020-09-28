@@ -639,12 +639,12 @@ public class BasicArithmeticTests {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      int numElements = 10;
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> {
             Numeric numeric = producer.numeric();
-            int numElements = 10;
             List<DRes<SInt>> elements = new ArrayList<>(numElements);
             for (int i = 0; i < numElements; i++) {
               elements.add(numeric.randomElement());
@@ -656,7 +656,7 @@ public class BasicArithmeticTests {
           };
           List<BigInteger> elements = runApplication(app);
           assertAllDifferent(elements);
-          Assert.assertEquals(10, elements.size());
+          Assert.assertEquals(numElements, elements.size());
         }
       };
     }

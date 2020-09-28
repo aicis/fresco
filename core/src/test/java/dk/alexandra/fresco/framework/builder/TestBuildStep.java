@@ -159,12 +159,13 @@ public class TestBuildStep extends AbstractDummyArithmeticTest {
         @Override
         public void test() {
           Application<BigInteger, ProtocolBuilderNumeric> testApplication =
-              root -> {
-                DRes<SInt> x = root.seq(inner -> inner.numeric().input(1, 1));
+              root -> root.seq(seq -> {
+                DRes<SInt> x = seq.seq(inner -> inner.numeric().input(1, 1));
                 Assert.assertNull(x.out());
-                DRes<BigInteger> out = root.numeric().open(x);
-                return () -> out.out();
-              };
+                return null;
+              }).seq((seq, x) -> {
+                return () -> BigInteger.ONE;
+              });
 
           Assert.assertEquals(BigInteger.ONE, runApplication(testApplication));
         }
