@@ -9,7 +9,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.compare.SortingHelperUtility;
+import dk.alexandra.fresco.lib.common.collections.sort.SortingHelperUtility;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,10 +1,10 @@
-package dk.alexandra.fresco.lib.common.compare;
-
+package dk.alexandra.fresco.lib.common.collections.sort;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.common.compare.Comparison;
 import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import java.math.BigInteger;
 import java.util.ArrayList;
