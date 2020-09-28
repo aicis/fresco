@@ -38,7 +38,7 @@ public class Reciprocal implements Computation<SFixed, ProtocolBuilderNumeric> {
       double c = 256.0 / 99.0;
       DRes<SFixed> xi = AdvancedFixedNumeric.using(r2).polynomialEvalutation(normalized, a, b, c);
 
-      int n = (int) Math.ceil(log(r2.getBasicNumericContext().getPrecision() + 1, 3) / log(99, 2));
+      int n = (int) Math.ceil(log(r2.getBasicNumericContext().getDefaultFixedPointPrecision() + 1, 3) / log(99, 2));
 
       for (int i = 0; i < n; i++) {
         DRes<SFixed> e = fixedNumeric.sub(1, fixedNumeric.mult(xi, normalized));

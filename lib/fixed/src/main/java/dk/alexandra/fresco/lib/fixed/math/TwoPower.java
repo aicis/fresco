@@ -33,7 +33,7 @@ public class TwoPower implements Computation<SFixed, ProtocolBuilderNumeric> {
   public DRes<SFixed> buildComputation(ProtocolBuilderNumeric builder) {
     
     return builder.seq(r1 -> {
-      int f = builder.getBasicNumericContext().getPrecision();
+      int f = builder.getBasicNumericContext().getDefaultFixedPointPrecision();
       int l = log2(f);
       
       // Sign bit (0 or 1)
@@ -60,7 +60,7 @@ public class TwoPower implements Computation<SFixed, ProtocolBuilderNumeric> {
       // Result if exponent is negative
       DRes<SFixed> bn = rn.known(1.0);
       
-      int f = builder.getBasicNumericContext().getPrecision();
+      int f = builder.getBasicNumericContext().getDefaultFixedPointPrecision();
       int l = log2(f);
       
       // TODO: 0'th iteration can be done in init to avoid a truncation

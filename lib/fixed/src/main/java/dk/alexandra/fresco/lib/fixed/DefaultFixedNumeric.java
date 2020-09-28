@@ -90,7 +90,7 @@ public class DefaultFixedNumeric implements FixedNumeric {
   @Override
   public DRes<SFixed> add(BigDecimal a, DRes<SFixed> b) {
     return builder.seq(seq -> {
-      BigInteger intA = unscaled(a, seq.getBasicNumericContext().getPrecision());
+      BigInteger intA = unscaled(a, seq.getBasicNumericContext().getDefaultFixedPointPrecision());
       SFixed fixedB = b.out();
       return new SFixed(seq.numeric().add(intA, fixedB.getSInt()));
     });
@@ -108,7 +108,7 @@ public class DefaultFixedNumeric implements FixedNumeric {
   @Override
   public DRes<SFixed> sub(BigDecimal a, DRes<SFixed> b) {
     return builder.seq(seq -> {
-      BigInteger scaledA = unscaled(a, seq.getBasicNumericContext().getPrecision());
+      BigInteger scaledA = unscaled(a, seq.getBasicNumericContext().getDefaultFixedPointPrecision());
       SFixed fixedB = b.out();
       return new SFixed(seq.numeric().sub(scaledA, fixedB.getSInt()));
     });
@@ -118,7 +118,7 @@ public class DefaultFixedNumeric implements FixedNumeric {
   public DRes<SFixed> sub(DRes<SFixed> a, BigDecimal b) {
     return builder.seq(seq -> {
       SFixed fixedA = a.out();
-      BigInteger unscaledB = unscaled(b, seq.getBasicNumericContext().getPrecision());
+      BigInteger unscaledB = unscaled(b, seq.getBasicNumericContext().getDefaultFixedPointPrecision());
       return new SFixed(seq.numeric().sub(fixedA.getSInt(), unscaledB));
     });
   }
@@ -129,7 +129,7 @@ public class DefaultFixedNumeric implements FixedNumeric {
       SFixed fixedA = a.out();
       SFixed fixedB = b.out();
       DRes<SInt> result = seq.numeric().mult(fixedA.getSInt(), fixedB.getSInt());
-      DRes<SInt> truncated = scale(seq, result, -seq.getBasicNumericContext().getPrecision());
+      DRes<SInt> truncated = scale(seq, result, -seq.getBasicNumericContext().getDefaultFixedPointPrecision());
       return new SFixed(truncated);
     });
   }
@@ -137,10 +137,10 @@ public class DefaultFixedNumeric implements FixedNumeric {
   @Override
   public DRes<SFixed> mult(BigDecimal a, DRes<SFixed> b) {
     return builder.seq(seq -> {
-      BigInteger unscaledA = unscaled(a, seq.getBasicNumericContext().getPrecision());
+      BigInteger unscaledA = unscaled(a, seq.getBasicNumericContext().getDefaultFixedPointPrecision());
       SFixed fixedB = b.out();
       DRes<SInt> result = seq.numeric().mult(unscaledA, fixedB.getSInt());
-      DRes<SInt> truncated = scale(seq, result, -seq.getBasicNumericContext().getPrecision());
+      DRes<SInt> truncated = scale(seq, result, -seq.getBasicNumericContext().getDefaultFixedPointPrecision());
       return new SFixed(truncated);
     });
   }
@@ -150,7 +150,7 @@ public class DefaultFixedNumeric implements FixedNumeric {
     return builder.seq(seq -> {
       SFixed fixedA = a.out();
       SFixed fixedB = b.out();
-      DRes<SInt> scaledA = scale(seq, fixedA.getSInt(), seq.getBasicNumericContext().getPrecision());
+      DRes<SInt> scaledA = scale(seq, fixedA.getSInt(), seq.getBasicNumericContext().getDefaultFixedPointPrecision());
       DRes<SInt> result = AdvancedNumeric.using(seq).div(scaledA, fixedB.getSInt());
       return new SFixed(result);
     });
@@ -160,8 +160,8 @@ public class DefaultFixedNumeric implements FixedNumeric {
   public DRes<SFixed> div(DRes<SFixed> a, BigDecimal b) {
     return builder.seq(seq -> {
       SFixed fixedA = a.out();
-      DRes<SInt> scaledA = scale(seq, fixedA.getSInt(), seq.getBasicNumericContext().getPrecision());
-      BigInteger unscaledB = unscaled(b, seq.getBasicNumericContext().getPrecision());
+      DRes<SInt> scaledA = scale(seq, fixedA.getSInt(), seq.getBasicNumericContext().getDefaultFixedPointPrecision());
+      BigInteger unscaledB = unscaled(b, seq.getBasicNumericContext().getDefaultFixedPointPrecision());
       DRes<SInt> result = AdvancedNumeric.using(seq).div(scaledA, unscaledB);
       return new SFixed(result);
     });
@@ -170,7 +170,7 @@ public class DefaultFixedNumeric implements FixedNumeric {
   @Override
   public DRes<SFixed> known(BigDecimal value) {
     return builder.seq(seq -> {
-      DRes<SInt> input = seq.numeric().known(unscaled(value, seq.getBasicNumericContext().getPrecision()));
+      DRes<SInt> input = seq.numeric().known(unscaled(value, seq.getBasicNumericContext().getDefaultFixedPointPrecision()));
       return new SFixed(input);
     });
   }
@@ -178,7 +178,7 @@ public class DefaultFixedNumeric implements FixedNumeric {
   @Override
   public DRes<SFixed> fromSInt(DRes<SInt> value) {
     return builder.seq(seq -> {
-      DRes<SInt> unscaled = scale(seq, value, seq.getBasicNumericContext().getPrecision());
+      DRes<SInt> unscaled = scale(seq, value, seq.getBasicNumericContext().getDefaultFixedPointPrecision());
       return new SFixed(unscaled);
     });
   }
@@ -186,7 +186,7 @@ public class DefaultFixedNumeric implements FixedNumeric {
   @Override
   public DRes<SFixed> input(BigDecimal value, int inputParty) {
     return builder.seq(seq -> {
-      DRes<SInt> input = seq.numeric().input(unscaled(value, seq.getBasicNumericContext().getPrecision()), 
+      DRes<SInt> input = seq.numeric().input(unscaled(value, seq.getBasicNumericContext().getDefaultFixedPointPrecision()),
           inputParty);
       return new SFixed(input);
     });
@@ -200,7 +200,7 @@ public class DefaultFixedNumeric implements FixedNumeric {
       return seq.numeric().open(unscaled);
     }).seq((seq, unscaledOpen) -> {
       BigDecimal open = scaled(builder.getBasicNumericContext().getFieldDefinition(), unscaledOpen,
-          seq.getBasicNumericContext().getPrecision());
+          seq.getBasicNumericContext().getDefaultFixedPointPrecision());
       return () -> open;
     });
   }
@@ -214,7 +214,7 @@ public class DefaultFixedNumeric implements FixedNumeric {
     }).seq((seq, unscaledOpen) -> {
       if (outputParty == seq.getBasicNumericContext().getMyId()) {
         BigDecimal open = scaled(builder.getBasicNumericContext().getFieldDefinition(), unscaledOpen,
-            seq.getBasicNumericContext().getPrecision());
+            seq.getBasicNumericContext().getDefaultFixedPointPrecision());
         return () -> open;
       } else {
         return () -> null;

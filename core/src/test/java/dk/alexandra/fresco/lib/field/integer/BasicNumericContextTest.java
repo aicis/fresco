@@ -25,7 +25,7 @@ public class BasicNumericContextTest {
 
   @Test
   public void getPrecision() {
-    Assert.assertEquals(context.getPrecision(), precision);
+    Assert.assertEquals(context.getDefaultFixedPointPrecision(), precision);
   }
 
   @Test

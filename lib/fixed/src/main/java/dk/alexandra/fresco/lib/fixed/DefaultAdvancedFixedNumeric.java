@@ -34,7 +34,7 @@ public class DefaultAdvancedFixedNumeric implements
   public DRes<SFixed> random() {
     return builder.seq(seq -> {
       DRes<RandomAdditiveMask> random =
-          AdvancedNumeric.using(seq).additiveMask(seq.getBasicNumericContext().getPrecision());
+          AdvancedNumeric.using(seq).additiveMask(seq.getBasicNumericContext().getDefaultFixedPointPrecision());
       return random;
     }).seq((seq, random) -> {
       return () -> new SFixed(random.random);
@@ -46,12 +46,12 @@ public class DefaultAdvancedFixedNumeric implements
     return builder.seq(seq -> {
       DRes<Pair<DRes<SInt>, DRes<SInt>>> normalized = AdvancedNumeric.using(seq)
           .normalize(((SFixed) x.out()).getSInt(),
-              seq.getBasicNumericContext().getPrecision() * 2);
+              seq.getBasicNumericContext().getDefaultFixedPointPrecision() * 2);
       return normalized;
     }).seq((seq, normalized) -> {
       DRes<SFixed> scalingFactor = new SFixed(normalized.getFirst());
       DRes<SInt> scalingPower = seq.numeric().sub(normalized.getSecond(),
-          BigInteger.valueOf(seq.getBasicNumericContext().getPrecision()));
+          BigInteger.valueOf(seq.getBasicNumericContext().getDefaultFixedPointPrecision()));
       return () -> new Pair<>(scalingFactor, scalingPower);
     });
   }
@@ -69,7 +69,7 @@ public class DefaultAdvancedFixedNumeric implements
     return builder.seq(seq -> {
       SFixed xFixed = (SFixed) x.out();
       return AdvancedNumeric.using(seq).rightShift(xFixed.getSInt(),
-          seq.getBasicNumericContext().getPrecision());
+          seq.getBasicNumericContext().getDefaultFixedPointPrecision());
     });
   }
 
@@ -103,7 +103,7 @@ public class DefaultAdvancedFixedNumeric implements
       DRes<SInt> innerProductBeforeTruncation = AdvancedNumeric.using(seq).innerProduct(aFixed, bFixed);
 
       DRes<SInt> truncated = AdvancedNumeric.using(seq)
-          .truncate(innerProductBeforeTruncation, seq.getBasicNumericContext().getPrecision());
+          .truncate(innerProductBeforeTruncation, seq.getBasicNumericContext().getDefaultFixedPointPrecision());
       return new SFixed(truncated);
     });
   }
@@ -123,7 +123,7 @@ public class DefaultAdvancedFixedNumeric implements
 
       List<BigInteger> aFixed = a.stream().map(x -> x
           .multiply(
-              new BigDecimal(BigInteger.valueOf(2).pow(seq.getBasicNumericContext().getPrecision())))
+              new BigDecimal(BigInteger.valueOf(2).pow(seq.getBasicNumericContext().getDefaultFixedPointPrecision())))
           .setScale(0, RoundingMode.HALF_UP).toBigIntegerExact()).collect(Collectors.toList());
       List<DRes<SInt>> bFixed =
           b.stream().map(x -> ((SFixed) x.out()).getSInt()).collect(Collectors.toList());
@@ -132,7 +132,7 @@ public class DefaultAdvancedFixedNumeric implements
           AdvancedNumeric.using(seq).innerProductWithPublicPart(aFixed, bFixed);
 
       DRes<SInt> truncated = AdvancedNumeric.using(seq)
-          .truncate(innerProductBeforeTruncation, seq.getBasicNumericContext().getPrecision());
+          .truncate(innerProductBeforeTruncation, seq.getBasicNumericContext().getDefaultFixedPointPrecision());
       return new SFixed(truncated);
     });
   }
