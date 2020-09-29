@@ -2,7 +2,6 @@ package dk.alexandra.fresco.lib.common.collections.sort;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationParallel;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderImpl;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -20,13 +19,13 @@ public class KeyedCompareAndSwap<KeyT, ValueT,
     ConditionT, BuilderT extends ProtocolBuilderImpl<BuilderT>> implements
     ComputationParallel<List<Pair<KeyT, List<ValueT>>>, BuilderT> {
 
-  private final Compare<KeyT, ConditionT, ProtocolBuilder> comparison;
-  private final ConditionalSelect<ConditionT, KeyT, ProtocolBuilder> condSelectKey;
-  private final ConditionalSelect<ConditionT, List<ValueT>, ProtocolBuilder> condSelectValue;
-  private final Addition<KeyT, ProtocolBuilder> additionKey;
-  private final Addition<List<ValueT>, ProtocolBuilder> additionValue;
-  private final Addition<KeyT, ProtocolBuilder> subtractionKey;
-  private final Addition<List<ValueT>, ProtocolBuilder> subtractionValue;
+  private final Compare<KeyT, ConditionT, BuilderT> comparison;
+  private final ConditionalSelect<ConditionT, KeyT, BuilderT> condSelectKey;
+  private final ConditionalSelect<ConditionT, List<ValueT>, BuilderT> condSelectValue;
+  private final Addition<KeyT, BuilderT> additionKey;
+  private final Addition<List<ValueT>, BuilderT> additionValue;
+  private final Addition<KeyT, BuilderT> subtractionKey;
+  private final Addition<List<ValueT>, BuilderT> subtractionValue;
   private final KeyT leftKey;
   private final KeyT rightKey;
   private final List<ValueT> leftValue;
@@ -37,13 +36,13 @@ public class KeyedCompareAndSwap<KeyT, ValueT,
   private KeyedCompareAndSwap(
       Pair<KeyT, List<ValueT>> leftKeyAndValue,
       Pair<KeyT, List<ValueT>> rightKeyAndValue,
-      Compare<KeyT, ConditionT, ProtocolBuilder> comparison,
-      Addition<KeyT, ProtocolBuilder> additionKey,
-      Addition<KeyT, ProtocolBuilder> subtractionKey,
-      Addition<ValueT, ProtocolBuilder> additionValue,
-      Addition<ValueT, ProtocolBuilder> subtractionValue,
-      ConditionalSelect<ConditionT, KeyT, ProtocolBuilder> condSelectKey,
-      ConditionalSelect<ConditionT, ValueT, ProtocolBuilder> condSelectValue) {
+      Compare<KeyT, ConditionT, BuilderT> comparison,
+      Addition<KeyT, BuilderT> additionKey,
+      Addition<KeyT, BuilderT> subtractionKey,
+      Addition<ValueT, BuilderT> additionValue,
+      Addition<ValueT, BuilderT> subtractionValue,
+      ConditionalSelect<ConditionT, KeyT, BuilderT> condSelectKey,
+      ConditionalSelect<ConditionT, ValueT, BuilderT> condSelectValue) {
     this.leftKey = leftKeyAndValue.getFirst();
     this.leftValue = leftKeyAndValue.getSecond();
     this.rightKey = rightKeyAndValue.getFirst();
@@ -71,19 +70,20 @@ public class KeyedCompareAndSwap<KeyT, ValueT,
       Pair<List<DRes<SBool>>, List<DRes<SBool>>> leftKeyAndValue,
       Pair<List<DRes<SBool>>, List<DRes<SBool>>> rightKeyAndValue) {
 
-    return new KeyedCompareAndSwap<>(leftKeyAndValue, rightKeyAndValue,
+    return new KeyedCompareAndSwap<List<DRes<SBool>>,
+        DRes<SBool>, DRes<SBool>, ProtocolBuilderBinary>(leftKeyAndValue, rightKeyAndValue,
         (a, b, builder) -> BinaryComparison
-            .using((ProtocolBuilderBinary) builder).greaterThan(a, b),
+            .using(builder).greaterThan(a, b),
         Addition
-            .forLists((ai, bi, builder) -> ((ProtocolBuilderBinary) builder).binary().xor(ai, bi)),
+            .forLists((ai, bi, builder) -> builder.binary().xor(ai, bi)),
         Addition
-            .forLists((ai, bi, builder) -> ((ProtocolBuilderBinary) builder).binary().xor(ai, bi)),
-        (ai, bi, builder) -> ((ProtocolBuilderBinary) builder).binary().xor(ai, bi),
-        (ai, bi, builder) -> ((ProtocolBuilderBinary) builder).binary().xor(ai, bi),
+            .forLists((ai, bi, builder) -> builder.binary().xor(ai, bi)),
+        (ai, bi, builder) -> builder.binary().xor(ai, bi),
+        (ai, bi, builder) -> builder.binary().xor(ai, bi),
         ConditionalSelect.forLists(
-            (c, ai, bi, builder) -> AdvancedBinary.using((ProtocolBuilderBinary) builder)
+            (c, ai, bi, builder) -> AdvancedBinary.using(builder)
                 .condSelect(c, ai, bi)),
-        (c, ai, bi, builder) -> AdvancedBinary.using((ProtocolBuilderBinary) builder)
+        (c, ai, bi, builder) -> AdvancedBinary.using(builder)
             .condSelect(c, ai, bi));
   }
 
@@ -102,14 +102,14 @@ public class KeyedCompareAndSwap<KeyT, ValueT,
 
     return new KeyedCompareAndSwap<>(leftKeyAndValue, rightKeyAndValue,
         (a, b, builder) -> Comparison
-            .using((ProtocolBuilderNumeric) builder).compareLEQ(b, a),
-        (a, b, builder) -> ((ProtocolBuilderNumeric) builder).numeric().add(a, b),
-        (a, b, builder) -> ((ProtocolBuilderNumeric) builder).numeric().sub(a, b),
-        (a, b, builder) -> ((ProtocolBuilderNumeric) builder).numeric().add(a, b),
-        (a, b, builder) -> ((ProtocolBuilderNumeric) builder).numeric().sub(a, b),
-        (c, a, b, builder) -> AdvancedNumeric.using((ProtocolBuilderNumeric) builder)
+            .using(builder).compareLEQ(b, a),
+        (a, b, builder) -> builder.numeric().add(a, b),
+        (a, b, builder) -> builder.numeric().sub(a, b),
+        (a, b, builder) -> builder.numeric().add(a, b),
+        (a, b, builder) -> builder.numeric().sub(a, b),
+        (c, a, b, builder) -> AdvancedNumeric.using(builder)
             .condSelect(c, a, b),
-        (c, a, b, builder) -> AdvancedNumeric.using((ProtocolBuilderNumeric) builder)
+        (c, a, b, builder) -> AdvancedNumeric.using(builder)
             .condSelect(c, a, b));
   }
 
@@ -128,11 +128,10 @@ public class KeyedCompareAndSwap<KeyT, ValueT,
           c, leftKey, rightKey, par);
       return () -> new Pair<>(firstKey, firstValue);
     }).par((par, data) -> {
-      Pair<KeyT, List<ValueT>> first = data;
-      List<ValueT> lastValue = subtractionValue.add(xorValue, first.getSecond(), par);
-      KeyT lastKey = subtractionKey.add(xorKey, first.getFirst(), par);
+      List<ValueT> lastValue = subtractionValue.add(xorValue, data.getSecond(), par);
+      KeyT lastKey = subtractionKey.add(xorKey, data.getFirst(), par);
       List<Pair<KeyT, List<ValueT>>> result = new ArrayList<>();
-      result.add(first);
+      result.add(data);
       result.add(new Pair<>(lastKey, lastValue));
       return () -> result;
     });
@@ -161,7 +160,7 @@ public class KeyedCompareAndSwap<KeyT, ValueT,
 
   private interface ConditionalSelect<ConditionT, ValueT, BuilderT> {
 
-    static <C, V, B> ConditionalSelect<C, List<V>, B> forLists(
+    static <C, V, B extends ProtocolBuilderImpl<B>> ConditionalSelect<C, List<V>, B> forLists(
         ConditionalSelect<C, V, B> op) {
       return (c, a, b, builder) -> {
         assert (a.size() == b.size());
