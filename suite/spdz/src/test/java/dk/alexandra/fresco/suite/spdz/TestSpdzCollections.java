@@ -3,7 +3,7 @@ package dk.alexandra.fresco.suite.spdz;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.common.collections.Matrix;
-import dk.alexandra.fresco.lib.common.collections.SearchingTests;
+import dk.alexandra.fresco.lib.common.collections.SearchingTests.TestLinearLookUp;
 import dk.alexandra.fresco.lib.common.collections.io.CloseListTests;
 import dk.alexandra.fresco.lib.common.collections.io.CloseMatrixTests;
 import dk.alexandra.fresco.lib.common.collections.permute.PermuteRows;
@@ -41,7 +41,7 @@ public class TestSpdzCollections extends AbstractSpdzTest {
 
   @Test
   public void test_Test_Is_Sorted() {
-    runTest(new SearchingTests.TestIsSorted<>(),
+    runTest(new TestLinearLookUp<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
