@@ -169,7 +169,6 @@ public interface Collections extends ComputationDirectory {
    *              elements being associated to the key.
    * @return Returns the sorted list in descending order.
    */
-  DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> sort(
-      List<Pair<DRes<SInt>, List<DRes<SInt>>>> input);
+  DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> sort(List<Pair<DRes<SInt>, List<DRes<SInt>>>> input);
 
 }

@@ -16,9 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A KeyedCompareAndSwap function. If the first key is greater than the second, pairs values are swapped
- * and returned as a list.
- *
  * @param <KeyT> The type of keys
  * @param <ValueT> The type of elements in the payload which will be a list of elements.
  * @param <ConditionT> The type of element representing a boolean value, so it should have a canonical
