@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class KeyedCompareAndSwap<KeyT, ValueT,
-    ConditionT, BuilderT extends ProtocolBuilderImpl> implements
+    ConditionT, BuilderT extends ProtocolBuilderImpl<BuilderT>> implements
     ComputationParallel<List<Pair<KeyT, List<ValueT>>>, BuilderT> {
 
   private final Compare<KeyT, ConditionT, ProtocolBuilder> comparison;
@@ -123,12 +123,12 @@ public class KeyedCompareAndSwap<KeyT, ValueT,
       return () -> c;
     }).par((par, c) -> {
       List<ValueT> firstValue = condSelectValue.apply(
-          (ConditionT) c, leftValue, rightValue, par);
+          c, leftValue, rightValue, par);
       KeyT firstKey = condSelectKey.apply(
-          (ConditionT) c, leftKey, rightKey, par);
+          c, leftKey, rightKey, par);
       return () -> new Pair<>(firstKey, firstValue);
     }).par((par, data) -> {
-      Pair<KeyT, List<ValueT>> first = (Pair<KeyT, List<ValueT>>) data;
+      Pair<KeyT, List<ValueT>> first = data;
       List<ValueT> lastValue = subtractionValue.add(xorValue, first.getSecond(), par);
       KeyT lastKey = subtractionKey.add(xorKey, first.getFirst(), par);
       List<Pair<KeyT, List<ValueT>>> result = new ArrayList<>();
@@ -155,6 +155,7 @@ public class KeyedCompareAndSwap<KeyT, ValueT,
   }
 
   private interface Compare<ValueT, ResultT, BuilderT> {
+
     ResultT compare(ValueT a, ValueT b, BuilderT builder);
   }
 

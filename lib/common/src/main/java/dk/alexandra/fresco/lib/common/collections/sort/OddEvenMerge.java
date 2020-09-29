@@ -15,7 +15,7 @@ import java.util.function.BiFunction;
  * An implementation of the OddEvenMergeProtocol. We use batchers algorithm.
  */
 public class OddEvenMerge<KeyT, ValueT,
-    ConditionT, BuilderT extends ProtocolBuilderImpl> implements
+    ConditionT, BuilderT extends ProtocolBuilderImpl<BuilderT>> implements
     Computation<List<Pair<KeyT, List<ValueT>>>, BuilderT> {
 
   private final BiFunction<Pair<KeyT, List<ValueT>>, Pair<KeyT, List<ValueT>>, KeyedCompareAndSwap<KeyT, ValueT, ConditionT, BuilderT>> compareAndSwapProvider;
@@ -39,12 +39,12 @@ public class OddEvenMerge<KeyT, ValueT,
 
   public static OddEvenMerge<List<DRes<SBool>>, DRes<SBool>, DRes<SBool>, ProtocolBuilderBinary> binary(
       List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unsortedNumbers) {
-    return new OddEvenMerge<>(unsortedNumbers, KeyedCompareAndSwap::binary);
+    return new OddEvenMerge<List<DRes<SBool>>, DRes<SBool>, DRes<SBool>, ProtocolBuilderBinary>(unsortedNumbers, KeyedCompareAndSwap::binary);
   }
 
   public static OddEvenMerge<DRes<SInt>, DRes<SInt>, DRes<SInt>, ProtocolBuilderNumeric> numeric(
       List<Pair<DRes<SInt>, List<DRes<SInt>>>> unsortedNumbers) {
-    return new OddEvenMerge<>(unsortedNumbers, KeyedCompareAndSwap::numeric);
+    return new OddEvenMerge<DRes<SInt>, DRes<SInt>, DRes<SInt>, ProtocolBuilderNumeric>(unsortedNumbers, KeyedCompareAndSwap::numeric);
   }
 
   @Override
@@ -53,39 +53,37 @@ public class OddEvenMerge<KeyT, ValueT,
     int t = (int) Math.ceil(Math.log(numbers.size()) / Math.log(2.0));
     int p0 = (1 << t);
     return builder.seq(seq -> {
-      iterativeSort(p0, (BuilderT) seq);
+      iterativeSort(p0, seq);
       return () -> numbers;
     });
   }
 
   private void iterativeSort(int p0, BuilderT builder) {
     builder.seq(seq -> new Iteration(p0, 0, p0, p0))
-        .whileLoop((iteration) -> ((Iteration) iteration).p > 0, (seq, iteration) -> {
-          ((BuilderT) seq).seq(innerSeq -> () -> iteration)
-              .whileLoop((state) -> ((Iteration) state).d > 0, (whileSeq, state) -> {
-                final Iteration s = (Iteration) state;
-                ((BuilderT) whileSeq).par((par) -> {
+        .whileLoop((iteration) -> iteration.p > 0, (seq, iteration) -> {
+          seq.seq(innerSeq -> () -> iteration)
+              .whileLoop((state) -> state.d > 0, (whileSeq, state) -> {
+                final Iteration s = state;
+                whileSeq.par((par) -> {
                   for (int i = 0; i < numbers.size() - s.d; i++) {
                     if ((i & s.p) == s.r) {
-                      compareAndSwapAtIndices(i, i + s.d, (BuilderT) par);
+                      compareAndSwapAtIndices(i, i + s.d, par);
                     }
                   }
                   return null;
                 });
                 return new Iteration(s.q >> 1, s.p, s.q - s.p, s.p);
               });
-          final Iteration s = (Iteration) iteration;
-          return new Iteration(p0, 0, s.p >> 1, s.p >> 1);
+          return new Iteration(p0, 0, iteration.p >> 1, iteration.p >> 1);
         });
   }
 
   private void compareAndSwapAtIndices(int i, int j, BuilderT builder) {
     builder
         .par(par -> compareAndSwapProvider.apply(numbers.get(i), numbers.get(j)).buildComputation(
-            (BuilderT) par)).par((par, res) -> {
-      List<Pair<KeyT, List<ValueT>>> r = (List<Pair<KeyT, List<ValueT>>>) res;
-      numbers.set(i, r.get(0));
-      numbers.set(j, r.get(1));
+            par)).par((par, res) -> {
+      numbers.set(i, res.get(0));
+      numbers.set(j, res.get(1));
       return null;
     });
   }
