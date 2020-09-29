@@ -15,6 +15,16 @@ import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A KeyedCompareAndSwap function. If the first key is greater than the second, pairs values are swapped
+ * and returned as a list.
+ *
+ * @param <KeyT> The type of keys
+ * @param <ValueT> The type of elements in the payload which will be a list of elements.
+ * @param <ConditionT> The type of element representing a boolean value, so it should have a canonical
+ *                    interpretation as a boolean 0/1 value. Used as condition in conditional swap.
+ * @param <BuilderT> The type of {@link ProtocolBuilderImpl} used.
+ */
 public class KeyedCompareAndSwap<KeyT, ValueT,
     ConditionT, BuilderT extends ProtocolBuilderImpl<BuilderT>> implements
     ComputationParallel<List<Pair<KeyT, List<ValueT>>>, BuilderT> {
@@ -33,6 +43,19 @@ public class KeyedCompareAndSwap<KeyT, ValueT,
   private KeyT xorKey;
   private List<ValueT> xorValue;
 
+  /**
+   *
+   * @param leftKeyAndValue The left key value pair
+   * @param rightKeyAndValue The right key value pair
+   * @param comparison A function comparing two elements of type KeyT. Should return TRUE if the first value is greater than the second and return an element of type ConditionT.
+   * @param additionKey A function adding two elements of type KeyT.
+   * @param subtractionKey A function subtracting two elements of type KeyT.
+   * @param additionValue A function adding two elements of type ValueT.
+   * @param subtractionValue A function subtracting two elements of type ValueT.
+   * @param condSelectKey A conditional select function for elements of type KeyT. Returns the first
+   *                      value if the condition is TRUE and the second otherwise.
+   * @param condSelectValue
+   */
   private KeyedCompareAndSwap(
       Pair<KeyT, List<ValueT>> leftKeyAndValue,
       Pair<KeyT, List<ValueT>> rightKeyAndValue,
@@ -141,7 +164,6 @@ public class KeyedCompareAndSwap<KeyT, ValueT,
 
     static <V, B> Addition<List<V>, B> forLists(Addition<V, B> op) {
       return (a, b, builder) -> {
-        assert (a.size() == b.size());
         List<V> result = new ArrayList<>();
         for (int i = 0; i < a.size(); i++) {
           result.add(op.add(a.get(i), b.get(i), builder));
@@ -163,7 +185,6 @@ public class KeyedCompareAndSwap<KeyT, ValueT,
     static <C, V, B extends ProtocolBuilderImpl<B>> ConditionalSelect<C, List<V>, B> forLists(
         ConditionalSelect<C, V, B> op) {
       return (c, a, b, builder) -> {
-        assert (a.size() == b.size());
         List<V> result = new ArrayList<>();
         for (int i = 0; i < a.size(); i++) {
           result.add(op.apply(c, a.get(i), b.get(i), builder));

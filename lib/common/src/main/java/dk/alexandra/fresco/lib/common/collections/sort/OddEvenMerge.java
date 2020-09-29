@@ -13,6 +13,12 @@ import java.util.function.BiFunction;
 
 /**
  * An implementation of the OddEvenMergeProtocol. We use batchers algorithm.
+ *
+ * @param <KeyT> The type of keys
+ * @param <ValueT> The type of elements in the payload which will be a list of elements.
+ * @param <ConditionT> The type of element representing a boolean value, so it should have a canonical
+ *                    interpretation as a boolean 0/1 value. Used as condition in conditional swap.
+ * @param <BuilderT> The type of {@link ProtocolBuilderImpl} used.
  */
 public class OddEvenMerge<KeyT, ValueT,
     ConditionT, BuilderT extends ProtocolBuilderImpl<BuilderT>> implements
