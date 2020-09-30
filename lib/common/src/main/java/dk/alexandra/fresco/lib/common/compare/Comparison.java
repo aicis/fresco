@@ -39,21 +39,21 @@ public interface Comparison extends ComputationDirectory {
   DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y);
   
   /**
-   * Computes if x1 <= x2.
+   * Computes if x1 &le; x2.
    * @param x1 input
    * @param x2 input
-   * @return A deferred result computing x1 <= x2. Result will be either [1] (true) or [0] (false).
+   * @return A deferred result computing x1 &le; x2. Result will be either [1] (true) or [0] (false).
    */
   DRes<SInt> compareLEQ(DRes<SInt> x1, DRes<SInt> x2);
 
   /**
-   * Compares if x1 <= x2, but with twice the possible bit-length.
+   * Compares if x1 &le; x2, but with twice the possible bit-length.
    * Requires that the maximum bit length is set to something that can handle
    * this scenario. It has to be at least less than half the modulus bit size.
    * 
    * @param x1 input
    * @param x2 input
-   * @return A deferred result computing x1 <= x2. Result will be either [1] (true) or [0] (false).
+   * @return A deferred result computing x1 &le; x2. Result will be either [1] (true) or [0] (false).
    */
   DRes<SInt> compareLEQLong(DRes<SInt> x1, DRes<SInt> x2);
 

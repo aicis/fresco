@@ -52,7 +52,7 @@ public interface SecureComputationEngine<ResourcePoolT extends ResourcePool,
   /**
    * Executes an application based on the current SCEConfiguration. If the SecureComputationEngine
    * is not setup before (e.g. connected to other parties etc.), the SecureComputationEngine will do
-   * the setup phase before running the application. <br/>
+   * the setup phase before running the application. <br>
    * In a normal application this should be the normal way to start an application since there need
    * to be allocated resources (the resource pool) and allowed for parallel work.
    *

@@ -29,7 +29,6 @@ public class MiMCAggregation implements Computation<Matrix<DRes<SInt>>, Protocol
    * @param values rows to be aggregated
    * @param groupColIdx column to group by
    * @param aggColIdx column to aggregate
-   * @return aggregated result
    */
   public MiMCAggregation(DRes<Matrix<DRes<SInt>>> values, int groupColIdx, int aggColIdx) {
     super();

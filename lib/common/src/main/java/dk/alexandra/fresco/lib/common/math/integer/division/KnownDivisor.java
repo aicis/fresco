@@ -14,7 +14,7 @@ import java.math.BigInteger;
 /**
  * This protocol is an implementation of Euclidean division on integers with a secret shared
  * dividend and a known divisor. The dividend must have bit length smaller than half the
- * maxBitLength (available via {@link ProtocolBuilderNumeric#getBasicNumericContext().getMaxBitLength()})
+ * maxBitLength (available via {@link ProtocolBuilderNumeric#getBasicNumericContext})
  * in order for the division protocol to produce a precise result.
  */
 public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {

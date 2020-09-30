@@ -69,9 +69,7 @@ public interface AdvancedFixedNumeric extends ComputationDirectory {
   DRes<SFixed> random();
 
   /**
-   * Calculate the natural logarithm of a secret value. Works best for small inputs (< 10), so
-   * larger inputs should be scaled is possible (note that <i>log(x * b<sup>e</sup>) = log(x) + e
-   * log(b)</i>).
+   * Calculate the natural logarithm of a secret value.
    *
    * @param x Secret value
    * @return A deferred result computing computing log(x)

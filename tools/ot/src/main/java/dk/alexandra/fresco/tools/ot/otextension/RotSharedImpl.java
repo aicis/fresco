@@ -37,7 +37,7 @@ public abstract class RotSharedImpl {
    * Computes the inner product of two lists of StrictBitVector objects. The product will be based
    * on Galois multiplication in the binary extension field of the individual elements of the lists,
    * but without reducing modulo a reduction polynomial. Thus the inner product is computed purely
-   * using shifts and XOR operations. <br/>
+   * using shifts and XOR operations. <br>
    * All elements of both lists MUST have equal size! And both lists MUST contain an equal amount of
    * entries!
    *

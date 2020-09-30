@@ -40,7 +40,8 @@ public class TinyTable implements Serializable {
    * Return the entry for this TinyTable corresponding to the given values of
    * inputs.
    *
-   * @param input
+   * @param eu
+   * @param ev
    * @return
    */
   public TinyTablesElement getValue(TinyTablesElement eu, TinyTablesElement ev) {

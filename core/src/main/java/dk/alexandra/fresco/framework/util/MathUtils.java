@@ -11,7 +11,7 @@ public class MathUtils {
   }
 
   /**
-   * Checks whether a value is a quadratic residue, i.e., if it has a square root mod modulus. </b>
+   * Checks whether a value is a quadratic residue, i.e., if it has a square root mod modulus.
    * Uses Euler's criterion (https://en.wikipedia.org/wiki/Euler%27s_criterion).
    *
    * @param value value to test (n)
@@ -26,7 +26,7 @@ public class MathUtils {
   }
 
   /**
-   * Find square root modulo a prime (if the square root exists). </b> Implements Tonelli–Shanks
+   * Find square root modulo a prime (if the square root exists). Implements Tonelli–Shanks
    * algorithm (https://en.wikipedia.org/wiki/Tonelli%E2%80%93Shanks_algorithm). Variable names
    * correspond to variable names in article.
    *

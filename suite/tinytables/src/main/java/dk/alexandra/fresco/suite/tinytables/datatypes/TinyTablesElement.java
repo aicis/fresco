@@ -38,7 +38,7 @@ public class TinyTablesElement implements Serializable {
    * Returns a share of <i>a + b</i> assuming that the given parameter
    * represents a share of <i>a</i>.
    *
-   * @param other
+   * @param b
    * @return
    */
   public TinyTablesElement add(TinyTablesElement b) {
@@ -73,14 +73,14 @@ public class TinyTablesElement implements Serializable {
   }
 
   /**
-   * Perform the first round of a multiplicaiton of two additively shared
-   * values (this and other). A {@link TinyTablesTriple}, </i>(a,b,c)</i>
+   * Perform the first round of a multiplication of two additively shared
+   * values (this and other). A {@link TinyTablesTriple}, <i>(a,b,c)</i>
    * should be provided, and this method will in turn return shares of two
    * values, <i>e = this - a</i> and <i>d = other - b</i>.
    *
    * In order to finialize this, the opened values of e and d should be
-   * provided along with the used triple to {@link multiplyFinalize} in order
-   * to get the result.
+   * provided along with the used triple to {@link TinyTablesElement#finalizeMultiplication(boolean, boolean, TinyTablesTriple, int)}
+   * in order to get the result.
    *
    * @param other
    * @param triple
@@ -94,7 +94,7 @@ public class TinyTablesElement implements Serializable {
   }
 
   /**
-   * Finalize a multiplication started by a call to {@link multiply}.
+   * Finalize a multiplication started by a call to {@link TinyTablesElement#multiply(boolean)}.
    *
    * @param e
    *            The opened value of the first element returned by
