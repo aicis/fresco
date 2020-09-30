@@ -1,6 +1,6 @@
 
 <p align="center">
-<img src="https://alexandra.dk/logo/fresco-logo-artwork.svg" alt="FRECO logo" width=70% />
+<img src="https://archive.alexandra.dk/logo/fresco-logo-artwork.svg" alt="FRECO logo" width=70% />
 </p>
 
 #
