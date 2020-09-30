@@ -7,7 +7,7 @@
   <parent>
     <groupId>dk.alexandra.fresco</groupId>
     <artifactId>fresco-protocol-suites-pom</artifactId>
-    <version>1.3.0</version>
+    <version>1.3.1-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -57,12 +57,12 @@
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
       <artifactId>common</artifactId>
-      <version>1.3.0</version>
+      <version>1.3.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
       <artifactId>ot</artifactId>
-      <version>1.3.0</version>
+      <version>1.3.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
 
