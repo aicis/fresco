@@ -2,11 +2,16 @@ package dk.alexandra.fresco.lib.common.collections;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.common.collections.SearchingTests.TestLinearLookUp;
 import dk.alexandra.fresco.lib.common.collections.io.CloseListTests;
 import dk.alexandra.fresco.lib.common.collections.io.CloseMatrixTests;
 import dk.alexandra.fresco.lib.common.collections.permute.PermuteRows;
 import dk.alexandra.fresco.lib.common.collections.permute.PermuteRowsTests;
 import dk.alexandra.fresco.lib.common.collections.shuffle.ShuffleRowsTests;
+import dk.alexandra.fresco.lib.common.collections.sort.NumericSortingTests;
+import dk.alexandra.fresco.lib.common.collections.sort.NumericSortingTests.TestKeyedCompareAndSwap;
+import dk.alexandra.fresco.lib.common.collections.sort.NumericSortingTests.TestOddEvenMergeSort;
+import dk.alexandra.fresco.lib.common.collections.sort.NumericSortingTests.TestOddEvenMergeSortDifferentValueLength;
 import dk.alexandra.fresco.suite.dummy.arithmetic.AbstractDummyArithmeticTest;
 import java.util.ArrayList;
 import org.junit.Test;
@@ -36,8 +41,8 @@ public class TestArithmetic extends AbstractDummyArithmeticTest {
   }
 
   @Test
-  public void test_Test_Is_Sorted() {
-    runTest(new SearchingTests.TestIsSorted<>(), new TestParameters());
+  public void test_linear_lookup() {
+    runTest(new TestLinearLookUp<>(), new TestParameters());
   }
 
   @Test
@@ -73,25 +78,24 @@ public class TestArithmetic extends AbstractDummyArithmeticTest {
   }
 
   @Test
-  public void test_isSorted() {
-    runTest(new SortingTests.TestIsSorted<>(), new TestParameters());
+  public void test_Uneven_Odd_Even_Merge_sort_large_list_2_parties() {
+    runTest(new TestOddEvenMergeSort<>(83, 4, 8), new TestParameters().numParties(2));
   }
 
   @Test
-  public void test_compareAndSwap() {
-    runTest(new SortingTests.TestCompareAndSwap<>(), new TestParameters());
+  public void test_Uneven_Odd_Even_Merge_sort_2_parties() {
+    runTest(new TestOddEvenMergeSort<>(), new TestParameters().numParties(2));
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void test_Uneven_Odd_Even_Merge_sort_leak_list_length() {
+    runTest(new TestOddEvenMergeSortDifferentValueLength<>(), new TestParameters().numParties(2));
   }
 
   @Test
-  public void test_Sort() {
-    runTest(new SortingTests.TestSort<>(), new TestParameters());
+  public void test_keyed_compare_and_swap() {
+    runTest(new TestKeyedCompareAndSwap<>(), new TestParameters());
   }
-
-  @Test
-  public void test_Big_Sort() {
-    runTest(new SortingTests.TestBigSort<>(), new TestParameters());
-  }
-
 
 }
 

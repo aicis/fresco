@@ -286,8 +286,20 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<Pair<DRes<SInt>, DRes<SInt>>> normalize(DRes<SInt> input, int targetBitLength);
 
   /**
-   * Container holding the deferred result and remainder of shifting a number.
+   * Compares the keys of two key-value pairs and produce a list of pairs so that the first pair has
+   * the largest key.
+   *
+   * @param leftKeyAndValue A pair of first the key and then a list of its associated values.
+   * @param rightKeyAndValue A pair of first the key and then a list of its associated values.
+   * @return A deferred result computing a list of pairs where the first pair has the largest key.
    */
+  DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> keyedCompareAndSwap(
+      Pair<DRes<SInt>, List<DRes<SInt>>> leftKeyAndValue,
+      Pair<DRes<SInt>, List<DRes<SInt>>> rightKeyAndValue);
+
+    /**
+     * Container holding the deferred result and remainder of shifting a number.
+     */
   class RightShiftResult {
 
     final SInt result;

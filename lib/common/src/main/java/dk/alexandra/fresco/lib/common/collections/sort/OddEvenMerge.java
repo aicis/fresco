@@ -2,100 +2,121 @@ package dk.alexandra.fresco.lib.common.collections.sort;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderImpl;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.common.math.AdvancedBinary;
+import dk.alexandra.fresco.framework.value.SInt;
 import java.util.List;
+import java.util.function.BiFunction;
 
 /**
  * An implementation of the OddEvenMergeSortProtocol. We use Batcher's algorithm to sort a list of
- * boolean key/value pairs in descending order. This sorting algorithm runs in O(n(log(n))^2) time.
+ * key/value pairs in descending order. This sorting algorithm runs in O(n(log(n))^2) time. The
+ * algorithm is not stable, so there is no guarantees as to how ties are located relatively in the
+ * sorted list.
  *
- * You can set the mergePresortedHalves flag to `true` to merge a list where the sequence of the
- * first n / 2 elements is sorted in descending order and the sequence of the remaining n / 2
- * elements is also sorted in descending order. The protocol can then "merge" the two presorted
- * halves into a (descending order) sorted list in O(nlog(n)) time. Note, it is not currently known
- * whether it is possible to obliviously merge two lists in O(n) time.
- *
- * For now, this implementation only supports lists where the size is a power of 2 (i.e., 4, 8, 16,
- * etc.).
+ * @param <KeyT>       The type of keys
+ * @param <ValueT>     The type of elements in the payload which will be a list of elements.
+ * @param <ConditionT> The type of element representing a boolean value, so it should have a
+ *                     canonical interpretation as a boolean 0/1 value. Used as condition in
+ *                     conditional swap.
+ * @param <BuilderT>   The type of {@link ProtocolBuilderImpl} used.
  */
-public class OddEvenMerge implements
-    Computation<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>, ProtocolBuilderBinary> {
+public class OddEvenMerge<KeyT, ValueT,
+    ConditionT, BuilderT extends ProtocolBuilderImpl<BuilderT>> implements
+    Computation<List<Pair<KeyT, List<ValueT>>>, BuilderT> {
 
-  private final List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> keyValuePairs;
-  private final boolean halvesPresorted;
+  private final BiFunction<Pair<KeyT, List<ValueT>>, Pair<KeyT, List<ValueT>>, KeyedCompareAndSwap<KeyT, ValueT, ConditionT, BuilderT>> compareAndSwapProvider;
+  private final List<Pair<KeyT, List<ValueT>>> numbers;
 
-  /**
-   * Sorts a list of key-value pairs by key (first entry in pair).
-   *
-   * @param unsortedNumbers key-value pairs to sort
-   * @param halvesPresorted true if first half and second half of tuples are already sorted in which
-   * case we only need to merge
-   */
-  OddEvenMerge(
-      List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unsortedNumbers,
-      boolean halvesPresorted) {
-    this.keyValuePairs = unsortedNumbers;
-    this.halvesPresorted = halvesPresorted;
+  private OddEvenMerge(
+      List<Pair<KeyT, List<ValueT>>> unsortedNumbers,
+      BiFunction<Pair<KeyT, List<ValueT>>, Pair<KeyT, List<ValueT>>, KeyedCompareAndSwap<KeyT, ValueT, ConditionT, BuilderT>> compareAndSwapProvider) {
+    this.compareAndSwapProvider = compareAndSwapProvider;
+
+    // Verify that the payloads all have the same size, to avoid leaking info based on this
+    unsortedNumbers.forEach(current -> {
+      if (current.getSecond().size() != unsortedNumbers.get(0).getSecond().size()) {
+        throw new UnsupportedOperationException(
+            "All payload lists must have equal length to avoid leaking info");
+      }
+    });
+    this.numbers = unsortedNumbers;
   }
 
-  /**
-   * Default call to {@link #OddEvenMerge(List, boolean)}}. <p>By default we assume tuples are
-   * completely unsorted.</p>
-   */
-  OddEvenMerge(
+  public static OddEvenMerge<List<DRes<SBool>>, DRes<SBool>, DRes<SBool>, ProtocolBuilderBinary> binary(
       List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unsortedNumbers) {
-    this(unsortedNumbers, false);
+    return new OddEvenMerge<List<DRes<SBool>>, DRes<SBool>, DRes<SBool>, ProtocolBuilderBinary>(
+        unsortedNumbers, KeyedCompareAndSwap::binary);
+  }
+
+  public static OddEvenMerge<DRes<SInt>, DRes<SInt>, DRes<SInt>, ProtocolBuilderNumeric> numeric(
+      List<Pair<DRes<SInt>, List<DRes<SInt>>>> unsortedNumbers) {
+    return new OddEvenMerge<DRes<SInt>, DRes<SInt>, DRes<SInt>, ProtocolBuilderNumeric>(
+        unsortedNumbers, KeyedCompareAndSwap::numeric);
   }
 
   @Override
-  public DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> buildComputation(
-      ProtocolBuilderBinary builder) {
+  public DRes<List<Pair<KeyT, List<ValueT>>>> buildComputation(
+      BuilderT builder) {
+    int t = (int) Math.ceil(Math.log(numbers.size()) / Math.log(2.0));
+    int p0 = (1 << t);
     return builder.seq(seq -> {
-      if (!this.halvesPresorted) {
-        sort(0, keyValuePairs.size(), seq);
-      } else {
-        merge(0, keyValuePairs.size(), 1, seq);
-      }
-      return () -> keyValuePairs;
+      iterativeSort(p0, seq);
+      return () -> numbers;
     });
   }
 
-  private void sort(int i, int j, ProtocolBuilderBinary builder) {
-    if (j > 1) {
-      sort(i, j / 2, builder);
-      sort(j / 2 + i, j / 2, builder);
-      merge(i, j, 1, builder);
-    }
-  }
-
-  private void compareAndSwapAtIndices(int i, int j, ProtocolBuilderBinary builder) {
-    builder.seq(
-        seq -> AdvancedBinary.using(seq).keyedCompareAndSwap(keyValuePairs.get(i), keyValuePairs.get(j)))
-        .seq((seq, res) -> {
-          keyValuePairs.set(i, res.get(0));
-          keyValuePairs.set(j, res.get(1));
-          return null;
+  private void iterativeSort(int p0, BuilderT builder) {
+    builder.seq(seq -> new Iteration(p0, 0, p0, p0))
+        .whileLoop((iteration) -> iteration.p > 0, (seq, iteration) -> {
+          seq.seq(innerSeq -> () -> iteration)
+              .whileLoop((state) -> state.d > 0, (whileSeq, state) -> {
+                final Iteration s = state;
+                whileSeq.par((par) -> {
+                  for (int i = 0; i < numbers.size() - s.d; i++) {
+                    if ((i & s.p) == s.r) {
+                      compareAndSwapAtIndices(i, i + s.d, par);
+                    }
+                  }
+                  return null;
+                });
+                return new Iteration(s.q >> 1, s.p, s.q - s.p, s.p);
+              });
+          return new Iteration(p0, 0, iteration.p >> 1, iteration.p >> 1);
         });
   }
 
-  private void merge(int first, int length, int step, ProtocolBuilderBinary builder) {
-    int doubleStep = step * 2;
-    if (doubleStep < length) {
-      builder.seq((seq) -> {
-        merge(first, length, doubleStep, seq);
-        merge(first + step, length, doubleStep, seq);
-        return seq.par(par -> {
-          for (int idx = first + step; idx + step < first + length; idx += doubleStep) {
-            compareAndSwapAtIndices(idx, idx + step, par);
-          }
-          return null;
-        });
-      });
-    } else {
-      compareAndSwapAtIndices(first, first + step, builder);
+  private void compareAndSwapAtIndices(int i, int j, BuilderT builder) {
+    builder
+        .par(par -> compareAndSwapProvider.apply(numbers.get(i), numbers.get(j)).buildComputation(
+            par)).par((par, res) -> {
+      numbers.set(i, res.get(0));
+      numbers.set(j, res.get(1));
+      return null;
+    });
+  }
+
+  private static final class Iteration implements DRes<Iteration> {
+
+    final int q;
+    final int r;
+    final int d;
+    final int p;
+
+    private Iteration(int q, int r, int d, int p) {
+      this.q = q;
+      this.r = r;
+      this.d = d;
+      this.p = p;
+    }
+
+    @Override
+    public Iteration out() {
+      return this;
     }
   }
+
 }
