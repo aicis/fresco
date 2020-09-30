@@ -12,13 +12,17 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 /**
- * An implementation of the OddEvenMergeProtocol. We use batchers algorithm.
+ * An implementation of the OddEvenMergeSortProtocol. We use Batcher's algorithm to sort a list of
+ * key/value pairs in descending order. This sorting algorithm runs in O(n(log(n))^2) time. The
+ * algorithm is not stable, so there is no guarantees as to how ties are located relatively in the
+ * sorted list.
  *
- * @param <KeyT> The type of keys
- * @param <ValueT> The type of elements in the payload which will be a list of elements.
- * @param <ConditionT> The type of element representing a boolean value, so it should have a canonical
- *                    interpretation as a boolean 0/1 value. Used as condition in conditional swap.
- * @param <BuilderT> The type of {@link ProtocolBuilderImpl} used.
+ * @param <KeyT>       The type of keys
+ * @param <ValueT>     The type of elements in the payload which will be a list of elements.
+ * @param <ConditionT> The type of element representing a boolean value, so it should have a
+ *                     canonical interpretation as a boolean 0/1 value. Used as condition in
+ *                     conditional swap.
+ * @param <BuilderT>   The type of {@link ProtocolBuilderImpl} used.
  */
 public class OddEvenMerge<KeyT, ValueT,
     ConditionT, BuilderT extends ProtocolBuilderImpl<BuilderT>> implements
@@ -30,7 +34,6 @@ public class OddEvenMerge<KeyT, ValueT,
   private OddEvenMerge(
       List<Pair<KeyT, List<ValueT>>> unsortedNumbers,
       BiFunction<Pair<KeyT, List<ValueT>>, Pair<KeyT, List<ValueT>>, KeyedCompareAndSwap<KeyT, ValueT, ConditionT, BuilderT>> compareAndSwapProvider) {
-    super();
     this.compareAndSwapProvider = compareAndSwapProvider;
 
     // Verify that the payloads all have the same size, to avoid leaking info based on this
@@ -45,12 +48,14 @@ public class OddEvenMerge<KeyT, ValueT,
 
   public static OddEvenMerge<List<DRes<SBool>>, DRes<SBool>, DRes<SBool>, ProtocolBuilderBinary> binary(
       List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unsortedNumbers) {
-    return new OddEvenMerge<List<DRes<SBool>>, DRes<SBool>, DRes<SBool>, ProtocolBuilderBinary>(unsortedNumbers, KeyedCompareAndSwap::binary);
+    return new OddEvenMerge<List<DRes<SBool>>, DRes<SBool>, DRes<SBool>, ProtocolBuilderBinary>(
+        unsortedNumbers, KeyedCompareAndSwap::binary);
   }
 
   public static OddEvenMerge<DRes<SInt>, DRes<SInt>, DRes<SInt>, ProtocolBuilderNumeric> numeric(
       List<Pair<DRes<SInt>, List<DRes<SInt>>>> unsortedNumbers) {
-    return new OddEvenMerge<DRes<SInt>, DRes<SInt>, DRes<SInt>, ProtocolBuilderNumeric>(unsortedNumbers, KeyedCompareAndSwap::numeric);
+    return new OddEvenMerge<DRes<SInt>, DRes<SInt>, DRes<SInt>, ProtocolBuilderNumeric>(
+        unsortedNumbers, KeyedCompareAndSwap::numeric);
   }
 
   @Override
