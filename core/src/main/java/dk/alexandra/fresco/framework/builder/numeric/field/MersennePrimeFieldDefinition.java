@@ -2,15 +2,29 @@ package dk.alexandra.fresco.framework.builder.numeric.field;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * A finite field where the modulus is known to be pseudo Mersenne prime. This class
- * enables the use of tailored mod computation utilising the knowledge about
- * the modulus structure.
+ * A finite field where the modulus is known to be pseudo Mersenne prime. This class enables the use
+ * of tailored mod computation utilising the knowledge about the modulus structure.
  */
 public final class MersennePrimeFieldDefinition implements FieldDefinition {
 
+  /**
+   * Default field definition for a few bit lengths.
+   */
+  private static final Map<Integer, Integer> precomputed =
+      new HashMap<Integer, Integer>() {{
+        put(512, 569);
+        put(256, 587);
+        put(128, 173);
+        put(64, 59);
+        put(32, 5);
+        put(16, 17);
+        put(8, 5);
+      }};
   private final MersennePrimeModulus modulus;
   private final BigInteger modulusHalf;
   private final int modulusBitLength;
@@ -20,9 +34,9 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
    * Construct a new field definition for a pseudo Mersenne prime.
    *
    * @param bitLength the bitlength of the prime
-   * @param constant the constant subtracted from 2^bitLength
+   * @param constant  the constant subtracted from 2^bitLength
    */
-  public MersennePrimeFieldDefinition(int bitLength, int constant) {
+  MersennePrimeFieldDefinition(int bitLength, int constant) {
     this.modulus = new MersennePrimeModulus(bitLength, constant);
     this.modulusHalf = modulus.getPrime().shiftRight(1);
     this.modulusBitLength = bitLength;
@@ -30,7 +44,11 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
         MersennePrimeFieldElement::extractValue);
   }
 
-  @Override
+  public MersennePrimeFieldDefinition(int bitLength) {
+    this(bitLength, precomputed.get(bitLength));
+  }
+
+    @Override
   public FieldElement createElement(long value) {
     return MersennePrimeFieldElement.create(value, modulus);
   }
