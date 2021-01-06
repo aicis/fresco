@@ -8,8 +8,8 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultPreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.field.MersennePrimeFieldDefinition;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.network.CloseableNetwork;
@@ -232,17 +232,16 @@ public abstract class AbstractSpdzTest {
       NetManager tripleGenerator,
       NetManager expPipeGenerator) {
     SpdzDataSupplier supplier;
+    MersennePrimeFieldDefinition definition = MersennePrimeFieldDefinition.find(modBitLength);
     if (preProStrat == DUMMY) {
-      BigInteger suitableModulus = ModulusFinder.findSuitableModulus(modBitLength);
       supplier = new SpdzDummyDataSupplier(myId, numberOfParties,
-          new BigIntegerFieldDefinition(suitableModulus),
-          new BigInteger(suitableModulus.bitLength(), new Random(0)).mod(suitableModulus));
+          definition,
+          new BigInteger(modBitLength, new Random(0)).mod(definition.getModulus()));
     } else if (preProStrat == MASCOT) {
       List<Integer> partyIds =
           IntStream.range(1, numberOfParties + 1).boxed().collect(Collectors.toList());
       Drbg drbg = getDrbg(myId, PRG_SEED_LENGTH);
       BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
-      final BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(modulus);
       Map<Integer, RotList> seedOts =
           getSeedOts(myId, partyIds, PRG_SEED_LENGTH, drbg, otGenerator.createExtraNetwork(myId));
       FieldElement ssk = SpdzMascotDataSupplier.createRandomSsk(definition, PRG_SEED_LENGTH);
