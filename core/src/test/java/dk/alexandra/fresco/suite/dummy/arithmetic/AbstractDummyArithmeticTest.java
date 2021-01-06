@@ -36,7 +36,7 @@ public abstract class AbstractDummyArithmeticTest {
 
   protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
   protected static final FieldDefinition DEFAULT_FIELD =
-      new MersennePrimeFieldDefinition(512);
+      MersennePrimeFieldDefinition.find(512);
   protected static final int DEFAULT_MAX_BIT_LENGTH = 200;
   protected static final int DEFAULT_FIXED_POINT_PRECISION = 16;
   protected static final int DEFAULT_PARTIES = 1;

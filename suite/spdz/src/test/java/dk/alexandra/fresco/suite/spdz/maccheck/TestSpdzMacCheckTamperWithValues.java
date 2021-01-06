@@ -23,7 +23,7 @@ import org.junit.Test;
 
 public class TestSpdzMacCheckTamperWithValues extends AbstractSpdzTest {
 
-  private static MersennePrimeFieldDefinition definition = new MersennePrimeFieldDefinition(8);
+  private static MersennePrimeFieldDefinition definition = MersennePrimeFieldDefinition.find(8);
 
   @Test
   public void testModifyShare() {

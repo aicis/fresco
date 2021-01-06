@@ -15,16 +15,7 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
   /**
    * Default field definition for a few bit lengths.
    */
-  private static final Map<Integer, Integer> precomputed =
-      new HashMap<Integer, Integer>() {{
-        put(512, 569);
-        put(256, 587);
-        put(128, 173);
-        put(64, 59);
-        put(32, 5);
-        put(16, 17);
-        put(8, 5);
-      }};
+  private static final Map<Integer, Integer> precomputed = createPrecomputedModuli();
   private final MersennePrimeModulus modulus;
   private final BigInteger modulusHalf;
   private final int modulusBitLength;
@@ -44,11 +35,16 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
         MersennePrimeFieldElement::extractValue);
   }
 
-  public MersennePrimeFieldDefinition(int bitLength) {
-    this(bitLength, precomputed.get(bitLength));
+  /** Try to find a pseudo-Mersenne prime with the given bit length. */
+  public static MersennePrimeFieldDefinition find(int bitlength) {
+    if (!precomputed.containsKey(bitlength)) {
+      throw new IllegalArgumentException("Unknown bit length. Possible choices are "
+          + precomputed.keySet() + ".");
+    }
+    return new MersennePrimeFieldDefinition(bitlength, precomputed.get(bitlength));
   }
 
-    @Override
+  @Override
   public FieldElement createElement(long value) {
     return MersennePrimeFieldElement.create(value, modulus);
   }
@@ -107,4 +103,18 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
   public List<FieldElement> deserializeList(byte[] bytes) {
     return utils.deserializeList(bytes);
   }
+
+  private static Map<Integer, Integer> createPrecomputedModuli() {
+    return new HashMap<Integer, Integer>() {{
+      put(512, 569);
+      put(256, 587);
+      put(128, 173);
+      put(64, 59);
+      put(32, 5);
+      put(16, 17);
+      put(8, 5);
+    }};
+
+  }
+
 }

@@ -8,7 +8,6 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultPreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.field.MersennePrimeFieldDefinition;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
@@ -233,7 +232,7 @@ public abstract class AbstractSpdzTest {
       NetManager tripleGenerator,
       NetManager expPipeGenerator) {
     SpdzDataSupplier supplier;
-    MersennePrimeFieldDefinition definition = new MersennePrimeFieldDefinition(modBitLength);
+    MersennePrimeFieldDefinition definition = MersennePrimeFieldDefinition.find(modBitLength);
     if (preProStrat == DUMMY) {
       supplier = new SpdzDummyDataSupplier(myId, numberOfParties,
           definition,
