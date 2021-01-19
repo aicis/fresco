@@ -9,14 +9,12 @@ import java.math.BigInteger;
 final class MersennePrimeModulus implements Serializable {
 
   private static final long serialVersionUID = 7869304549721103721L;
-
+  // Precomputed values used for modular inverse
+  private static final int[] a = {1, 2, 3, 6, 12, 15, 30, 60, 120, 240, 255};
   private final int bitLength;
   private final BigInteger constant;
   private final BigInteger precomputedBitMask;
   private final BigInteger prime;
-
-  // Precomputed values used for modular inverse
-  private static final int[] a = {1, 2, 3, 6, 12, 15, 30, 60, 120, 240, 255};
 
   /**
    * Creates a modulus assuming a psuedo Mersenne prime in the form:
@@ -79,6 +77,7 @@ final class MersennePrimeModulus implements Serializable {
     // q = z / b^n
     // r = z mod b^n
     BigInteger result = value.and(precomputedBitMask);
+
     while (quotient.signum() > 0) {
       BigInteger product = quotient.multiply(constant);
       //r = r + (c * q mod b^n)
@@ -94,7 +93,9 @@ final class MersennePrimeModulus implements Serializable {
     return result;
   }
 
-  /** Compute the inverse modulo this modulus */
+  /**
+   * Compute the inverse modulo this modulus
+   */
   BigInteger inverse(BigInteger value) {
 
     if (value.equals(BigInteger.ONE)) {
@@ -131,23 +132,21 @@ final class MersennePrimeModulus implements Serializable {
       b = b + 1;
     }
 
-    BigInteger k = null;
+    BigInteger k;
     int j = w - c - 2;
-    if (j != 0) {
-      int i = 10;
-      while (a[i] > j) {
-        i = i - 1;
-      }
+    int d = 10;
+    while (a[d] > j) {
+      d = d - 1;
+    }
 
-      k = h[i];
-      j = j - a[i];
+    k = h[d];
+    j = j - a[d];
 
-      while (j != 0) {
-        i = i - 1;
-        if (j >= a[i]) {
-          k = ensureInField(k.multiply(h[i]));
-          j = j - a[i];
-        }
+    while (j != 0) {
+      d = d - 1;
+      if (j >= a[d]) {
+        k = ensureInField(k.multiply(h[d]));
+        j = j - a[d];
       }
     }
 
@@ -188,10 +187,7 @@ final class MersennePrimeModulus implements Serializable {
     for (int i = 0; i < b; i++) {
       r = ensureInField(r.multiply(r));
     }
-
-    if (w - c - 2 != 0) {
-      r = ensureInField(r.multiply(k));
-    }
+    r = ensureInField(r.multiply(k));
 
     return r;
   }

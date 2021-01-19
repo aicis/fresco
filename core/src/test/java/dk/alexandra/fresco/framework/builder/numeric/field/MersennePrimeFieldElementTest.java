@@ -92,7 +92,7 @@ public class MersennePrimeFieldElementTest {
 
   @Test
   public void modInverse() {
-    List<Integer> values = Arrays.asList(1, 27, 56, 77, 112);
+    List<Integer> values = Arrays.asList(-123, -12, -1, 1, 12, 123, 1234, 12345, 123456, 1234567);
     List<MersennePrimeFieldDefinition> definitions = Stream.of(8, 16, 32, 64, 128, 256, 384, 512).map(MersennePrimeFieldDefinition::find).collect(
         Collectors.toList());
 
