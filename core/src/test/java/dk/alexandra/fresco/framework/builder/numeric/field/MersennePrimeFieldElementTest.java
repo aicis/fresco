@@ -3,6 +3,10 @@ package dk.alexandra.fresco.framework.builder.numeric.field;
 import static org.junit.Assert.assertThat;
 
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.StringContains;
 import org.junit.Before;
@@ -88,21 +92,21 @@ public class MersennePrimeFieldElementTest {
 
   @Test
   public void modInverse() {
-    BigInteger result1 = MersennePrimeFieldElement
-        .extractValue(MersennePrimeFieldElement.create(1, modulus).modInverse());
-    BigInteger result2 = MersennePrimeFieldElement
-        .extractValue(MersennePrimeFieldElement.create(27, modulus).modInverse());
-    BigInteger result3 = MersennePrimeFieldElement
-        .extractValue(MersennePrimeFieldElement.create(56, modulus).modInverse());
-    BigInteger result4 = MersennePrimeFieldElement
-        .extractValue(MersennePrimeFieldElement.create(77, modulus).modInverse());
-    BigInteger result5 = MersennePrimeFieldElement
-        .extractValue(MersennePrimeFieldElement.create(112, modulus).modInverse());
-    assertThat(result1, Is.is(BigInteger.valueOf(1)));
-    assertThat(result2, Is.is(BigInteger.valueOf(67)));
-    assertThat(result3, Is.is(BigInteger.valueOf(111)));
-    assertThat(result4, Is.is(BigInteger.valueOf(91)));
-    assertThat(result5, Is.is(BigInteger.valueOf(112)));
+    List<Integer> values = Arrays.asList(1, 27, 56, 77, 112);
+    List<MersennePrimeFieldDefinition> definitions = Stream.of(8, 16, 32, 64, 128, 256, 384, 512).map(MersennePrimeFieldDefinition::find).collect(
+        Collectors.toList());
+
+    for (MersennePrimeFieldDefinition definition : definitions) {
+      for (Integer value : values) {
+        testModInverse(BigInteger.valueOf(value), definition, BigInteger.valueOf(value).modInverse(definition.getModulus()));
+      }
+    }
+  }
+
+  private void testModInverse(BigInteger value, MersennePrimeFieldDefinition definition, BigInteger expected) {
+    BigInteger result = MersennePrimeFieldElement
+        .extractValue(definition.createElement(value).modInverse());
+    assertThat(result, Is.is(expected));
   }
 
   @Test

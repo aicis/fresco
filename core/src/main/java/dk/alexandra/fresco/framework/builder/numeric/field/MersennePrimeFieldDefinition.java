@@ -107,6 +107,7 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
   private static Map<Integer, Integer> createPrecomputedModuli() {
     return new HashMap<Integer, Integer>() {{
       put(512, 569);
+      put(384, 317);
       put(256, 587);
       put(128, 173);
       put(64, 59);

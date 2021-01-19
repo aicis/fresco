@@ -14,6 +14,7 @@ final class MersennePrimeModulus implements Serializable {
   private final BigInteger constant;
   private final BigInteger precomputedBitMask;
   private final BigInteger prime;
+  private static final int[] a = {1, 2, 3, 6, 12, 15, 30, 60, 120, 240, 255};
 
   /**
    * Creates a modulus assuming a psuedo Mersenne prime in the form:
@@ -21,7 +22,7 @@ final class MersennePrimeModulus implements Serializable {
    * the modulus to actually be a prime.
    *
    * @param bitLength the bitlength of the psuedo Mersenne
-   * @param constant the (small) constant
+   * @param constant  the (small) constant
    */
   MersennePrimeModulus(int bitLength, int constant) {
     if (bitLength <= 0) {
@@ -89,5 +90,107 @@ final class MersennePrimeModulus implements Serializable {
       result = result.subtract(prime);
     }
     return result;
+  }
+
+  /** Compute the inverse modulo this modulus */
+  BigInteger inverse(BigInteger value) {
+
+    if (value.equals(BigInteger.ONE)) {
+      return value;
+    }
+
+    // For small moduli we use BigInteger's modInverse
+    if (bitLength < 16) {
+      return value.modInverse(prime);
+    }
+
+    // We use the algorithm from https://eprint.iacr.org/2018/1038.pdf
+    int c = constant.intValue();
+    int n = bitLength;
+
+    // Phase 1
+    BigInteger[] h = new BigInteger[11];
+    h[0] = value;
+    h[1] = ensureInField(h[0].multiply(h[0]));
+    h[2] = ensureInField(h[0].multiply(h[1]));
+    h[3] = ensureInField(h[2].multiply(h[2]));
+    h[4] = ensureInField(h[3].multiply(h[3]));
+    h[5] = ensureInField(h[4].multiply(h[2]));
+    h[6] = ensureInField(h[5].multiply(h[5]));
+    h[7] = ensureInField(h[6].multiply(h[6]));
+    h[8] = ensureInField(h[7].multiply(h[7]));
+    h[9] = ensureInField(h[8].multiply(h[8]));
+    h[10] = ensureInField(h[9].multiply(h[5]));
+
+    int b = 0;
+    int w = 1;
+    while (w < c + 2) {
+      w = 2 * w;
+      b = b + 1;
+    }
+
+    BigInteger k = null;
+    int j = w - c - 2;
+    if (j != 0) {
+      int i = 10;
+      while (a[i] > j) {
+        i = i - 1;
+      }
+
+      k = h[i];
+      j = j - a[i];
+
+      while (j != 0) {
+        i = i - 1;
+        if (j >= a[i]) {
+          k = ensureInField(k.multiply(h[i]));
+          j = j - a[i];
+        }
+      }
+    }
+
+    // Phase 2
+    h[1] = h[2];
+    h[2] = h[5];
+    h[3] = h[10];
+    j = 3;
+    int m = 8;
+    n = n - b;
+
+    while (2 * m < n) {
+      BigInteger t = h[j];
+      j = j + 1;
+      for (int i = 0; i < m; i++) {
+        t = ensureInField(t.multiply(t));
+      }
+      h[j] = ensureInField(t.multiply(h[j - 1]));
+      m = 2 * m;
+    }
+
+    int l = n - m;
+    BigInteger r = h[j];
+
+    while (l != 0) {
+      m = m / 2;
+      j = j - 1;
+      if (l >= m) {
+        l = l - m;
+        BigInteger t = r;
+        for (int i = 0; i < m; i++) {
+          t = ensureInField(t.multiply(t));
+        }
+        r = ensureInField(t.multiply(h[j]));
+      }
+    }
+
+    for (int i = 0; i < b; i++) {
+      r = ensureInField(r.multiply(r));
+    }
+
+    if (w - c - 2 != 0) {
+      r = ensureInField(r.multiply(k));
+    }
+
+    return r;
   }
 }
