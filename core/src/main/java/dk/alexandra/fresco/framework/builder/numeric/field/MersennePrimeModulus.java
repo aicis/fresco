@@ -14,6 +14,8 @@ final class MersennePrimeModulus implements Serializable {
   private final BigInteger constant;
   private final BigInteger precomputedBitMask;
   private final BigInteger prime;
+
+  // Precomputed values used for modular inverse
   private static final int[] a = {1, 2, 3, 6, 12, 15, 30, 60, 120, 240, 255};
 
   /**
