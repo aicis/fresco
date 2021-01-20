@@ -9,12 +9,14 @@ import java.math.BigInteger;
 final class MersennePrimeModulus implements Serializable {
 
   private static final long serialVersionUID = 7869304549721103721L;
-  // Precomputed values used for modular inverse
-  private static final int[] a = {1, 2, 3, 6, 12, 15, 30, 60, 120, 240, 255};
   private final int bitLength;
   private final BigInteger constant;
   private final BigInteger precomputedBitMask;
   private final BigInteger prime;
+
+  // Precomputed values used for modular inverse
+  private static final int[] a = {1, 2, 3, 6, 12, 15, 30, 60, 120, 240, 255};
+  private int b0, j0, d0;
 
   /**
    * Creates a modulus assuming a psuedo Mersenne prime in the form:
@@ -40,6 +42,8 @@ final class MersennePrimeModulus implements Serializable {
       throw new IllegalArgumentException(
           "Constant is too large, the prime is now less than or equal to zero");
     }
+
+    initInverse();
   }
 
   /**
@@ -93,6 +97,24 @@ final class MersennePrimeModulus implements Serializable {
     return result;
   }
 
+  /** Precompute some values used in the modular inverse which are independent of the input */
+  private void initInverse() {
+    this.b0 = 0;
+    int w0 = 1;
+    int c = constant.intValue();
+    while (w0 < c + 2) {
+      w0 = 2 * w0;
+      b0 = b0 + 1;
+    }
+
+    this.j0 = w0 - c - 2;
+    this.d0 = 10;
+    while (a[d0] > j0) {
+      d0 = d0 - 1;
+    }
+    j0 = j0 - a[d0];
+  }
+
   /**
    * Compute the inverse modulo this modulus
    */
@@ -107,8 +129,7 @@ final class MersennePrimeModulus implements Serializable {
       return value.modInverse(prime);
     }
 
-    // We use the algorithm from https://eprint.iacr.org/2018/1038.pdf
-    int c = constant.intValue();
+    // We use algorithm 1 from https://eprint.iacr.org/2018/1038.pdf
     int n = bitLength;
 
     // Phase 1
@@ -125,23 +146,13 @@ final class MersennePrimeModulus implements Serializable {
     h[9] = ensureInField(h[8].multiply(h[8]));
     h[10] = ensureInField(h[9].multiply(h[5]));
 
-    int b = 0;
-    int w = 1;
-    while (w < c + 2) {
-      w = 2 * w;
-      b = b + 1;
-    }
+    // Use precomputed values for b, j and d
+    int b = b0;
+    int j = j0;
+    int d = d0;
 
-    BigInteger k;
-    int j = w - c - 2;
-    int d = 10;
-    while (a[d] > j) {
-      d = d - 1;
-    }
-
-    k = h[d];
-    j = j - a[d];
-
+    // Calculate key
+    BigInteger k = h[d];
     while (j != 0) {
       d = d - 1;
       if (j >= a[d]) {
@@ -151,6 +162,7 @@ final class MersennePrimeModulus implements Serializable {
     }
 
     // Phase 2
+    // Re-use the array
     h[1] = h[2];
     h[2] = h[5];
     h[3] = h[10];
@@ -158,6 +170,7 @@ final class MersennePrimeModulus implements Serializable {
     int m = 8;
     n = n - b;
 
+    // Double up
     while (2 * m < n) {
       BigInteger t = h[j];
       j = j + 1;
@@ -171,6 +184,7 @@ final class MersennePrimeModulus implements Serializable {
     int l = n - m;
     BigInteger r = h[j];
 
+    // Complete addition chain
     while (l != 0) {
       m = m / 2;
       j = j - 1;
@@ -184,6 +198,7 @@ final class MersennePrimeModulus implements Serializable {
       }
     }
 
+    // Phase 3
     for (int i = 0; i < b; i++) {
       r = ensureInField(r.multiply(r));
     }
