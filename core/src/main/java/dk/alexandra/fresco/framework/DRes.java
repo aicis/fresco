@@ -18,4 +18,16 @@ public interface DRes<OutputT> {
    * @return the result
    */
   OutputT out();
+
+  /**
+   * Wrap the given value as a deferred result. This is for use in computations expecting a deferred
+   * result but where the actual result has been computed.
+   *
+   * @param value The value to wrap.
+   * @param <OutputS> The type of the value.
+   * @return A deferred result wrapping the given value.
+   */
+  static <OutputS> DRes<OutputS> of(OutputS value) {
+    return () -> value;
+  }
 }
