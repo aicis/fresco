@@ -45,6 +45,7 @@ import java.util.Random;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -199,6 +200,7 @@ public class SpdzProtocolTest {
     return new Pair<>(party1, party2);
   }
 
+  @Ignore
   @Test
   public void testProtocolImplementation() {
     runTest(new TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric>() {
