@@ -15,11 +15,8 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.OpenedValueStoreImpl;
-import dk.alexandra.fresco.lib.common.math.integer.division.DivisionTests;
-import dk.alexandra.fresco.lib.common.math.integer.division.DivisionTests.TestDivision;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests.TestLotsMult;
-import dk.alexandra.fresco.suite.spdz.LPSolverTests.TestLPSolver;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import java.io.IOException;
@@ -173,32 +170,42 @@ public class SpdzBirthdayTest {
   }
 
   /**
-   * Randomness test from "Some difficult-to-pass tests of randomness" by George Marsaglia and Wai Wan Tsang
+   * Randomness test from "Some difficult-to-pass tests of randomness" by George Marsaglia and Wai
+   * Wan Tsang
    */
   private static class BirthdaySpacings {
 
-    /** Test the p-value for the Birthday spacings test applied on the given numbers in the interval [0, 2^nBits). */
+    /**
+     * Test the p-value for the Birthday spacings test applied on the given numbers in the interval
+     * [0, 2^nBits).
+     */
     private double birthdaySpacingsTest(List<BigInteger> rng, double lambda, int nBits) {
       return birthdaySpacingsTest(rng, lambda, BigInteger.ONE.shiftLeft(nBits));
     }
 
     private double birthdaySpacingsTest(List<BigInteger> rng, double lambda, BigInteger n) {
-      int m = (int) Math.round(Math.pow(n.multiply(BigInteger.valueOf(4)).doubleValue() * lambda, 1.0 / 3.0));
+      int m = (int) Math
+          .round(Math.pow(n.multiply(BigInteger.valueOf(4)).doubleValue() * lambda, 1.0 / 3.0));
       int observations = rng.size() / m;
       return birthdaySpacingsTest(rng.iterator()::next, lambda, n, observations);
     }
 
-    private double birthdaySpacingsTest(Supplier<BigInteger> rng, double lambda, BigInteger n, int observations) {
-      int m = (int) Math.round(Math.pow(n.multiply(BigInteger.valueOf(4)).doubleValue() * lambda, 1.0 / 3.0));
+    private double birthdaySpacingsTest(Supplier<BigInteger> rng, double lambda, BigInteger n,
+        int observations) {
+      int m = (int) Math
+          .round(Math.pow(n.multiply(BigInteger.valueOf(4)).doubleValue() * lambda, 1.0 / 3.0));
       return birthdaySpacingsTest(rng, m, n, observations);
     }
 
-    private double birthdaySpacingsTest(Supplier<BigInteger> rng, int m, BigInteger n, int observations) {
+    private double birthdaySpacingsTest(Supplier<BigInteger> rng, int m, BigInteger n,
+        int observations) {
       BigInteger[] birthdays = new BigInteger[m];
 
       int[] observed = new int[observations];
       double lambda = BigDecimal
-          .valueOf(m).pow(3).divide(new BigDecimal(n.multiply(BigInteger.valueOf(4))), RoundingMode.HALF_UP).doubleValue();
+          .valueOf(m).pow(3)
+          .divide(new BigDecimal(n.multiply(BigInteger.valueOf(4))), RoundingMode.HALF_UP)
+          .doubleValue();
 
       // For each k, we compute the number of duplicates among the spacings of the
       // random values. These are supposed to be Poisson distributed with mean lambda, and we get the p-value
