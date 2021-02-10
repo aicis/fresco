@@ -46,7 +46,9 @@ public class BasicFixedPointTests {
         public void test() {
           Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
             FixedNumeric fixedNumeric = FixedNumeric.using(producer);
-            List<DRes<SFixed>> inputs = value.stream().map(x -> fixedNumeric.input(x, 1))
+            List<DRes<SFixed>> inputs = value.stream().map(
+                x -> fixedNumeric.input(producer.getBasicNumericContext().getMyId() == 1 ? x : null,
+                    1))
                 .collect(Collectors.toList());
             List<DRes<BigDecimal>> opened =
                 inputs.stream().map(fixedNumeric::open).collect(Collectors.toList());
