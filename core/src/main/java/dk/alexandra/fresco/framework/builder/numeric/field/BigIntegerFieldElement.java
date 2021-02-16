@@ -64,6 +64,11 @@ final class BigIntegerFieldElement implements FieldElement {
     return create(value.modInverse(getModulus()));
   }
 
+  @Override
+  public boolean isZero() {
+    return BigInteger.ZERO.equals(value);
+  }
+
   static BigInteger extractValue(FieldElement element) {
     return ((BigIntegerFieldElement) element).value;
   }
