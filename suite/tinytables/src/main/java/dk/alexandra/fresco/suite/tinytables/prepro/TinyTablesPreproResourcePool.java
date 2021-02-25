@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Drng;
 import dk.alexandra.fresco.framework.util.DrngImpl;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.RegularBitVector;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
@@ -31,6 +32,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,7 +52,10 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
   private final TinyTablesStorage storage;
   private final File tinyTablesFile;
   private final Supplier<TinyTablesTripleProvider> supplier;
+  private final int statisticalSecurity;
   private TinyTablesTripleProvider tinyTablesTripleProvider;
+  private final BigInteger macMessageModulus;
+  private final BigInteger macTagModulus;
 
   /**
    * Creates an instance of the default implementation of a resource pool. This contains the basic
@@ -70,6 +75,9 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
     this.storage = new TinyTablesStorageImpl();
     this.tinyTablesFile = tinyTablesFile;
     this.drng = new DrngImpl(drbg);
+    this.statisticalSecurity = statisticalSecurity;
+    this.macMessageModulus = ModulusFinder.findSuitableModulus(statisticalSecurity);
+    this.macTagModulus = ModulusFinder.findSuitableModulus(2 * statisticalSecurity);
     this.supplier = () -> {
       RotList rotList = new RotList(drbg, computationalSecurity);
       CoinTossing ct = new CoinTossing(myId, Util.otherPlayerId(myId), drbg);
@@ -159,7 +167,7 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
       TinyTablesElement product = TinyTablesElement.finalizeMultiplication(e, d, usedTriples.get(i),
           this.getMyId());
 
-      TinyTable tinyTable = gate.calculateTinyTable(getMyId(), product);
+      TinyTable tinyTable = gate.calculateTinyTable(getMyId(), product, macMessageModulus, statisticalSecurity);
 
       this.storage.storeTinyTable(gate.getId(), tinyTable);
     }

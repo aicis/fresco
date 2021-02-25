@@ -16,7 +16,7 @@ public class TripleGenerationTest extends NetworkedTest {
         BytePrgImpl jointSampler = new BytePrgImpl(new StrictBitVector(ctx.getPrgSeedLength()));
         TripleGeneration tripleGeneration =
             new TripleGeneration(ctx.getResourcePool(),ctx.getNetwork(),16, jointSampler);
-        return  tripleGeneration.triple(8);
+        return  tripleGeneration.triple(16);
     }
 
     @Test

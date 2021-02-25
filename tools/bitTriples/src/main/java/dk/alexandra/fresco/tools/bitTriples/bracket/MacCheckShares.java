@@ -30,8 +30,8 @@ public class MacCheckShares {
   public boolean check(
       StrictBitVector publicValues, List<StrictBitVector> macShares, StrictBitVector myMac) {
 
+    //Step 4
     StrictBitVector randomElement = jointSampler.getNext(publicValues.getSize());
-    System.out.println("#Random element for "+ resourcePool.getMyId() + ": " + randomElement);
 
     //Step 5
     boolean b = VectorOperations.xorAll(VectorOperations.bitwiseAnd(randomElement,publicValues));
@@ -48,18 +48,5 @@ public class MacCheckShares {
       throw new MaliciousException("Mac check failed");
     }
     return true;
-  }
-
-  /**
-   * Construct the same random vector for each party
-   * @return vector
-   */
-  private StrictBitVector randomBits() {
-    StrictBitVector mySeed = new StrictBitVector(resourcePool.getComputationalSecurityBitParameter(),resourcePool.getRandomGenerator());
-    List<StrictBitVector> otherSeeds = VectorOperations.distributeVector(mySeed,resourcePool,network);
-    for (StrictBitVector seed : otherSeeds){
-      mySeed.xor(seed);
-    }
-    return mySeed;
   }
 }

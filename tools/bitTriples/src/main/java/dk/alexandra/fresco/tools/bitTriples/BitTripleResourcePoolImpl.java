@@ -115,7 +115,7 @@ public class BitTripleResourcePoolImpl extends ResourcePoolImpl implements BitTr
     CoinTossing ct = new CoinTossing(getMyId(), otherId, getRandomGenerator());
     ct.initialize(network);
     NaorPinkasOt ot = new NaorPinkasOt(otherId,getRandomGenerator(),network, DhParameters.getStaticDhParams());
-    RotList currentSeedOts = new RotList(drbg, getPrgSeedBitLength(), choices);
+    RotList currentSeedOts = new RotList(drbg, choices.getSize(), choices);
     if (getMyId() < otherId) {
       currentSeedOts.send(ot);
       currentSeedOts.receive(ot);
@@ -124,7 +124,7 @@ public class BitTripleResourcePoolImpl extends ResourcePoolImpl implements BitTr
       currentSeedOts.send(ot);
     }
     OtExtensionResourcePool otResources = new OtExtensionResourcePoolImpl(getMyId(), otherId,
-        getPrgSeedBitLength(), getComputationalSecurityBitParameter(), getInstanceId(),
+        choices.getSize(), getStatisticalSecurityByteParameter(), getInstanceId(),
         getRandomGenerator(), ct, currentSeedOts);
 
     return new CoteFactory(otResources, network);

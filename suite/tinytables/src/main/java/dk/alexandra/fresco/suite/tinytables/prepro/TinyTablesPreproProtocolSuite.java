@@ -16,7 +16,7 @@ import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
  * </p>
  *
  * <p>
- * The TinyTables protocol has to phases - a <i>preprocessing</i> and an <i>online</i> phase. In the
+ * The TinyTables protocol has two phases - a <i>preprocessing</i> and an <i>online</i> phase. In the
  * preprocessing phase, each of the two players picks his additive share of a mask for each input
  * wire of a protocol. Furthermore, for each AND protocol each of the two players must also
  * calculate a so-called <i>TinyTable</i> which is used in the online phase (see {@link

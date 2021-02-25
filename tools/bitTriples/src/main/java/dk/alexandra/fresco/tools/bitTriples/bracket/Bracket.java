@@ -16,7 +16,7 @@ public class Bracket {
   private final BitTripleResourcePool resourcePool;
   private final CoteInstances COTeInstances;
   private final BytePrg jointSampler;
-  private StrictBitVector myMac;
+  private final StrictBitVector mac;
 
   /**
    * Implements the []-protocol described in Figure 6.
@@ -25,27 +25,24 @@ public class Bracket {
    * @param jointSampler
    */
   public Bracket(BitTripleResourcePool resourcePool, Network network, BytePrg jointSampler) {
-    this(resourcePool, network, null, jointSampler);
+    this(resourcePool, network, resourcePool.getLocalSampler().getNext(resourcePool.getComputationalSecurityBitParameter()), jointSampler);
   }
 
   public Bracket(BitTripleResourcePool resourcePool, Network network, StrictBitVector mac, BytePrg jointSampler) {
     this.resourcePool = resourcePool;
     this.network = network;
     this.jointSampler = jointSampler;
-    System.out.println(mac);
-    myMac = mac;
-    COTeInstances = new CoteInstances(resourcePool,network,getMyMac());
+    this.mac = mac;
+    COTeInstances = new CoteInstances(resourcePool,network,mac);
   }
 
   public List<StrictBitVector> input(int amountOfElements) {
     // Sample random input
-    StrictBitVector randomInput =
-        new StrictBitVector(amountOfElements, resourcePool.getRandomGenerator());
+    StrictBitVector randomInput = resourcePool.getLocalSampler().getNext(amountOfElements);
     return this.input(randomInput);
   }
 
   public List<StrictBitVector> input(StrictBitVector input) {
-    System.out.println(resourcePool.getMyId() + " input:" + input);
     // Step 1. n-share to obtain shares
     List<StrictBitVector> shares = nShare(input);
     // Step 2. broadcast own shares
@@ -53,11 +50,10 @@ public class Bracket {
         VectorOperations.distributeVector(input, resourcePool, network);
     receivedShares.add(input);
     StrictBitVector sumOfAllShares = VectorOperations.bitwiseXor(receivedShares);
-    System.out.println(resourcePool.getMyId() + "SUM: " + sumOfAllShares);
     // Step 3. Check macs
     MacCheckShares macCheckShares = new MacCheckShares(resourcePool, network, jointSampler);
 
-    macCheckShares.check(sumOfAllShares, shares, getMyMac());
+    macCheckShares.check(sumOfAllShares, shares, mac);
 
     return shares;
   }
@@ -93,9 +89,9 @@ public class Bracket {
       if (senderId != receiverId) {
         CoteFactory coteInstance = COTeInstances.get(receiverId,senderId);
         if (resourcePool.getMyId() == senderId) {
-          qs = extendCoteSender(coteInstance, receiverInput.getSize());
+          qs = coteInstance.getSender().extend(receiverInput.getSize());
         } else if (resourcePool.getMyId() == receiverId) {
-          tResults.add(extendCoteReceiver(coteInstance, receiverInput));
+          tResults.add(coteInstance.getReceiver().extend(receiverInput));
         }
       }
     }
@@ -106,35 +102,20 @@ public class Bracket {
     }
   }
 
-  protected List<StrictBitVector> extendCoteSender(CoteFactory instance, int sizeOfVector) {
-    return instance.getSender().extend(sizeOfVector);
-  }
-
-  protected List<StrictBitVector> extendCoteReceiver(
-      CoteFactory instance, StrictBitVector randomShares) {
-    return instance.getReceiver().extend(randomShares);
-  }
-
   protected List<StrictBitVector> constructUs(
       StrictBitVector receiverInput, List<List<StrictBitVector>> tResults) {
     List<StrictBitVector> us = new ArrayList<>();
     for (int l = 0; l < receiverInput.getSize(); l++) {
       StrictBitVector sumOfTs = VectorOperations.xorIndex(tResults, l);
       if (receiverInput.getBit(l, false)) {
-        sumOfTs.xor(getMyMac());
+        sumOfTs.xor(mac);
       }
       us.add(sumOfTs);
     }
     return us;
   }
-
-  private StrictBitVector getMyMac() {
-    if (myMac == null) {
-      myMac =
-          new StrictBitVector(
-              resourcePool.getComputationalSecurityBitParameter(),
-              resourcePool.getRandomGenerator());
-    }
-    return myMac;
+  public CoteInstances getCOTeInstances() {
+    return COTeInstances;
   }
+
 }

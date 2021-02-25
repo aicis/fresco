@@ -42,9 +42,9 @@ public class VectorOperations {
   }
 
   public static boolean xorAll(StrictBitVector toSum) {
-    boolean accumulator = toSum.getBit(0);
+    boolean accumulator = toSum.getBit(0,false);
     for (int i = 1; i<toSum.getSize(); i++){
-      accumulator ^= toSum.getBit(i);
+      accumulator ^= toSum.getBit(i,false);
     }
     return accumulator;
   }
@@ -120,12 +120,13 @@ public class VectorOperations {
         .collect(Collectors.toList());
   }
 
-  public static List<StrictBitVector> mapToList(Map<Integer, StrictBitVector> map, int noOfParties, int myId) {
+  public static List<StrictBitVector> mapToList(Map<Integer, StrictBitVector> map, int noOfParties) {
     List<StrictBitVector> result = new ArrayList<>();
-    for(int i = 0; i< noOfParties; i++){
-      if (i != myId){
-        result.add(map.get(i));
-      }
+    for(int i = 1; i<= noOfParties; i++){
+        StrictBitVector toAdd = map.get(i);
+        if(toAdd != null){
+          result.add(map.get(i));
+        }
     }
     return result;
   }

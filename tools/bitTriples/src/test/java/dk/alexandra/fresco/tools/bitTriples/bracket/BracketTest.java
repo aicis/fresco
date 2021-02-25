@@ -22,6 +22,13 @@ public class BracketTest extends NetworkedTest {
     return bracket.input(getParameters().getComputationalSecurityBitParameter());
   }
 
+  private List<StrictBitVector> runBracketWithMac(BitTriplesTestContext bitTriplesTestContext, StrictBitVector mac) {
+    BytePrgImpl jointSampler = new BytePrgImpl(new StrictBitVector(bitTriplesTestContext.getPrgSeedLength()));
+    Bracket bracket =
+        new Bracket(bitTriplesTestContext.getResourcePool(), bitTriplesTestContext.getNetwork(),mac,jointSampler);
+    return bracket.input(getParameters().getComputationalSecurityBitParameter());
+  }
+
   public List<StrictBitVector> runShare(BitTriplesTestContext bitTriplesTestContext, StrictBitVector mac) {
     BytePrgImpl jointSampler = new BytePrgImpl(new StrictBitVector(bitTriplesTestContext.getPrgSeedLength()));
     Bracket bracket =
@@ -55,6 +62,17 @@ public class BracketTest extends NetworkedTest {
     List<Callable<List<StrictBitVector>>> tasks = new ArrayList<>();
     tasks.add(() -> runBracket(contexts.get(1)));
     tasks.add(() -> runBracket(contexts.get(2)));
+
+    testRuntime.runPerPartyTasks(tasks);
+  }
+
+  @Test
+  public void bracketWithTwoPartiesWithMac() {
+    initContexts(2);
+
+    List<Callable<List<StrictBitVector>>> tasks = new ArrayList<>();
+    tasks.add(() -> runBracketWithMac(contexts.get(1),constructRandomMac(16)));
+    tasks.add(() -> runBracketWithMac(contexts.get(2),constructRandomMac(16)));
 
     testRuntime.runPerPartyTasks(tasks);
   }

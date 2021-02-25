@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.tinytables.datatypes;
 
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -23,8 +24,9 @@ public class TinyTable implements Serializable {
    */
   private static final long serialVersionUID = -8858300334880894784L;
   private TinyTablesElement[][] table;
+  private FieldElement[][] macTable;
 
-  public TinyTable(TinyTablesElement[] values) {
+  public TinyTable(TinyTablesElement[] values, FieldElement[] macValues) {
     if (values.length != 4) {
       throw new IllegalArgumentException("Array length must be 4");
     }
@@ -33,6 +35,14 @@ public class TinyTable implements Serializable {
     this.table[0][1] = values[1];
     this.table[1][0] = values[2];
     this.table[1][1] = values[3];
+    if (macValues.length != 4) {
+      throw new IllegalArgumentException("Array length must be 4");
+    }
+    this.macTable = new FieldElement[2][2];
+    this.macTable[0][0] = macValues[0];
+    this.macTable[0][1] = macValues[1];
+    this.macTable[1][0] = macValues[2];
+    this.macTable[1][1] = macValues[3];
   }
 
 
@@ -40,15 +50,24 @@ public class TinyTable implements Serializable {
    * Return the entry for this TinyTable corresponding to the given values of
    * inputs.
    *
-   * @param input
    * @return
    */
   public TinyTablesElement getValue(TinyTablesElement eu, TinyTablesElement ev) {
     return table[asInt(eu.getShare())][asInt(ev.getShare())];
   }
+  /**
+   * Return the entry for the table of macs corresponding to the given values of
+   * inputs.
+   *
+   * @return
+   */
+  public FieldElement getMacValue(TinyTablesElement eu, TinyTablesElement ev) {
+    return macTable[asInt(eu.getShare())][asInt(ev.getShare())];
+  }
 
   @Override
   public String toString() {
+    //TODO: add macs
     return Arrays.deepToString(table);
   }
 
