@@ -72,13 +72,13 @@ public class VectorOperationsTest {
   @Test
   public void xorAll() {
     StrictBitVector vector = new StrictBitVector(8);
-    Assert.assertFalse(VectorOperations.xorAll(vector));
+    Assert.assertFalse(VectorOperations.sum(vector));
     vector.setBit(0, true,false);
-    Assert.assertTrue(VectorOperations.xorAll(vector));
+    Assert.assertTrue(VectorOperations.sum(vector));
     vector.setBit(1, true,false);
-    Assert.assertFalse(VectorOperations.xorAll(vector));
+    Assert.assertFalse(VectorOperations.sum(vector));
     vector.setBit(2, true,false);
-    Assert.assertTrue(VectorOperations.xorAll(vector));
+    Assert.assertTrue(VectorOperations.sum(vector));
   }
 
   @Test
@@ -92,8 +92,8 @@ public class VectorOperationsTest {
     arg.add(v1);
     arg.add(v2);
 
-    Assert.assertTrue(VectorOperations.bitwiseXor(arg).getBit(1,false));
-    Assert.assertFalse(VectorOperations.bitwiseXor(arg).getBit(0,false));
+    Assert.assertTrue(VectorOperations.sum(arg).getBit(1,false));
+    Assert.assertFalse(VectorOperations.sum(arg).getBit(0,false));
   }
 
   @Test
@@ -111,9 +111,9 @@ public class VectorOperationsTest {
     arg.add(v2);
     arg.add(v3);
 
-    Assert.assertFalse(VectorOperations.bitwiseXor(arg).getBit(0,false));
-    Assert.assertFalse(VectorOperations.bitwiseXor(arg).getBit(1,false));
-    Assert.assertTrue(VectorOperations.bitwiseXor(arg).getBit(2,false));
+    Assert.assertFalse(VectorOperations.sum(arg).getBit(0,false));
+    Assert.assertFalse(VectorOperations.sum(arg).getBit(1,false));
+    Assert.assertTrue(VectorOperations.sum(arg).getBit(2,false));
   }
 
   @Test
@@ -165,7 +165,7 @@ public class VectorOperationsTest {
   public void bitwiseAndThrowsIfDifferentSize() {
     StrictBitVector arg1 = new StrictBitVector(8);
     StrictBitVector arg2 = new StrictBitVector(16);
-    VectorOperations.bitwiseAnd(arg1, arg2);
+    VectorOperations.and(arg1, arg2);
   }
 
   @Test
@@ -177,7 +177,7 @@ public class VectorOperationsTest {
     arg1.setBit(2, true, false);
     arg2.setBit(2, true, false);
 
-    StrictBitVector result = VectorOperations.bitwiseAnd(arg1, arg2);
+    StrictBitVector result = VectorOperations.and(arg1, arg2);
 
     Assert.assertFalse(result.getBit(0));
     Assert.assertFalse(result.getBit(1));

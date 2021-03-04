@@ -1,11 +1,14 @@
 package dk.alexandra.fresco.tools.bitTriples.utils;
 
-import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.bitTriples.BitTripleResourcePool;
+import dk.alexandra.fresco.tools.bitTriples.prg.BytePrg;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class VectorOperations {
@@ -33,7 +36,7 @@ public class VectorOperations {
     return result;
   }
 
-  public static StrictBitVector bitwiseXor(List<StrictBitVector> toSum) {
+  public static StrictBitVector sum(List<StrictBitVector> toSum) {
     StrictBitVector sum = new StrictBitVector(toSum.get(0).toByteArray().clone());
     for (int i = 1; i < toSum.size(); i++) {
       sum.xor(toSum.get(i));
@@ -41,7 +44,13 @@ public class VectorOperations {
     return sum;
   }
 
-  public static boolean xorAll(StrictBitVector toSum) {
+  public static StrictBitVector xor(StrictBitVector a, StrictBitVector b){
+    StrictBitVector result = new StrictBitVector(a.toByteArray().clone());
+    result.xor(b);
+    return result;
+  }
+
+  public static boolean sum(StrictBitVector toSum) {
     boolean accumulator = toSum.getBit(0,false);
     for (int i = 1; i<toSum.getSize(); i++){
       accumulator ^= toSum.getBit(i,false);
@@ -57,10 +66,10 @@ public class VectorOperations {
       }
     }
     List<StrictBitVector> atIndex = toSum.stream().map(l -> l.get(index)).collect(Collectors.toList());
-    return bitwiseXor(atIndex);
+    return sum(atIndex);
   }
 
-  public static StrictBitVector bitwiseAnd(StrictBitVector left, StrictBitVector right) {
+  public static StrictBitVector and(StrictBitVector left, StrictBitVector right) {
     if (left.getSize() != right.getSize()) {
       throw new IllegalStateException("Vectors must be the same size");
     }
@@ -101,6 +110,33 @@ public class VectorOperations {
    *
    * @param vector own vector
    */
+  public static StrictBitVector openVector(StrictBitVector vector, BitTripleResourcePool resourcePool, Network network) {
+
+    List<byte[]> rawComms = new ArrayList<>();
+    for (int otherId = 1; otherId <= resourcePool.getNoOfParties(); otherId++) {
+      if (resourcePool.getMyId() != otherId) {
+        if (resourcePool.getMyId() < otherId) {
+          network.send(otherId,resourcePool.getStrictBitVectorSerializer().serialize(vector));
+          rawComms.add(network.receive(otherId));
+        } else {
+          rawComms.add(network.receive(otherId));
+          network.send(otherId,resourcePool.getStrictBitVectorSerializer().serialize(vector));
+        }
+      }
+    }
+
+    StrictBitVector received = sum(rawComms.stream()
+        .map(resourcePool.getStrictBitVectorSerializer()::deserialize)
+        .collect(Collectors.toList()));
+    received.xor(vector);
+    return received;
+  }
+
+  /**
+   * Sends vector to others and receives others' vector.
+   *
+   * @param vector own vector
+   */
   public static List<StrictBitVector> distributeVector(StrictBitVector vector, BitTripleResourcePool resourcePool, Network network) {
 
     List<byte[]> rawComms = new ArrayList<>();
@@ -115,14 +151,29 @@ public class VectorOperations {
         }
       }
     }
+
     return rawComms.stream()
         .map(resourcePool.getStrictBitVectorSerializer()::deserialize)
         .collect(Collectors.toList());
   }
 
-  public static List<StrictBitVector> mapToList(Map<Integer, StrictBitVector> map, int noOfParties) {
+  /**
+   * Sends vector to others and receives others' vector.
+   *
+   * @param vectors own vector
+   */
+  public static List<StrictBitVector> distributeShares(List<StrictBitVector> vectors, BitTripleResourcePool resourcePool, Network network) {
+    List<StrictBitVector> toReturn = new ArrayList<>();
+    for (StrictBitVector vector : vectors) {
+      StrictBitVector open = openVector(vector, resourcePool, network);
+      toReturn.add(open);
+    }
+    return toReturn;
+  }
+
+  public static List<StrictBitVector> mapToList(Map<Integer, StrictBitVector> map) {
     List<StrictBitVector> result = new ArrayList<>();
-    for(int i = 1; i<= noOfParties; i++){
+    for(int i = 1; i<= map.size()+1; i++){
         StrictBitVector toAdd = map.get(i);
         if(toAdd != null){
           result.add(map.get(i));
@@ -130,4 +181,45 @@ public class VectorOperations {
     }
     return result;
   }
+
+
+
+  /**
+   * Generates a random StrictBitVector with exactly c 1's, and the rest 0's.
+   *
+   * @param c number of 1's.
+   * @param size size of .
+   * @return
+   */
+  public static StrictBitVector generateRandomIndices(int c, int size, BitTripleResourcePool resourcePool, BytePrg jointSampler) {
+    StrictBitVector v = jointSampler.getNext(resourcePool.getPrgSeedBitLength());
+    Random random =
+        new Random(new BigInteger(v.toByteArray()).intValue());
+
+    StrictBitVector strictBitVector = new StrictBitVector(size);
+    return setBits(strictBitVector, random, c);
+  }
+
+  /**
+   * Runs through the given vector, and sets c bits, that have previously not been set.
+   *
+   * @param vector vector
+   * @param random random
+   * @param c number of bits to be set
+   * @return The bitvector with c new bits set.
+   */
+  private static StrictBitVector setBits(StrictBitVector vector, Random random, int c) {
+    if (c <= 0) {
+      return vector;
+    }
+    int index = random.nextInt(vector.getSize());
+    if (vector.getBit(index, false)) {
+      return setBits(vector, random, c);
+    } else {
+      vector.setBit(index, true, false);
+      return setBits(vector, random, c - 1);
+    }
+  }
+
+
 }

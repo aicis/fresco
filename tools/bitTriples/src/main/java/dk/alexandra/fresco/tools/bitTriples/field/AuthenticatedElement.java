@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.tools.bitTriples.field;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.bitTriples.utils.VectorOperations;
 
 public class AuthenticatedElement {
 
@@ -39,7 +38,7 @@ public class AuthenticatedElement {
   public AuthenticatedElement and(boolean bool) {
     StrictBitVector macShare = new StrictBitVector(mac.getSize());
     if(bool){
-      macShare = mac;
+      macShare = new StrictBitVector(mac.toByteArray().clone());
     }
     return new AuthenticatedElement(bit && bool, macShare);
   }

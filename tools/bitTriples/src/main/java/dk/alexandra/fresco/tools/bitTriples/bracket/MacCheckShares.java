@@ -34,17 +34,14 @@ public class MacCheckShares {
     StrictBitVector randomElement = jointSampler.getNext(publicValues.getSize());
 
     //Step 5
-    boolean b = VectorOperations.xorAll(VectorOperations.bitwiseAnd(randomElement,publicValues));
+    boolean b = VectorOperations.sum(VectorOperations.and(randomElement,publicValues));
     //Step 6
-    StrictBitVector sigma = VectorOperations.bitwiseXor(VectorOperations.multiply(macShares, randomElement));
+    StrictBitVector sigma = VectorOperations.sum(VectorOperations.multiply(macShares, randomElement));
     sigma.xor(VectorOperations.multiply(myMac, b));
 
-    //Step 7
-    List<StrictBitVector> sigmas = VectorOperations.distributeVector(sigma,resourcePool,network);
-    sigmas.add(sigma);
-    // step 9
-    StrictBitVector result = VectorOperations.bitwiseXor(sigmas);
-    if (!VectorOperations.isZero(result)) {
+    // step 7-9
+    StrictBitVector openSigma = VectorOperations.openVector(sigma,resourcePool,network);
+    if (!VectorOperations.isZero(openSigma)) {
       throw new MaliciousException("Mac check failed");
     }
     return true;

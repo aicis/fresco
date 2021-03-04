@@ -39,21 +39,18 @@ public class Bracket {
   public List<StrictBitVector> input(int amountOfElements) {
     // Sample random input
     StrictBitVector randomInput = resourcePool.getLocalSampler().getNext(amountOfElements);
-    return this.input(randomInput);
+    return input(randomInput);
   }
 
   public List<StrictBitVector> input(StrictBitVector input) {
     // Step 1. n-share to obtain shares
     List<StrictBitVector> shares = nShare(input);
-    // Step 2. broadcast own shares
-    List<StrictBitVector> receivedShares =
-        VectorOperations.distributeVector(input, resourcePool, network);
-    receivedShares.add(input);
-    StrictBitVector sumOfAllShares = VectorOperations.bitwiseXor(receivedShares);
+    // Step 2. broadcast own input
+    StrictBitVector openInput = VectorOperations.openVector(input,resourcePool,network);
     // Step 3. Check macs
     MacCheckShares macCheckShares = new MacCheckShares(resourcePool, network, jointSampler);
 
-    macCheckShares.check(sumOfAllShares, shares, mac);
+    macCheckShares.check(openInput, shares, mac);
 
     return shares;
   }
@@ -78,24 +75,24 @@ public class Bracket {
   /**
    * shares input among the parties
    *
-   * @param receiverId party to input
+   * @param receiver party to input
    * @param receiverInput the input
    * @return list of bitvectors - the sum of the vector is the share of all kappa bits.
    */
-  protected List<StrictBitVector> share(int receiverId, StrictBitVector receiverInput) {
+  protected List<StrictBitVector> share(int receiver, StrictBitVector receiverInput) {
     List<List<StrictBitVector>> tResults = new ArrayList<>();
     List<StrictBitVector> qs = new ArrayList<>();
-    for (int senderId = 1; senderId <= resourcePool.getNoOfParties(); senderId++) {
-      if (senderId != receiverId) {
-        CoteFactory coteInstance = COTeInstances.get(receiverId,senderId);
-        if (resourcePool.getMyId() == senderId) {
-          qs = coteInstance.getSender().extend(receiverInput.getSize());
-        } else if (resourcePool.getMyId() == receiverId) {
-          tResults.add(coteInstance.getReceiver().extend(receiverInput));
+    for (int sender = 1; sender <= resourcePool.getNoOfParties(); sender++) {
+      if (sender != receiver) {
+        CoteFactory instance = COTeInstances.get(receiver,sender);
+        if (resourcePool.getMyId() == sender) {
+          qs = instance.getSender().extend(receiverInput.getSize());
+        } else if (resourcePool.getMyId() == receiver) {
+          tResults.add(instance.getReceiver().extend(receiverInput));
         }
       }
     }
-    if (resourcePool.getMyId() == receiverId) {
+    if (resourcePool.getMyId() == receiver) {
       return constructUs(receiverInput, tResults);
     } else {
       return qs;
