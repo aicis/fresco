@@ -179,8 +179,35 @@ public class VectorOperationsTest {
 
     StrictBitVector result = VectorOperations.and(arg1, arg2);
 
-    Assert.assertFalse(result.getBit(0));
-    Assert.assertFalse(result.getBit(1));
-    Assert.assertTrue(result.getBit(2));
+    Assert.assertFalse(result.getBit(0,false));
+    Assert.assertFalse(result.getBit(1,false));
+    Assert.assertTrue(result.getBit(2,false));
   }
+
+
+  @Test
+  public void testSetBits(){
+    testSetBits(4);
+    testSetBits(5);
+    testSetBits(6);
+    testSetBits(7);
+    testSetBits(8);
+  }
+
+  private void testSetBits(int setBits) {
+    Random random = new Random();
+    StrictBitVector vector = new StrictBitVector(8);
+
+    StrictBitVector result = VectorOperations.setBits(vector,random,setBits);
+    int noOfSetBits = 0;
+    for(int i = 0; i < result.getSize(); i++){
+      if(result.getBit(i)){
+        noOfSetBits++;
+      }
+    }
+    Assert.assertEquals(setBits,noOfSetBits);
+  }
+
+  
+
 }

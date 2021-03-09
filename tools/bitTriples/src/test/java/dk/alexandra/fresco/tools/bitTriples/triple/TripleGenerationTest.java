@@ -16,15 +16,38 @@ public class TripleGenerationTest extends NetworkedTest {
         BytePrgImpl jointSampler = new BytePrgImpl(new StrictBitVector(ctx.getPrgSeedLength()));
         TripleGeneration tripleGeneration =
             new TripleGeneration(ctx.getResourcePool(),ctx.getNetwork(),16, jointSampler);
-        return  tripleGeneration.triple(32);
+        return  tripleGeneration.triple(1024);
     }
 
     @Test
-    public void triple() {
+    public void tripleTwoParties() {
         initContexts(2);
         List<Callable<List<MultiplicationTriple>>> tasks = new ArrayList<>();
         tasks.add(() -> runTripleGeneration(contexts.get(1)));
         tasks.add(() -> runTripleGeneration(contexts.get(2)));
+
+        testRuntime.runPerPartyTasks(tasks);
+    }
+
+    @Test
+    public void tripleThreeParties() {
+        initContexts(3);
+        List<Callable<List<MultiplicationTriple>>> tasks = new ArrayList<>();
+        tasks.add(() -> runTripleGeneration(contexts.get(1)));
+        tasks.add(() -> runTripleGeneration(contexts.get(2)));
+        tasks.add(() -> runTripleGeneration(contexts.get(3)));
+
+        testRuntime.runPerPartyTasks(tasks);
+    }
+
+    @Test
+    public void tripleFourParties() {
+        initContexts(4);
+        List<Callable<List<MultiplicationTriple>>> tasks = new ArrayList<>();
+        tasks.add(() -> runTripleGeneration(contexts.get(1)));
+        tasks.add(() -> runTripleGeneration(contexts.get(2)));
+        tasks.add(() -> runTripleGeneration(contexts.get(3)));
+        tasks.add(() -> runTripleGeneration(contexts.get(4)));
 
         testRuntime.runPerPartyTasks(tasks);
     }

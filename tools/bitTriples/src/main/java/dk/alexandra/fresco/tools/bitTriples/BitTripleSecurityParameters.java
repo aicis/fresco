@@ -63,15 +63,4 @@ public class BitTripleSecurityParameters {
   public int getPrgSeedBitLength() {
     return prgSeedLength;
   }
-
-  /**
-   * Gets number of factors that go into sacrifice step of Protocol 4 (tau in Mascot paper). <p> For
-   * each triple we generate, we will generate and numCandidatesPerTriple - 1 triples for a single
-   * right factor and sacrifice these to authenticate the triple.</p>
-   *
-   * @return number of factors
-   */
-  public int getNumCandidatesPerTriple() {
-    return numCandidatesPerTriple;
-  }
 }

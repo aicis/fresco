@@ -75,7 +75,7 @@ public class VectorOperations {
     }
     StrictBitVector result = new StrictBitVector(left.getSize());
     for (int i = 0; i < left.getSize(); i++) {
-      result.setBit(i, left.getBit(i,false) && right.getBit(i,false));
+      result.setBit(i, left.getBit(i,false) && right.getBit(i,false),false);
     }
     return result;
   }
@@ -132,45 +132,6 @@ public class VectorOperations {
     return received;
   }
 
-  /**
-   * Sends vector to others and receives others' vector.
-   *
-   * @param vector own vector
-   */
-  public static List<StrictBitVector> distributeVector(StrictBitVector vector, BitTripleResourcePool resourcePool, Network network) {
-
-    List<byte[]> rawComms = new ArrayList<>();
-    for (int otherId = 1; otherId <= resourcePool.getNoOfParties(); otherId++) {
-      if (resourcePool.getMyId() != otherId) {
-        if (resourcePool.getMyId() < otherId) {
-          network.send(otherId,resourcePool.getStrictBitVectorSerializer().serialize(vector));
-          rawComms.add(network.receive(otherId));
-        } else {
-          rawComms.add(network.receive(otherId));
-          network.send(otherId,resourcePool.getStrictBitVectorSerializer().serialize(vector));
-        }
-      }
-    }
-
-    return rawComms.stream()
-        .map(resourcePool.getStrictBitVectorSerializer()::deserialize)
-        .collect(Collectors.toList());
-  }
-
-  /**
-   * Sends vector to others and receives others' vector.
-   *
-   * @param vectors own vector
-   */
-  public static List<StrictBitVector> distributeShares(List<StrictBitVector> vectors, BitTripleResourcePool resourcePool, Network network) {
-    List<StrictBitVector> toReturn = new ArrayList<>();
-    for (StrictBitVector vector : vectors) {
-      StrictBitVector open = openVector(vector, resourcePool, network);
-      toReturn.add(open);
-    }
-    return toReturn;
-  }
-
   public static List<StrictBitVector> mapToList(Map<Integer, StrictBitVector> map) {
     List<StrictBitVector> result = new ArrayList<>();
     for(int i = 1; i<= map.size()+1; i++){
@@ -208,7 +169,7 @@ public class VectorOperations {
    * @param c number of bits to be set
    * @return The bitvector with c new bits set.
    */
-  private static StrictBitVector setBits(StrictBitVector vector, Random random, int c) {
+  protected static StrictBitVector setBits(StrictBitVector vector, Random random, int c) {
     if (c <= 0) {
       return vector;
     }

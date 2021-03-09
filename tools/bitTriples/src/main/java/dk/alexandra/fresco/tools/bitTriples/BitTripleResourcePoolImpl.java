@@ -82,12 +82,6 @@ public class BitTripleResourcePoolImpl extends ResourcePoolImpl implements BitTr
   public int getStatisticalSecurityByteParameter() {
     return bitTripleSecurityParameters.getStatisticalSecurityByteParameter();
   }
-
-  @Override
-  public int getNumCandidatesPerTriple() {
-    return bitTripleSecurityParameters.getNumCandidatesPerTriple();
-  }
-
   @Override
   public BytePrg getLocalSampler() {
     return localSampler;

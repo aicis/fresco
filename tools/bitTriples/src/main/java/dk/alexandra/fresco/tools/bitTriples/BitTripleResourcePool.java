@@ -47,11 +47,6 @@ public interface BitTripleResourcePool extends NumericResourcePool {
   int getStatisticalSecurityByteParameter();
 
   /**
-   * {@link BitTripleSecurityParameters#getNumCandidatesPerTriple()}.
-   */
-  int getNumCandidatesPerTriple();
-
-  /**
    * {@link BitTripleSecurityParameters#getPrgSeedBitLength()}.
    */
   int getPrgSeedBitLength();

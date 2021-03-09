@@ -50,7 +50,7 @@ public class TripleGeneration {
   private final Map<Integer, List<StrictBitVector>> ts;
   private final Map<Integer, List<StrictBitVector>> qs;
   private final BytePrg jointSampler;
-  private List<AuthenticatedCandidate> candidates;
+  private int c;
 
   /** Creates new triple generation protocol. */
   public TripleGeneration(
@@ -86,8 +86,11 @@ public class TripleGeneration {
    * @return valid multiplication triples
    */
   public List<MultiplicationTriple> triple(int noOfTriples) {
+    c = getBucketSize(noOfTriples, resourcePool.getStatisticalSecurityByteParameter());
+    int triplesToGenerate = nearestPowerOfEight(noOfTriples * c * c + c);
+
     // Extend cote
-    StrictBitVector xs = extend(noOfTriples);
+    StrictBitVector xs = extend(triplesToGenerate);
 
     Pair<StrictBitVector, StrictBitVector> yz = generateTriples(xs);
 
@@ -101,46 +104,19 @@ public class TripleGeneration {
             toAuthenticatedElement(yShares, yz.getFirst()),
             toAuthenticatedElement(zShares, yz.getSecond()));
 
-    candidates = authenticatedCandidate;
-
-    return checkTriples(authenticatedCandidate);
+    List<MultiplicationTriple> toReturn =
+        checkTriples(
+            authenticatedCandidate,
+            getBucketSize(noOfTriples, resourcePool.getStatisticalSecurityByteParameter()));
+    return toReturn;
   }
 
-  private void printSBV(StrictBitVector x) {
-    StringBuilder toPrint = new StringBuilder();
-    toPrint.append("Vector for ").append(resourcePool.getMyId()).append(": ");
-    toPrint.append("[");
-    for (int i = 0; i < x.getSize(); i++) {
-      if (x.getBit(i, false)) {
-        toPrint.append(1);
-      } else {
-        toPrint.append(0);
-      }
+  private int nearestPowerOfEight(int noOfTriples) {
+    int power = 8;
+    while (power < noOfTriples) {
+      power = power * 8;
     }
-    toPrint.append("]");
-    System.out.println(toPrint);
-  }
-
-  private void testCheckWithClosed(
-      StrictBitVector xClosed, List<StrictBitVector> shares, StrictBitVector mac) {
-    StrictBitVector xOpen = VectorOperations.openVector(xClosed, resourcePool, network);
-    testCheck(xOpen, mac, shares);
-    macChecker.check(xOpen, shares, mac);
-  }
-
-  private void testCheck(StrictBitVector xOpen, StrictBitVector mac, List<StrictBitVector> shares) {
-
-    StrictBitVector finalMac = VectorOperations.openVector(mac, resourcePool, network);
-
-    System.out.println("Final mac: " + finalMac);
-    System.out.println("myMac mac: " + mac);
-
-    List<StrictBitVector> distributed =
-        VectorOperations.distributeShares(shares, resourcePool, network);
-
-    System.out.println(distributed);
-
-    printSBV(xOpen);
+    return power;
   }
 
   private List<AuthenticatedElement> toAuthenticatedElement(
@@ -179,14 +155,6 @@ public class TripleGeneration {
     // Step 3
     StrictBitVector zs = computeZs(ns, xs, ys, v0s);
 
-    StrictBitVector xOpen = VectorOperations.openVector(xs, resourcePool, network);
-    StrictBitVector yOpen = VectorOperations.openVector(ys, resourcePool, network);
-    StrictBitVector zOpen = VectorOperations.openVector(zs, resourcePool, network);
-
-    StrictBitVector product = VectorOperations.and(xOpen, yOpen);
-    boolean b = zOpen.equals(product);
-
-
     return new Pair<>(ys, zs);
   }
 
@@ -196,9 +164,8 @@ public class TripleGeneration {
       StrictBitVector ys,
       Map<Integer, StrictBitVector> v0s) {
 
-    StrictBitVector u = VectorOperations.xor(
-        VectorOperations.sum(ns),
-        VectorOperations.and(xs, ys));
+    StrictBitVector u =
+        VectorOperations.xor(VectorOperations.sum(ns), VectorOperations.and(xs, ys));
 
     return VectorOperations.xor(u, VectorOperations.sum(VectorOperations.mapToList(v0s)));
   }
@@ -210,20 +177,9 @@ public class TripleGeneration {
       Map<Integer, StrictBitVector> v1s,
       Map<Integer, StrictBitVector> ws) {
     Map<Integer, StrictBitVector> correlatedVectors = new HashMap<>();
-    if (resourcePool.getMyId() == 1) {
-      System.out.println("xs");
-      printSBV(xs);
-      System.out.println("w");
-      printSBV(ws.get(3 - resourcePool.getMyId()));
-    } else {
-      System.out.println("v0");
-      printSBV(v0s.get(3 - resourcePool.getMyId()));
-      System.out.println("v1");
-      printSBV(v1s.get(3 - resourcePool.getMyId()));
-    }
     for (int j = 1; j <= resourcePool.getNoOfParties(); j++) {
       if (resourcePool.getMyId() != j) {
-        StrictBitVector s = VectorOperations.xor(v1s.get(j),VectorOperations.xor(ys,v0s.get(j)));
+        StrictBitVector s = VectorOperations.xor(v1s.get(j), VectorOperations.xor(ys, v0s.get(j)));
         correlatedVectors.put(j, s);
       }
     }
@@ -256,7 +212,8 @@ public class TripleGeneration {
     List<StrictBitVector> ns = new ArrayList<>();
     for (int j = 1; j <= resourcePool.getNoOfParties(); j++) {
       if (resourcePool.getMyId() != j) {
-        StrictBitVector nj = VectorOperations.xor(VectorOperations.and(xs, sReceived.get(j)),ws.get(j));
+        StrictBitVector nj =
+            VectorOperations.xor(VectorOperations.and(xs, sReceived.get(j)), ws.get(j));
         ns.add(nj);
       }
     }
@@ -266,29 +223,24 @@ public class TripleGeneration {
   private Map<Integer, StrictBitVector> breakCorrelation(
       Map<Integer, List<StrictBitVector>> toBreak, StrictBitVector mac) {
     Map<Integer, StrictBitVector> result = new HashMap<>();
-    try {
-      MessageDigest digest = MessageDigest.getInstance("SHA-256");
-      for (int j = 1; j <= resourcePool.getNoOfParties(); j++) {
-        if (resourcePool.getMyId() != j) {
-          // For each party
-          List<StrictBitVector> listForPartyJ = toBreak.get(j);
-          StrictBitVector resultingVector = new StrictBitVector(listForPartyJ.size());
-          for (int h = 0; h < listForPartyJ.size(); h++) {
-            // For each vector, hash to single bit.
-            StrictBitVector toHash =
-                new StrictBitVector(
-                    Arrays.copyOfRange(listForPartyJ.get(h).toByteArray().clone(), 0, kappa / 8));
-            if (mac != null) {
-              toHash.xor(mac);
-            }
-            byte[] hashed = digest.digest(toHash.toByteArray());
-            resultingVector.setBit(h, ByteArrayHelper.getBit(hashed, 0), false);
+    for (int j = 1; j <= resourcePool.getNoOfParties(); j++) {
+      if (resourcePool.getMyId() != j) {
+        // For each party
+        List<StrictBitVector> listForPartyJ = toBreak.get(j);
+        StrictBitVector resultingVector = new StrictBitVector(listForPartyJ.size());
+        for (int h = 0; h < listForPartyJ.size(); h++) {
+          // For each vector, hash to single bit.
+          StrictBitVector toHash =
+              new StrictBitVector(
+                  Arrays.copyOfRange(listForPartyJ.get(h).toByteArray().clone(), 0, kappa / 8));
+          if (mac != null) {
+            toHash.xor(mac);
           }
-          result.put(j, resultingVector);
+          byte[] hashed = resourcePool.getMessageDigest().digest(toHash.toByteArray());
+          resultingVector.setBit(h, ByteArrayHelper.getBit(hashed, 0), false);
         }
+        result.put(j, resultingVector);
       }
-    } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace(); // Shouldn't happen
     }
     return result;
   }
@@ -311,46 +263,45 @@ public class TripleGeneration {
   }
 
   /** Implements sub-protocol CheckTriples of Figure 23 */
-  private List<MultiplicationTriple> checkTriples(List<AuthenticatedCandidate> candidates) {
+  private List<MultiplicationTriple> checkTriples(
+      List<AuthenticatedCandidate> candidates, int bucketSize) {
 
     List<OpenedElement> openedElements = new ArrayList<>();
     // Phase 1
-    int c = 8;
     List<AuthenticatedCandidate> cutCandidates = cutAndChoose(candidates, c, openedElements);
     checkOpenedValues(openedElements);
     // Phase 2
-    int bucketSize =
-        getBucketSize(cutCandidates.size(), resourcePool.getComputationalSecurityBitParameter());
-
     List<AuthenticatedCandidate> sacrificedBuckets =
         bucketSacrifice(cutCandidates, bucketSize, openedElements);
 
     // Phase 3
-    List<AuthenticatedCandidate> checkedTriples =
+    List<AuthenticatedCandidate> combinedBuckets =
         combineBuckets(sacrificedBuckets, bucketSize, openedElements);
 
     // Phase 4
     checkOpenedValues(openedElements);
 
     // convert candidates to valid triples and return
-    return toMultTriples(checkedTriples);
+    return toMultTriples(combinedBuckets);
   }
 
   private void checkOpenedValues(List<OpenedElement> openedElements) {
-    StrictBitVector values = new StrictBitVector(openedElements.size());
-    List<StrictBitVector> macShares = new ArrayList<>();
+    int nearestPower = nearestPowerOfEight(openedElements.size());
+    StrictBitVector values = new StrictBitVector(nearestPower);
+    List<StrictBitVector> macShares = new ArrayList<>(nearestPower);
     for (int i = 0; i < openedElements.size(); i++) {
       values.setBit(i, openedElements.get(i).value, false);
       macShares.add(openedElements.get(i).share);
+    }
+    for (int i = 0; i < nearestPower - openedElements.size(); i++) {
+      macShares.add(new StrictBitVector(kappa));
     }
     macChecker.check(values, macShares, macRight);
   }
 
   private List<AuthenticatedCandidate> combineBuckets(
-      List<AuthenticatedCandidate> candidates,
-      int noOfBuckets,
-      List<OpenedElement> openedElements) {
-    int bucketSize = candidates.size() / noOfBuckets;
+      List<AuthenticatedCandidate> candidates, int bucketSize, List<OpenedElement> openedElements) {
+    int noOfBuckets = candidates.size() / bucketSize;
 
     List<AuthenticatedCandidate> permuted = randomPermute(candidates);
     // construct buckets of size noPerBucket
@@ -402,10 +353,8 @@ public class TripleGeneration {
   }
 
   private List<AuthenticatedCandidate> bucketSacrifice(
-      List<AuthenticatedCandidate> candidates,
-      int noOfBuckets,
-      List<OpenedElement> openedElements) {
-    int bucketSize = candidates.size() / noOfBuckets;
+      List<AuthenticatedCandidate> candidates, int bucketSize, List<OpenedElement> openedElements) {
+    int noOfBuckets = candidates.size() / bucketSize;
 
     List<AuthenticatedCandidate> permuted = randomPermute(candidates);
 
@@ -435,9 +384,6 @@ public class TripleGeneration {
       List<AuthenticatedCandidate> candidates,
       AuthenticatedCandidate bucketHead,
       List<OpenedElement> openedElements) {
-    System.out.println(bucketHead.leftFactor);
-    System.out.println(bucketHead.rightFactor);
-    System.out.println(bucketHead.product);
     for (AuthenticatedCandidate candidate : candidates) {
       if (!checkR(bucketHead, candidate, openedElements)) {
         throw new MaliciousException("Verification of bucket head failed");
@@ -458,26 +404,11 @@ public class TripleGeneration {
       AuthenticatedCandidate bucketHead,
       AuthenticatedCandidate candidate,
       List<OpenedElement> openedElements) {
-    System.out.println("¤¤¤¤");
-    if (resourcePool.getMyId() == 1) {
-      System.out.println("im 1");
-    }
-    OpenedElement x1 = openElement(bucketHead.leftFactor);
-    OpenedElement x2 = openElement(candidate.leftFactor);
-    OpenedElement y1 = openElement(bucketHead.rightFactor);
-    OpenedElement y2 = openElement(candidate.rightFactor);
-    OpenedElement z1 = openElement(bucketHead.product);
-    OpenedElement z2 = openElement(candidate.product);
-
-    System.out.println(x1.value && y1.value == z1.value);
-    System.out.println(x2.value && y2.value == z2.value);
 
     AuthenticatedElement a = bucketHead.leftFactor.xor(candidate.leftFactor);
     OpenedElement aOpen = openElement(a);
-    System.out.println("a:" + aOpen.value); // x_i + x_j
     AuthenticatedElement b = bucketHead.rightFactor.xor(candidate.rightFactor); // y_i + y_j
     OpenedElement bOpen = openElement(b);
-    System.out.println("b:" + bOpen.value); // x_i + x_j
     AuthenticatedElement c =
         bucketHead
             .product
@@ -486,16 +417,11 @@ public class TripleGeneration {
             .xor(bucketHead.rightFactor.and(aOpen.value));
     openedElements.add(aOpen);
     openedElements.add(bOpen);
-    System.out.println(
-        resourcePool.getMyId()
-            + " - Check condition: "
-            + (c.getBit() == aOpen.value && bOpen.value));
     OpenedElement cOpen = openElement(c);
-    return cOpen.value == aOpen.value && bOpen.value;
+    return cOpen.value == (aOpen.value && bOpen.value);
   }
 
   private OpenedElement openElement(AuthenticatedElement element) {
-    System.out.println(resourcePool.getMyId() + ": " + element);
     StrictBitVector toSend = new StrictBitVector(8);
     toSend.setBit(0, element.getBit(), false);
     return new OpenedElement(
@@ -527,10 +453,10 @@ public class TripleGeneration {
 
   private boolean multiplicationPredicateHolds(
       List<AuthenticatedCandidate> candidates, List<OpenedElement> openedElements) {
-    StrictBitVector xs = new StrictBitVector(candidates.size());
-    StrictBitVector ys = new StrictBitVector(candidates.size());
-    StrictBitVector zs = new StrictBitVector(candidates.size());
-    for (int i = 0; i < candidates.size(); i++) {
+    StrictBitVector xs = new StrictBitVector(8);
+    StrictBitVector ys = new StrictBitVector(8);
+    StrictBitVector zs = new StrictBitVector(8);
+    for (int i = 0; i < candidates.size(); i++) { //
       xs.setBit(i, candidates.get(i).leftFactor.getBit(), false);
       ys.setBit(i, candidates.get(i).rightFactor.getBit(), false);
       zs.setBit(i, candidates.get(i).product.getBit(), false);
@@ -539,9 +465,6 @@ public class TripleGeneration {
     StrictBitVector xOpen = VectorOperations.openVector(xs, resourcePool, network);
     StrictBitVector yOpen = VectorOperations.openVector(ys, resourcePool, network);
     StrictBitVector zOpen = VectorOperations.openVector(zs, resourcePool, network);
-    System.out.println(xOpen);
-    System.out.println(yOpen);
-    System.out.println(zOpen);
 
     for (int i = 0; i < candidates.size(); i++) {
       openedElements.add(
