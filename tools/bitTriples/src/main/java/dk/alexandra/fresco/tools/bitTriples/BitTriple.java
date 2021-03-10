@@ -3,7 +3,7 @@ package dk.alexandra.fresco.tools.bitTriples;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.bitTriples.cointossing.CoinTossingMpc;
-import dk.alexandra.fresco.tools.bitTriples.field.MultiplicationTriple;
+import dk.alexandra.fresco.tools.bitTriples.elements.MultiplicationTriple;
 import dk.alexandra.fresco.tools.bitTriples.prg.BytePrg;
 import dk.alexandra.fresco.tools.bitTriples.prg.BytePrgImpl;
 import dk.alexandra.fresco.tools.bitTriples.triple.TripleGeneration;
@@ -31,7 +31,7 @@ public class BitTriple {
     BytePrg jointSampler = new BytePrgImpl(jointSeed);
     this.tripleGeneration =
         new TripleGeneration(
-            resourcePool, network, resourcePool.getComputationalSecurityBitParameter(), jointSampler);
+            resourcePool, network, resourcePool.getComputationalSecurityBitParameter(), jointSampler, macKeyShareLeft, macKeyShareRight);
   }
 
   /**

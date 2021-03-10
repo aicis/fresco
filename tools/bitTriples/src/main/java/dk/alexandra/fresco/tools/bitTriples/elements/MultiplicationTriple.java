@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.tools.bitTriples.field;
+package dk.alexandra.fresco.tools.bitTriples.elements;
 
 import dk.alexandra.fresco.framework.builder.numeric.Addable;
 
@@ -41,7 +41,7 @@ public class MultiplicationTriple implements Addable<MultiplicationTriple> {
 
   @Override
   public String toString() {
-    return "MultiplicationTriple [left=" + left + ", right=" + right + ", product=" + product + "]";
+    return "MultiplicationTriple [left=" + left.toString() + ", right=" + right.toString() + ", product=" + product.toString() + "]";
   }
 
   @Override

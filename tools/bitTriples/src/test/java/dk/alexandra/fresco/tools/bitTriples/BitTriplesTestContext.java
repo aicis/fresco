@@ -31,22 +31,7 @@ public class BitTriplesTestContext {
     byte[] drbgSeed = new byte[securityParameters.getPrgSeedBitLength() / 8];
     new Random(myId).nextBytes(drbgSeed); // Parties need to have same seed.
     Drbg drbg = AesCtrDrbgFactory.fromDerivedSeed(drbgSeed);
-    Map<Integer, RotList> seedOts = new HashMap<>();
-    for (int otherId = 1; otherId <= noOfParties; otherId++) {
-      if (myId != otherId) {
-        Ot ot = new DummyOt(otherId, network);
-        RotList currentSeedOts = new RotList(drbg, securityParameters.getPrgSeedBitLength());
-        if (myId < otherId) {
-          currentSeedOts.send(ot);
-          currentSeedOts.receive(ot);
-        } else {
-          currentSeedOts.receive(ot);
-          currentSeedOts.send(ot);
-        }
-        seedOts.put(otherId, currentSeedOts);
-      }
-    }
-    this.resourcePool = new BitTripleResourcePoolImpl(myId, noOfParties, instanceId, drbg, seedOts,
+    this.resourcePool = new BitTripleResourcePoolImpl(myId, noOfParties, instanceId, drbg,
         securityParameters);
   }
 
@@ -64,6 +49,9 @@ public class BitTriplesTestContext {
 
   public int getPrgSeedLength() {
     return resourcePool.getPrgSeedBitLength();
+  }
+  public int getComputationalSecurityBitParameter() {
+    return resourcePool.getComputationalSecurityBitParameter();
   }
 
   public Network getNetwork() {

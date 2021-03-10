@@ -9,24 +9,21 @@ public class BitTripleSecurityParameters {
   private final int computationalSecurityBitParameter;
   private final int statisticalSecurityParameterBytes;
   private final int prgSeedLength;
-  private final int numCandidatesPerTriple;
 
   /**
    * Creates new {@link BitTripleSecurityParameters}.
    *
    * @param computationalSecurityBitParameter OT security parameter in bits (lambda in Mascot paper)
    * @param prgSeedBitLength bit length of seed used to underlying prg
-   * @param numCandidatesPerTriple number of factors that go into Sacrifice step of Protocol 4
    *     (tau in Mascot paper) For each triple we generate, we will generate and
    *     numCandidatesPerTriple - 1 triples for a single right factor and sacrifice these to
    *     authenticate the triple.
    */
   public BitTripleSecurityParameters(
-      int computationalSecurityBitParameter, int statisticalSecurityByteParameter, int prgSeedBitLength, int numCandidatesPerTriple) {
+      int computationalSecurityBitParameter, int statisticalSecurityByteParameter, int prgSeedBitLength) {
     this.computationalSecurityBitParameter = computationalSecurityBitParameter;
     this.statisticalSecurityParameterBytes = statisticalSecurityByteParameter;
     this.prgSeedLength = prgSeedBitLength;
-    this.numCandidatesPerTriple = numCandidatesPerTriple;
   }
 
   /**
@@ -34,7 +31,7 @@ public class BitTripleSecurityParameters {
    * recommendations).
    */
   public BitTripleSecurityParameters() {
-    this(256, 40, 256, 3);
+    this(256, 40, 256);
   }
 
   /**

@@ -11,11 +11,11 @@ public abstract class NetworkedTest {
 
   private final BitTripleSecurityParameters defaultParameters =
         new BitTripleSecurityParameters(256, 16,
-      256, 3);
+      256);
 
   private final BitTripleSecurityParameters testParameters =
         new BitTripleSecurityParameters(16, 64,
-      16, 3);
+      16);
 
   protected BitTripleSecurityParameters parameters;
 

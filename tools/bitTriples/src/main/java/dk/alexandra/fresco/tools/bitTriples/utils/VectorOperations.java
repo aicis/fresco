@@ -1,10 +1,11 @@
 package dk.alexandra.fresco.tools.bitTriples.utils;
 
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.bitTriples.BitTripleResourcePool;
 import dk.alexandra.fresco.tools.bitTriples.prg.BytePrg;
-import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -69,13 +70,13 @@ public class VectorOperations {
     return sum(atIndex);
   }
 
-  public static StrictBitVector and(StrictBitVector left, StrictBitVector right) {
-    if (left.getSize() != right.getSize()) {
+  public static StrictBitVector and(StrictBitVector a, StrictBitVector b) {
+    if (a.getSize() != b.getSize()) {
       throw new IllegalStateException("Vectors must be the same size");
     }
-    StrictBitVector result = new StrictBitVector(left.getSize());
-    for (int i = 0; i < left.getSize(); i++) {
-      result.setBit(i, left.getBit(i,false) && right.getBit(i,false),false);
+    StrictBitVector result = new StrictBitVector(a.getSize());
+    for (int i = 0; i < a.getSize(); i++) {
+      result.setBit(i, a.getBit(i,false) && b.getBit(i,false),false);
     }
     return result;
   }
@@ -153,14 +154,15 @@ public class VectorOperations {
    * @return
    */
   public static StrictBitVector generateRandomIndices(int c, int size, BitTripleResourcePool resourcePool, BytePrg jointSampler) {
-    StrictBitVector v = jointSampler.getNext(resourcePool.getPrgSeedBitLength());
-    Random random =
-        new Random(new BigInteger(v.toByteArray()).intValue());
+      SecureRandom random = ExceptionConverter.safe(
+          () -> SecureRandom.getInstance("SHA1PRNG"),
+          "Configuration error, SHA1PRNG is needed for BitTriple");
+      StrictBitVector v = jointSampler.getNext(resourcePool.getPrgSeedBitLength());
+      random.setSeed(v.toByteArray());
 
-    StrictBitVector strictBitVector = new StrictBitVector(size);
-    return setBits(strictBitVector, random, c);
+      StrictBitVector strictBitVector = new StrictBitVector(size);
+      return setBits(strictBitVector, random, c);
   }
-
   /**
    * Runs through the given vector, and sets c bits, that have previously not been set.
    *

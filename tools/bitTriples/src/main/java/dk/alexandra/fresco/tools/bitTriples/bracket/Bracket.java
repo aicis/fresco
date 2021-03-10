@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.bitTriples.BitTripleResourcePool;
 import dk.alexandra.fresco.tools.bitTriples.cote.CoteInstances;
+import dk.alexandra.fresco.tools.bitTriples.maccheck.MacCheck;
 import dk.alexandra.fresco.tools.bitTriples.prg.BytePrg;
 import dk.alexandra.fresco.tools.bitTriples.utils.VectorOperations;
 import dk.alexandra.fresco.tools.ot.otextension.CoteFactory;
@@ -48,7 +49,7 @@ public class Bracket {
     // Step 2. broadcast own input
     StrictBitVector openInput = VectorOperations.openVector(input,resourcePool,network);
     // Step 3. Check macs
-    MacCheckShares macCheckShares = new MacCheckShares(resourcePool, network, jointSampler);
+    MacCheck macCheckShares = new MacCheck(resourcePool, network, jointSampler);
 
     macCheckShares.check(openInput, shares, mac);
 

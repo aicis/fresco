@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.tools.bitTriples.field;
+package dk.alexandra.fresco.tools.bitTriples.elements;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 

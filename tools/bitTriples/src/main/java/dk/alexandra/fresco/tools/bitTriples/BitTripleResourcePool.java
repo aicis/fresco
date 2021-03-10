@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.tools.bitTriples;
 
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.tools.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.tools.commitment.HashBasedCommitmentSerializer;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
@@ -14,14 +15,7 @@ import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import dk.alexandra.fresco.tools.ot.otextension.CoteFactory;
 import java.security.MessageDigest;
 
-public interface BitTripleResourcePool extends NumericResourcePool {
-
-  /**
-   * Gets the field definition.
-   *
-   * @return field defintion
-   */
-  FieldDefinition getFieldDefinition();
+public interface BitTripleResourcePool extends ResourcePool {
 
   /**
    * Returns the instance ID which is unique for this particular resource pool object, but only in
@@ -30,11 +24,6 @@ public interface BitTripleResourcePool extends NumericResourcePool {
    * @return the instance ID of this particular object
    */
   int getInstanceId();
-
-  /**
-   * {@link FieldDefinition#getBitLength()}.
-   */
-  int getModBitLength();
 
   /**
    * {@link BitTripleSecurityParameters#getComputationalSecurityBitParameter()}.
@@ -82,15 +71,6 @@ public interface BitTripleResourcePool extends NumericResourcePool {
    * @return the message digest
    */
   MessageDigest getMessageDigest();
-
-  /**
-   * Creates random oblivious transfer protocol to be used.
-   *
-   * @param otherId other party that participates in protocol
-   * @param network network
-   * @return instance of random oblivious transfer protocol
-   */
-  RotBatch createRot(int otherId, Network network);
 
   CoteFactory createCote(int otherId, Network network, StrictBitVector choices);
 

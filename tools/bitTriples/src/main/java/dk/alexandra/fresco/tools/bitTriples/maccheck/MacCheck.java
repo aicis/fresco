@@ -1,52 +1,49 @@
 package dk.alexandra.fresco.tools.bitTriples.maccheck;
 
 import dk.alexandra.fresco.framework.MaliciousException;
-import dk.alexandra.fresco.framework.builder.numeric.Addable;
-import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.bitTriples.BitTripleResourcePool;
-import dk.alexandra.fresco.tools.bitTriples.commit.CommitmentBasedInput;
-import java.math.BigInteger;
+import dk.alexandra.fresco.tools.bitTriples.prg.BytePrg;
+import dk.alexandra.fresco.tools.bitTriples.utils.VectorOperations;
 import java.util.List;
 
-/**
- * Actively-secure protocol for performing a MAC check on a public field element e. <br>
- * Each party p_i holds a share of the MAC m_i and a share of the MAC key alpha_i. <br>
- * This protocol validates that e * (alpha_1 + ... + alpha_n) = m_1 + ... + m_n.
- */
-public class MacCheck extends CommitmentBasedInput<FieldElement> {
+public class MacCheck {
 
-  /**
-   * Constructs new mac checker.
-   */
-  public MacCheck(BitTripleResourcePool resourcePool, Network network) {
-    super(resourcePool, network, resourcePool.getFieldDefinition());
+  private final Network network;
+  private final BitTripleResourcePool resourcePool;
+  private final BytePrg jointSampler;
+
+  public MacCheck(BitTripleResourcePool resourcePool, Network network, BytePrg jointSampler) {
+    this.resourcePool = resourcePool;
+    this.network = network;
+    this.jointSampler = jointSampler;
   }
 
   /**
-   * Runs mac-check on open value. <br>
-   * Conceptually, checks (macShare0 + ... + macShareN) = (open) * (keyShare0 + ... + keyShareN)
-   * 
-   * @param opened the opened element to validate
-   * @param macKeyShare this party's share of the mac key
-   * @param macShare this party's share of the mac
-   * @throws MaliciousException if mac-check fails
+   * Runs protocol described in fig. 16.
+   * @param publicValues The public values
+   * @param macShares the mac values
+   * @param myMac the mac of the party
+   * @return true if mac check was accepted
    */
-  public void check(
-      FieldElement opened, FieldElement macKeyShare, FieldElement macShare) {
-    // we will check that all sigmas together add up to 0
-    FieldElement sigma = macShare.subtract(opened.multiply(macKeyShare));
+  public boolean check(
+      StrictBitVector publicValues, List<StrictBitVector> macShares, StrictBitVector myMac) {
 
-    // commit to own value
-    List<FieldElement> sigmas = allCommit(sigma);
-    // add up all sigmas
-    FieldElement sigmaSum = Addable.sum(sigmas);
+    //Step 4
+    StrictBitVector randomElement = jointSampler.getNext(publicValues.getSize());
 
-    BigInteger outputSum = getResourcePool().getFieldDefinition().convertToUnsigned(sigmaSum);
-    // sum of sigmas must be 0
-    if (outputSum.signum() != 0) {
-      throw new MaliciousException("Malicious mac forging detected");
+    //Step 5
+    boolean b = VectorOperations.sum(VectorOperations.and(randomElement,publicValues));
+    //Step 6
+    StrictBitVector sigma = VectorOperations.sum(VectorOperations.multiply(macShares, randomElement));
+    sigma.xor(VectorOperations.multiply(myMac, b));
+
+    // step 7-9
+    StrictBitVector openSigma = VectorOperations.openVector(sigma,resourcePool,network);
+    if (!VectorOperations.isZero(openSigma)) {
+      throw new MaliciousException("Mac check failed");
     }
+    return true;
   }
-
 }

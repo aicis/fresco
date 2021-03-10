@@ -39,7 +39,7 @@ public class BroadcastValidation {
    * @param otherDigests hashes received from other parties
    * @throws MaliciousException if validation fails
    */
-  private void validateDigests(byte[] ownDigest, List<byte[]> otherDigests) {
+  protected void validateDigests(byte[] ownDigest, List<byte[]> otherDigests) {
     for (byte[] otherDigest : otherDigests) {
       if (!Arrays.equals(ownDigest, otherDigest)) {
         throw new MaliciousException("Broadcast validation failed");

@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.tools.bitTriples.bracket;
+package dk.alexandra.fresco.tools.bitTriples.maccheck;
 
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
@@ -15,7 +15,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class TestMacCheckSharesNetworked extends NetworkedTest {
+public class MacCheckTest extends NetworkedTest {
 
   private StrictBitVector publicValues;
   private List<StrictBitVector> privateMacs;
@@ -78,7 +78,7 @@ public class TestMacCheckSharesNetworked extends NetworkedTest {
 
   private boolean runMacCheckShares(BitTriplesTestContext ctx, int partyId) {
     BytePrgImpl jointSampler = new BytePrgImpl(new StrictBitVector(ctx.getPrgSeedLength()));
-    MacCheckShares macCheckShares = new MacCheckShares(ctx.getResourcePool(), ctx.getNetwork(), jointSampler);
+    MacCheck macCheckShares = new MacCheck(ctx.getResourcePool(), ctx.getNetwork(), jointSampler);
     return macCheckShares.check(
         publicValues, macShares.get(partyId - 1), privateMacs.get(partyId - 1));
   }
