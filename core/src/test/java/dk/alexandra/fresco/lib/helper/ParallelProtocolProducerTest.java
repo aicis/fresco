@@ -7,9 +7,12 @@ import static org.mockito.Mockito.when;
 
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
 public class ParallelProtocolProducerTest {
 
@@ -24,8 +27,9 @@ public class ParallelProtocolProducerTest {
     when(protocolProducer.hasNextProtocols()).thenReturn(false);
     when(iterator.next()).thenReturn(protocolProducer);
 
+    List<ProtocolProducer> list = Arrays.asList(protocolProducer);
     ParallelProtocolProducer parallelProtocolProducer =
-        new ParallelProtocolProducer(mock(List.class));
+        new ParallelProtocolProducer(list);
     parallelProtocolProducer.iterate(iterator, protocolCollection);
 
     verify(iterator, times(1)).remove();

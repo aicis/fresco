@@ -11,7 +11,7 @@ import java.util.Map;
  * with the fresco default evaluators. This class makes the
  * communication on the network batched and hence throttled so evaluators behave nice
  * on the network.
- * <br/>
+ * <br>
  * It is important to call flush to empty all buffers after sending and before receiving data
  */
 public class NetworkBatchDecorator implements Network {

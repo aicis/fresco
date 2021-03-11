@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * Represents a comparison protocol between two bitstrings. Concretely, the protocol computes the
- * 'greater than' relation of strings A and B, i.e., it computes C := A > B.
+ * 'greater than' relation of strings A and B, i.e., it computes C := A &gt; B.
  * 
  */
 public class BinaryGreaterThan

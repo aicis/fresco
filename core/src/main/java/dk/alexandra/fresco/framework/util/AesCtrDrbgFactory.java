@@ -32,8 +32,6 @@ public class AesCtrDrbgFactory {
    *
    * @param bytes a sequence of bytes from which to derive the seed
    * @return a new DRBG
-   * @throws NoSuchAlgorithmException if the hash algorithm {@value #HASH_ALGORITHM} is not
-   *      available on the system
    */
   public static Drbg fromDerivedSeed(final byte... bytes) {
     return ExceptionConverter.safe(() -> fromRandomSeed(hash(bytes)),

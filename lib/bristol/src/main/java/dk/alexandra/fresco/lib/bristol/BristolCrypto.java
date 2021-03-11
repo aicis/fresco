@@ -64,7 +64,7 @@ public interface BristolCrypto extends ComputationDirectory {
   /**
    * Computes DES on the given plaintext using the given key material.
    * 
-   * @param plaintext The secret shared plaintext. Must contain exactly 64 bits.
+   * @param plainText The secret shared plaintext. Must contain exactly 64 bits.
    * @param keyMaterial The secret shared key material. Must contain exactly 64 bits.
    * @return DES_keyMaterial(plainText) which contains exactly 64 bits.
    */

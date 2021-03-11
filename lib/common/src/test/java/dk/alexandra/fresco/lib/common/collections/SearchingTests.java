@@ -16,7 +16,7 @@ import org.junit.Assert;
 
 public class SearchingTests {
 
-  public static class TestIsSorted<ResourcePoolT extends ResourcePool>
+  public static class TestLinearLookUp<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override

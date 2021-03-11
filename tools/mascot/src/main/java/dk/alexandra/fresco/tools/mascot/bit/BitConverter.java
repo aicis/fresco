@@ -30,9 +30,9 @@ public class BitConverter {
   /**
    * Converts random authenticated elements to random authenticated bits. <p> Given random element
    * <i>[r]</i>, applies the following protocol: <ol> <li>Compute <i>[r<sup>2</sup>]</i>. <li>Open
-   * to <i>r<sup>2</sup></i>. <li>Compute <i>s = &Sqrt;(r<sup>2</sup>)</i>. <li>Compute <i>[r] / s
+   * to <i>r<sup>2</sup></i>. <li>Compute <i>s = &radic;(r<sup>2</sup>)</i>. <li>Compute <i>[r] / s
    * </i>. This is guaranteed to be either <i>-1</i> or <i>1</i>. <li>Compute <i>(1 + [r] / s) /
-   * 2</i> to convert <i>-1</i> to <i>0</i> and <i>1</i> to <i>1</i>. </ol> </p>
+   * 2</i> to convert <i>-1</i> to <i>0</i> and <i>1</i> to <i>1</i>. </ol>
    *
    * @param randomElements random elements to convert
    * @return random bits

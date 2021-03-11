@@ -12,7 +12,7 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 /**
  * Class implementing two-party coin-tossing. That is, agreement on a random
  * string of bits between two parties even if one of them is acting maliciously.
- * <br/>
+ * <br>
  * The protocol uses the standard approach both parties picking a personal seed.
  * One party commits to it. The other party then sends its seed to the first
  * party. The first party opens it commitment. The parties computes the XOR of

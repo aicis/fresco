@@ -61,7 +61,7 @@ final class MersennePrimeFieldElement implements FieldElement {
 
   @Override
   public FieldElement modInverse() {
-    return create(value.modInverse(getModulus()));
+    return create(modulus.inverse(value));
   }
 
   @Override

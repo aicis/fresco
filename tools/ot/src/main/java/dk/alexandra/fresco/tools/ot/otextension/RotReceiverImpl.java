@@ -59,7 +59,7 @@ public class RotReceiverImpl extends RotSharedImpl implements RotReceiver {
    * Computes the sum of element in a list based on a vector if indicator
    * variables. The sum will be based on Galois addition in the binary extension
    * field of the individual elements of the list. That is, through an XOR
-   * operation. <br/>
+   * operation. <br>
    * All elements of the list MUST have equal size! And both the list and vector
    * of indicator bits MUST contain an equal amount of entries!
    *

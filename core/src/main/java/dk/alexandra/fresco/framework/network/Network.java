@@ -7,7 +7,6 @@ import java.util.List;
  * Network that allows sending and receiving of bytes between the parties of a MPC computation.
  * Simple implementations will just transfer bytes over the wire, one message at a time, however
  * arbitrary complicated buffering mechanism can be implemented.
- * <br/>
  * This interface includes a friendly interface for the native protocols, i.e. send/receive to all.
  */
 public interface Network {

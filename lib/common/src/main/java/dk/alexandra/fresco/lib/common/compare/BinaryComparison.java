@@ -30,7 +30,7 @@ public interface BinaryComparison extends ComputationDirectory {
    * 
    * @param inLeft The left secret shared bit string
    * @param inRight The right secret shared bit string
-   * @return A deferred result computing inLeft > inRight
+   * @return A deferred result computing inLeft &gt; inRight
    */
   DRes<SBool> greaterThan(List<DRes<SBool>> inLeft, List<DRes<SBool>> inRight);
 

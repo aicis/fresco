@@ -186,7 +186,8 @@ public class DefaultFixedNumeric implements FixedNumeric {
   @Override
   public DRes<SFixed> input(BigDecimal value, int inputParty) {
     return builder.seq(seq -> {
-      DRes<SInt> input = seq.numeric().input(unscaled(value, seq.getBasicNumericContext().getDefaultFixedPointPrecision()),
+      DRes<SInt> input = seq.numeric().input(value != null ? unscaled(value,
+          seq.getBasicNumericContext().getDefaultFixedPointPrecision()) : null,
           inputParty);
       return new SFixed(input);
     });

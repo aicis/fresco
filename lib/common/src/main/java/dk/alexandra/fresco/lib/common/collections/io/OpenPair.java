@@ -9,7 +9,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
 /**
- * Implements a open operation on a pair of {@link DRes<SInt>}.
+ * Implements a open operation on a pair of {@code DRes<SInt>}.
  */
 public class OpenPair implements
     ComputationParallel<Pair<DRes<BigInteger>, DRes<BigInteger>>, ProtocolBuilderNumeric> {

@@ -103,12 +103,6 @@ public class CollectionsSortingTests {
   public static class TestOddEvenMerge<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
-    private final boolean presorted;
-
-    public TestOddEvenMerge(boolean presorted) {
-      this.presorted = presorted;
-    }
-
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
@@ -188,30 +182,16 @@ public class CollectionsSortingTests {
 
                 List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> toSort = new ArrayList<>();
 
-                if (presorted) {
-                  // Keep in mind that the first n / 2 keys need to be sorted, as do the second n / 2 keys.
-                  // With the way comparisons work currently, we need the two halves to be sorted in descending order.
-                  toSort.add(new Pair<>(l21, l22));
-                  toSort.add(new Pair<>(l41, l42));
-                  toSort.add(new Pair<>(l11, l12));
-                  toSort.add(new Pair<>(l31, l32));
-                  toSort.add(new Pair<>(l71, l72));
-                  toSort.add(new Pair<>(l61, l62));
-                  toSort.add(new Pair<>(l81, l82));
-                  toSort.add(new Pair<>(l51, l52));
-                  return seq.seq(new OddEvenMerge(toSort, presorted));
-                } else {
-                  toSort.add(new Pair<>(l11, l12));
-                  toSort.add(new Pair<>(l21, l22));
-                  toSort.add(new Pair<>(l31, l32));
-                  toSort.add(new Pair<>(l41, l42));
-                  toSort.add(new Pair<>(l51, l52));
-                  toSort.add(new Pair<>(l61, l62));
-                  toSort.add(new Pair<>(l71, l72));
-                  toSort.add(new Pair<>(l81, l82));
-                  // make code-cov happy
-                  return seq.seq(new OddEvenMerge(toSort));
-                }
+                toSort.add(new Pair<>(l11, l12));
+                toSort.add(new Pair<>(l21, l22));
+                toSort.add(new Pair<>(l31, l32));
+                toSort.add(new Pair<>(l41, l42));
+                toSort.add(new Pair<>(l51, l52));
+                toSort.add(new Pair<>(l61, l62));
+                toSort.add(new Pair<>(l71, l72));
+                toSort.add(new Pair<>(l81, l82));
+                // make code-cov happy
+                return seq.seq(OddEvenMerge.binary(toSort));
               }).seq((seq, sorted) -> {
                 Binary builder = seq.binary();
                 List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> opened = new ArrayList<>();
@@ -264,4 +244,51 @@ public class CollectionsSortingTests {
       };
     }
   }
+
+  public static class TestOddEvenMergeDifferentPayloadLength<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
+        @Override
+        public void test() {
+
+          Boolean[] left11 = ByteAndBitConverter.toBoolean("01");
+          Boolean[] left12 = ByteAndBitConverter.toBoolean("08");
+          Boolean[] left21 = ByteAndBitConverter.toBoolean("03");
+          Boolean[] left22 = ByteAndBitConverter.toBoolean("0708");
+
+          Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary> app =
+              producer -> producer.seq(seq -> {
+                Binary builder = seq.binary();
+                List<DRes<SBool>> l11 =
+                    Arrays.stream(left11).map(builder::known)
+                        .collect(Collectors.toList());
+                List<DRes<SBool>> l12 =
+                    Arrays.stream(left12).map(builder::known)
+                        .collect(Collectors.toList());
+                List<DRes<SBool>> l21 =
+                    Arrays.stream(left21).map(builder::known)
+                        .collect(Collectors.toList());
+                List<DRes<SBool>> l22 =
+                    Arrays.stream(left22).map(builder::known)
+                        .collect(Collectors.toList());
+
+                List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> toSort = new ArrayList<>();
+
+                toSort.add(new Pair<>(l11, l12));
+                toSort.add(new Pair<>(l21, l22));
+                DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> result = OddEvenMerge.binary(
+                    toSort).buildComputation(seq);
+                return null;
+              });
+
+          runApplication(app);
+
+        }
+      };
+    }
+  }
+
 }

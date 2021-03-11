@@ -53,7 +53,7 @@ public class ByteAndBitConverter {
   }
 
   /**
-   * Convert hex string to boolean array. 1 --> true, 0 --> false.
+   * Convert hex string to boolean array. 1 --&gt; true, 0 --&gt; false.
    */
   public static Boolean[] toBoolean(String hex) throws IllegalArgumentException {
     if (hex.length() % 2 != 0) {

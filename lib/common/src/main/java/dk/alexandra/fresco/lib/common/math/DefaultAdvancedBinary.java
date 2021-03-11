@@ -118,7 +118,7 @@ public class DefaultAdvancedBinary implements AdvancedBinary {
   public DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> keyedCompareAndSwap(
       Pair<List<DRes<SBool>>, List<DRes<SBool>>> leftKeyAndValue,
       Pair<List<DRes<SBool>>, List<DRes<SBool>>> rightKeyAndValue) {
-    return builder.seq(new KeyedCompareAndSwap(leftKeyAndValue, rightKeyAndValue));
+    return builder.seq(KeyedCompareAndSwap.binary(leftKeyAndValue, rightKeyAndValue));
   }
 
 }

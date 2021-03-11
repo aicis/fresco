@@ -11,7 +11,7 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
  *
  * <ul>
  *   <li>simple, numeric operations (+, -, *)
- *   <li>Open operations for opening a small subset of values used in the control flow (is a<b)<
+ *   <li>Open operations for opening a small subset of values used in the control flow (is a &lt; b)&lt;
  *   <li>Factories for producing secret shared values
  * </ul>
  *

@@ -183,7 +183,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * Calculating the result of right shifting of the input by one.
    *
    * @param input input.
-   * @return A deferred result computing input >> 1
+   * @return A deferred result computing input &gt;&gt; 1
    */
   DRes<SInt> rightShift(DRes<SInt> input);
 
@@ -192,7 +192,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
    *
    * @param input input.
    * @param shifts Number of shifts
-   * @return A deferred result computing input >> shifts
+   * @return A deferred result computing input &gt;&gt; shifts
    */
   DRes<SInt> rightShift(DRes<SInt> input, int shifts);
 
@@ -201,7 +201,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
    *
    * @param input input
    * @return A deferred result computing<br>
-   *     result: input >> 1<br>
+   *     result: input &gt;&gt; 1<br>
    *     remainder: The <code>shifts</code> least significant bits of the input with the least
    *     significant having index 0.
    */
@@ -214,7 +214,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * @param input input
    * @param shifts Number of shifts
    * @return A deferred result computing <br>
-   *     result: input >> shifts<br>
+   *     result: input &gt;&gt; shifts<br>
    *     remainder: The <code>shifts</code> least significant bits of the input with the least
    *     significant having index 0.
    */
@@ -222,12 +222,12 @@ public interface AdvancedNumeric extends ComputationDirectory {
 
   /**
    * Compute the truncation of a secret input. The result will in most cases be equal to <code>input
-   * >> shifts</code> , but may be one larger. {@link #rightShift(DRes)} gives the exact result, but
+   * &gt;&gt; shifts</code> , but may be one larger. {@link #rightShift(DRes)} gives the exact result, but
    * is slower to compute.
    *
    * @param input  A secret input
    * @param shifts The number of shifts
-   * @return input >> shifts OR (input >> shifts) + 1.
+   * @return input &gt;&gt; shifts OR (input &gt;&gt; shifts) + 1.
    */
   DRes<SInt> truncate(DRes<SInt> input, int shifts);
 
@@ -286,8 +286,20 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<Pair<DRes<SInt>, DRes<SInt>>> normalize(DRes<SInt> input, int targetBitLength);
 
   /**
-   * Container holding the deferred result and remainder of shifting a number.
+   * Compares the keys of two key-value pairs and produce a list of pairs so that the first pair has
+   * the largest key.
+   *
+   * @param leftKeyAndValue A pair of first the key and then a list of its associated values.
+   * @param rightKeyAndValue A pair of first the key and then a list of its associated values.
+   * @return A deferred result computing a list of pairs where the first pair has the largest key.
    */
+  DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> keyedCompareAndSwap(
+      Pair<DRes<SInt>, List<DRes<SInt>>> leftKeyAndValue,
+      Pair<DRes<SInt>, List<DRes<SInt>>> rightKeyAndValue);
+
+    /**
+     * Container holding the deferred result and remainder of shifting a number.
+     */
   class RightShiftResult {
 
     final SInt result;

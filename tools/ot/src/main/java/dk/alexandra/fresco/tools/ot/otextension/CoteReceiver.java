@@ -45,7 +45,7 @@ public class CoteReceiver extends CoteShared {
    *
    * @param choices
    *          The receivers random choices for this extension. This MUST have
-   *          size 2^x for some x >=3.
+   *          size 2<sup>x</sup> for some x &ge; 3.
    * @return A list of pairs consisting of the bit choices, followed by the
    *         received messages
    */

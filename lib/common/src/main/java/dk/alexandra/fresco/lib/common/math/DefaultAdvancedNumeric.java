@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.common.collections.sort.KeyedCompareAndSwap;
 import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSelect;
 import dk.alexandra.fresco.lib.common.math.integer.conditional.SwapIf;
 import dk.alexandra.fresco.lib.common.math.integer.binary.IntegerToBitsByShift;
@@ -172,5 +173,12 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   @Override
   public DRes<Pair<DRes<SInt>, DRes<SInt>>> normalize(DRes<SInt> input, int targetBitLength) {
     return builder.seq(new NormalizeSInt(input, targetBitLength));
+  }
+
+  @Override
+  public DRes<List<Pair<DRes<SInt>, List<DRes<SInt>>>>> keyedCompareAndSwap(
+      Pair<DRes<SInt>, List<DRes<SInt>>> leftKeyAndValue,
+      Pair<DRes<SInt>, List<DRes<SInt>>> rightKeyAndValue) {
+    return builder.seq(KeyedCompareAndSwap.numeric(leftKeyAndValue, rightKeyAndValue));
   }
 }

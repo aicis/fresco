@@ -14,7 +14,7 @@ public interface RotReceiver {
    *
    * @param choices
    *          The receivers choices for this extension. This MUST have size
-   *          2^x-kbitLength-getLambdaSecurityParam for some x > 3.
+   *          2^x-kbitLength-getLambdaSecurityParam for some x &gt; 3.
    * @return A list of pairs consisting of the bit choices, followed by the
    *         received messages
    */

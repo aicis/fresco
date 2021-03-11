@@ -126,7 +126,7 @@ public interface AdvancedBinary extends ComputationDirectory {
    * Full adder which works with any number of inputs to the addition. The lefts and rights must
    * have the same size. The Output is a computation which contains an array of size n, where n is
    * the length of the lefts and rights inputs + 1, where the 0'th entry is the carry and the rest
-   * is the result. An example: lefts: 1100101 rights: 1101001 inCarry: 1 => output:11001111
+   * is the result. An example: lefts: 1100101 rights: 1101001 inCarry: 1 =&gt; output:11001111
    *
    * @param lefts The first inputs.
    * @param rights The second inputs.
