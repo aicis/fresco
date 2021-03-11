@@ -75,10 +75,17 @@ public class TripleGenerationTest extends NetworkedTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void toAuthenticatedCandidate() {
+  public void toAuthenticatedCandidateZsSizeDifferent() {
     List<AuthenticatedElement> notEmpty = new ArrayList<>();
     notEmpty.add(mock(AuthenticatedElement.class));
     TripleGeneration.toAuthenticatedCandidate(new ArrayList<>(), new ArrayList<>(), notEmpty);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void toAuthenticatedCandidateYsSizeDifferent() {
+    List<AuthenticatedElement> notEmpty = new ArrayList<>();
+    notEmpty.add(mock(AuthenticatedElement.class));
+    TripleGeneration.toAuthenticatedCandidate(new ArrayList<>(), notEmpty, new ArrayList<>());
   }
 
   private Integer runCheckMultiplicationPredicate(
