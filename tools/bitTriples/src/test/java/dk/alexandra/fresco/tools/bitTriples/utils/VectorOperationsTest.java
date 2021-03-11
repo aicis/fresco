@@ -3,6 +3,8 @@ package dk.alexandra.fresco.tools.bitTriples.utils;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -20,6 +22,20 @@ public class VectorOperationsTest {
     byte[] seed = new byte[32];
     rand.nextBytes(seed);
     this.drng = new AesCtrDrbg(seed);
+  }
+
+  @Test
+  public void testConstructorIsPrivate()
+      throws NoSuchMethodException {
+    Constructor<VectorOperations> constructor = VectorOperations.class.getDeclaredConstructor();
+    Assert.assertTrue(Modifier.isPrivate(constructor.getModifiers()));
+    constructor.setAccessible(true);
+    try {
+      constructor.newInstance();
+    } catch (Exception e) {
+      Assert.assertTrue(e.getCause() instanceof RuntimeException);
+    }
+
   }
 
   @Test
@@ -73,11 +89,11 @@ public class VectorOperationsTest {
   public void xorAll() {
     StrictBitVector vector = new StrictBitVector(8);
     Assert.assertFalse(VectorOperations.sum(vector));
-    vector.setBit(0, true,false);
+    vector.setBit(0, true, false);
     Assert.assertTrue(VectorOperations.sum(vector));
-    vector.setBit(1, true,false);
+    vector.setBit(1, true, false);
     Assert.assertFalse(VectorOperations.sum(vector));
-    vector.setBit(2, true,false);
+    vector.setBit(2, true, false);
     Assert.assertTrue(VectorOperations.sum(vector));
   }
 
@@ -86,14 +102,14 @@ public class VectorOperationsTest {
     StrictBitVector v1 = new StrictBitVector(8);
     StrictBitVector v2 = new StrictBitVector(8);
 
-    v1.setBit(1, true,false);
+    v1.setBit(1, true, false);
 
     List<StrictBitVector> arg = new ArrayList<>();
     arg.add(v1);
     arg.add(v2);
 
-    Assert.assertTrue(VectorOperations.sum(arg).getBit(1,false));
-    Assert.assertFalse(VectorOperations.sum(arg).getBit(0,false));
+    Assert.assertTrue(VectorOperations.sum(arg).getBit(1, false));
+    Assert.assertFalse(VectorOperations.sum(arg).getBit(0, false));
   }
 
   @Test
@@ -102,18 +118,18 @@ public class VectorOperationsTest {
     StrictBitVector v2 = new StrictBitVector(8);
     StrictBitVector v3 = new StrictBitVector(8);
 
-    v1.setBit(1, true,false);
-    v2.setBit(2, true,false);
-    v3.setBit(1, true,false);
+    v1.setBit(1, true, false);
+    v2.setBit(2, true, false);
+    v3.setBit(1, true, false);
 
     List<StrictBitVector> arg = new ArrayList<>();
     arg.add(v1);
     arg.add(v2);
     arg.add(v3);
 
-    Assert.assertFalse(VectorOperations.sum(arg).getBit(0,false));
-    Assert.assertFalse(VectorOperations.sum(arg).getBit(1,false));
-    Assert.assertTrue(VectorOperations.sum(arg).getBit(2,false));
+    Assert.assertFalse(VectorOperations.sum(arg).getBit(0, false));
+    Assert.assertFalse(VectorOperations.sum(arg).getBit(1, false));
+    Assert.assertTrue(VectorOperations.sum(arg).getBit(2, false));
   }
 
   @Test
@@ -121,8 +137,8 @@ public class VectorOperationsTest {
     StrictBitVector v1 = new StrictBitVector(8);
     StrictBitVector v2 = new StrictBitVector(8);
 
-    v1.setBit(1, true,false);
-    v2.setBit(2, true,false);
+    v1.setBit(1, true, false);
+    v2.setBit(2, true, false);
 
     List<StrictBitVector> l1 = new ArrayList<>();
     l1.add(v1);
@@ -133,9 +149,9 @@ public class VectorOperationsTest {
     arg.add(l1);
     arg.add(l2);
 
-    Assert.assertFalse(VectorOperations.xorIndex(arg, 0).getBit(0,false));
-    Assert.assertTrue(VectorOperations.xorIndex(arg, 0).getBit(1,false));
-    Assert.assertTrue(VectorOperations.xorIndex(arg, 0).getBit(2,false));
+    Assert.assertFalse(VectorOperations.xorIndex(arg, 0).getBit(0, false));
+    Assert.assertTrue(VectorOperations.xorIndex(arg, 0).getBit(1, false));
+    Assert.assertTrue(VectorOperations.xorIndex(arg, 0).getBit(2, false));
   }
 
   @Test(expected = IllegalStateException.class)
@@ -144,7 +160,7 @@ public class VectorOperationsTest {
     StrictBitVector v2 = new StrictBitVector(8);
     StrictBitVector v3 = new StrictBitVector(8);
 
-    v1.setBit(1, true );
+    v1.setBit(1, true);
     v2.setBit(2, true);
     v3.setBit(3, true);
 
@@ -179,14 +195,14 @@ public class VectorOperationsTest {
 
     StrictBitVector result = VectorOperations.and(arg1, arg2);
 
-    Assert.assertFalse(result.getBit(0,false));
-    Assert.assertFalse(result.getBit(1,false));
-    Assert.assertTrue(result.getBit(2,false));
+    Assert.assertFalse(result.getBit(0, false));
+    Assert.assertFalse(result.getBit(1, false));
+    Assert.assertTrue(result.getBit(2, false));
   }
 
 
   @Test
-  public void testSetBits(){
+  public void testSetBits() {
     testSetBits(4);
     testSetBits(5);
     testSetBits(6);
@@ -198,16 +214,15 @@ public class VectorOperationsTest {
     Random random = new Random();
     StrictBitVector vector = new StrictBitVector(8);
 
-    StrictBitVector result = VectorOperations.setBits(vector,random,setBits);
+    StrictBitVector result = VectorOperations.setBits(vector, random, setBits);
     int noOfSetBits = 0;
-    for(int i = 0; i < result.getSize(); i++){
-      if(result.getBit(i)){
+    for (int i = 0; i < result.getSize(); i++) {
+      if (result.getBit(i)) {
         noOfSetBits++;
       }
     }
-    Assert.assertEquals(setBits,noOfSetBits);
+    Assert.assertEquals(setBits, noOfSetBits);
   }
 
-  
 
 }

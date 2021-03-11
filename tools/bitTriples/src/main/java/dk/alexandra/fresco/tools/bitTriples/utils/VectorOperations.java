@@ -12,7 +12,11 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-public class VectorOperations {
+public final class VectorOperations {
+
+  private VectorOperations(){
+    throw new RuntimeException("Instantiation of VectorOperations is not allowed.");
+  }
 
   public static boolean isZero(StrictBitVector vector) {
     return vector.equals(new StrictBitVector(vector.getSize()));
@@ -171,7 +175,7 @@ public class VectorOperations {
    * @param c number of bits to be set
    * @return The bitvector with c new bits set.
    */
-  protected static StrictBitVector setBits(StrictBitVector vector, Random random, int c) {
+  public static StrictBitVector setBits(StrictBitVector vector, Random random, int c) {
     if (c <= 0) {
       return vector;
     }
@@ -183,6 +187,4 @@ public class VectorOperations {
       return setBits(vector, random, c - 1);
     }
   }
-
-
 }

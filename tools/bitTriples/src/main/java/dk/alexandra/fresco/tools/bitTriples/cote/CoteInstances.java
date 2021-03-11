@@ -28,10 +28,7 @@ public class CoteInstances {
                 if (receiverId != senderId) {
                     if (resourcePool.getMyId() == senderId) {
                         CoteFactory cote = resourcePool.createCote(receiverId, network, mac);
-                        Map<Integer, CoteFactory> map = COTeInstances.get(receiverId);
-                        if (map == null) {
-                            map = new HashMap<>();
-                        }
+                        Map<Integer, CoteFactory> map = new HashMap<>();
                         map.put(senderId, cote);
                         COTeInstances.put(receiverId, map);
                     } else if (resourcePool.getMyId() == receiverId) {
