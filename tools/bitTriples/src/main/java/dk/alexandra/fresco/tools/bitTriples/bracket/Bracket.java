@@ -11,6 +11,9 @@ import dk.alexandra.fresco.tools.ot.otextension.CoteFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Actively-secure protocol for authenticating secret shared bits (described in fig. 6).
+ */
 public class Bracket {
 
   private final Network network;
@@ -20,10 +23,10 @@ public class Bracket {
   private final StrictBitVector mac;
 
   /**
-   * Implements the []-protocol described in Figure 6.
-   *  @param resourcePool The resource pool
+   * Create a new []-protocol.
+   * @param resourcePool The resource pool
    * @param network The network
-   * @param jointSampler
+   * @param jointSampler a sampler constructed with a joint seed
    */
   public Bracket(BitTripleResourcePool resourcePool, Network network, BytePrg jointSampler) {
     this(resourcePool, network, resourcePool.getLocalSampler().getNext(resourcePool.getComputationalSecurityBitParameter()), jointSampler);
@@ -37,11 +40,23 @@ public class Bracket {
     COTeInstances = new CoteInstances(resourcePool,network,mac);
   }
 
+  /**
+   * Constructs a sharing for a set of random elements.
+   * @param amountOfElements the amount of elements
+   * @return a list of sharings
+   */
+
   public List<StrictBitVector> input(int amountOfElements) {
     // Sample random input
     StrictBitVector randomInput = resourcePool.getLocalSampler().getNext(amountOfElements);
     return input(randomInput);
   }
+
+  /**
+   * Constructs a sharing for the given elements.
+   * @param input input elements
+   * @return a list of sharings
+   */
 
   public List<StrictBitVector> input(StrictBitVector input) {
     // Step 1. n-share to obtain shares
@@ -70,7 +85,7 @@ public class Bracket {
       sharesWithMac.add(resultFromShare);
     }
 
-    return VectorOperations.xorMatchingIndices(sharesWithMac, myInput.getSize());
+    return VectorOperations.sumMatchingIndices(sharesWithMac, myInput.getSize());
   }
 
   /**
@@ -100,11 +115,17 @@ public class Bracket {
     }
   }
 
+  /**
+   * Constructs the <i>u</i>'s describes in Fig. 7 step 2.
+   * @param receiverInput the input of the receiving party
+   * @param tResults the <i>t</i>'s resulting from extending COTe
+   * @return the list of <i>u</i>'s
+   */
   protected List<StrictBitVector> constructUs(
       StrictBitVector receiverInput, List<List<StrictBitVector>> tResults) {
     List<StrictBitVector> us = new ArrayList<>();
     for (int l = 0; l < receiverInput.getSize(); l++) {
-      StrictBitVector sumOfTs = VectorOperations.xorIndex(tResults, l);
+      StrictBitVector sumOfTs = VectorOperations.xorAtIndex(tResults, l);
       if (receiverInput.getBit(l, false)) {
         sumOfTs.xor(mac);
       }
@@ -112,6 +133,11 @@ public class Bracket {
     }
     return us;
   }
+
+  /**
+   * Returns the COTe instances used in this protocol
+   * @return COTe instances
+   */
   public CoteInstances getCOTeInstances() {
     return COTeInstances;
   }

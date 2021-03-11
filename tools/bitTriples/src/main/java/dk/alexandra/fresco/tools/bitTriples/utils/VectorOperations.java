@@ -18,6 +18,9 @@ public final class VectorOperations {
     throw new RuntimeException("Instantiation of VectorOperations is not allowed.");
   }
 
+  /**
+   * Checks whether the vector is zero.
+   */
   public static boolean isZero(StrictBitVector vector) {
     return vector.equals(new StrictBitVector(vector.getSize()));
   }
@@ -63,7 +66,7 @@ public final class VectorOperations {
     return accumulator;
   }
 
-  public static StrictBitVector xorIndex(List<List<StrictBitVector>> toSum, int index) {
+  public static StrictBitVector xorAtIndex(List<List<StrictBitVector>> toSum, int index) {
     int size = toSum.get(0).size();
     for(List<StrictBitVector> l : toSum){
       if (l.size() != size){
@@ -86,18 +89,16 @@ public final class VectorOperations {
   }
 
   /**
-   * Collapses a n x l matrix of StrictBitVectors into an list of StrictBitVectors of size l, by
-   * xoring the n StrictBitVectors at matching indices.
-   *
-   * @param shares The shares
-   * @param l the 'height' of the matrix
-   * @return list of StrictBitVectors
+   * Takes a List of Lists of vectors, and sum the vectors at matching indices.
+   * @param vectors matrix of vectors
+   * @param length the length of the inner lists
+   * @return list of the sums
    */
-  public static List<StrictBitVector> xorMatchingIndices(List<List<StrictBitVector>> shares, int l) {
+  public static List<StrictBitVector> sumMatchingIndices(List<List<StrictBitVector>> vectors, int length) {
     List<StrictBitVector> resultingVectors = new ArrayList<>();
-    for (int i = 0; i < l; i++) {
+    for (int i = 0; i < length; i++) {
       StrictBitVector newVector = null;
-      for (List<StrictBitVector> list : shares) {
+      for (List<StrictBitVector> list : vectors) {
         if (newVector == null) {
           newVector = list.get(i);
         } else {
@@ -148,14 +149,12 @@ public final class VectorOperations {
     return result;
   }
 
-
-
   /**
    * Generates a random StrictBitVector with exactly c 1's, and the rest 0's.
    *
    * @param c number of 1's.
    * @param size size of .
-   * @return
+   * @return A vector with c bits set.
    */
   public static StrictBitVector generateRandomIndices(int c, int size, BitTripleResourcePool resourcePool, BytePrg jointSampler) {
       SecureRandom random = ExceptionConverter.safe(
@@ -167,13 +166,14 @@ public final class VectorOperations {
       StrictBitVector strictBitVector = new StrictBitVector(size);
       return setBits(strictBitVector, random, c);
   }
+
   /**
-   * Runs through the given vector, and sets c bits, that have previously not been set.
+   * Sets c bits in the given vector that was previously not set.
    *
    * @param vector vector
    * @param random random
    * @param c number of bits to be set
-   * @return The bitvector with c new bits set.
+   * @return The vector with c new bits set.
    */
   public static StrictBitVector setBits(StrictBitVector vector, Random random, int c) {
     if (c <= 0) {

@@ -149,9 +149,9 @@ public class VectorOperationsTest {
     arg.add(l1);
     arg.add(l2);
 
-    Assert.assertFalse(VectorOperations.xorIndex(arg, 0).getBit(0, false));
-    Assert.assertTrue(VectorOperations.xorIndex(arg, 0).getBit(1, false));
-    Assert.assertTrue(VectorOperations.xorIndex(arg, 0).getBit(2, false));
+    Assert.assertFalse(VectorOperations.xorAtIndex(arg, 0).getBit(0, false));
+    Assert.assertTrue(VectorOperations.xorAtIndex(arg, 0).getBit(1, false));
+    Assert.assertTrue(VectorOperations.xorAtIndex(arg, 0).getBit(2, false));
   }
 
   @Test(expected = IllegalStateException.class)
@@ -174,7 +174,7 @@ public class VectorOperationsTest {
     arg.add(l1);
     arg.add(l2);
 
-    VectorOperations.xorIndex(arg, 0);
+    VectorOperations.xorAtIndex(arg, 0);
   }
 
   @Test(expected = IllegalStateException.class)

@@ -3,7 +3,7 @@ package dk.alexandra.fresco.tools.bitTriples.elements;
 import dk.alexandra.fresco.framework.builder.numeric.Addable;
 
 /**
- * An secret-shared authenticated multiplication triple. <p>Holds three elements [a],[b],[c] such
+ * A secret-shared authenticated multiplication triple. <p>Holds three elements [a],[b],[c] such
  * that [a * b] = [c]</p>
  */
 public class MultiplicationTriple implements Addable<MultiplicationTriple> {
