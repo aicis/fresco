@@ -1,17 +1,12 @@
 package dk.alexandra.fresco.suite.tinytables.prepro.protocols;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
-import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.Drng;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBool;
-import java.math.BigInteger;
-import java.security.SecureRandom;
 
 /**
  * This class represents an AND protocol in the preprocessing phase of the TinyTables protocol.
@@ -76,27 +71,13 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol<SBool>
    * @param playerId The ID of this player.
    * @param product A share of the product of input values for this gate.
    */
-  public TinyTable calculateTinyTable(
-      int playerId, TinyTablesElement product, BigInteger modulus, int statisticalSecurity) {
+  public TinyTable calculateTinyTable(int playerId, TinyTablesElement product) {
 
-    FieldElement[] macs = new FieldElement[4];
-    BigIntegerFieldDefinition fieldDefinition = new BigIntegerFieldDefinition(modulus);
-    macs[0] = fieldDefinition.createElement(generateRandomMac(statisticalSecurity));
-    macs[1] = fieldDefinition.createElement(generateRandomMac(statisticalSecurity));
-    macs[2] = fieldDefinition.createElement(generateRandomMac(statisticalSecurity));
-    macs[3] = fieldDefinition.createElement(generateRandomMac(statisticalSecurity));
     TinyTablesElement[] entries = new TinyTablesElement[4];
     entries[0] = product.add(this.out.getValue());
     entries[1] = entries[0].add(getInLeft().getValue());
     entries[2] = entries[0].add(getInRight().getValue());
     entries[3] = entries[0].add(getInLeft().getValue()).add(getInRight().getValue()).not(playerId);
-    return new TinyTable(entries, macs);
-  }
-
-  private BigInteger generateRandomMac(int statisticalSecurity){
-    SecureRandom random = new SecureRandom();
-    byte[] bytes = new byte[statisticalSecurity/8];
-    random.nextBytes(bytes);
-    return new BigInteger(bytes);
+    return new TinyTable(entries);
   }
 }

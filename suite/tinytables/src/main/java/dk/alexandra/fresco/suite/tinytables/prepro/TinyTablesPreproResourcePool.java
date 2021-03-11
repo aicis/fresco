@@ -52,10 +52,7 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
   private final TinyTablesStorage storage;
   private final File tinyTablesFile;
   private final Supplier<TinyTablesTripleProvider> supplier;
-  private final int statisticalSecurity;
   private TinyTablesTripleProvider tinyTablesTripleProvider;
-  private final BigInteger macMessageModulus;
-  private final BigInteger macTagModulus;
 
   /**
    * Creates an instance of the default implementation of a resource pool. This contains the basic
@@ -75,9 +72,6 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
     this.storage = new TinyTablesStorageImpl();
     this.tinyTablesFile = tinyTablesFile;
     this.drng = new DrngImpl(drbg);
-    this.statisticalSecurity = statisticalSecurity;
-    this.macMessageModulus = ModulusFinder.findSuitableModulus(statisticalSecurity);
-    this.macTagModulus = ModulusFinder.findSuitableModulus(2 * statisticalSecurity);
     this.supplier = () -> {
       RotList rotList = new RotList(drbg, computationalSecurity);
       CoinTossing ct = new CoinTossing(myId, Util.otherPlayerId(myId), drbg);
@@ -167,7 +161,7 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
       TinyTablesElement product = TinyTablesElement.finalizeMultiplication(e, d, usedTriples.get(i),
           this.getMyId());
 
-      TinyTable tinyTable = gate.calculateTinyTable(getMyId(), product, macMessageModulus, statisticalSecurity);
+      TinyTable tinyTable = gate.calculateTinyTable(getMyId(), product);
 
       this.storage.storeTinyTable(gate.getId(), tinyTable);
     }
