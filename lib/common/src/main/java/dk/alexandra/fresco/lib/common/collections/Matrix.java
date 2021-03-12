@@ -35,7 +35,7 @@ public class Matrix<T> {
   public Matrix(Matrix<T> other) {
     this.width = other.getWidth();
     this.height = other.getHeight();
-    this.matrix = other.getRows().stream().map(row -> new ArrayList<>(row))
+    this.matrix = other.getRows().stream().map(ArrayList::new)
         .collect(Collectors.toCollection(ArrayList::new));
   }
 
@@ -90,8 +90,8 @@ public class Matrix<T> {
     return height;
   }
 
-  public List<T> getColumn(int i) {
-    return this.matrix.stream().map(row -> row.get(i)).collect(Collectors.toList());
+  public ArrayList<T> getColumn(int i) {
+    return this.matrix.stream().map(row -> row.get(i)).collect(Collectors.toCollection(ArrayList::new));
   }
 
   @Override
