@@ -373,9 +373,7 @@ public class TestTinyTables {
       SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> computationEngine;
       TinyTablesPreproProtocolSuite suite = new TinyTablesPreproProtocolSuite();
       Drbg random = new AesCtrDrbg(new byte[32]);
-      DHParameterSpec params = DhParameters.getStaticDhParams();
-      TinyTablesOt baseOt = new TinyTablesNaorPinkasOt(Util.otherPlayerId(playerId), random,
-          params);
+      TinyTablesOt baseOt = new TinyTablesNaorPinkasOt(Util.otherPlayerId(playerId), random);
       Supplier<Network> network = new NetworkSupplier(playerId, netConf);
       resourcePoolSupplier = () -> new TinyTablesPreproResourcePool(
           playerId, baseOt,

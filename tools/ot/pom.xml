@@ -21,5 +21,23 @@
       <artifactId>commitment</artifactId>
       <version>1.3.1-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcpkix-jdk15on</artifactId>
+      <version>1.67</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>iaik</groupId>
+      <artifactId>eccelerate</artifactId>
+      <version>6.02</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>iaik</groupId>
+      <artifactId>jce</artifactId>
+      <version>5.61</version>
+      <optional>true</optional>
+    </dependency>
   </dependencies>
 </project>
