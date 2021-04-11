@@ -231,7 +231,7 @@ public class TestFunctionalNaorPinkas {
     Callable<List<StrictBitVector>> partyTwoInit = () -> otReceiveCheat(choice);
     // run tasks and get ordered list of results
     if (this.testClass == ECCelerateNaorPinkas.class || this.testClass == BouncyCastleNaorPinkas.class) {
-      // if you cheat in ECCNaorPinkas | BouncyCastleNaorPinkas, the cheated Message is not
+      // if you (trivially) cheat in ECCNaorPinkas | BouncyCastleNaorPinkas, the cheated Message is not
       // a valid point on the curve anymore so it should throw an exception
       try {
         List<List<StrictBitVector>> results =

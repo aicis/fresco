@@ -19,8 +19,7 @@ public class BigIntElement implements InterfaceNaorPinkasElement<BigIntElement> 
 
   @Override
   public BigIntElement groupOp(BigIntElement other) {
-    BigInteger otherBigInt = other.element;
-    return new BigIntElement(this.element.multiply(otherBigInt), this.dhModulus);
+    return new BigIntElement(this.element.multiply(other.element), this.dhModulus);
   }
 
   @Override

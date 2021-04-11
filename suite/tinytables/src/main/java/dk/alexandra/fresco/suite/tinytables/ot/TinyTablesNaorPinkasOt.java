@@ -2,9 +2,6 @@ package dk.alexandra.fresco.suite.tinytables.ot;
 
 import dk.alexandra.fresco.tools.ot.base.AbstractNaorPinkasOT;
 import dk.alexandra.fresco.tools.ot.base.BigIntNaorPinkas;
-import dk.alexandra.fresco.tools.ot.base.BouncyCastleNaorPinkas;
-import dk.alexandra.fresco.tools.ot.base.ECCelerateNaorPinkas;
-import javax.crypto.spec.DHParameterSpec;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
