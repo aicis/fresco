@@ -92,6 +92,7 @@ public abstract class AbstractNaorPinkasOT implements Ot {
     InterfaceNaorPinkasElement randPoint = this.decodeElement(network.receive(otherId));
     BigInteger privateKey = randNum.nextBigInteger(getDhModulus());
     InterfaceNaorPinkasElement publicKeySigma = getDhGenerator().exponentiation(privateKey);
+
     InterfaceNaorPinkasElement publicKeyNotSigma = publicKeySigma.inverse().groupOp(randPoint);
 
     if (choiceBit == false) {

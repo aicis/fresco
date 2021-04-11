@@ -7,9 +7,9 @@ import java.math.BigInteger;
 /**
  * Needs the Bouncy Castle dependency from the OT pom.xml
  */
-public class BouncyCastleECCElement implements InterfaceNaorPinkasElement {
+public class BouncyCastleECCElement implements InterfaceNaorPinkasElement<BouncyCastleECCElement> {
 
-  ECPoint point;
+  private final ECPoint point;
 
   public BouncyCastleECCElement(ECPoint point) {
     this.point = point;
@@ -21,18 +21,17 @@ public class BouncyCastleECCElement implements InterfaceNaorPinkasElement {
   }
 
   @Override
-  public InterfaceNaorPinkasElement groupOp(InterfaceNaorPinkasElement other) {
-    BouncyCastleECCElement otherBC = (BouncyCastleECCElement) other;
-    return new BouncyCastleECCElement(this.point.add(otherBC.point));
+  public BouncyCastleECCElement groupOp(BouncyCastleECCElement other) {
+    return new BouncyCastleECCElement(this.point.add(other.point));
   }
 
   @Override
-  public InterfaceNaorPinkasElement inverse() {
+  public BouncyCastleECCElement inverse() {
     return new BouncyCastleECCElement(this.point.negate());
   }
 
   @Override
-  public InterfaceNaorPinkasElement exponentiation(BigInteger n) {
+  public BouncyCastleECCElement exponentiation(BigInteger n) {
     return new BouncyCastleECCElement(this.point.multiply(n));
   }
 }

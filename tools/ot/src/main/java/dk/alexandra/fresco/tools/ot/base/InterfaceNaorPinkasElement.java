@@ -2,7 +2,8 @@ package dk.alexandra.fresco.tools.ot.base;
 
 import java.math.BigInteger;
 
-public interface InterfaceNaorPinkasElement {
+
+public interface InterfaceNaorPinkasElement<T extends InterfaceNaorPinkasElement<T>> {
 
   /**
    * @return the Naor-Pinkas Element as a byte[]
@@ -14,13 +15,13 @@ public interface InterfaceNaorPinkasElement {
    * @param other
    * @return
    */
-  InterfaceNaorPinkasElement groupOp(InterfaceNaorPinkasElement other);
+  T groupOp(T other);
 
   /**
    * Creates the inverse of the Naor-Pinkas Element
    * @return
    */
-  InterfaceNaorPinkasElement inverse();
+  T inverse();
 
 
   /**
@@ -28,7 +29,7 @@ public interface InterfaceNaorPinkasElement {
    * @param n
    * @return
    */
-  InterfaceNaorPinkasElement exponentiation(BigInteger n);
+  T exponentiation(BigInteger n);
 
 
 }

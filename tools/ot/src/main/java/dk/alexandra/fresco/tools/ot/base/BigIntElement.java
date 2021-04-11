@@ -2,10 +2,10 @@ package dk.alexandra.fresco.tools.ot.base;
 
 import java.math.BigInteger;
 
-public class BigIntElement implements InterfaceNaorPinkasElement {
+public class BigIntElement implements InterfaceNaorPinkasElement<BigIntElement> {
 
-  BigInteger element;
-  BigInteger dhModulus;
+  private final BigInteger element;
+  private final BigInteger dhModulus;
 
   public BigIntElement(BigInteger element, BigInteger dhModulus) {
     this.element = element;
@@ -18,19 +18,19 @@ public class BigIntElement implements InterfaceNaorPinkasElement {
   }
 
   @Override
-  public InterfaceNaorPinkasElement groupOp(InterfaceNaorPinkasElement other) {
-    BigInteger otherBigInt = ((BigIntElement) other).element;
+  public BigIntElement groupOp(BigIntElement other) {
+    BigInteger otherBigInt = other.element;
     return new BigIntElement(this.element.multiply(otherBigInt), this.dhModulus);
   }
 
   @Override
-  public InterfaceNaorPinkasElement inverse() {
+  public BigIntElement inverse() {
     return new BigIntElement(this.element.modInverse(this.dhModulus), this.dhModulus);
   }
 
   @Override
   //modPow in this case
-  public InterfaceNaorPinkasElement exponentiation(BigInteger n) {
-    return new BigIntElement(this.element.modPow(other, this.dhModulus), this.dhModulus);
+  public BigIntElement exponentiation(BigInteger n) {
+    return new BigIntElement(this.element.modPow(n, this.dhModulus), this.dhModulus);
   }
 }

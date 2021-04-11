@@ -48,7 +48,6 @@ public class BouncyCastleNaorPinkas extends AbstractNaorPinkasOT {
 
   @Override
   InterfaceNaorPinkasElement decodeElement(byte[] bytes) {
-    org.bouncycastle.math.ec.ECPoint tmp = this.curve.decodePoint(bytes);
     return new BouncyCastleECCElement(this.curve.decodePoint(bytes));
   }
 

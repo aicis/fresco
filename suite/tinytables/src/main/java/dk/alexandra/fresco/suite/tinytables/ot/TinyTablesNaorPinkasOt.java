@@ -1,12 +1,14 @@
 package dk.alexandra.fresco.suite.tinytables.ot;
 
+import dk.alexandra.fresco.tools.ot.base.AbstractNaorPinkasOT;
+import dk.alexandra.fresco.tools.ot.base.BigIntNaorPinkas;
+import dk.alexandra.fresco.tools.ot.base.BouncyCastleNaorPinkas;
+import dk.alexandra.fresco.tools.ot.base.ECCelerateNaorPinkas;
 import javax.crypto.spec.DHParameterSpec;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.ot.base.AbstractNaorPinkasOT;
-import dk.alexandra.fresco.tools.ot.base.BouncyCastleNaorPinkas;
 
 public class TinyTablesNaorPinkasOt implements TinyTablesOt {
 
@@ -18,7 +20,7 @@ public class TinyTablesNaorPinkasOt implements TinyTablesOt {
    * Constructs a Naor-Pinkas OT instance using pre-specified Diffie-Hellman parameters.
    *
    * @param otherId The ID of the other party
-   * @param random  The calling party's secure randomness generator
+   * @param random The calling party's secure randomness generator
    */
   public TinyTablesNaorPinkasOt(int otherId, Drbg random) {
     this.otherId = otherId;
@@ -27,7 +29,7 @@ public class TinyTablesNaorPinkasOt implements TinyTablesOt {
 
   @Override
   public void init(Network network) {
-    ot = new BouncyCastleNaorPinkas(otherId, random, network);
+    ot = new BigIntNaorPinkas(otherId, random, network);
   }
 
   @Override
