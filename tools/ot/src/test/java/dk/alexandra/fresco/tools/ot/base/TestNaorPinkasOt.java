@@ -31,7 +31,7 @@ public class TestNaorPinkasOt {
   @Parameters
   public static Collection<Object[]> data() {
     return Arrays.asList(new Object[][] {
-        { ECCelerateNaorPinkas.class}, { BigIntNaorPinkas.class }, {BouncyCastleNaorPinkas.class}
+        { BigIntNaorPinkas.class }, {BouncyCastleNaorPinkas.class}
     });
   }
 
