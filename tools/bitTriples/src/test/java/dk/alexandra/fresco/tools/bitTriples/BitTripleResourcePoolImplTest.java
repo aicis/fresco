@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.bitTriples;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 import dk.alexandra.fresco.framework.network.Network;
