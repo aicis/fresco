@@ -146,9 +146,9 @@ public class TripleGeneration {
     // Step 1
     StrictBitVector ys = resourcePool.getLocalSampler().getNext(xs.getSize());
     // Step 2a
-    Map<Integer, StrictBitVector> ws = breakCorrelation(qsTs.getFirst(), null);
-    Map<Integer, StrictBitVector> v0s = breakCorrelation(qsTs.getSecond(), null);
-    Map<Integer, StrictBitVector> v1s = breakCorrelation(qsTs.getSecond(), macLeft);
+    Map<Integer, StrictBitVector> ws = breakCorrelation(qsTs.getSecond(), null);
+    Map<Integer, StrictBitVector> v0s = breakCorrelation(qsTs.getFirst(), null);
+    Map<Integer, StrictBitVector> v1s = breakCorrelation(qsTs.getFirst(), macLeft);
     // Step 2b
     List<StrictBitVector> ns = createNewCorrelations(ys, xs, v0s, v1s, ws);
     // Step 3
