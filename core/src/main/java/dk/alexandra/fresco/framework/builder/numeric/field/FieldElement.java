@@ -45,4 +45,11 @@ public interface FieldElement extends Serializable, Addable<FieldElement> {
    * @return <code>this<sup>-1</sup> mod modulus</code>
    */
   FieldElement modInverse();
+
+  /**
+   * Checks whether the element is zero
+   * @return true if element is zero, false otherwise
+   */
+
+  boolean isZero();
 }

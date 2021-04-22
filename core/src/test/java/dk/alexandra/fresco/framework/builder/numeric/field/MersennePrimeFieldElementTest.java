@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.builder.numeric.field;
 
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -113,5 +114,12 @@ public class MersennePrimeFieldElementTest {
   public void toStringTest() {
     FieldElement element = MersennePrimeFieldElement.create(BigInteger.valueOf(7854), bigModulus);
     assertThat(element.toString(), StringContains.containsString("7854"));
+  }
+
+  @Test
+  public void testIsZero() {
+    FieldElement element = MersennePrimeFieldElement.create(BigInteger.valueOf(0), bigModulus);
+    assertTrue(element.isZero());
+
   }
 }

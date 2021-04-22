@@ -64,6 +64,11 @@ final class MersennePrimeFieldElement implements FieldElement {
     return create(modulus.inverse(value));
   }
 
+  @Override
+  public boolean isZero() {
+    return BigInteger.ZERO.equals(value);
+  }
+
   static BigInteger extractValue(FieldElement element) {
     return ((MersennePrimeFieldElement) element).value;
   }

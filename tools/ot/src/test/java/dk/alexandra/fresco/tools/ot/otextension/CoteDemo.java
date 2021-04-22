@@ -14,7 +14,7 @@ import java.util.List;
  * @param <ResourcePoolT>
  *          The FRESCO resource pool used for the execution
  */
-public class CoteDemo<ResourcePoolT extends ResourcePool> {
+public class  CoteDemo<ResourcePoolT extends ResourcePool> {
   private final int amountOfOTs = 1024;
   private final int kbitLength = 128;
   private final int lambdaSecurityParam = 40;
