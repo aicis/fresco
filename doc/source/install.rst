@@ -33,7 +33,7 @@ your projects POM file. E.g., to use the ``core`` module add the dependency
   <dependency>
     <groupId>dk.alexandra.fresco</groupId>
     <artifactId>core</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.3.1-SNAPSHOT</version>
   </dependency>
 
 possibly incrementing the version number to the current version. 
@@ -47,7 +47,7 @@ In order to use one of the :ref:`protocol suites <protocol_suites>` in your proj
   <dependency>
     <groupId>dk.alexandra.fresco</groupId>
     <artifactId>spdz</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.3.1-SNAPSHOT</version>
   </dependency>
 
 Using the Latest FRESCO Release
@@ -65,13 +65,13 @@ of the ``core`` and ``spdz`` modules add the dependencies
   <dependency>
     <groupId>dk.alexandra.fresco</groupId>
     <artifactId>core</artifactId>
-    <version>1.0.0</version>
+    <version>1.3.0</version>
   </dependency>
 
   <dependency>
     <groupId>dk.alexandra.fresco</groupId>
     <artifactId>spdz</artifactId>
-    <version>1.0.0</version>
+    <version>1.3.0</version>
   </dependency>
 
 possibly adjusting the version tag to the desired version.
