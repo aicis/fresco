@@ -82,6 +82,11 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
+  public void produceTriples(int numTriples) {
+    // StorageDataSupplier does not produce!
+  }
+
+  @Override
   public SpdzSInt[] getNextExpPipe() {
     SpdzSInt[] expPipe;
     try {
@@ -116,6 +121,11 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
+  public void produceInputMasks(int towardsPlayerId, int numMasks) {
+    // StorageDataSupplier does not produce!
+  }
+
+  @Override
   public SpdzSInt getNextBit() {
     SpdzSInt bit;
     try {
@@ -129,6 +139,11 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
     }
     bitCounter++;
     return bit;
+  }
+
+  @Override
+  public void produceBits(int numBits) {
+    // StorageDataSupplier does not produce!
   }
 
   @Override
@@ -164,5 +179,10 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
   public SpdzSInt getNextRandomFieldElement() {
     // TODO: We should probably have a random element storage stream
     return this.getNextTriple().getA();
+  }
+
+  @Override
+  public void produceRandomFieldElements(int numElements) {
+    // StorageDataSupplier does not produce!
   }
 }
