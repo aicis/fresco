@@ -39,16 +39,15 @@ import dk.alexandra.fresco.suite.tinytables.ot.TinyTablesOt;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
-import dk.alexandra.fresco.tools.ot.base.DhParameters;
-import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
-import dk.alexandra.fresco.tools.ot.base.Ot;
+import dk.alexandra.fresco.tools.ot.base.AbstractNaorPinkasOT;
+import dk.alexandra.fresco.tools.ot.base.BigIntNaorPinkas;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
+
 import java.io.File;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import javax.crypto.spec.DHParameterSpec;
 
 /**
  * Utility for reading all configuration from command line.
@@ -94,9 +93,7 @@ public class CmdLineProtocolSuite {
       String tinyTablesFilePath = properties.getProperty(tinytablesFileOption, "tinytables");
       this.protocolSuite = tinyTablesPreProFromCmdLine(properties);
       Drbg random = new AesCtrDrbg();
-      TinyTablesOt baseOt = new TinyTablesNaorPinkasOt(Util.otherPlayerId(myId), random,
-          DhParameters
-              .getStaticDhParams());
+      TinyTablesOt baseOt = new TinyTablesNaorPinkasOt(Util.otherPlayerId(myId), random);
       this.resourcePool = new TinyTablesPreproResourcePool(myId, baseOt,
           random, 128, 40, 16000, new File(
               tinyTablesFilePath), networkSupplier);
@@ -229,8 +226,7 @@ public class CmdLineProtocolSuite {
     Map<Integer, RotList> seedOts = new HashMap<>();
     for (int otherId = 1; otherId <= parties; otherId++) {
       if (myId != otherId) {
-        DHParameterSpec dhSpec = DhParameters.getStaticDhParams();
-        Ot ot = new NaorPinkasOt(otherId, drbg, network, dhSpec);
+        AbstractNaorPinkasOT ot = new BigIntNaorPinkas(otherId, drbg, network);
         RotList currentSeedOts = new RotList(drbg, prgSeedLength);
         if (myId < otherId) {
           currentSeedOts.send(ot);
