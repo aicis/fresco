@@ -28,8 +28,8 @@ public class DummyArithmeticMultProtocol extends DummyArithmeticNativeProtocol<S
 
   @Override
   public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool rp, Network network) {
-    FieldElement l = ((DummyArithmeticSInt) left.out()).getValue();
-    FieldElement r = ((DummyArithmeticSInt) right.out()).getValue();
+    FieldElement l = left.out().getShare();
+    FieldElement r = right.out().getShare();
     out = new DummyArithmeticSInt(l.multiply(r));
     return EvaluationStatus.IS_DONE;
   }

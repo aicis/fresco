@@ -36,12 +36,12 @@ final class BigIntegerFieldElement implements FieldElement {
 
   @Override
   public FieldElement add(FieldElement operand) {
-    return create(value.add(extractValue(operand)));
+    return create(value.add(operand.toBigInteger()));
   }
 
   @Override
   public FieldElement subtract(FieldElement operand) {
-    return create(value.subtract(extractValue(operand)));
+    return create(value.subtract(operand.toBigInteger()));
   }
 
   @Override
@@ -51,7 +51,7 @@ final class BigIntegerFieldElement implements FieldElement {
 
   @Override
   public FieldElement multiply(FieldElement operand) {
-    return create(value.multiply(extractValue(operand)));
+    return create(value.multiply(operand.toBigInteger()));
   }
 
   @Override
@@ -69,8 +69,9 @@ final class BigIntegerFieldElement implements FieldElement {
     return BigInteger.ZERO.equals(value);
   }
 
-  static BigInteger extractValue(FieldElement element) {
-    return ((BigIntegerFieldElement) element).value;
+  @Override
+  public BigInteger toBigInteger() {
+    return value;
   }
 
   private BigInteger getModulus() {

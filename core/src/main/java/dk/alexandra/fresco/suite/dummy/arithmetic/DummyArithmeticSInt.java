@@ -31,8 +31,14 @@ public class DummyArithmeticSInt implements SInt {
    *
    * @return the value
    */
-  public FieldElement getValue() {
+  @Override
+  public FieldElement getShare() {
     return value;
+  }
+
+  @Override
+  public FieldElement getMac() {
+    return null;
   }
 
   @Override

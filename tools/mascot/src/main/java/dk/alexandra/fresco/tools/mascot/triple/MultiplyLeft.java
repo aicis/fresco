@@ -2,6 +2,7 @@ package dk.alexandra.fresco.tools.mascot.triple;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.ParallelStreaming;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeftHelper;
@@ -74,7 +75,10 @@ class MultiplyLeft {
    * @return seeds converted to field elements
    */
   private List<FieldElement> seedsToFieldElements(List<StrictBitVector> seeds) {
-    return seeds.parallelStream().map(this::fromBits).collect(Collectors.toList());
+    return ParallelStreaming.apply(
+        seeds,
+        parallel -> parallel.map(this::fromBits).collect(Collectors.toList())
+    );
   }
 
   private FieldElement fromBits(StrictBitVector vector) {

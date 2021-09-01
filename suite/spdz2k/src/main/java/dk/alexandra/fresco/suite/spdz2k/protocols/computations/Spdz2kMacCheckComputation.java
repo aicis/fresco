@@ -123,13 +123,13 @@ public class Spdz2kMacCheckComputation<
         pjList.stream().map(PlainT::getLeastSignificantAsHigh).collect(Collectors.toList()));
     PlainT p = converter.createFromHigh(pLow);
     List<PlainT> macShares = authenticatedElements.stream()
-        .map(Spdz2kSInt::getMacShare)
+        .map(Spdz2kSInt::getMac)
         .collect(Collectors.toList());
     PlainT mj = UInt.innerProduct(macShares, randomCoefficients);
     PlainT zj = macKeyShare.multiply(y)
         .subtract(mj)
         .subtract(p.multiply(macKeyShare).shiftLowIntoHigh())
-        .add(r.getMacShare().shiftLowIntoHigh());
+        .add(r.getMac().shiftLowIntoHigh());
     return new CommitmentComputation(commitmentSerializer, serializer.serialize(zj),
         localDrbg).buildComputation(builder);
   }

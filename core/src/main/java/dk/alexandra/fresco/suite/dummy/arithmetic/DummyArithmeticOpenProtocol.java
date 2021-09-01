@@ -33,7 +33,7 @@ public class DummyArithmeticOpenProtocol extends DummyArithmeticNativeProtocol<B
       Network network) {
     if (resourcePool.getMyId() == target) {
       DummyArithmeticSInt out = (DummyArithmeticSInt) this.closed.out();
-      this.open = resourcePool.getFieldDefinition().convertToUnsigned(out.getValue());
+      this.open = resourcePool.getFieldDefinition().convertToUnsigned(out.getShare());
     } else {
       this.open = null;
     }

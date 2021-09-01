@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
+import dk.alexandra.fresco.framework.util.ParallelStreaming;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.util.Arrays;
 import java.util.List;
@@ -32,18 +33,27 @@ public class Transpose {
     int columns = tall ? maxDim : minDim;
     byte[][] res = new byte[rows][columns / Byte.SIZE];
     // Process all squares of minDim x minDim
-    List<List<byte[]>> squares = IntStream.range(0, maxDim / minDim).parallel()
-        .mapToObj(i -> extractSquare(input, minDim, tall, i)).map(m -> {
-          transposeAllByteBlocks(m);
-          return m;
-        }).map(m -> {
-          doEklundh(m);
-          return m;
-        }).collect(Collectors.toList());
-    IntStream.range(0, maxDim / minDim).parallel()
-        .forEach(i -> insertSquare(res, squares.get(i), minDim, tall, i));
-    return IntStream.range(0, res.length).parallel().mapToObj(i -> res[i]).map(StrictBitVector::new)
-        .collect(Collectors.toList());
+    List<List<byte[]>> squares = ParallelStreaming.apply(
+        IntStream.range(0, maxDim / minDim),
+        parallel -> parallel
+            .mapToObj(i -> extractSquare(input, minDim, tall, i)).map(m -> {
+              transposeAllByteBlocks(m);
+              return m;
+            }).map(m -> {
+              doEklundh(m);
+              return m;
+            }).collect(Collectors.toList())
+    );
+    ParallelStreaming.call(
+        IntStream.range(0, maxDim / minDim),
+        parallel -> parallel.forEach(i -> insertSquare(res, squares.get(i), minDim, tall, i))
+    );
+    return ParallelStreaming.apply(
+        IntStream.range(0, res.length),
+        parallel -> parallel
+            .mapToObj(i -> res[i]).map(StrictBitVector::new)
+            .collect(Collectors.toList())
+    );
   }
 
   /**

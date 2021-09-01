@@ -24,8 +24,8 @@ public class DummyArithmeticSubtractProtocol extends DummyArithmeticNativeProtoc
 
   @Override
   public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool rp, Network network) {
-    FieldElement left = ((DummyArithmeticSInt) this.left.out()).getValue();
-    FieldElement right = ((DummyArithmeticSInt) this.right.out()).getValue();
+    FieldElement left = this.left.out().getShare();
+    FieldElement right = this.right.out().getShare();
     out = new DummyArithmeticSInt(left.subtract(right));
     return EvaluationStatus.IS_DONE;
   }

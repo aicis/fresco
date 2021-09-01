@@ -2,6 +2,7 @@ package dk.alexandra.fresco.tools.mascot.cope;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.ParallelStreaming;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeftHelper;
@@ -78,9 +79,12 @@ public class CopeSigner {
     // generate mask for each input
     for (int i = 0; i < numInputs; i++) {
       // generate masks for single input
-      List<FieldElement> singleInputMasks = prgs.parallelStream()
-          .map(FieldElementPrg::getNext)
-          .collect(Collectors.toList());
+      List<FieldElement> singleInputMasks = ParallelStreaming.apply(
+          prgs,
+          parallel -> parallel
+              .map(FieldElementPrg::getNext)
+              .collect(Collectors.toList())
+      );
       masks.addAll(singleInputMasks);
     }
     return masks;

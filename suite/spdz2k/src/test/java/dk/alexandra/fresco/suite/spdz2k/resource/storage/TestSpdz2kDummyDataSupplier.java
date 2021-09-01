@@ -120,7 +120,7 @@ public class TestSpdz2kDummyDataSupplier {
       CompUInt128 macKey) {
     assertArrayEquals(
         macKey.multiply(recombined.getShare()).toByteArray(),
-        recombined.getMacShare().toByteArray()
+        recombined.getMac().toByteArray()
     );
   }
 

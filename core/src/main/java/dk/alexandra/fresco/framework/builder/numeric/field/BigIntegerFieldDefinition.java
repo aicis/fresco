@@ -23,8 +23,7 @@ public final class BigIntegerFieldDefinition implements FieldDefinition {
     this.modulus = new BigIntegerModulus(modulus);
     this.modulusHalf = this.modulus.getBigInteger().shiftRight(1);
     this.modulusBitLength = this.modulus.getBigInteger().bitLength();
-    this.utils = new FieldUtils(modulusBitLength, this::createElement,
-        BigIntegerFieldElement::extractValue);
+    this.utils = new FieldUtils(modulusBitLength, this::createElement);
   }
 
   /**
@@ -68,7 +67,7 @@ public final class BigIntegerFieldDefinition implements FieldDefinition {
 
   @Override
   public BigInteger convertToUnsigned(FieldElement value) {
-    return BigIntegerFieldElement.extractValue(value);
+    return value.toBigInteger();
   }
 
   @Override

@@ -9,6 +9,8 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import java.io.Closeable;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -27,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SecureComputationEngineImpl
     <ResourcePoolT extends ResourcePool, BuilderT extends ProtocolBuilder>
-    implements SecureComputationEngine<ResourcePoolT, BuilderT> {
+    implements SecureComputationEngine<ResourcePoolT, BuilderT>, Closeable {
 
   private ProtocolEvaluator<ResourcePoolT> evaluator;
   private ExecutorService executorService;
@@ -111,4 +113,8 @@ public class SecureComputationEngineImpl
     this.setup = false;
   }
 
+  @Override
+  public void close() throws IOException {
+    shutdownSCE();
+  }
 }

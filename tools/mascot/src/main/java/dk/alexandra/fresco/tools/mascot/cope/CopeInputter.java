@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.util.ParallelStreaming;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRightHelper;
@@ -64,8 +65,10 @@ public class CopeInputter {
     // send diffs
     network.send(otherId, resourcePool.getFieldDefinition().serialize(diffs));
     // get zero index masks
-    List<FieldElement> feZeroSeeds =
-        maskPairs.parallelStream().map(Pair::getFirst).collect(Collectors.toList());
+    List<FieldElement> feZeroSeeds = ParallelStreaming.apply(
+        maskPairs,
+        parallel-> parallel.map(Pair::getFirst).collect(Collectors.toList())
+    );
 
     // compute product shares
     return helper.computeProductShares(feZeroSeeds, inputElements.size());
@@ -82,12 +85,14 @@ public class CopeInputter {
   }
 
   private List<Pair<FieldElement, FieldElement>> generateMaskPairs() {
-    Stream<Pair<FieldElement, FieldElement>> maskStream =
-        IntStream.range(0, leftPrgs.size()).parallel().mapToObj(idx -> {
+    Stream<Pair<FieldElement, FieldElement>> maskStream = ParallelStreaming.apply(
+        IntStream.range(0, leftPrgs.size()),
+        parallel -> parallel.mapToObj(idx -> {
           FieldElement t0 = this.leftPrgs.get(idx).getNext();
           FieldElement t1 = this.rightPrgs.get(idx).getNext();
           return new Pair<>(t0, t1);
-        });
+        })
+    );
     return maskStream.collect(Collectors.toList());
   }
 
