@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import java.io.Closeable;
 import java.time.Duration;
 import java.util.concurrent.Future;
 
@@ -17,7 +18,7 @@ import java.util.concurrent.Future;
  * @param <BuilderT> the typed version of the builder
  */
 public interface SecureComputationEngine<ResourcePoolT extends ResourcePool,
-    BuilderT extends ProtocolBuilder> {
+    BuilderT extends ProtocolBuilder> extends Closeable {
 
   static final Duration DEFAULT_TIMEOUT = Duration.ofMinutes(10);
 
@@ -70,14 +71,5 @@ public interface SecureComputationEngine<ResourcePoolT extends ResourcePool,
    * queue and initializes the protocol suite.
    */
   void setup();
-
-  /**
-   * Ensures that resources held managed by this engine are shut down properly.
-   * <p>
-   * Note that this does not go for any external resources such as the network or resource pool.
-   * </p>
-   */
-  void shutdownSCE();
-
 
 }

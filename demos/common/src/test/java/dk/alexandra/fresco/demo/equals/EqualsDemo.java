@@ -88,6 +88,6 @@ public class EqualsDemo implements Application<BigInteger, ProtocolBuilderNumeri
     BigInteger equals = sce.runApplication(equalsDemo, resourcePool, cmdUtil.getNetwork());
     log.info("The provided values are " + (equals.equals(BigInteger.ZERO) ? "NOT" : "") + "equal");
     cmdUtil.closeNetwork();
-    sce.shutdownSCE();
+    sce.close();
   }
 }

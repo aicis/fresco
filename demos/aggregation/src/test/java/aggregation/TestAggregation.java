@@ -75,7 +75,7 @@ public class TestAggregation {
           public TestThread<SpdzResourcePool, ProtocolBuilderNumeric> next() {
             return new TestThread<SpdzResourcePool, ProtocolBuilderNumeric>() {
               @Override
-              public void test() {
+              public void test() throws IOException {
                 // Create application we are going run
                 AggregationDemo<SpdzResourcePool> app = new AggregationDemo<>();
                 app.runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());

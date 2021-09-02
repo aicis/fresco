@@ -110,7 +110,7 @@ public class DistanceDemo implements Application<BigInteger, ProtocolBuilderNume
     double dist = Math.sqrt(bigInteger.doubleValue());
     log.info("Distance between party 1 and 2 is: " + dist);
     cmdUtil.closeNetwork();
-    sce.shutdownSCE();
+    sce.close();
 
   }
 }
