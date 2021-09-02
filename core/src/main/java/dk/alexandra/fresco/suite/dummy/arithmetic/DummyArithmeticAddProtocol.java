@@ -29,8 +29,8 @@ public class DummyArithmeticAddProtocol extends DummyArithmeticNativeProtocol<SI
   @Override
   public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
       Network network) {
-    FieldElement l = left.out().getShare();
-    FieldElement r = right.out().getShare();
+    FieldElement l = ((DummyArithmeticSInt) left.out()).getValue();
+    FieldElement r = ((DummyArithmeticSInt) right.out()).getValue();
     FieldElement sum = r.add(l);
     out = new DummyArithmeticSInt(sum);
     return EvaluationStatus.IS_DONE;
