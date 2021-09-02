@@ -3,7 +3,6 @@ package dk.alexandra.fresco.tools.mascot.triple;
 import dk.alexandra.fresco.framework.builder.numeric.Addable;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.ParallelStreaming;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
@@ -180,10 +179,9 @@ public class TripleGeneration {
    * Implements batched version of Authenticate sub-protocol of Protocol 4.
    */
   private List<AuthenticatedCandidate> authenticate(List<UnauthenticatedCandidate> candidates) {
-    List<FieldElement> flatInputs = ParallelStreaming.apply(
-        candidates,
-        parallel -> parallel.flatMap(TripleCandidate::stream).collect(Collectors.toList())
-    );
+    List<FieldElement> flatInputs = candidates.parallelStream()
+        .flatMap(TripleCandidate::stream)
+        .collect(Collectors.toList());
 
     List<List<AuthenticatedElement>> shares = new ArrayList<>();
     for (int partyId = 1; partyId <= resourcePool.getNoOfParties(); partyId++) {

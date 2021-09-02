@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.util.ParallelStreaming;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import java.util.Arrays;
@@ -44,25 +43,17 @@ public class BristolRotBatch implements RotBatch {
     }
     int amountToPreprocess = computeExtensionSize(numMessages, comSecParam, statSecParam);
     Pair<List<StrictBitVector>, List<StrictBitVector>> messages = sender.extend(amountToPreprocess);
-    List<StrictBitVector> zeroMessages = ParallelStreaming.apply(
-        messages.getFirst(),
-        parallel -> parallel.limit(numMessages)
-            .map(m -> LengthAdjustment.adjust(m.toByteArray(), sizeOfEachMessage / Byte.SIZE))
-            .map(StrictBitVector::new)
-            .collect(Collectors.toList())
-    );
-    List<StrictBitVector> oneMessages = ParallelStreaming.apply(
-        messages.getSecond(),
-        parallel -> parallel.limit(numMessages)
-            .map(m -> LengthAdjustment.adjust(m.toByteArray(), sizeOfEachMessage / Byte.SIZE))
-            .map(StrictBitVector::new)
-            .collect(Collectors.toList())
-    );
-    return ParallelStreaming.apply(
-        IntStream.range(0, numMessages),
-        parallel -> parallel.mapToObj(i -> new Pair<>(zeroMessages.get(i), oneMessages.get(i)))
-            .collect(Collectors.toList())
-    );
+    List<StrictBitVector> zeroMessages = messages.getFirst().parallelStream().limit(numMessages)
+        .map(m -> LengthAdjustment.adjust(m.toByteArray(), sizeOfEachMessage / Byte.SIZE))
+        .map(StrictBitVector::new)
+        .collect(Collectors.toList());
+    List<StrictBitVector> oneMessages = messages.getSecond().parallelStream().limit(numMessages)
+        .map(m -> LengthAdjustment.adjust(m.toByteArray(), sizeOfEachMessage / Byte.SIZE))
+        .map(StrictBitVector::new)
+        .collect(Collectors.toList());
+    return IntStream.range(0, numMessages).parallel()
+        .mapToObj(i -> new Pair<>(zeroMessages.get(i), oneMessages.get(i)))
+        .collect(Collectors.toList());
   }
 
   @Override

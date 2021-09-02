@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import dk.alexandra.fresco.framework.util.ParallelStreaming;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import java.nio.ByteBuffer;
@@ -50,12 +49,9 @@ public abstract class RotSharedImpl {
       List<StrictBitVector> blist) {
     // All elements of each list MUST have equal size so we find the size using the first element.
     StrictBitVector res = new StrictBitVector(alist.get(0).getSize() + blist.get(0).getSize());
-    List<StrictBitVector> products = ParallelStreaming.apply(
-        IntStream.range(0, alist.size()),
-        parallel -> parallel
-            .mapToObj(i -> multiplyWithoutReduction(alist.get(i), blist.get(i)))
-            .collect(Collectors.toList())
-    );
+    List<StrictBitVector> products = IntStream.range(0, alist.size()).parallel()
+        .mapToObj(i -> multiplyWithoutReduction(alist.get(i), blist.get(i)))
+        .collect(Collectors.toList());
     products.stream().reduce(res, (a, b) -> {
       a.xor(b);
       return a;

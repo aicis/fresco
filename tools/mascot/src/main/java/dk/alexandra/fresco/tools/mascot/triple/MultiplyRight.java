@@ -3,7 +3,6 @@ package dk.alexandra.fresco.tools.mascot.triple;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.util.ParallelStreaming;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRightHelper;
@@ -72,28 +71,24 @@ class MultiplyRight {
     // send diffs over to other party
     network.send(otherId, resourcePool.getFieldDefinition().serialize(diffs));
     // get zero index seeds
-    List<FieldElement> feZeroSeeds = ParallelStreaming.apply(
-        feSeedPairs,
-        parallel -> parallel.map(Pair::getFirst).collect(Collectors.toList())
-    );
+    List<FieldElement> feZeroSeeds =
+        feSeedPairs.parallelStream().map(Pair::getFirst).collect(Collectors.toList());
     // compute product shares
     return multiplyRightHelper.computeProductShares(feZeroSeeds, rightFactors.size());
   }
 
   private List<Pair<FieldElement, FieldElement>> seedsToFieldElements(
       List<Pair<StrictBitVector, StrictBitVector>> seedPairs) {
-    return ParallelStreaming.apply(
-        seedPairs,
-        parallel -> parallel.map(pair -> {
-          FieldElement t0 = fromBits(pair.getFirst());
-          FieldElement t1 = fromBits(pair.getSecond());
-          return new Pair<>(t0, t1);
-        }).collect(Collectors.toList())
-    );
+    return seedPairs.parallelStream().map(pair -> {
+      FieldElement t0 = fromBits(pair.getFirst());
+      FieldElement t1 = fromBits(pair.getSecond());
+      return new Pair<>(t0, t1);
+    }).collect(Collectors.toList());
   }
 
   private FieldElement fromBits(StrictBitVector vector) {
     // safe since the modulus is guaranteed to be close enough to 2^modBitLength
     return resourcePool.getFieldDefinition().deserialize(vector.toByteArray());
   }
+
 }
