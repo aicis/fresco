@@ -78,7 +78,6 @@ public class Spdz2kSInt<PlainT extends CompUInt<?, ?, PlainT>> implements SInt {
   /**
    * Return share.
    */
-  @Override
   public PlainT getShare() {
     return share;
   }
@@ -86,8 +85,7 @@ public class Spdz2kSInt<PlainT extends CompUInt<?, ?, PlainT>> implements SInt {
   /**
    * Return mac share.
    */
-  @Override
-  public PlainT getMac() {
+  public PlainT getMacShare() {
     return macShare;
   }
 

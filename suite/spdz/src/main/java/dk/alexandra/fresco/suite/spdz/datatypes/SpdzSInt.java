@@ -25,6 +25,16 @@ public class SpdzSInt implements SInt, Serializable {
     this.mac = mac;
   }
 
+  /**
+   * Casts an {@link SInt} to {@link SpdzSInt}.
+   *
+   * @param candidate to cast
+   * @return cast value
+   */
+  public static SpdzSInt from(SInt candidate) {
+    return (SpdzSInt) candidate;
+  }
+
   public FieldElement getShare() {
     return share;
   }
