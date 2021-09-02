@@ -25,12 +25,10 @@ public class SpdzSInt implements SInt, Serializable {
     this.mac = mac;
   }
 
-  @Override
   public FieldElement getShare() {
     return share;
   }
 
-  @Override
   public FieldElement getMac() {
     return mac;
   }
