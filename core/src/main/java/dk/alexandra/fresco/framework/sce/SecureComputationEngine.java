@@ -72,4 +72,13 @@ public interface SecureComputationEngine<ResourcePoolT extends ResourcePool,
    */
   void setup();
 
+  /**
+   * Ensures that resources held managed by this engine are shut down properly.
+   * <p>
+   * Note that this does not go for any external resources such as the network or resource pool.
+   * </p>
+   */
+  void close();
+
+
 }
