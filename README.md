@@ -5,7 +5,7 @@
 
 #
 
-[![Build Status](https://travis-ci.org/aicis/fresco.svg?branch=master)](https://travis-ci.org/aicis/fresco) [![codecov](https://codecov.io/gh/aicis/fresco/branch/master/graph/badge.svg)](https://codecov.io/gh/aicis/fresco) [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/dk.alexandra.fresco/core/badge.svg?gav=true)](https://maven-badges.herokuapp.com/maven-central/dk.alexandra.fresco/core) [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/FRESCO-MPC/Lobby)
+[![Build Status](https://app.travis-ci.com/aicis/fresco.svg?branch=master)](https://app.travis-ci.com/aicis/fresco) [![codecov](https://codecov.io/gh/aicis/fresco/branch/master/graph/badge.svg)](https://codecov.io/gh/aicis/fresco) [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/dk.alexandra.fresco/core/badge.svg?gav=true)](https://maven-badges.herokuapp.com/maven-central/dk.alexandra.fresco/core) [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/FRESCO-MPC/Lobby)
 
 FRESCO is a *FRamework for Efficient and Secure COmputation*, written
 in Java and licensed under the open source MIT license.
