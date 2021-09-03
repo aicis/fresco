@@ -119,6 +119,10 @@ public class MersennePrimeFieldElementTest {
   public void testIsZero() {
     FieldElement element = MersennePrimeFieldElement.create(BigInteger.valueOf(0), bigModulus);
     assertTrue(element.isZero());
+  }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testUnknownBitLength() {
+    MersennePrimeFieldDefinition.find(7);
   }
 }
