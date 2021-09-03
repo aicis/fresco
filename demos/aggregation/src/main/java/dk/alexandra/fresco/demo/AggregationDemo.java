@@ -66,7 +66,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
   public void runApplication(
       SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce,
       ResourcePoolT rp,
-      Network network) {
+      Network network) throws IOException {
     int groupByIdx = 0;
     int aggIdx = 1;
     // Create application we are going run
@@ -89,7 +89,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     // Run application and get result
     Matrix<BigInteger> result = sce.runApplication(aggApp, rp, network);
     writeOutputs(result);
-    sce.shutdownSCE();
+    sce.close();
   }
 
   /**
@@ -116,6 +116,6 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     demo.runApplication(sce, resourcePool, util.getNetwork());
 
     util.closeNetwork();
-    sce.shutdownSCE();
+    sce.close();
   }
 }

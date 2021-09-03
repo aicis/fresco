@@ -13,20 +13,16 @@ final class FieldUtils {
 
   private final int modulusLength;
   private final Function<BigInteger, FieldElement> creator;
-  private final Function<FieldElement, BigInteger> toBigInteger;
 
   /**
    * Creates a new utility class.
    *
    * @param modulusBitLength the modulus bit length - translates to byte length in serialization
    * @param creator boot strap creator from open values and deserialization
-   * @param toBigInteger extraction method for serialization and openings
    */
-  FieldUtils(int modulusBitLength, Function<BigInteger, FieldElement> creator,
-      Function<FieldElement, BigInteger> toBigInteger) {
+  FieldUtils(int modulusBitLength, Function<BigInteger, FieldElement> creator) {
     this.modulusLength = 1 + ((modulusBitLength - 1) / 8);
     this.creator = creator;
-    this.toBigInteger = toBigInteger;
   }
 
   /**
@@ -49,7 +45,7 @@ final class FieldUtils {
   }
 
   private byte[] serializeWithOffset(FieldElement value, int offset, byte[] res) {
-    byte[] bytes = toBigInteger.apply(value).toByteArray();
+    byte[] bytes = value.toBigInteger().toByteArray();
     int arrayStart = bytes.length > modulusLength ? bytes.length - modulusLength : 0;
     int resStart = bytes.length > modulusLength ? 0 : modulusLength - bytes.length;
     int len = Math.min(modulusLength, bytes.length);

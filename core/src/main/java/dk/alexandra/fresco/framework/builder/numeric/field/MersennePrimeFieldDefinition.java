@@ -31,8 +31,7 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
     this.modulus = new MersennePrimeModulus(bitLength, constant);
     this.modulusHalf = modulus.getPrime().shiftRight(1);
     this.modulusBitLength = bitLength;
-    this.utils = new FieldUtils(modulusBitLength, this::createElement,
-        MersennePrimeFieldElement::extractValue);
+    this.utils = new FieldUtils(modulusBitLength, this::createElement);
   }
 
   /** Try to find a pseudo-Mersenne prime with the given bit length. */
@@ -76,7 +75,7 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
 
   @Override
   public BigInteger convertToUnsigned(FieldElement value) {
-    return MersennePrimeFieldElement.extractValue(value);
+    return value.toBigInteger();
   }
 
   @Override
@@ -115,7 +114,5 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
       put(16, 17);
       put(8, 5);
     }};
-
   }
-
 }

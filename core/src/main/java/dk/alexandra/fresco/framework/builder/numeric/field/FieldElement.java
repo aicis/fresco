@@ -2,12 +2,20 @@ package dk.alexandra.fresco.framework.builder.numeric.field;
 
 import dk.alexandra.fresco.framework.builder.numeric.Addable;
 import java.io.Serializable;
+import java.math.BigInteger;
 
 /**
  * An element of a finite field defined
  * by {@link FieldDefinition}.
  */
 public interface FieldElement extends Serializable, Addable<FieldElement> {
+
+  /**
+   * Gets value of field element as {@link BigInteger}.
+   *
+   * @return value as {@link BigInteger}
+   */
+  BigInteger toBigInteger();
 
   /**
    * Computes this element subtracted with the operand.
@@ -48,6 +56,7 @@ public interface FieldElement extends Serializable, Addable<FieldElement> {
 
   /**
    * Checks whether the element is zero
+   *
    * @return true if element is zero, false otherwise
    */
 
