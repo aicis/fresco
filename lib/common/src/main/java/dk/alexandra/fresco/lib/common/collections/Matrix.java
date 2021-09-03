@@ -2,8 +2,10 @@ package dk.alexandra.fresco.lib.common.collections;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Matrix<T> {
 
@@ -25,6 +27,18 @@ public class Matrix<T> {
     for (int i = 0; i < height; i++) {
       this.matrix.add(rowBuilder.apply(i));
     }
+  }
+
+  /**
+   * Create a new function with the given entry building function.
+   *
+   * @param height height of the matrix
+   * @param width width of the matrix
+   * @param builder function for building entries given the indices of row and column resp.
+   */
+  public Matrix(int height, int width, BiFunction<Integer, Integer, T> builder) {
+    this(height, width, i -> IntStream.range(0, width).mapToObj(j -> builder.apply(i, j)).collect(
+        Collectors.toCollection(ArrayList::new)));
   }
 
   /**
