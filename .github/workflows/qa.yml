@@ -1,4 +1,4 @@
-name: Java CI with Maven and Codecov
+name: Build
 
 on:
   push:
