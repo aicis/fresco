@@ -4,9 +4,10 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
-import java.math.BigInteger;
+import java.util.List;
 
 /**
  * Finds the bit length of an integer. This is done by finding the bit representation of the integer
@@ -21,7 +22,7 @@ public class BitLength implements Computation<SInt, ProtocolBuilderNumeric> {
    * Create a protocol for finding the bit length of an integer. This is done by finding the bit
    * representation of the integer and then returning the index of the highest set bit.
    *
-   * @param input An integer.
+   * @param input        An integer.
    * @param maxBitLength An upper bound for the bit length.
    */
   public BitLength(DRes<SInt> input, int maxBitLength) {
@@ -32,29 +33,64 @@ public class BitLength implements Computation<SInt, ProtocolBuilderNumeric> {
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    return builder.seq((seq) -> {
-      AdvancedNumeric advancedNumeric = AdvancedNumeric.using(seq);
-      //Find the bit representation of the input
-      return advancedNumeric.toBits(input, maxBitLength);
-    }).seq((seq, bits) -> {
-      DRes<SInt> mostSignificantBitIndex = null;
-      Numeric numeric = seq.numeric();
-      for (int n = 0; n < maxBitLength; n++) {
-        // If bits[n] == 1 we let mostSignificantIndex be current index.
-        // Otherwise we leave it be.
-        SInt remainderResult = bits.get(n);
-        if (mostSignificantBitIndex == null) {
-          mostSignificantBitIndex = numeric.mult(BigInteger.valueOf(n), () -> remainderResult);
-        } else {
-          DRes<SInt> sub = numeric.sub(BigInteger.valueOf(n), mostSignificantBitIndex);
-          DRes<SInt> mult = numeric.mult(() -> remainderResult, sub);
-          mostSignificantBitIndex = numeric.add(mult, mostSignificantBitIndex);
-        }
+    return builder.seq(seq -> AdvancedNumeric.using(seq).toBits(input, maxBitLength))
+        .seq((seq, bits) ->
+                new HighestBit(bits).buildComputation(seq)
+            // HighestBit returns the highest set bit counting from zero, so we add 1 to get the bit length
+        ).seq((seq, hb) -> seq.numeric().mult(hb.getFirst(), seq.numeric().add(1, hb.getSecond())));
+  }
+
+  /**
+   * Given a list of bits, this computation returns a pair secret integer. The first is a bit
+   * indicating whether there are any set bits in the given list. The second is the index of the
+   * highest set bit. The second is zero if no bit has been set.
+   */
+  private static class HighestBit implements
+      Computation<Pair<DRes<SInt>, DRes<SInt>>, ProtocolBuilderNumeric> {
+
+    private final List<SInt> bits;
+
+    /**
+     * Create a new HighestBit computation.
+     *
+     * @param bits A list of bits.
+     */
+    public HighestBit(List<SInt> bits) {
+      this.bits = bits;
+    }
+
+    @Override
+    public DRes<Pair<DRes<SInt>, DRes<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
+      // Compute recursively until the length is 1. In this case it has a highest set bit if
+      if (bits.size() == 1) {
+        return Pair.lazy(bits.get(0), builder.numeric().known(0));
       }
-      // We are interested in the bit length of the input, so we add one to
-      // the index of the most significant bit since the indices are counte from 0
-      return numeric.add(BigInteger.ONE, mostSignificantBitIndex);
-    });
+
+      return builder.par(par -> {
+        int n = bits.size();
+        return Pair.lazy(new HighestBit(bits.subList(0, n / 2)).buildComputation(par),
+            new HighestBit(bits.subList(n / 2, n)).buildComputation(par));
+      }).pairInPar((seq, hb) -> {
+        DRes<SInt> upperHasSetBit = hb.getSecond().out().getFirst();
+        DRes<SInt> lowerHasSetBit = hb.getFirst().out().getFirst();
+        Numeric numeric = seq.numeric();
+        DRes<SInt> hasSetBit = numeric
+            .sub(numeric.add(upperHasSetBit, lowerHasSetBit),
+                numeric.mult(upperHasSetBit, lowerHasSetBit));
+        return hasSetBit;
+      }, (seq, hb) -> {
+        DRes<SInt> upperHasSetBit = hb.getSecond().out().getFirst();
+        DRes<SInt> upperHighestBit = hb.getSecond().out().getSecond();
+        DRes<SInt> lowerHighestBit = hb.getFirst().out().getSecond();
+        Numeric numeric = seq.numeric();
+        DRes<SInt> highestBit = numeric.add(
+            numeric.mult(upperHasSetBit,
+                numeric.add(bits.size() / 2, upperHighestBit)),
+            numeric.mult(numeric.sub(1, upperHasSetBit),
+                lowerHighestBit));
+        return highestBit;
+      }).seq((seq, result) -> Pair.lazy(DRes.of(result.getFirst()), DRes.of(result.getSecond())));
+    }
   }
 
 }
