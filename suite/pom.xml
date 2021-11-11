@@ -14,5 +14,6 @@
     <module>spdz</module>
     <module>spdz2k</module>
     <module>tinytables</module>
+    <module>crt</module>
   </modules>
 </project>

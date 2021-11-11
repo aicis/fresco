@@ -67,48 +67,13 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> randomElement() {
-        DummyArithmeticNativeProtocol<SInt> c = new DummyArithmeticNativeProtocol<SInt>() {
-
-          DummyArithmeticSInt elm;
-
-          @Override
-          public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
-              Network network) {
-            BigInteger r;
-            BigInteger modulus = basicNumericContext.getModulus();
-            do {
-              r = new BigInteger(modulus.bitLength() + 1, rand);
-            } while (r.compareTo(modulus) >= 0);
-            elm = createSIntFromConstant(r);
-            return EvaluationStatus.IS_DONE;
-          }
-
-          @Override
-          public SInt out() {
-            return elm;
-          }
-        };
+        DummyArithmeticNativeProtocol<SInt> c = new DummyArithmeticRandomElementProtocol(rand);
         return builder.append(c);
       }
 
       @Override
       public DRes<SInt> randomBit() {
-        DummyArithmeticNativeProtocol<SInt> c = new DummyArithmeticNativeProtocol<SInt>() {
-
-          DummyArithmeticSInt bit;
-
-          @Override
-          public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
-              Network network) {
-            bit = createSIntFromConstant(BigInteger.valueOf(rand.nextInt(2)));
-            return EvaluationStatus.IS_DONE;
-          }
-
-          @Override
-          public SInt out() {
-            return bit;
-          }
-        };
+        DummyArithmeticNativeProtocol<SInt> c = new DummyArithmeticRandomBitProtocol(rand);
         return builder.append(c);
       }
 
@@ -139,22 +104,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> known(BigInteger value) {
-        DummyArithmeticNativeProtocol<SInt> c = new DummyArithmeticNativeProtocol<SInt>() {
-
-          DummyArithmeticSInt val;
-
-          @Override
-          public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
-              Network network) {
-            val = createSIntFromConstant(value);
-            return EvaluationStatus.IS_DONE;
-          }
-
-          @Override
-          public SInt out() {
-            return val;
-          }
-        };
+        DummyArithmeticNativeProtocol<SInt> c = new DummyArithmeticKnownProtocol(value);
         return builder.append(c);
       }
 
