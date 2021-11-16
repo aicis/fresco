@@ -28,7 +28,8 @@ public class CRTDummyDataSupplier implements CRTDataSupplier {
   @Override
   public CRTSInt getCorrelatedNoise() {
     BigInteger r = Util.randomBigInteger(random, fp.getModulus());
-    BigInteger l = Util.randomBigInteger(random, fq.getModulus().divide(fp.getModulus()).subtract(BigInteger.ONE));
+    BigInteger l = Util
+        .randomBigInteger(random, fq.getModulus().divide(fp.getModulus()).subtract(BigInteger.ONE));
     return new CRTSInt(new DummyArithmeticSInt(fp.createElement(r)),
         new DummyArithmeticSInt(fq.createElement(r.add(l.multiply(fp.getModulus())))));
   }

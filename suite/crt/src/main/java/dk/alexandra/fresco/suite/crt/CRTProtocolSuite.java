@@ -7,14 +7,16 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePool;
+import dk.alexandra.fresco.suite.crt.suites.ProtocolSuiteProtocolSupplier;
 
 public class CRTProtocolSuite<A extends NumericResourcePool, B extends NumericResourcePool> implements
     ProtocolSuiteNumeric<CRTResourcePool<A, B>> {
 
-  private final ProtocolSuiteNumeric<A> left;
-  private final ProtocolSuiteNumeric<B> right;
+  private final ProtocolSuiteProtocolSupplier<A> left;
+  private final ProtocolSuiteProtocolSupplier<B> right;
 
-  public CRTProtocolSuite(ProtocolSuiteNumeric<A> left, ProtocolSuiteNumeric<B> right) {
+  public CRTProtocolSuite(ProtocolSuiteProtocolSupplier<A> left,
+      ProtocolSuiteProtocolSupplier<B> right) {
     this.left = left;
     this.right = right;
   }
@@ -22,9 +24,8 @@ public class CRTProtocolSuite<A extends NumericResourcePool, B extends NumericRe
   @Override
   public BuilderFactoryNumeric init(CRTResourcePool<A, B> resourcePool) {
     Pair<A, B> resourcePools = resourcePool.getSubResourcePools();
-    BuilderFactoryNumeric leftFactory = left.init(resourcePools.getFirst());
-    BuilderFactoryNumeric rightFactory = right.init(resourcePools.getSecond());
-    return new CRTDummyBuilder(leftFactory, rightFactory);
+    return new CRTBuilderFactory<A, B>(resourcePools.getFirst(), left, resourcePools.getSecond(),
+        right);
   }
 
   @Override

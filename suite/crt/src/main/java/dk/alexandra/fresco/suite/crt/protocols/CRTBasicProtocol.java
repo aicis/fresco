@@ -8,7 +8,8 @@ import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
 public class CRTBasicProtocol<ResourcePoolA extends NumericResourcePool, ResourcePoolB extends NumericResourcePool>
     extends CRTAbstractProtocol<SInt, SInt, SInt, ResourcePoolA, ResourcePoolB> {
 
-  public CRTBasicProtocol(NativeProtocol<SInt, ResourcePoolA> protocolA, NativeProtocol<SInt, ResourcePoolB> protocolB) {
+  public CRTBasicProtocol(NativeProtocol<SInt, ResourcePoolA> protocolA,
+      NativeProtocol<SInt, ResourcePoolB> protocolB) {
     super(protocolA, protocolB, CRTSInt::new);
   }
 

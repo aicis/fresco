@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Defines a field based on a {@link BigIntegerModulus}
  */
-public final class BigIntegerFieldDefinition implements FieldDefinition {
+public class BigIntegerFieldDefinition implements FieldDefinition {
 
   private final BigIntegerModulus modulus;
   private final BigInteger modulusHalf;

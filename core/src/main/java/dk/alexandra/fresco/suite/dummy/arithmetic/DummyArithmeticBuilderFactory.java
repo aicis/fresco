@@ -110,9 +110,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
-        FieldElement open =
-            value != null ? basicNumericContext.getFieldDefinition().createElement(value) : null;
-        DummyArithmeticCloseProtocol c = new DummyArithmeticCloseProtocol(open, inputParty);
+        DummyArithmeticCloseProtocol c = new DummyArithmeticCloseProtocol(value, inputParty);
         return builder.append(c);
       }
 

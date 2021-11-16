@@ -3,6 +3,8 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  * Implements closing a value in the Dummy Arithmetic suite where all operations are done in the
@@ -12,24 +14,25 @@ import dk.alexandra.fresco.framework.value.SInt;
 public class DummyArithmeticCloseProtocol extends DummyArithmeticNativeProtocol<SInt> {
 
   private int targetId;
-  private FieldElement open;
+  private BigInteger value;
   private DummyArithmeticSInt closed;
 
   /**
    * Constructs a protocol to close an open value.
    *
-   * @param open a computation output the value to close.
+   * @param value a computation output the value to close.
    * @param targetId id of the party supplying the open value.
    */
-  public DummyArithmeticCloseProtocol(FieldElement open, int targetId) {
+  public DummyArithmeticCloseProtocol(BigInteger value, int targetId) {
     this.targetId = targetId;
-    this.open = open;
+    this.value = value;
   }
 
   @Override
   public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool rp, Network network) {
     if (round == 0) {
       if (targetId == rp.getMyId()) {
+        FieldElement open = Objects.isNull(value) ? null : rp.getFieldDefinition().createElement(value);
         network.sendToAll(rp.getFieldDefinition().serialize(open));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;

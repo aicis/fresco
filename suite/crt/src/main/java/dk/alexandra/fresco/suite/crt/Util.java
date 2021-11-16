@@ -1,6 +1,9 @@
 package dk.alexandra.fresco.suite.crt;
 
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
 import java.math.BigInteger;
 import java.util.Random;
 
@@ -10,7 +13,8 @@ public class Util {
     return new Pair<>(x.mod(p), x.mod(q));
   }
 
-  public static BigInteger mapToBigInteger(Pair<BigInteger, BigInteger> x, BigInteger p, BigInteger q) {
+  public static BigInteger mapToBigInteger(Pair<BigInteger, BigInteger> x, BigInteger p,
+      BigInteger q) {
     BigInteger n1 = p.modInverse(q);
     BigInteger n2 = q.modInverse(p);
     BigInteger m = p.multiply(q);
@@ -21,13 +25,21 @@ public class Util {
     return mapToBigInteger(new Pair<>(x, y), p, q);
   }
 
-  /** Sample a random integer in the range 0,...,u-1 (inclusive) with the given rng */
+  /**
+   * Sample a random integer in the range 0,...,u-1 (inclusive) with the given rng
+   */
   public static BigInteger randomBigInteger(Random random, BigInteger u) {
     BigInteger r;
     do {
       r = new BigInteger(u.bitLength(), random);
     } while (r.compareTo(u) >= 0);
     return r;
+  }
+
+  public static Pair<DRes<SInt>, DRes<SInt>> split(DRes<SInt> crt) {
+    CRTSInt asCRT = (CRTSInt) crt.out();
+    return new Pair<>(asCRT.getLeft(), asCRT.getRight());
+
   }
 
 }
