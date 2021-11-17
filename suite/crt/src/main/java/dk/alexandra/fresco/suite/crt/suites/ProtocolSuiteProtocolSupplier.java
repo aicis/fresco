@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.crt.suites;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 

@@ -10,22 +10,22 @@ import dk.alexandra.fresco.suite.crt.Util;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
 import java.math.BigInteger;
 
-public class MixedAddProtocol implements
+public class DummyMixedAddProtocol implements
     Computation<BigInteger, ProtocolBuilderNumeric> {
 
   private final CRTSInt value;
 
-  public MixedAddProtocol(DRes<SInt> xp, DRes<SInt> xq) {
+  public DummyMixedAddProtocol(DRes<SInt> xp, DRes<SInt> xq) {
     this.value = new CRTSInt(xp, xq);
   }
 
-  public MixedAddProtocol(CRTSInt value) {
-    this.value = value;
+  public DummyMixedAddProtocol(DRes<SInt> value) {
+    this.value = (CRTSInt) value.out();
   }
 
   @Override
   public DRes<BigInteger> buildComputation(ProtocolBuilderNumeric builder) {
-    // TODO: Currently done in clear text -- how do we avoid overflow in the shares?
+    // TODO: Currently done in clear text
     return builder.seq(seq -> seq.numeric().open(value)).seq((seq, open) -> {
       CRTRingDefinition ring = (CRTRingDefinition) seq.getBasicNumericContext()
           .getFieldDefinition();

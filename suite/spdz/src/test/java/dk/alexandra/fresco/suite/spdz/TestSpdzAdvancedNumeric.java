@@ -27,7 +27,7 @@ public class TestSpdzAdvancedNumeric extends AbstractSpdzTest {
   @Test
   public void test_Division_Known_Denominator() {
     runTest(new TestKnownDivisorDivision<>(),
-        PreprocessingStrategy.DUMMY, 2);
+        PreprocessingStrategy.MASCOT, 2);
   }
 
   @Test

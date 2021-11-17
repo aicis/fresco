@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
+/** Add correlated noise to a number and open it */
 public class MaskAndOpenComputation implements Computation<BigInteger, ProtocolBuilderNumeric> {
 
   private final DRes<SInt> value;
@@ -17,6 +18,6 @@ public class MaskAndOpenComputation implements Computation<BigInteger, ProtocolB
   @Override
   public DRes<BigInteger> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq(seq -> seq.append(new CorrelatedNoiseProtocol<>()))
-        .seq((seq, r) -> seq.numeric().add(value, r)).seq((seq, x) -> seq.numeric().open(x));
+        .seq((seq, r) -> seq.numeric().open(seq.numeric().add(value, r)));
   }
 }

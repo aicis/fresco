@@ -23,9 +23,9 @@ import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTDummyDataSupplier;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePool;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePoolImpl;
 import dk.alexandra.fresco.suite.crt.suites.DummyProtocolSupplier;
-import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,12 +42,12 @@ public class AbstractDummyCRTTest {
       MersennePrimeFieldDefinition.find(64);
   protected static final FieldDefinition DEFAULT_FIELD_RIGHT =
       MersennePrimeFieldDefinition.find(128);
-  protected static final int DEFAULT_MAX_BIT_LENGTH = 140;
   protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
 
   public void runTest(
       TestThreadRunner.TestThreadFactory<CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties) {
+
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -60,13 +60,8 @@ public class AbstractDummyCRTTest {
             CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>,
             ProtocolBuilderNumeric>
         > conf = new HashMap<>();
-    for (int playerId : netConf.keySet()) {
-      PerformanceLoggerCountingAggregate aggregate = new PerformanceLoggerCountingAggregate();
 
-      ProtocolSuiteNumeric<DummyArithmeticResourcePool> psLeft = new DummyArithmeticProtocolSuite(
-          DEFAULT_FIELD_LEFT, DEFAULT_MAX_BIT_LENGTH, 32);
-      ProtocolSuiteNumeric<DummyArithmeticResourcePool> psRight = new DummyArithmeticProtocolSuite(
-          DEFAULT_FIELD_RIGHT, DEFAULT_MAX_BIT_LENGTH, 32);
+    for (int playerId : netConf.keySet()) {
 
       BatchEvaluationStrategy<CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>> batchEvaluationStrategy =
           evalStrategy.getStrategy();
@@ -77,8 +72,8 @@ public class AbstractDummyCRTTest {
 
       ProtocolSuiteNumeric<CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>> ps =
           new CRTProtocolSuite<>(
-              new DummyProtocolSupplier(new Random(0), DEFAULT_FIELD_LEFT.getModulus()),
-              new DummyProtocolSupplier(new Random(1), DEFAULT_FIELD_RIGHT.getModulus()));
+              new DummyProtocolSupplier(new Random(0), DEFAULT_FIELD_LEFT),
+              new DummyProtocolSupplier(new Random(1), DEFAULT_FIELD_RIGHT));
       ProtocolEvaluator<CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>> evaluator =
           new BatchedProtocolEvaluator<>(batchEvaluationStrategy, ps);
 
@@ -87,7 +82,9 @@ public class AbstractDummyCRTTest {
           new SecureComputationEngineImpl<>(ps, evaluator);
 
       CRTDataSupplier dataSupplier = new CRTDummyDataSupplier(playerId, noOfParties,
-          DEFAULT_FIELD_LEFT, DEFAULT_FIELD_RIGHT);
+          DEFAULT_FIELD_LEFT, DEFAULT_FIELD_RIGHT,
+          x -> new DummyArithmeticSInt(DEFAULT_FIELD_LEFT.createElement(x)),
+          y -> new DummyArithmeticSInt(DEFAULT_FIELD_RIGHT.createElement(y)));
 
       TestThreadRunner.TestThreadConfiguration<
           CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>,
@@ -96,14 +93,9 @@ public class AbstractDummyCRTTest {
               () -> new CRTResourcePoolImpl<>(playerId, noOfParties, dataSupplier, rpLeft, rpRight),
               () -> new SocketNetwork(partyNetConf));
       conf.put(playerId, ttc);
-      performanceLoggers.putIfAbsent(playerId, aggregate);
     }
 
     TestThreadRunner.run(f, conf);
-    PerformancePrinter printer = new DefaultPerformancePrinter();
-    for (PerformanceLogger pl : performanceLoggers.values()) {
-      printer.printPerformanceLog(pl);
-    }
   }
 
 }

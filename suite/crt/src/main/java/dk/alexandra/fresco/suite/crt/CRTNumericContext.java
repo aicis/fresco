@@ -1,11 +1,17 @@
 package dk.alexandra.fresco.suite.crt;
 
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import java.math.BigInteger;
+import java.util.function.BiFunction;
 
 public class CRTNumericContext extends BasicNumericContext {
 
   private final BigInteger p, q;
+  private final BiFunction<DRes<SInt>, DRes<SInt>, Computation<BigInteger, ProtocolBuilderNumeric>> mixedAdd;
 
   /**
    * Construct a new BasicNumericContext.
@@ -15,10 +21,11 @@ public class CRTNumericContext extends BasicNumericContext {
    * @param noOfParties  number of parties in computation
    */
   public CRTNumericContext(int maxBitLength, int myId, int noOfParties,
-      BigInteger p, BigInteger q) {
+      BigInteger p, BigInteger q, BiFunction<DRes<SInt>, DRes<SInt>, Computation<BigInteger, ProtocolBuilderNumeric>> mixedAdd) {
     super(maxBitLength, myId, noOfParties, new CRTRingDefinition(p, q), 0);
     this.p = p;
     this.q = q;
+    this.mixedAdd = mixedAdd;
   }
 
   public BigInteger getP() {
@@ -27,5 +34,9 @@ public class CRTNumericContext extends BasicNumericContext {
 
   public BigInteger getQ() {
     return q;
+  }
+
+  public Computation<BigInteger, ProtocolBuilderNumeric> mixedAdd(DRes<SInt> x, DRes<SInt> y) {
+    return mixedAdd.apply(x, y);
   }
 }

@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.crt.suites;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticAddProtocol;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticCloseProtocol;
@@ -12,6 +13,7 @@ import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticOpenToAllProtoc
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticRandomBitProtocol;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticRandomElementProtocol;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSubtractProtocol;
 import java.math.BigInteger;
 import java.util.Random;
@@ -21,11 +23,11 @@ public class DummyProtocolSupplier implements
     ProtocolSuiteProtocolSupplier<DummyArithmeticResourcePool> {
 
   private final Random random;
-  private final BigInteger modulus;
+  private final FieldDefinition field;
 
-  public DummyProtocolSupplier(Random random, BigInteger modulus) {
+  public DummyProtocolSupplier(Random random, FieldDefinition field) {
     this.random = random;
-    this.modulus = modulus;
+    this.field = field;
   }
 
   @Override
@@ -56,7 +58,7 @@ public class DummyProtocolSupplier implements
 
   @Override
   public NativeProtocol<SInt, DummyArithmeticResourcePool> add(BigInteger a, DRes<SInt> b) {
-    throw new NotImplementedException();
+    return new DummyArithmeticAddProtocol(new DummyArithmeticSInt(field.createElement(a)), b);
   }
 
   @Override
@@ -66,12 +68,12 @@ public class DummyProtocolSupplier implements
 
   @Override
   public NativeProtocol<SInt, DummyArithmeticResourcePool> sub(DRes<SInt> a, BigInteger b) {
-    throw new NotImplementedException();
+    return new DummyArithmeticSubtractProtocol(a, new DummyArithmeticSInt(field.createElement(b)));
   }
 
   @Override
   public NativeProtocol<SInt, DummyArithmeticResourcePool> sub(BigInteger a, DRes<SInt> b) {
-    throw new NotImplementedException();
+    return new DummyArithmeticMultProtocol(new DummyArithmeticSInt(field.createElement(a)), b);
   }
 
   @Override
@@ -81,7 +83,7 @@ public class DummyProtocolSupplier implements
 
   @Override
   public NativeProtocol<SInt, DummyArithmeticResourcePool> mult(BigInteger a, DRes<SInt> b) {
-    throw new NotImplementedException();
+    return new DummyArithmeticMultProtocol(new DummyArithmeticSInt(field.createElement(a)), b);
   }
 
   @Override

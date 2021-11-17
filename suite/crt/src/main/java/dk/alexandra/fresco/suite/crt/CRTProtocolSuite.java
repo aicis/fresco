@@ -24,7 +24,7 @@ public class CRTProtocolSuite<A extends NumericResourcePool, B extends NumericRe
   @Override
   public BuilderFactoryNumeric init(CRTResourcePool<A, B> resourcePool) {
     Pair<A, B> resourcePools = resourcePool.getSubResourcePools();
-    return new CRTBuilderFactory<A, B>(resourcePools.getFirst(), left, resourcePools.getSecond(),
+    return new CRTBuilderFactory<>(resourcePools.getFirst(), left, resourcePools.getSecond(),
         right);
   }
 

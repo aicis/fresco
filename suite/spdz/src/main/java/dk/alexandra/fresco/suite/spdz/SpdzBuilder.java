@@ -28,7 +28,7 @@ public class SpdzBuilder implements BuilderFactoryNumeric {
 
   private BasicNumericContext basicNumericContext;
 
-  SpdzBuilder(BasicNumericContext basicNumericContext) {
+  public SpdzBuilder(BasicNumericContext basicNumericContext) {
     this.basicNumericContext = basicNumericContext;
   }
 

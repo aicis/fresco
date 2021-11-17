@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.suite.crt.CRTNumericContext;
 import dk.alexandra.fresco.suite.crt.CRTRingDefinition;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
 import dk.alexandra.fresco.suite.crt.protocols.Projection.Coordinate;
@@ -23,7 +24,7 @@ public class LiftPQProtocol implements
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq(
         seq -> seq.append(new CorrelatedNoiseProtocol<>())).seq((seq, r) -> Pair.lazy(
-        new MixedAddProtocol(
+        ((CRTNumericContext) seq.getBasicNumericContext()).mixedAdd(
             ((CRTSInt) value.out()).getLeft(), ((CRTSInt) r.out()).getRight())
             .buildComputation(seq), r)).par((seq, xPrimeAndR) -> {
 
