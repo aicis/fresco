@@ -112,8 +112,8 @@ public class TestCRT {
 
   @Test
   public void testBitDecomposition() {
-    new AbstractDummyCRTTest()
-        .runTest(new TestBitDecomposition<>(), EvaluationStrategy.SEQUENTIAL, 2);
+    new AbstractSpdzCRTTest()
+        .runTest(new TestBitDecomposition<>(), EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
   }
 
 }

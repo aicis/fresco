@@ -23,24 +23,25 @@ public class BitDecompositionProtocol implements
 
   @Override
   public DRes<List<DRes<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
-    if (M == 1) {
-      return DRes.of(Collections.singletonList(x));
-    }
 
-    int e = M / 2;
-    return builder.seq(seq -> {
-      DRes<SInt> u = new DivisionProtocol(x, BigInteger.valueOf(2).pow(e)).buildComputation(seq);
-      DRes<SInt> l = seq.numeric().sub(x, seq.numeric().mult(BigInteger.valueOf(2).pow(e), u));
-      return Pair.lazy(l, u);
-    }).pairInPar((seq, lu) ->
-            new BitDecompositionProtocol(lu.getFirst(), M - e).buildComputation(seq),
-        (seq, lu) -> new BitDecompositionProtocol(lu.getSecond(), e).buildComputation(seq))
-        .seq((seq, lu) -> {
-          List<DRes<SInt>> bits = new ArrayList<>();
-          bits.addAll(lu.getFirst());
-          bits.addAll(lu.getSecond());
-          return DRes.of(bits);
-        });
+    return builder.par(par -> {
+      List<DRes<SInt>> results = new ArrayList<>();
+      results.add(x);
+      for (int i = 1; i < M + 1; i++) {
+        DRes<SInt> d = new DivisionProtocol(x, BigInteger.valueOf(2).pow(i)).buildComputation(par);
+        results.add(d);
+      }
+      return DRes.of(results);
+    }).par((par, d) -> {
+      List<DRes<SInt>> bits = new ArrayList<>();
+      for (int i = 1; i < M + 1; i++) {
+        int finalI = i;
+        DRes<SInt> b = par.seq(seq ->
+          seq.numeric().sub(d.get(finalI-1), seq.numeric().mult(2, d.get(finalI))));
+        bits.add(b);
+      }
+      return DRes.of(bits);
+    });
 
   }
 }

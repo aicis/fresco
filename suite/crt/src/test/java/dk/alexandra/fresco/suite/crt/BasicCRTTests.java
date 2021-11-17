@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
 import dk.alexandra.fresco.suite.crt.protocols.BitDecompositionProtocol;
 import dk.alexandra.fresco.suite.crt.protocols.CorrelatedNoiseProtocol;
 import dk.alexandra.fresco.suite.crt.protocols.DivisionProtocol;
@@ -326,7 +325,7 @@ public class BasicCRTTests {
         public void test() {
 
           Random random = new Random(1234);
-          int N = 100;
+          int N = 1;
 
           for (int i = 0; i < N; i++) {
             BigInteger xValue = new BigInteger(63, random);
