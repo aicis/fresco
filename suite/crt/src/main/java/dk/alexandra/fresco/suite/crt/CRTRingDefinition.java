@@ -26,11 +26,7 @@ public class CRTRingDefinition extends BigIntegerFieldDefinition {
     return Util.mapToCRT(x, p, q);
   }
 
-  public BigInteger mapToBigInteger(Pair<BigInteger, BigInteger> x) {
-    return mapToBigInteger(x);
-  }
-
   public BigInteger mapToBigInteger(BigInteger x, BigInteger y) {
-    return mapToBigInteger(new Pair<>(x, y));
+    return Util.mapToBigInteger(x, y, p, q);
   }
 }
