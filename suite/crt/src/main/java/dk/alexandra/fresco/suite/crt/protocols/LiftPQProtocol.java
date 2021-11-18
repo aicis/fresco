@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.crt.protocols;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -9,10 +8,12 @@ import dk.alexandra.fresco.suite.crt.CRTNumericContext;
 import dk.alexandra.fresco.suite.crt.CRTRingDefinition;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
 import dk.alexandra.fresco.suite.crt.protocols.Projection.Coordinate;
+import dk.alexandra.fresco.suite.crt.protocols.framework.CRTComputation;
 import java.math.BigInteger;
 
-public class LiftPQProtocol implements
-    Computation<SInt, ProtocolBuilderNumeric> {
+/** Given (x,y) output (0, x) */
+public class LiftPQProtocol extends
+    CRTComputation<SInt> {
 
   private final DRes<SInt> value;
 
@@ -21,16 +22,18 @@ public class LiftPQProtocol implements
   }
 
   @Override
-  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder, CRTRingDefinition ring,
+      CRTNumericContext context) {
     return builder.seq(
-        seq -> seq.append(new CorrelatedNoiseProtocol<>())).seq((seq, r) -> Pair.lazy(
-        ((CRTNumericContext) seq.getBasicNumericContext()).mixedAdd(
-            ((CRTSInt) value.out()).getLeft(), ((CRTSInt) r.out()).getRight())
-            .buildComputation(seq), r)).par((seq, xPrimeAndR) -> {
+        seq -> seq.append(new CorrelatedNoiseProtocol<>())).seq((seq, r) -> {
+      DRes<SInt> x1 = ((CRTSInt) value.out()).getLeft();
+      DRes<SInt> r1 = ((CRTSInt) r.out()).getRight();
+      return Pair.lazy(
+          context.mixedAdd(x1, r1).buildComputation(seq), r);
+    }).par((seq, xPrimeAndR) -> {
 
-      BigInteger p = ((CRTRingDefinition) seq.getBasicNumericContext().getFieldDefinition()).getP();
       BigInteger xPrime = xPrimeAndR.getFirst().out();
-      BigInteger deltaPrime = xPrime.divide(p);
+      BigInteger deltaPrime = xPrime.divide(ring.getP());
       SInt r = xPrimeAndR.getSecond();
       State state = new State().addR(r).addDeltaPrime(deltaPrime);
 
@@ -45,7 +48,7 @@ public class LiftPQProtocol implements
       return Pair.lazy(y, xpRpAndState.getSecond());
     }).seq((seq, yAndState) -> {
       BigInteger yOpen = yAndState.getFirst().out()
-          .mod(((CRTRingDefinition) seq.getBasicNumericContext().getFieldDefinition()).getP());
+          .mod(ring.getP());
       State state = yAndState.getSecond().addY(yOpen);
       return state.addYq(seq.numeric().known(state.y));
     }).par((par, state) -> {
@@ -55,7 +58,7 @@ public class LiftPQProtocol implements
     }).seq((seq, yqRqAndState) -> {
       State state = yqRqAndState.getSecond();
       return seq.numeric().add(state.deltaPrime
-              .multiply(((CRTRingDefinition) seq.getBasicNumericContext().getFieldDefinition()).getP()),
+              .multiply(ring.getP()),
           seq.numeric()
               .sub(yqRqAndState.getFirst().getFirst(), yqRqAndState.getFirst().getSecond()));
     });

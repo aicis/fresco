@@ -10,8 +10,8 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
-import dk.alexandra.fresco.suite.crt.protocols.CRTBasicProtocol;
-import dk.alexandra.fresco.suite.crt.protocols.CRTBigIntegerProtocol;
+import dk.alexandra.fresco.suite.crt.protocols.CRTSIntProtocol;
+import dk.alexandra.fresco.suite.crt.protocols.framework.CRTBigIntegerProtocol;
 import dk.alexandra.fresco.suite.crt.protocols.DummyMixedAddProtocol;
 import dk.alexandra.fresco.suite.crt.suites.ProtocolSuiteProtocolSupplier;
 import java.math.BigInteger;
@@ -74,7 +74,7 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
           DRes<SInt> bLeft = bOut.getLeft();
           DRes<SInt> bRight = bOut.getRight();
 
-          return par.append(new CRTBasicProtocol<>(
+          return par.append(new CRTSIntProtocol<>(
               left.add(aLeft, bLeft),
               right.add(aRight, bRight)));
         });
@@ -101,7 +101,7 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
           DRes<SInt> bLeft = bOut.getLeft();
           DRes<SInt> bRight = bOut.getRight();
 
-          return par.append(new CRTBasicProtocol<>(
+          return par.append(new CRTSIntProtocol<>(
               left.sub(aLeft, bLeft), right.sub(aRight, bRight)));
         });
       }
@@ -135,7 +135,7 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
           DRes<SInt> bLeft = bOut.getLeft();
           DRes<SInt> bRight = bOut.getRight();
 
-          return par.append(new CRTBasicProtocol<>(
+          return par.append(new CRTSIntProtocol<>(
               left.mult(aLeft, bLeft), right.mult(aRight, bRight)));
         });
       }
@@ -156,7 +156,7 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
 
       @Override
       public DRes<SInt> randomElement() {
-        return builder.par(par -> par.append(new CRTBasicProtocol<>(
+        return builder.par(par -> par.append(new CRTSIntProtocol<>(
             left.randomElement(), right.randomElement())));
       }
 
@@ -164,7 +164,7 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
       public DRes<SInt> known(BigInteger value) {
         return builder.par(par -> {
           Pair<BigInteger, BigInteger> crt = mapToCRT(value);
-          return par.append(new CRTBasicProtocol<>(
+          return par.append(new CRTSIntProtocol<>(
               left.known(crt.getFirst()), right.known(crt.getSecond())));
         });
       }
@@ -173,7 +173,7 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
       public DRes<SInt> input(BigInteger value, int inputParty) {
         return builder.par(par -> {
           Pair<BigInteger, BigInteger> crt = mapToCRT(value);
-          return par.append(new CRTBasicProtocol<>(
+          return par.append(new CRTSIntProtocol<>(
               left.input(crt.getFirst(), inputParty), right.input(crt.getSecond(), inputParty)));
         });
       }

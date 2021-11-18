@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.crt.protocols;
+package dk.alexandra.fresco.suite.crt.protocols.framework;
 
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;

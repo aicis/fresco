@@ -1,13 +1,14 @@
 package dk.alexandra.fresco.suite.crt.protocols;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.suite.crt.CRTNumericContext;
 import dk.alexandra.fresco.suite.crt.CRTRingDefinition;
+import dk.alexandra.fresco.suite.crt.protocols.framework.CRTComputation;
 
 /** Return 1 if x <= y and 0 otherwise. We assume 0 < x,y < p^2 */
-public class LEQProtocol implements Computation<SInt, ProtocolBuilderNumeric> {
+public class LEQProtocol extends CRTComputation<SInt> {
 
   private final DRes<SInt> x, y;
 
@@ -17,11 +18,12 @@ public class LEQProtocol implements Computation<SInt, ProtocolBuilderNumeric> {
   }
 
   @Override
-  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder, CRTRingDefinition ring,
+      CRTNumericContext context) {
     return builder.seq(seq -> {
-      CRTRingDefinition ring = (CRTRingDefinition) seq.getBasicNumericContext().getFieldDefinition();
       DRes<SInt> z = seq.numeric().add(ring.getP().pow(2), seq.numeric().sub(y, x));
       return new Truncp(new Truncp(z).buildComputation(seq)).buildComputation(seq);
     });
   }
+
 }
