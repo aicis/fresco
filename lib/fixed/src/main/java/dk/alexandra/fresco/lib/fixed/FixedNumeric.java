@@ -4,6 +4,8 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.fixed.truncations.BinaryTruncation;
+import dk.alexandra.fresco.lib.fixed.truncations.Truncation;
 import java.math.BigDecimal;
 
 /**
@@ -18,7 +20,18 @@ public interface FixedNumeric extends ComputationDirectory {
    * @return A new FixedNumeric computation directory.
    */
   static FixedNumeric using(ProtocolBuilderNumeric builder) {
-    return new DefaultFixedNumeric(builder);
+    return using(builder, new BinaryTruncation(builder.getBasicNumericContext().getDefaultFixedPointPrecision()));
+  }
+
+  /**
+   * Create a new FixedNumeric using the given builder and truncation operation.
+   *
+   * @param builder The root builder to use.
+   * @param truncation The default truncation operation to use by this builder.
+   * @return A new FixedNumeric computation directory.
+   */
+  static FixedNumeric using(ProtocolBuilderNumeric builder, Truncation truncation) {
+    return new DefaultFixedNumeric(builder, truncation);
   }
 
   /**
