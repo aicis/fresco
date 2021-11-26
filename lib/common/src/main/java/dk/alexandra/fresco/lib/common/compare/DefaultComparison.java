@@ -15,14 +15,14 @@ import java.math.BigInteger;
  * overwritten when implementing {@link BuilderFactoryNumeric} if the protocol suite has a better
  * and more efficient way of constructing the protocols.
  */
-public class DefaultComparison implements Comparison {
+public class DefaultComparison extends Comparison {
 
   // Security parameter used by protocols using rightshifts and/or additive masks.
   private final int magicSecureNumber = 60;
   private final int maxBitLength;
-  private final ProtocolBuilderNumeric builder;
+  protected final ProtocolBuilderNumeric builder;
 
-  DefaultComparison(ProtocolBuilderNumeric builder) {
+  protected DefaultComparison(ProtocolBuilderNumeric builder) {
     this.maxBitLength = builder.getBasicNumericContext().getMaxBitLength();
     this.builder = builder;
   }

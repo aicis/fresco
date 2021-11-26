@@ -4,11 +4,19 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.util.function.Function;
 
 /**
  * Interface for comparing numeric values.
  */
-public interface Comparison extends ComputationDirectory {
+public abstract class Comparison implements ComputationDirectory {
+
+  private static Function<ProtocolBuilderNumeric, Comparison> provider = DefaultComparison::new;
+
+  /** Redefine default implementation of Comparison */
+  public static void load(Function<ProtocolBuilderNumeric, Comparison> provider) {
+    Comparison.provider = provider;
+  }
 
   /**
    * Create a new Comparison using the given builder.
@@ -16,8 +24,8 @@ public interface Comparison extends ComputationDirectory {
    * @param builder The root builder to use.
    * @return A new Comparison computation directory.
    */
-  static Comparison using(ProtocolBuilderNumeric builder) {
-    return new DefaultComparison(builder);
+  public static Comparison using(ProtocolBuilderNumeric builder) {
+    return provider.apply(builder);
   }
 
   /**
@@ -27,7 +35,7 @@ public interface Comparison extends ComputationDirectory {
    * @param y The second number
    * @return A deferred result computing x == y
    */
-  DRes<SInt> equals(int bitLength, DRes<SInt> x, DRes<SInt> y);
+  public abstract DRes<SInt> equals(int bitLength, DRes<SInt> x, DRes<SInt> y);
   
   /**
    * Computes x == y.
@@ -36,7 +44,7 @@ public interface Comparison extends ComputationDirectory {
    * @param y input
    * @return A deferred result computing x == y. Result will be either [1] (true) or [0] (false).
    */
-  DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y);
+  public abstract DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y);
   
   /**
    * Computes if x1 &le; x2.
@@ -44,7 +52,7 @@ public interface Comparison extends ComputationDirectory {
    * @param x2 input
    * @return A deferred result computing x1 &le; x2. Result will be either [1] (true) or [0] (false).
    */
-  DRes<SInt> compareLEQ(DRes<SInt> x1, DRes<SInt> x2);
+  public abstract  DRes<SInt> compareLEQ(DRes<SInt> x1, DRes<SInt> x2);
 
   /**
    * Compares if x1 &le; x2, but with twice the possible bit-length.
@@ -55,7 +63,7 @@ public interface Comparison extends ComputationDirectory {
    * @param x2 input
    * @return A deferred result computing x1 &le; x2. Result will be either [1] (true) or [0] (false).
    */
-  DRes<SInt> compareLEQLong(DRes<SInt> x1, DRes<SInt> x2);
+  public abstract DRes<SInt> compareLEQLong(DRes<SInt> x1, DRes<SInt> x2);
 
   /**
    * Computes the sign of the value (positive or negative)
@@ -64,7 +72,7 @@ public interface Comparison extends ComputationDirectory {
    * @return A deferred result computing the sign. Result will be 1 if the value is positive
    *         (including 0) and -1 if negative.
    */
-  DRes<SInt> sign(DRes<SInt> x);
+  public abstract DRes<SInt> sign(DRes<SInt> x);
 
   /**
    * Test for equality with zero for a bitLength-bit number (positive or negative)
@@ -73,5 +81,5 @@ public interface Comparison extends ComputationDirectory {
    * @param bitLength bitlength
    * @return A deferred result computing x == 0. Result will be either [1] (true) or [0] (false)
    */
-  DRes<SInt> compareZero(DRes<SInt> x, int bitLength);
+  public abstract DRes<SInt> compareZero(DRes<SInt> x, int bitLength);
 }
