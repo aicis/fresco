@@ -26,6 +26,10 @@ public class SumSIntList implements Computation<SInt, ProtocolBuilderNumeric> {
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric iterationBuilder) {
+    if (input.isEmpty()) {
+      return iterationBuilder.numeric().known(0);
+    }
+
     return iterationBuilder.seq(seq ->
         () -> input
     ).whileLoop(
