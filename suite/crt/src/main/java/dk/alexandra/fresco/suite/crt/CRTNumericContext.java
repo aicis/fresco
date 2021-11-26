@@ -22,7 +22,7 @@ public class CRTNumericContext extends BasicNumericContext {
    */
   public CRTNumericContext(int maxBitLength, int myId, int noOfParties,
       BigInteger p, BigInteger q, BiFunction<DRes<SInt>, DRes<SInt>, Computation<BigInteger, ProtocolBuilderNumeric>> mixedAdd) {
-    super(maxBitLength, myId, noOfParties, new CRTRingDefinition(p, q), 0);
+    super(maxBitLength, myId, noOfParties, new CRTRingDefinition(p, q), p.bitLength());
     this.p = p;
     this.q = q;
     this.mixedAdd = mixedAdd;

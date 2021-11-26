@@ -8,6 +8,7 @@ import dk.alexandra.fresco.suite.crt.CRTRingDefinition;
 import dk.alexandra.fresco.suite.crt.protocols.framework.CRTComputation;
 import java.math.BigInteger;
 
+/** Compute x/d with x,d < p */
 public class DivisionProtocol extends CRTComputation<SInt> {
 
   private final DRes<SInt> x;

@@ -2,13 +2,14 @@ package dk.alexandra.fresco.suite.crt;
 
 import dk.alexandra.fresco.framework.util.Pair;
 import java.math.BigInteger;
+import java.util.Objects;
 import java.util.Random;
 
 public class Util {
 
   /** Map from F_m to F_p x F_q with m = pq */
   public static Pair<BigInteger, BigInteger> mapToCRT(BigInteger x, BigInteger p, BigInteger q) {
-    return new Pair<>(x.mod(p), x.mod(q));
+    return Objects.nonNull(x) ? new Pair<>(x.mod(p), x.mod(q)) : new Pair<>(null, null);
   }
 
   /** Map from F_p x F_q to F_m with m = pq */

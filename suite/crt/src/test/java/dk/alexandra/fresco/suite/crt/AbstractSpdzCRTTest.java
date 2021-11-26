@@ -8,6 +8,7 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultPreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.field.MersennePrimeFieldDefinition;
@@ -31,7 +32,6 @@ import dk.alexandra.fresco.framework.util.OpenedValueStoreImpl;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
-import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTDataSupplier;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTDummyDataSupplier;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePool;
@@ -69,25 +69,23 @@ public class AbstractSpdzCRTTest {
 
   protected static final FieldDefinition DEFAULT_FIELD_LEFT =
       MersennePrimeFieldDefinition.find(64);
-  protected static final FieldDefinition DEFAULT_FIELD_RIGHT =
-      MersennePrimeFieldDefinition.find(128);
+  protected static final FieldDefinition DEFAULT_FIELD_RIGHT = new BigIntegerFieldDefinition(
+      new BigInteger(128 + 40, new Random(1234)).nextProbablePrime());
   private static final int PRG_SEED_LENGTH = 256;
-  protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
 
-  private static Drbg getDrbg(int myId, int prgSeedLength) {
-    byte[] seed = new byte[prgSeedLength / 8];
+  private static Drbg getDrbg(int myId) {
+    byte[] seed = new byte[AbstractSpdzCRTTest.PRG_SEED_LENGTH / 8];
     new Random(myId).nextBytes(seed);
     return AesCtrDrbgFactory.fromDerivedSeed(seed);
   }
 
   private static Map<Integer, RotList> getSeedOts(int myId, List<Integer> partyIds,
-      int prgSeedLength,
       Drbg drbg, Network network) {
     Map<Integer, RotList> seedOts = new HashMap<>();
     for (Integer otherId : partyIds) {
       if (myId != otherId) {
         Ot ot = new DummyOt(otherId, network);
-        RotList currentSeedOts = new RotList(drbg, prgSeedLength);
+        RotList currentSeedOts = new RotList(drbg, AbstractSpdzCRTTest.PRG_SEED_LENGTH);
         if (myId < otherId) {
           currentSeedOts.send(ot);
           currentSeedOts.receive(ot);
@@ -119,14 +117,14 @@ public class AbstractSpdzCRTTest {
 
     for (int playerId : netConf.keySet()) {
 
-      BatchEvaluationStrategy<CRTResourcePool<SpdzResourcePool, SpdzResourcePool>> batchEvalStrat = evalStrategy
+      BatchEvaluationStrategy<CRTResourcePool<SpdzResourcePool, SpdzResourcePool>> strategy = evalStrategy
           .getStrategy();
 
       CRTProtocolSuite<SpdzResourcePool, SpdzResourcePool> ps = new CRTProtocolSuite<>(
           new SpdzProtocolSupplier(), new SpdzProtocolSupplier());
 
       ProtocolEvaluator<CRTResourcePool<SpdzResourcePool, SpdzResourcePool>> evaluator =
-          new BatchedProtocolEvaluator<>(batchEvalStrat, ps);
+          new BatchedProtocolEvaluator<>(strategy, ps);
 
       SecureComputationEngine<CRTResourcePool<SpdzResourcePool, SpdzResourcePool>, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
@@ -143,8 +141,8 @@ public class AbstractSpdzCRTTest {
       TestThreadRunner.TestThreadConfiguration<CRTResourcePool<SpdzResourcePool, SpdzResourcePool>, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce, () -> {
             Pair<SpdzResourcePool, SpdzResourcePool> rps = createResourcePools(playerId,
-                noOfParties, preProStrat, otManager, tripleManager, expPipeManager,
-                DEFAULT_FIELD_LEFT, DEFAULT_FIELD_RIGHT);
+                noOfParties, preProStrat, otManager, tripleManager, expPipeManager
+            );
             return new CRTResourcePoolImpl<>(playerId, noOfParties, dataSupplier, rps.getFirst(),
                 rps.getSecond());
           }, () -> new SocketNetwork(netConf.get(playerId)));
@@ -171,9 +169,9 @@ public class AbstractSpdzCRTTest {
     } else if (preProStrat == MASCOT) {
       List<Integer> partyIds =
           IntStream.range(1, numberOfParties + 1).boxed().collect(Collectors.toList());
-      Drbg drbg = getDrbg(myId, PRG_SEED_LENGTH);
+      Drbg drbg = getDrbg(myId);
       Map<Integer, RotList> seedOts =
-          getSeedOts(myId, partyIds, PRG_SEED_LENGTH, drbg, otGenerator.createExtraNetwork(myId));
+          getSeedOts(myId, partyIds, drbg, otGenerator.createExtraNetwork(myId));
       FieldElement ssk = SpdzMascotDataSupplier.createRandomSsk(definition, PRG_SEED_LENGTH);
       supplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, numberOfParties,
           () -> tripleGenerator.createExtraNetwork(myId), definition.getModulus().bitLength(),
@@ -192,7 +190,8 @@ public class AbstractSpdzCRTTest {
                     seedOts, drbg, ssk);
               }
               DRes<List<DRes<SInt>>> pipe =
-                  createPipe(myId, numberOfParties, pipeLength, pipeNetwork, tripleSupplier, 0);
+                  createPipe(myId, numberOfParties, pipeLength, pipeNetwork, tripleSupplier,
+                      definition.getBitLength());
               return computeSInts(pipe);
             }
           }, seedOts, drbg, ssk);
@@ -213,13 +212,12 @@ public class AbstractSpdzCRTTest {
       PreprocessingStrategy preProStrat,
       NetManager otGenerator,
       NetManager tripleGenerator,
-      NetManager expPipeGenerator, FieldDefinition definitionLeft,
-      FieldDefinition definitionRight) {
+      NetManager expPipeGenerator) {
 
     SpdzDataSupplier supplierLeft = getSupplier(myId, numberOfParties, preProStrat, otGenerator,
-        tripleGenerator, expPipeGenerator, definitionLeft);
+        tripleGenerator, expPipeGenerator, AbstractSpdzCRTTest.DEFAULT_FIELD_LEFT);
     SpdzDataSupplier supplierRight = getSupplier(myId, numberOfParties, preProStrat, otGenerator,
-        tripleGenerator, expPipeGenerator, definitionRight);
+        tripleGenerator, expPipeGenerator, AbstractSpdzCRTTest.DEFAULT_FIELD_RIGHT);
 
     SpdzResourcePool rpLeft = new SpdzResourcePoolImpl(myId, numberOfParties,
         new OpenedValueStoreImpl<>(), supplierLeft, AesCtrDrbg::new);

@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.crt;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.MersennePrimeFieldDefinition;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
@@ -26,6 +27,7 @@ import dk.alexandra.fresco.suite.crt.suites.DummyProtocolSupplier;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,9 +42,8 @@ public class AbstractDummyCRTTest {
 
   protected static final FieldDefinition DEFAULT_FIELD_LEFT =
       MersennePrimeFieldDefinition.find(64);
-  protected static final FieldDefinition DEFAULT_FIELD_RIGHT =
-      MersennePrimeFieldDefinition.find(128);
-  protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
+  protected static final FieldDefinition DEFAULT_FIELD_RIGHT = new BigIntegerFieldDefinition(
+      new BigInteger(128 + 40, new Random(1234)).nextProbablePrime());
 
   public void runTest(
       TestThreadRunner.TestThreadFactory<CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>, ProtocolBuilderNumeric> f,

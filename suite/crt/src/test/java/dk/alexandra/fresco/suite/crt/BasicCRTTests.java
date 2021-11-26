@@ -9,9 +9,13 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.fixed.FixedNumeric;
+import dk.alexandra.fresco.lib.fixed.SFixed;
+import dk.alexandra.fresco.suite.crt.fixed.CRTFixedNumeric;
 import dk.alexandra.fresco.suite.crt.protocols.BitDecompositionProtocol;
 import dk.alexandra.fresco.suite.crt.protocols.CorrelatedNoiseProtocol;
 import dk.alexandra.fresco.suite.crt.protocols.DivisionProtocol;
+import dk.alexandra.fresco.suite.crt.protocols.BitLengthProtocol;
 import dk.alexandra.fresco.suite.crt.protocols.LEQProtocol;
 import dk.alexandra.fresco.suite.crt.protocols.LiftPQProtocol;
 import dk.alexandra.fresco.suite.crt.protocols.LiftQPProtocol;
@@ -20,6 +24,7 @@ import dk.alexandra.fresco.suite.crt.protocols.DummyMixedAddProtocol;
 import dk.alexandra.fresco.suite.crt.protocols.Projection;
 import dk.alexandra.fresco.suite.crt.protocols.Projection.Coordinate;
 import dk.alexandra.fresco.suite.crt.protocols.Truncp;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Random;
@@ -294,7 +299,7 @@ public class BasicCRTTests {
         public void test() {
 
           Random random = new Random(1234);
-          int N = 100;
+          int N = 10;
 
           for (int i = 0; i < N; i++) {
             BigInteger yValue = new BigInteger(127, random);
@@ -325,10 +330,10 @@ public class BasicCRTTests {
         public void test() {
 
           Random random = new Random(1234);
-          int N = 1;
+          int N = 10;
 
           for (int i = 0; i < N; i++) {
-            BigInteger xValue = new BigInteger(63, random);
+            BigInteger xValue = new BigInteger(64, random);
 
             Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> producer.seq(seq -> {
               DRes<SInt> x = seq.numeric().known(xValue);
@@ -347,4 +352,171 @@ public class BasicCRTTests {
     }
   }
 
+  public static class TestBitLength<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() {
+
+          Random random = new Random(1234);
+          int N = 10;
+
+          for (int i = 0; i < N; i++) {
+            int bitLength = random.nextInt(64);
+            BigInteger xValue = new BigInteger(bitLength, random);
+
+            Application<BigInteger, ProtocolBuilderNumeric> app = producer -> producer.seq(seq -> {
+              DRes<SInt> x = seq.numeric().known(xValue);
+              return new BitLengthProtocol(x, 64).buildComputation(seq);
+            }).seq((seq, hl) -> seq.numeric().open(hl.getFirst()));
+            BigInteger output = runApplication(app);
+            BigInteger expected = BigInteger.valueOf(xValue.bitLength());
+            Assert.assertEquals(expected, output);
+
+          }
+        }
+      };
+    }
+  }
+
+  public static class TestNormalization<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() {
+
+          Random random = new Random(1234);
+          int N = 10;
+
+          for (int i = 0; i < N; i++) {
+            int bitLength = random.nextInt(64);
+            BigInteger xValue = new BigInteger(bitLength, random);
+
+            Application<BigInteger, ProtocolBuilderNumeric> app = producer -> producer.seq(seq -> {
+              DRes<SInt> x = seq.numeric().known(xValue);
+              return new BitLengthProtocol(x, 64).buildComputation(seq);
+            }).seq((seq, hl) -> seq.numeric().open(hl.getSecond()));
+            BigInteger output = runApplication(app);
+            BigInteger outputNormalized = xValue.multiply(output);
+            Assert.assertEquals(64, outputNormalized.bitLength());
+
+          }
+        }
+      };
+    }
+  }
+
+  public static class TestFixedPointInput<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() {
+
+          double input = Math.PI;
+
+            Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> producer.seq(seq -> {
+              FixedNumeric numeric = new CRTFixedNumeric(seq);
+              DRes<SFixed> x = numeric.input(input, 1);
+              return numeric.open(x);
+            });
+            BigDecimal output = runApplication(app);
+            Assert.assertEquals(input, output.doubleValue(), 0.001);
+
+        }
+      };
+    }
+  }
+
+  public static class TestFixedPointMultiplication<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() {
+
+          double a = Math.PI;
+          double b = 7.001;
+
+          Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> producer.seq(seq -> {
+            FixedNumeric numeric = new CRTFixedNumeric(seq);
+            DRes<SFixed> x = numeric.input(a, 1);
+            DRes<SFixed> y = numeric.input(b, 2);
+            return numeric.open(numeric.mult(x, y));
+          });
+          BigDecimal output = runApplication(app);
+          Assert.assertEquals(a*b, output.doubleValue(), 0.001);
+
+        }
+      };
+    }
+  }
+
+  public static class TestFixedPointDivision<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() {
+
+          double a = 7.001;
+          double b = Math.PI;
+
+          Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> producer.seq(seq -> {
+            FixedNumeric numeric = new CRTFixedNumeric(seq);
+            DRes<SFixed> y = numeric.input(a, 2);
+            return numeric.open(numeric.div(y, b));
+          });
+          BigDecimal output = runApplication(app);
+          Assert.assertEquals(a/b, output.doubleValue(), 0.001);
+
+        }
+      };
+    }
+  }
+
+
+
+  public static class TestFixedPointSecretDivision<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() {
+
+          double a = 17.90 + Math.PI;
+          double b = 0.2;
+
+          Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> producer.seq(seq -> {
+            FixedNumeric numeric = new CRTFixedNumeric(seq);
+            DRes<SFixed> x = numeric.input(a, 1);
+            DRes<SFixed> y = numeric.input(b, 2);
+            return numeric.open(numeric.div(x, y));
+          });
+          BigDecimal output = runApplication(app);
+          Assert.assertEquals(a/b, output.doubleValue(), 0.01);
+        }
+      };
+    }
+  }
 }
