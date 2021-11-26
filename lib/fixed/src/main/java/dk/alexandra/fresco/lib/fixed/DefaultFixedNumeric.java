@@ -16,9 +16,9 @@ import java.util.Objects;
  * An implementation of the {@link FixedNumeric} ComputationDirectory based on a fixed point
  * representation of fixed numbers.
  */
-public class DefaultFixedNumeric implements FixedNumeric {
+public class DefaultFixedNumeric extends FixedNumeric {
 
-  private final ProtocolBuilderNumeric builder;
+  protected final ProtocolBuilderNumeric builder;
   private final Truncation truncation;
 
   /**
@@ -27,7 +27,7 @@ public class DefaultFixedNumeric implements FixedNumeric {
    * @param builder a ProtocolBuilder for the numeric computations which will be used to implement
    *     the fixed point operations.
    */
-  DefaultFixedNumeric(ProtocolBuilderNumeric builder, Truncation truncation) {
+  protected DefaultFixedNumeric(ProtocolBuilderNumeric builder, Truncation truncation) {
     Objects.requireNonNull(builder);
     this.builder = builder;
     this.truncation = truncation;
@@ -36,7 +36,7 @@ public class DefaultFixedNumeric implements FixedNumeric {
   /**
    * Returns <i>N</i>, the integer used to represent 1.
    */
-  public BigInteger getRepresentationOfOne() {
+  private BigInteger getRepresentationOfOne() {
     return truncation.getDivisor();
   }
 

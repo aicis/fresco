@@ -4,10 +4,19 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.lib.common.collections.Matrix;
+import dk.alexandra.fresco.lib.fixed.truncations.BinaryTruncation;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.function.Function;
 
-public interface FixedLinearAlgebra extends ComputationDirectory {
+public abstract class FixedLinearAlgebra implements ComputationDirectory {
+
+  private static Function<ProtocolBuilderNumeric, FixedLinearAlgebra> provider = DefaultFixedLinearAlgebra::new;
+
+  /** Redefine default FixedLinearAlgebra implementation to use */
+  public static void load(Function<ProtocolBuilderNumeric, FixedLinearAlgebra> provider) {
+    FixedLinearAlgebra.provider = provider;
+  }
 
   /**
    * Create a FixedLinearAlgebra using the given builder.
@@ -15,7 +24,7 @@ public interface FixedLinearAlgebra extends ComputationDirectory {
    * @param builder The root builder to use.
    * @return A new FixedLinearAlgebra computation directory.
    */
-  static FixedLinearAlgebra using(ProtocolBuilderNumeric builder) {
+  public static FixedLinearAlgebra using(ProtocolBuilderNumeric builder) {
     return new DefaultFixedLinearAlgebra(builder);
   }
 
@@ -26,7 +35,7 @@ public interface FixedLinearAlgebra extends ComputationDirectory {
    * @param b Second secret value
    * @return A deferred result computing a+b
    */
-  DRes<Matrix<DRes<SFixed>>> add(DRes<Matrix<DRes<SFixed>>> a, DRes<Matrix<DRes<SFixed>>> b);
+  public abstract DRes<Matrix<DRes<SFixed>>> add(DRes<Matrix<DRes<SFixed>>> a, DRes<Matrix<DRes<SFixed>>> b);
 
   /**
    * Adds a secret value to a public value and returns the result.
@@ -35,7 +44,7 @@ public interface FixedLinearAlgebra extends ComputationDirectory {
    * @param b Secret value
    * @return A deferred result computing a+b
    */
-  DRes<Matrix<DRes<SFixed>>> add(Matrix<BigDecimal> a, DRes<Matrix<DRes<SFixed>>> b);
+  public abstract DRes<Matrix<DRes<SFixed>>> add(Matrix<BigDecimal> a, DRes<Matrix<DRes<SFixed>>> b);
 
   /**
    * Subtracts two secret values and returns the result.
@@ -44,7 +53,7 @@ public interface FixedLinearAlgebra extends ComputationDirectory {
    * @param b Second secret value
    * @return A deferred result computing a-b
    */
-  DRes<Matrix<DRes<SFixed>>> sub(DRes<Matrix<DRes<SFixed>>> a, DRes<Matrix<DRes<SFixed>>> b);
+  public abstract DRes<Matrix<DRes<SFixed>>> sub(DRes<Matrix<DRes<SFixed>>> a, DRes<Matrix<DRes<SFixed>>> b);
 
   /**
    * Subtracts a secret value to a public value and returns the result.
@@ -53,7 +62,7 @@ public interface FixedLinearAlgebra extends ComputationDirectory {
    * @param b Secret value
    * @return A deferred result computing a-b
    */
-  DRes<Matrix<DRes<SFixed>>> sub(Matrix<BigDecimal> a, DRes<Matrix<DRes<SFixed>>> b);
+  public abstract DRes<Matrix<DRes<SFixed>>> sub(Matrix<BigDecimal> a, DRes<Matrix<DRes<SFixed>>> b);
 
   /**
    * Subtracts a secret value to a public value and returns the result.
@@ -62,7 +71,7 @@ public interface FixedLinearAlgebra extends ComputationDirectory {
    * @param b Public value
    * @return A deferred result computing a-b
    */
-  DRes<Matrix<DRes<SFixed>>> sub(DRes<Matrix<DRes<SFixed>>> a, Matrix<BigDecimal> b);
+  public abstract DRes<Matrix<DRes<SFixed>>> sub(DRes<Matrix<DRes<SFixed>>> a, Matrix<BigDecimal> b);
   
   /**
    * Multiplies two secret values and returns the result.
@@ -71,7 +80,7 @@ public interface FixedLinearAlgebra extends ComputationDirectory {
    * @param b Second secret value
    * @return A deferred result computing a*b
    */
-  DRes<Matrix<DRes<SFixed>>> mult(DRes<Matrix<DRes<SFixed>>> a, DRes<Matrix<DRes<SFixed>>> b);
+  public abstract DRes<Matrix<DRes<SFixed>>> mult(DRes<Matrix<DRes<SFixed>>> a, DRes<Matrix<DRes<SFixed>>> b);
 
   /**
    * Multiply a matrix to a vector.
@@ -80,7 +89,7 @@ public interface FixedLinearAlgebra extends ComputationDirectory {
    * @param b Second secret value
    * @return A deferred result computing a*v
    */
-  DRes<ArrayList<DRes<SFixed>>> vectorMult(DRes<Matrix<DRes<SFixed>>> a,
+  public abstract DRes<ArrayList<DRes<SFixed>>> vectorMult(DRes<Matrix<DRes<SFixed>>> a,
       DRes<ArrayList<DRes<SFixed>>> b);
 
   /**
@@ -90,7 +99,7 @@ public interface FixedLinearAlgebra extends ComputationDirectory {
    * @param v Public vector
    * @return A deferred result computing a*v
    */
-  DRes<ArrayList<DRes<SFixed>>> vectorMult(DRes<Matrix<DRes<SFixed>>> a, ArrayList<BigDecimal> v);
+  public abstract DRes<ArrayList<DRes<SFixed>>> vectorMult(DRes<Matrix<DRes<SFixed>>> a, ArrayList<BigDecimal> v);
 
   /**
    * Multiply a matrix to a vector.
@@ -99,7 +108,7 @@ public interface FixedLinearAlgebra extends ComputationDirectory {
    * @param v Secret vector
    * @return A deferred result computing a*v
    */
-  DRes<ArrayList<DRes<SFixed>>> vectorMult(Matrix<BigDecimal> a, DRes<ArrayList<DRes<SFixed>>> v);
+  public abstract DRes<ArrayList<DRes<SFixed>>> vectorMult(Matrix<BigDecimal> a, DRes<ArrayList<DRes<SFixed>>> v);
 
   /**
    * Multiplies a public value onto a secret value and returns the result.
@@ -108,7 +117,7 @@ public interface FixedLinearAlgebra extends ComputationDirectory {
    * @param b Public value
    * @return A deferred result computing a*b
    */
-  DRes<Matrix<DRes<SFixed>>> mult(DRes<Matrix<DRes<SFixed>>> a, Matrix<BigDecimal> b);
+  public abstract DRes<Matrix<DRes<SFixed>>> mult(DRes<Matrix<DRes<SFixed>>> a, Matrix<BigDecimal> b);
 
   /**
    * Multiply a public value with a secret value.
@@ -117,7 +126,7 @@ public interface FixedLinearAlgebra extends ComputationDirectory {
    * @param b Secret value
    * @return A deferred result computing a*b
    */
-  DRes<Matrix<DRes<SFixed>>> mult(Matrix<BigDecimal> a, DRes<Matrix<DRes<SFixed>>> b);
+  public abstract DRes<Matrix<DRes<SFixed>>> mult(Matrix<BigDecimal> a, DRes<Matrix<DRes<SFixed>>> b);
 
   /**
    * Multiply a secret matrix by a public constant.
@@ -126,7 +135,18 @@ public interface FixedLinearAlgebra extends ComputationDirectory {
    * @param a Secret value
    * @return A deferred result computing sa
    */
-  DRes<Matrix<DRes<SFixed>>> scale(BigDecimal s, DRes<Matrix<DRes<SFixed>>> a);
+  public abstract DRes<Matrix<DRes<SFixed>>> scale(BigDecimal s, DRes<Matrix<DRes<SFixed>>> a);
+
+  /**
+   * Multiply a secret matrix by a public constant.
+   *
+   * @param s Public value
+   * @param a Secret value
+   * @return A deferred result computing sa
+   */
+  public DRes<Matrix<DRes<SFixed>>> scale(double s, DRes<Matrix<DRes<SFixed>>> a) {
+    return scale(BigDecimal.valueOf(s), a);
+  }
 
   /**
    * Multiply a secret matrix by a secret constant.
@@ -135,7 +155,7 @@ public interface FixedLinearAlgebra extends ComputationDirectory {
    * @param a Secret value
    * @return A deferred result computing sa
    */
-  DRes<Matrix<DRes<SFixed>>> scale(DRes<SFixed> s, DRes<Matrix<DRes<SFixed>>> a);
+  public abstract DRes<Matrix<DRes<SFixed>>> scale(DRes<SFixed> s, DRes<Matrix<DRes<SFixed>>> a);
 
   /**
    * Multiply a public matrix by a secret constant.
@@ -144,7 +164,7 @@ public interface FixedLinearAlgebra extends ComputationDirectory {
    * @param a Public value
    * @return A deferred result computing sa
    */
-  DRes<Matrix<DRes<SFixed>>> scale(DRes<SFixed> s, Matrix<BigDecimal> a);
+  public abstract DRes<Matrix<DRes<SFixed>>> scale(DRes<SFixed> s, Matrix<BigDecimal> a);
 
   /**
    * Transpose a secret matrix.
@@ -152,7 +172,7 @@ public interface FixedLinearAlgebra extends ComputationDirectory {
    * @param a Secret value
    * @return A deferred result computing a^t
    */
-  DRes<Matrix<DRes<SFixed>>> transpose(DRes<Matrix<DRes<SFixed>>> a);
+  public abstract DRes<Matrix<DRes<SFixed>>> transpose(DRes<Matrix<DRes<SFixed>>> a);
   
   /**
    * Closes a public matrix value. If the MPC party calling this method is not providing input, just
@@ -162,7 +182,7 @@ public interface FixedLinearAlgebra extends ComputationDirectory {
    * @param inputParty The ID of the MPC party.
    * @return The closed input value.
    */
-  DRes<Matrix<DRes<SFixed>>> input(Matrix<BigDecimal> value, int inputParty);
+  public abstract DRes<Matrix<DRes<SFixed>>> input(Matrix<BigDecimal> value, int inputParty);
 
   /**
    * Closes a public vector value. If the MPC party calling this method is not providing input, just
@@ -172,7 +192,7 @@ public interface FixedLinearAlgebra extends ComputationDirectory {
    * @param inputParty The ID of the MPC party.
    * @return The closed input value.
    */
-  DRes<ArrayList<DRes<SFixed>>> input(ArrayList<BigDecimal> value, int inputParty);
+  public abstract DRes<ArrayList<DRes<SFixed>>> input(ArrayList<BigDecimal> value, int inputParty);
 
   /**
    * Opens a matrix to all MPC parties.
@@ -180,7 +200,7 @@ public interface FixedLinearAlgebra extends ComputationDirectory {
    * @param secretShare The value to open.
    * @return The opened value represented by the closed value.
    */
-  DRes<Matrix<DRes<BigDecimal>>> openMatrix(DRes<Matrix<DRes<SFixed>>> secretShare);
+  public abstract DRes<Matrix<DRes<BigDecimal>>> openMatrix(DRes<Matrix<DRes<SFixed>>> secretShare);
 
   /**
    * Opens a vector to all MPC parties.
@@ -188,7 +208,7 @@ public interface FixedLinearAlgebra extends ComputationDirectory {
    * @param secretShare The value to open.
    * @return The opened value represented by the closed value.
    */
-  DRes<ArrayList<DRes<BigDecimal>>> openArrayList(DRes<ArrayList<DRes<SFixed>>> secretShare);
+  public abstract DRes<ArrayList<DRes<BigDecimal>>> openArrayList(DRes<ArrayList<DRes<SFixed>>> secretShare);
 
 
 }

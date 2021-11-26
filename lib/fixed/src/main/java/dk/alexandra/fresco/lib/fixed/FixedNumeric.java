@@ -7,11 +7,21 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.fixed.truncations.BinaryTruncation;
 import dk.alexandra.fresco.lib.fixed.truncations.Truncation;
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.function.Function;
 
 /**
  * Basic interface for numeric applications on fixed numbers.
  */
-public interface FixedNumeric extends ComputationDirectory {
+public abstract class FixedNumeric implements ComputationDirectory {
+
+  private static Function<ProtocolBuilderNumeric, FixedNumeric> provider = builder ->
+      new DefaultFixedNumeric(builder, new BinaryTruncation(builder.getBasicNumericContext().getDefaultFixedPointPrecision()));
+
+  /** Redefine default FixedNumeric implementation to use */
+  public static void load(Function<ProtocolBuilderNumeric, FixedNumeric> provider) {
+    FixedNumeric.provider = provider;
+  }
 
   /**
    * Create a new FixedNumeric using the given builder.
@@ -19,19 +29,8 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param builder The root builder to use.
    * @return A new FixedNumeric computation directory.
    */
-  static FixedNumeric using(ProtocolBuilderNumeric builder) {
-    return using(builder, new BinaryTruncation(builder.getBasicNumericContext().getDefaultFixedPointPrecision()));
-  }
-
-  /**
-   * Create a new FixedNumeric using the given builder and truncation operation.
-   *
-   * @param builder The root builder to use.
-   * @param truncation The default truncation operation to use by this builder.
-   * @return A new FixedNumeric computation directory.
-   */
-  static FixedNumeric using(ProtocolBuilderNumeric builder, Truncation truncation) {
-    return new DefaultFixedNumeric(builder, truncation);
+  public static FixedNumeric using(ProtocolBuilderNumeric builder) {
+    return provider.apply(builder);
   }
 
   /**
@@ -41,7 +40,7 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param b Secret value 2
    * @return A deferred result computing a+b
    */
-  DRes<SFixed> add(DRes<SFixed> a, DRes<SFixed> b);
+  public abstract DRes<SFixed> add(DRes<SFixed> a, DRes<SFixed> b);
 
   /**
    * Adds a secret value with a public value and returns the result.
@@ -50,7 +49,7 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param b Secret value
    * @return A deferred result computing a+b
    */
-  DRes<SFixed> add(BigDecimal a, DRes<SFixed> b);
+  public abstract DRes<SFixed> add(BigDecimal a, DRes<SFixed> b);
   
   /**
    * Adds a secret value with a public value and returns the result.
@@ -59,7 +58,7 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param b Secret value
    * @return A deferred result computing a+b
    */
-  default DRes<SFixed> add(double a, DRes<SFixed> b) {
+  public DRes<SFixed> add(double a, DRes<SFixed> b) {
     return add(BigDecimal.valueOf(a), b);
   }
   
@@ -70,7 +69,7 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param b Secret value 2
    * @return A deferred result computing a-b
    */
-  DRes<SFixed> sub(DRes<SFixed> a, DRes<SFixed> b);
+  public abstract DRes<SFixed> sub(DRes<SFixed> a, DRes<SFixed> b);
 
   /**
    * Subtracts a public value and a secret value and returns the result.
@@ -79,7 +78,7 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param b Secret value
    * @return A deferred result computing a-b
    */
-  DRes<SFixed> sub(BigDecimal a, DRes<SFixed> b);
+  public abstract DRes<SFixed> sub(BigDecimal a, DRes<SFixed> b);
 
   /**
    * Subtracts a public value and a secret value and returns the result.
@@ -88,7 +87,7 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param b Secret value
    * @return A deferred result computing a-b
    */
-  default DRes<SFixed> sub(double a, DRes<SFixed> b) {
+  public DRes<SFixed> sub(double a, DRes<SFixed> b) {
     return sub(BigDecimal.valueOf(a), b);
   }
   
@@ -99,7 +98,7 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param b Public value
    * @return A deferred result computing a-b
    */
-  DRes<SFixed> sub(DRes<SFixed> a, BigDecimal b);
+  public abstract DRes<SFixed> sub(DRes<SFixed> a, BigDecimal b);
 
   /**
    * Subtracts a secret value and a public value and returns the result.
@@ -108,7 +107,7 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param b Public value
    * @return A deferred result computing a-b
    */
-  default DRes<SFixed> sub(DRes<SFixed> a, double b) {
+  public DRes<SFixed> sub(DRes<SFixed> a, double b) {
     return sub(a, BigDecimal.valueOf(b));
   }
 
@@ -119,7 +118,7 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param b Secret value 2
    * @return A deferred result computing a*b
    */
-  DRes<SFixed> mult(DRes<SFixed> a, DRes<SFixed> b);
+  public abstract DRes<SFixed> mult(DRes<SFixed> a, DRes<SFixed> b);
 
   /**
    * Multiplies a public value onto a secret value and returns the result.
@@ -128,7 +127,7 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param b Secret value
    * @return A deferred result computing a*b
    */
-  DRes<SFixed> mult(BigDecimal a, DRes<SFixed> b);
+  public abstract DRes<SFixed> mult(BigDecimal a, DRes<SFixed> b);
 
   /**
    * Multiplies a public value onto a secret value and returns the result.
@@ -137,7 +136,7 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param b Secret value
    * @return A deferred result computing a*b
    */
-  default DRes<SFixed> mult(double a, DRes<SFixed> b) {
+  public DRes<SFixed> mult(double a, DRes<SFixed> b) {
     return mult(BigDecimal.valueOf(a), b);
   }
 
@@ -148,7 +147,7 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param b Secret value 2
    * @return A deferred result computing a/b
    */
-  DRes<SFixed> div(DRes<SFixed> a, DRes<SFixed> b);
+  public abstract DRes<SFixed> div(DRes<SFixed> a, DRes<SFixed> b);
 
   /**
    * Divides a secret value with a public value and returns the result.
@@ -157,7 +156,7 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param b Public value
    * @return A deferred result computing a/b
    */
-  DRes<SFixed> div(DRes<SFixed> a, BigDecimal b);
+  public  abstract DRes<SFixed> div(DRes<SFixed> a, BigDecimal b);
   
   /**
    * Divides a secret value with a public value and returns the result.
@@ -166,7 +165,7 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param b Public value
    * @return A deferred result computing a/b
    */
-  default DRes<SFixed> div(DRes<SFixed> a, double b) {
+  public  DRes<SFixed> div(DRes<SFixed> a, double b) {
     return div(a, BigDecimal.valueOf(b));
   }
   
@@ -177,7 +176,7 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param value The public value.
    * @return A secret value which represents the given public value.
    */
-  DRes<SFixed> known(BigDecimal value);
+  public abstract DRes<SFixed> known(BigDecimal value);
 
   /**
    * Creates a known secret value from a public value. This is primarily a helper function in order
@@ -186,7 +185,7 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param value The public value.
    * @return A secret value which represents the given public value.
    */
-  default DRes<SFixed> known(double value) {
+  public  DRes<SFixed> known(double value) {
     return known(BigDecimal.valueOf(value));
   }
 
@@ -196,7 +195,7 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param value A secret integer.
    * @return A secret fixed with the same value as the input
    */
-  DRes<SFixed> fromSInt(DRes<SInt> value);
+  public abstract DRes<SFixed> fromSInt(DRes<SInt> value);
 
   /**
    * Closes a public value. If the MPC party calling this method is not providing input, just use
@@ -206,7 +205,7 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param inputParty The ID of the MPC party.
    * @return The closed input value.
    */
-  DRes<SFixed> input(BigDecimal value, int inputParty);
+  public abstract DRes<SFixed> input(BigDecimal value, int inputParty);
 
   /**
    * Closes a public value. If the MPC party calling this method is not providing input, just use
@@ -216,7 +215,7 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param inputParty The ID of the MPC party.
    * @return The closed input value.
    */
-  default DRes<SFixed> input(double value, int inputParty) {
+  public DRes<SFixed> input(double value, int inputParty) {
     return input(BigDecimal.valueOf(value), inputParty);
   }
   
@@ -226,7 +225,7 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param secretShare The value to open.
    * @return The opened value represented by the closed value.
    */
-  DRes<BigDecimal> open(DRes<SFixed> secretShare);
+  public abstract DRes<BigDecimal> open(DRes<SFixed> secretShare);
 
   /**
    * Opens a value to a single given party.
@@ -235,7 +234,7 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param outputParty The party to receive the opened value.
    * @return The opened value if you are the outputParty, or null otherwise.
    */
-  DRes<BigDecimal> open(DRes<SFixed> secretShare, int outputParty);
+  public abstract DRes<BigDecimal> open(DRes<SFixed> secretShare, int outputParty);
 
   /**
    * Compare two secret values. Returns a secret int that is 1 if x \leq y and 0 otherwise.
@@ -244,6 +243,6 @@ public interface FixedNumeric extends ComputationDirectory {
    * @param y Secret value 2
    * @return A secret int that is 1 if x \leq y and 0 otherwise.
    */
-  DRes<SInt> leq(DRes<SFixed> x, DRes<SFixed> y);
+  public abstract DRes<SInt> leq(DRes<SFixed> x, DRes<SFixed> y);
 
 }

@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-public class DefaultFixedLinearAlgebra implements FixedLinearAlgebra {
+public class DefaultFixedLinearAlgebra extends FixedLinearAlgebra {
 
   private final ProtocolBuilderNumeric builder;
 
-  DefaultFixedLinearAlgebra(ProtocolBuilderNumeric builder) {
+  public DefaultFixedLinearAlgebra(ProtocolBuilderNumeric builder) {
     this.builder = builder;
   }
 

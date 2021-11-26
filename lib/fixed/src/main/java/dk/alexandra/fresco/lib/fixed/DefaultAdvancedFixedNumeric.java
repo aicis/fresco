@@ -21,12 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DefaultAdvancedFixedNumeric implements
-    AdvancedFixedNumeric {
+public class DefaultAdvancedFixedNumeric extends AdvancedFixedNumeric {
 
-  private final ProtocolBuilderNumeric builder;
+  protected final ProtocolBuilderNumeric builder;
 
-  DefaultAdvancedFixedNumeric(ProtocolBuilderNumeric builder) {
+  public DefaultAdvancedFixedNumeric(ProtocolBuilderNumeric builder) {
     this.builder = builder;
   }
 
