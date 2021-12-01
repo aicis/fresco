@@ -33,12 +33,15 @@ public class NormalizeTests {
           Application<List<BigDecimal>, ProtocolBuilderNumeric> app =
               builder -> builder.seq(producer -> {
 
-                List<DRes<SFixed>> closed1 = openInputs.stream().map(FixedNumeric.using(producer)::known)
-                    .collect(Collectors.toList());
+                    List<DRes<SFixed>> closed1 = openInputs.stream()
+                        .map(FixedNumeric.using(producer)::known)
+                        .collect(Collectors.toList());
 
+                    return DRes.of(closed1);
+                  }).seq((seq, closed) -> {
                 List<DRes<Pair<DRes<SFixed>, DRes<SInt>>>> result = new ArrayList<>();
-                for (DRes<SFixed> inputX : closed1) {
-                  result.add(AdvancedFixedNumeric.using(producer).normalize(inputX));
+                for (DRes<SFixed> inputX : closed) {
+                  result.add(AdvancedFixedNumeric.using(seq).normalize(inputX));
                 }
                 return () -> result;
               }).seq((producer, result) -> {
@@ -75,12 +78,15 @@ public class NormalizeTests {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               builder -> builder.seq(producer -> {
 
-                List<DRes<SFixed>> closed1 = openInputs.stream().map(FixedNumeric.using(producer)::known)
-                    .collect(Collectors.toList());
+                    List<DRes<SFixed>> closed1 = openInputs.stream()
+                        .map(FixedNumeric.using(producer)::known)
+                        .collect(Collectors.toList());
+                    return DRes.of(closed1);
+                  }).seq((seq, closed1) -> {
 
                 List<DRes<Pair<DRes<SFixed>, DRes<SInt>>>> result = new ArrayList<>();
                 for (DRes<SFixed> inputX : closed1) {
-                  result.add(AdvancedFixedNumeric.using(producer).normalize(inputX));
+                  result.add(AdvancedFixedNumeric.using(seq).normalize(inputX));
                 }
                 return () -> result;
               }).seq((producer, result) -> {
