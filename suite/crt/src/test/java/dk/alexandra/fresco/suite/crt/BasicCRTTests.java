@@ -23,12 +23,15 @@ import dk.alexandra.fresco.suite.crt.protocols.MaskAndOpenComputation;
 import dk.alexandra.fresco.suite.crt.protocols.DummyMixedAddProtocol;
 import dk.alexandra.fresco.suite.crt.protocols.Projection;
 import dk.alexandra.fresco.suite.crt.protocols.Projection.Coordinate;
+import dk.alexandra.fresco.suite.crt.protocols.RandomModP;
 import dk.alexandra.fresco.suite.crt.protocols.Truncp;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.junit.Assert;
 
 public class BasicCRTTests {
@@ -492,8 +495,6 @@ public class BasicCRTTests {
     }
   }
 
-
-
   public static class TestFixedPointSecretDivision<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
@@ -515,6 +516,37 @@ public class BasicCRTTests {
           });
           BigDecimal output = runApplication(app);
           Assert.assertEquals(a/b, output.doubleValue(), 0.01);
+        }
+      };
+    }
+  }
+
+
+  public static class TestRandomModP<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() {
+
+          int n = 100;
+
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> producer.seq(seq -> {
+            List<DRes<BigInteger>> output = Stream.generate(() -> seq.seq(new RandomModP())).limit(n).map(seq.numeric()::open).collect(
+                Collectors.toList());
+            return DRes.of(output);
+          }).seq((seq, output) -> DRes.of(output.stream().map(DRes::out).collect(Collectors.toList())));
+          List<BigInteger> output = runApplication(app);
+
+          CRTRingDefinition ring = (CRTRingDefinition) this.getFieldDefinition();
+          for (BigInteger r : output) {
+            if (r.compareTo(ring.getP()) >= 0) {
+              Assert.fail();
+            }
+          }
         }
       };
     }

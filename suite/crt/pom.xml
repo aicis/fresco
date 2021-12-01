@@ -44,6 +44,13 @@
       <type>test-jar</type>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>fixed</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <modelVersion>4.0.0</modelVersion>
