@@ -27,7 +27,7 @@ public abstract class AdvancedFixedNumeric implements ComputationDirectory {
    * @return A new AdvancedFixedNumeric computation directory.
    */
   public static AdvancedFixedNumeric using(ProtocolBuilderNumeric builder) {
-    return new DefaultAdvancedFixedNumeric(builder);
+    return provider.apply(builder);
   }
 
   /**
