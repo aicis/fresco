@@ -168,7 +168,7 @@ public class MathTests {
           for (BigDecimal openOutput : output) {
             int idx = output.indexOf(openOutput);
 
-            BigDecimal expected = new BigDecimal(Math.sqrt(openInputs.get(idx).doubleValue()));
+            BigDecimal expected = BigDecimal.valueOf(Math.sqrt(openInputs.get(idx).doubleValue()));
             FixedTestUtils.assertEqual(expected, openOutput, DEFAULT_PRECISION / 2);
           }
         }
