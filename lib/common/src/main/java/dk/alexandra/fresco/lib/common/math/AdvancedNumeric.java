@@ -297,6 +297,8 @@ public interface AdvancedNumeric extends ComputationDirectory {
       Pair<DRes<SInt>, List<DRes<SInt>>> leftKeyAndValue,
       Pair<DRes<SInt>, List<DRes<SInt>>> rightKeyAndValue);
 
+  DRes<SInt> bitsToInteger(List<DRes<SInt>> bits);
+
     /**
      * Container holding the deferred result and remainder of shifting a number.
      */
@@ -325,9 +327,9 @@ public interface AdvancedNumeric extends ComputationDirectory {
   class RandomAdditiveMask {
 
     public final List<DRes<SInt>> bits;
-    public final SInt random;
+    public final DRes<SInt> random;
 
-    public RandomAdditiveMask(List<DRes<SInt>> bits, SInt random) {
+    public RandomAdditiveMask(List<DRes<SInt>> bits, DRes<SInt> random) {
       this.bits = bits;
       this.random = random;
     }

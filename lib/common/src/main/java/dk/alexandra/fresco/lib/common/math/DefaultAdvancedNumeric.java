@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.common.collections.sort.KeyedCompareAndSwap;
+import dk.alexandra.fresco.lib.common.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSelect;
 import dk.alexandra.fresco.lib.common.math.integer.conditional.SwapIf;
 import dk.alexandra.fresco.lib.common.math.integer.binary.IntegerToBitsByShift;
@@ -180,5 +181,13 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
       Pair<DRes<SInt>, List<DRes<SInt>>> leftKeyAndValue,
       Pair<DRes<SInt>, List<DRes<SInt>>> rightKeyAndValue) {
     return builder.seq(KeyedCompareAndSwap.numeric(leftKeyAndValue, rightKeyAndValue));
+  }
+
+  @Override
+  public DRes<SInt> bitsToInteger(List<DRes<SInt>> bits) {
+    MiscBigIntegerGenerators oIntGenerators = new MiscBigIntegerGenerators(
+        builder.getBasicNumericContext().getModulus());
+    return builder.seq(seq -> AdvancedNumeric.using(seq)
+        .innerProductWithPublicPart(oIntGenerators.getTwoPowersList(bits.size()), bits));
   }
 }

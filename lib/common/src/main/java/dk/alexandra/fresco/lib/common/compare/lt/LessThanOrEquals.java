@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.common.compare.gt;
+package dk.alexandra.fresco.lib.common.compare.lt;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;

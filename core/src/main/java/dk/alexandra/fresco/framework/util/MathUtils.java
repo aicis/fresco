@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.framework.util;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MathUtils {
@@ -111,6 +113,22 @@ public class MathUtils {
       s++;
     }
     return new Pair<>(q, s);
+  }
+
+  /**
+   * Turns input value into bits in big-endian order. <p> If the actual bit length of the value is
+   * smaller than numBits, the result is padded with 0s. If the bit length is larger only the first
+   * numBits bits are used. </p>
+   */
+  public static List<BigInteger> toBits(BigInteger value, int numBits) {
+    List<BigInteger> bits = new ArrayList<>(numBits);
+    for (int b = 0; b < numBits; b++) {
+      boolean boolBit = value.testBit(b);
+      BigInteger bit = boolBit ? BigInteger.ONE : BigInteger.ZERO;
+      bits.add(bit);
+    }
+    Collections.reverse(bits);
+    return bits;
   }
 
 }
