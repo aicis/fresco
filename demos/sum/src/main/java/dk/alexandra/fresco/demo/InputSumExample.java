@@ -9,6 +9,12 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class InputSumExample {
 
@@ -27,22 +33,31 @@ public class InputSumExample {
     InputApplication inputApp;
 
     int myId = resourcePool.getMyId();
-    int[] inputs = new int[]{1, 2, 3, 7, 8, 12, 15, 17};
-    if (myId == 1) {
-      // I input
-      inputApp = new InputApplication(inputs);
-    } else {
-      // I do not input
-      inputApp = new InputApplication(inputs.length);
-    }
-    SumAndOutputApplication app = new SumAndOutputApplication(inputApp);
 
-    BigInteger result = sce.runApplication(app, resourcePool, network);
-    int sum = 0;
-    for (int i : inputs) {
-      sum += i;
+    int[] inputs1 = new int[]{2, 2, 2, 2, 2, 2, 2, 2};
+    int[] inputs2 = new int[]{1, 1, 1, 1, 1, 1, 1, 1};
+
+    List<Integer> myInputs = new ArrayList<>();
+
+    int myArraySize = 7;
+
+    network.sendToAll(ByteBuffer.allocate(4).putInt(myArraySize).array());
+    List<byte[]> received = network.receiveFromAll();
+    int[] allInputSizes = received.stream().mapToInt(binary -> ByteBuffer.allocate(4).put(binary).rewind().getInt()).toArray();
+
+    if (myId == 1) {
+      // party input
+      myInputs.addAll(Arrays.stream(inputs1).boxed().collect(Collectors.toList()));
+      myInputs.addAll(Collections.nCopies(inputs2.length, null));
+    } else {
+      myInputs.addAll(Collections.nCopies(inputs1.length, null));
+      myInputs.addAll(Arrays.stream(inputs2).boxed().collect(Collectors.toList()));
     }
-    System.out.println("Expected result: " + sum + ", Result was: " + result);
+    inputApp = new InputApplication(myInputs);
+
+    // and then to the calculation
+    SumAndOutputApplication app = new SumAndOutputApplication(inputApp);
+    BigInteger result = sce.runApplication(app, resourcePool, network);
   }
 
   /**

@@ -198,16 +198,15 @@ public class BasicCRTTests {
 
         @Override
         public void test() {
-          BigInteger value = BigInteger.valueOf(1234);
+          CRTRingDefinition ring = (CRTRingDefinition) this.getFieldDefinition();
+          BigInteger value = ring.getP().subtract(BigInteger.TEN);
           Application<BigInteger, ProtocolBuilderNumeric> app = producer -> producer.seq(seq -> {
-            CRTRingDefinition ring = (CRTRingDefinition) this.getFieldDefinition();
             BigInteger toConvert = ring.mapToBigInteger(value, BigInteger.ZERO);
 
             return new LiftPQProtocol(seq.numeric().known(toConvert)).buildComputation(seq);
           }).seq((seq, r) -> seq.numeric().open(r));
           BigInteger output = runApplication(app);
 
-          CRTRingDefinition ring = (CRTRingDefinition) this.getFieldDefinition();
           Pair<BigInteger, BigInteger> crt = ring.mapToCRT(output);
 
           Assert.assertEquals(value, crt.getSecond());

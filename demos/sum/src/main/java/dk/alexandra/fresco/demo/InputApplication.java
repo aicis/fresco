@@ -13,21 +13,13 @@ import java.util.stream.Collectors;
 /**
  * Demo application. Takes a number of inputs and converts them to secret shared inputs by having
  * party 1 input them all.
- *
- * @author Kasper Damgaard
  */
 public class InputApplication implements Application<List<SInt>, ProtocolBuilderNumeric> {
 
-  private int[] inputs;
-  private int length;
+  private final List<Integer> inputs;
 
-  public InputApplication(int[] inputs) {
+  public InputApplication(List<Integer> inputs) {
     this.inputs = inputs;
-    this.length = inputs.length;
-  }
-
-  public InputApplication(int length) {
-    this.length = length;
   }
 
   @Override
@@ -35,13 +27,15 @@ public class InputApplication implements Application<List<SInt>, ProtocolBuilder
     return 
     producer.par(par -> {
       Numeric numeric = par.numeric();
-      List<DRes<SInt>> result = new ArrayList<>(length);
-      for (int i = 0; i < this.length; i++) {
+      List<DRes<SInt>> result = new ArrayList<>();
+      for (int i = 0; i < inputs.size(); i++) {
         // create wires
-        if (this.inputs != null) {
-          result.add(numeric.input(BigInteger.valueOf(this.inputs[i]), 1));
+        if (inputs.get(i) != null) {
+          // My input
+          result.add(numeric.input(BigInteger.valueOf(inputs.get(i)), par.getBasicNumericContext().getMyId()));
         } else {
-          result.add(numeric.input(null, 1));
+          // Other party's input. I provide a null value
+          result.add(numeric.input(null, 3 - par.getBasicNumericContext().getMyId()));
         }
       }
       return () -> result.stream().map(DRes::out).collect(Collectors.toList());

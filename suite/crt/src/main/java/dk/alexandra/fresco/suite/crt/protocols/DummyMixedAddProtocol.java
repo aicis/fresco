@@ -28,7 +28,7 @@ public class DummyMixedAddProtocol extends
   public DRes<BigInteger> buildComputation(ProtocolBuilderNumeric builder, CRTRingDefinition ring,
       CRTNumericContext context) {
     return builder.seq(seq -> seq.numeric().open(value)).seq((seq, open) -> {
-      Pair<BigInteger, BigInteger> crt = Util.mapToCRT(open, ring.getP(), ring.getQ());
+      Pair<BigInteger, BigInteger> crt = ring.mapToCRT(open);
       return DRes.of(crt.getFirst().add(crt.getSecond()));
     });
   }
