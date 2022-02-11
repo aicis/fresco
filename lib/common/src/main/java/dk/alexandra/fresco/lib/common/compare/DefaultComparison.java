@@ -11,6 +11,7 @@ import dk.alexandra.fresco.lib.common.compare.lt.BitLessThanOpen;
 import dk.alexandra.fresco.lib.common.compare.lt.Carry;
 import dk.alexandra.fresco.lib.common.compare.lt.LessThanOrEquals;
 import dk.alexandra.fresco.lib.common.compare.lt.LessThanZero;
+import dk.alexandra.fresco.lib.common.compare.min.ArgMin;
 import dk.alexandra.fresco.lib.common.compare.zerotest.ZeroTestConstRounds;
 import dk.alexandra.fresco.lib.common.compare.zerotest.ZeroTestLogRounds;
 import dk.alexandra.fresco.lib.common.util.SIntPair;
@@ -43,7 +44,8 @@ public class DefaultComparison implements Comparison {
 
   @Override
   public DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y, int bitlength, Algorithm algorithm) {
-    return null;
+    DRes<SInt> diff = builder.numeric().sub(x, y);
+    return compareZero(diff, bitlength, algorithm);
   }
 
   @Override
@@ -120,7 +122,7 @@ public class DefaultComparison implements Comparison {
 
   @Override
   public DRes<Pair<List<DRes<SInt>>, SInt>> argMin(List<DRes<SInt>> xs) {
-    return null;
+    return builder.seq(new ArgMin(xs));
   }
 
   @Override
