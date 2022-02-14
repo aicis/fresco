@@ -43,6 +43,7 @@ import dk.alexandra.fresco.lib.common.math.integer.min.MinTests.TestArgMinTrivia
 import dk.alexandra.fresco.lib.common.math.integer.mod.Mod2mTests;
 import dk.alexandra.fresco.lib.common.math.integer.mod.Mod2mTests.TestMod2m;
 import dk.alexandra.fresco.lib.common.math.integer.mod.Mod2mTests.TestMod2mBaseCase;
+import dk.alexandra.fresco.lib.common.math.integer.mod.Mod2mTests.TestMod2mTrivial;
 import dk.alexandra.fresco.lib.common.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.lib.common.math.integer.stat.StatisticsTests;
 import dk.alexandra.fresco.lib.common.math.logical.LogicalOperationsTests;
@@ -457,4 +458,8 @@ public class TestArithmetic extends AbstractDummyArithmeticTest {
     runTest(new TestMod2m<>(), new TestParameters());
   }
 
+  @Test
+  public void testMod2mTrivial() {
+    runTest(new TestMod2mTrivial<>(), new TestParameters());
+  }
 }

@@ -119,4 +119,41 @@ public class Mod2mTests {
     }
   }
 
+  public static class TestMod2mTrivial<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
+      List<Integer> inputs = Arrays.asList(1, 7, 31);
+      int shifts = 5;
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> testApplication =
+              root -> root.seq(seq -> {
+                List<DRes<SInt>> closed = inputs.stream().map(
+                    seq.numeric()::known).collect(Collectors.toList());
+                return DRes.of(closed.stream().map(
+                    x -> seq.seq(new Mod2m(x, 6, 5, seq.getBasicNumericContext().getStatisticalSecurityParam()))).collect(Collectors.toList()));
+              }).seq((seq, result) -> Collections.using(seq).openList(DRes.of(result))).seq(
+                  (seq, result) -> DRes
+                      .of(result.stream().map(DRes::out).collect(Collectors.toList())));
+
+          List<BigInteger> out = runApplication(testApplication);
+
+          for (int i = 0; i < inputs.size(); i++) {
+            BigInteger expected = BigInteger.valueOf(inputs.get(i))
+                .mod(BigInteger.ONE.shiftLeft(shifts));
+            Assert.assertEquals(expected, out.get(i));
+          }
+        }
+
+      };
+    }
+  }
+
+
 }
