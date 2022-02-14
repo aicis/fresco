@@ -117,8 +117,4 @@ public class DefaultComparison implements Comparison {
     return builder.seq(new ArgMin(xs));
   }
 
-  @Override
-  public DRes<SInt> compareZero(DRes<SInt> x, int bitLength) {
-    return compareZero(x, bitLength, Algorithm.CONST_ROUNDS);
-  }
 }
