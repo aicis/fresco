@@ -30,7 +30,7 @@ public class ZeroTestLogRounds implements Computation<SInt, ProtocolBuilderNumer
         + statisticalSecurity)).seq((seq, r) -> {
       // Use the integer interpretation of r to compute c = 2^maxLength+(input + r)
       DRes<BigInteger> c = seq.numeric().open(seq.numeric().add(BigInteger.ONE.shiftLeft(maxBitlength), seq.numeric().add(
-          input, r.random)));
+          input, r.value)));
       return Pair.lazy(r.bits, c);
     }).seq((seq, pair) -> {
       List<BigInteger> cbits = MathUtils.toBits(pair.getSecond().out(), maxBitlength);

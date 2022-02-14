@@ -51,7 +51,7 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
                   new MiscBigIntegerGenerators(seq.getBasicNumericContext().getModulus())
                       .getTwoPowersList(bitLengthBottom);
               return Pair.lazy(
-                  mask.random,
+                  mask.value,
                   AdvancedNumeric.using(seq)
                       .innerProductWithPublicPart(twoPowsBottom, rBottomBits));
             },
@@ -69,7 +69,7 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
             (seq, pair) -> {
               DRes<SInt> rTop = pair::getSecond;
               DRes<SInt> rBottom = pair.getFirst().getSecond();
-              SInt r = pair.getFirst().getFirst();
+              SInt r = pair.getFirst().getFirst().out();
 
               // construct r-values (rBar, rBottom, rTop)
               DRes<SInt> rBar;

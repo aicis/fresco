@@ -49,7 +49,7 @@ public class Mod2m implements Computation<SInt, ProtocolBuilderNumeric> {
       RandomAdditiveMask rPrime = new RandomAdditiveMask(rPrimeBits, rPrimeValue);
       // Use the integer interpretation of r to compute c = 2^{k-1}+(input + r)
       DRes<BigInteger> c = seq.numeric().open(seq.numeric().add(BigInteger.ONE.shiftLeft(k - 1),
-          seq.numeric().add(input, r.out().random)));
+          seq.numeric().add(input, r.out().value)));
       return Pair.lazy(rPrime, c);
     }).seq((seq, pair) -> {
       RandomAdditiveMask rPrime = pair.getFirst();
@@ -58,7 +58,7 @@ public class Mod2m implements Computation<SInt, ProtocolBuilderNumeric> {
       DRes<SInt> u = Comparison.using(seq).compareLTBits(cPrime, DRes.of(rPrime.bits));
       // Return cPrime - 2^m * u
       return seq.numeric().add(seq.numeric().mult(BigInteger.ONE.shiftLeft(m), u),
-          seq.numeric().sub(cPrime, rPrime.random));
+          seq.numeric().sub(cPrime, rPrime.value));
     });
   }
 }

@@ -44,7 +44,7 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
           additiveMaskBuilder.additiveMask(sequential.getBasicNumericContext().getMaxBitLength());
       return mask;
     }).seq((parSubSequential, randomAdditiveMask) -> {
-      DRes<SInt> result = parSubSequential.numeric().add(input, () -> randomAdditiveMask.random);
+      DRes<SInt> result = parSubSequential.numeric().add(input, randomAdditiveMask.value);
       DRes<BigInteger> open = parSubSequential.numeric().open(result);
       return () -> new Pair<>(open, randomAdditiveMask);
     }).seq((seq, maskedInput) -> {
@@ -61,7 +61,7 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
 
       BigInteger inverse =
           BigInteger.ONE.shiftLeft(shifts).modInverse(seq.getBasicNumericContext().getModulus());
-      DRes<SInt> rTop = seq.numeric().sub(mask.random, rBottom);
+      DRes<SInt> rTop = seq.numeric().sub(mask.value, rBottom);
 
       /*
        * rTop is r with the last shifts bits set to zero, and it is hence divisible by 2^shifts, so

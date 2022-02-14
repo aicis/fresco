@@ -259,4 +259,85 @@ public class CompareTests {
       };
     }
   }
+
+  public static class TestLessThanLogRounds<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    private final List<BigInteger> openLeft;
+    private final List<BigInteger> openRight;
+    private final List<BigInteger> expected;
+
+    public TestLessThanLogRounds(int maxBitLength) {
+      BigInteger two = BigInteger.valueOf(2);
+      this.openLeft = Arrays.asList(
+          BigInteger.ZERO,
+          BigInteger.ONE,
+          BigInteger.ONE,
+          BigInteger.valueOf(-1),
+          BigInteger.valueOf(-111111),
+          BigInteger.valueOf(-111),
+          BigInteger.valueOf(-110),
+          BigInteger.ONE,
+          two.pow(maxBitLength - 1).subtract(BigInteger.ONE),
+          two.pow(maxBitLength - 1).subtract(two),
+          BigInteger.TEN,
+          two.pow(maxBitLength - 1).subtract(BigInteger.ONE),
+          two.pow(maxBitLength - 1).subtract(two)
+      );
+      this.openRight = Arrays.asList(
+          BigInteger.ZERO,
+          BigInteger.ONE,
+          BigInteger.ZERO,
+          BigInteger.valueOf(-1),
+          BigInteger.valueOf(-111112),
+          BigInteger.valueOf(-110),
+          BigInteger.valueOf(10),
+          BigInteger.valueOf(5),
+          two.pow(maxBitLength - 1).subtract(two),
+          two.pow(maxBitLength - 1).subtract(BigInteger.ONE),
+          BigInteger.valueOf(-1),
+          BigInteger.ONE,
+          BigInteger.valueOf(-1)
+      );
+      this.expected = computeExpected(openLeft, openRight);
+    }
+
+    private static List<BigInteger> computeExpected(List<BigInteger> openLeft,
+        List<BigInteger> openRight) {
+      if (openLeft.size() != openRight.size()) {
+        throw new IllegalStateException("Incorrect test spec!");
+      }
+      List<BigInteger> expected = new ArrayList<>(openLeft.size());
+      for (int i = 0; i < openLeft.size(); i++) {
+        boolean lessThan = openLeft.get(i).compareTo(openRight.get(i)) < 0;
+        expected.add(lessThan ? BigInteger.ONE : BigInteger.ZERO);
+      }
+      return expected;
+    }
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
+            Numeric numeric = builder.numeric();
+            List<DRes<SInt>> left = openLeft.stream().map(numeric::known).collect(Collectors.toList());
+            List<DRes<SInt>> right = openRight.stream().map(numeric::known).collect(Collectors.toList());
+            List<DRes<SInt>> actualInner = new ArrayList<>(left.size());
+            for (int i = 0; i < left.size(); i++) {
+              actualInner.add(Comparison.using(builder).compareLT(left.get(i), right.get(i),
+                  Comparison.Algorithm.LOG_ROUNDS));
+            }
+            DRes<List<DRes<BigInteger>>> opened = Collections.using(builder).openList(() -> actualInner);
+            return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());
+          };
+          List<BigInteger> actual = runApplication(app);
+          Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+  }
+
 }

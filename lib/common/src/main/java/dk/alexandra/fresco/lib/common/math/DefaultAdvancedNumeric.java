@@ -26,6 +26,7 @@ import dk.alexandra.fresco.lib.common.math.integer.inv.Inversion;
 import dk.alexandra.fresco.lib.common.math.integer.linalg.InnerProduct;
 import dk.alexandra.fresco.lib.common.math.integer.linalg.InnerProductOpen;
 import dk.alexandra.fresco.lib.common.math.integer.log.Logarithm;
+import dk.alexandra.fresco.lib.common.math.integer.mod.Mod2m;
 import dk.alexandra.fresco.lib.common.math.integer.sqrt.SquareRoot;
 import java.math.BigInteger;
 import java.util.List;
@@ -66,6 +67,12 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   @Override
   public DRes<SInt> mod(DRes<SInt> dividend, BigInteger divisor) {
     return builder.seq(new KnownDivisorRemainder(dividend, divisor));
+  }
+
+  @Override
+  public DRes<SInt> mod2m(DRes<SInt> dividend, int m) {
+    return builder.seq(new Mod2m(dividend, m, builder.getBasicNumericContext().getMaxBitLength(),
+        builder.getBasicNumericContext().getStatisticalSecurityParam()));
   }
 
   @Override
@@ -115,19 +122,16 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
 
   @Override
   public DRes<SInt> rightShift(DRes<SInt> input) {
-    DRes<RightShiftResult> rightShiftResult = builder.seq(
-        new RightShift(
-            builder.getBasicNumericContext().getMaxBitLength(),
-            input, false));
-    return () -> rightShiftResult.out().getResult();
+    return builder.seq(new RightShift(
+        builder.getBasicNumericContext().getMaxBitLength(),
+        input)).seq((seq, result) -> result.result);
   }
 
   @Override
   public DRes<SInt> rightShift(DRes<SInt> input, int shifts) {
-    DRes<RightShiftResult> rightShiftResult =
-        builder.seq(new RightShift(builder.getBasicNumericContext().getMaxBitLength(), input,
-            shifts, false));
-    return () -> rightShiftResult.out().getResult();
+    return builder.seq(new RightShift(
+        builder.getBasicNumericContext().getMaxBitLength(),
+        input, shifts)).seq((seq, result) -> result.result);
   }
 
   @Override
@@ -135,13 +139,13 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
     return builder.seq(
         new RightShift(
             builder.getBasicNumericContext().getMaxBitLength(),
-            input, true));
+            input));
   }
 
   @Override
   public DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input, int shifts) {
     return builder.seq(new RightShift(builder.getBasicNumericContext().getMaxBitLength(),
-        input, shifts, true));
+        input, shifts));
   }
 
   @Override

@@ -67,15 +67,10 @@ public interface AdvancedNumeric extends ComputationDirectory {
    */
   DRes<SInt> div(DRes<SInt> dividend, DRes<SInt> divisor);
 
-  /**
-   * This protocol calculates an approximation of <code>floor(dividend / divisor)</code>, which will
-   * be either correct or slightly smaller than the correct result.
-   *
-   * @param dividend The dividend.
-   * @param divisor The divisor.
-   * @return A deferred result computing quotient and remainder.
-   */
   DRes<SInt> mod(DRes<SInt> dividend, BigInteger divisor);
+
+  /** Compute <i>input mod 2<sup>m</sup></i> for some positive integer m. */
+  DRes<SInt> mod2m(DRes<SInt> dividend, int m);
 
   /**
    * Convenience implementation of {@link #mod(DRes, BigInteger)}
@@ -327,11 +322,11 @@ public interface AdvancedNumeric extends ComputationDirectory {
   class RandomAdditiveMask {
 
     public final List<DRes<SInt>> bits;
-    public final DRes<SInt> random;
+    public final DRes<SInt> value;
 
     public RandomAdditiveMask(List<DRes<SInt>> bits, DRes<SInt> random) {
       this.bits = bits;
-      this.random = random;
+      this.value = random;
     }
   }
 }

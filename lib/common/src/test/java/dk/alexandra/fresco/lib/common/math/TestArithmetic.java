@@ -4,10 +4,19 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 import dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests;
+import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
+import dk.alexandra.fresco.lib.common.compare.CompareTests.TestLessThanLogRounds;
+import dk.alexandra.fresco.lib.common.compare.lt.BitLessThanOpenTests.TestBitLessThanOpen;
+import dk.alexandra.fresco.lib.common.compare.lt.CarryOutTests.TestCarryOut;
+import dk.alexandra.fresco.lib.common.compare.lt.LessThanZeroTests.TestLessThanZero;
+import dk.alexandra.fresco.lib.common.compare.lt.PreCarryTests.TestPreCarryBits;
 import dk.alexandra.fresco.lib.common.math.AdvancedNumericTests.TestMinInfFrac;
 import dk.alexandra.fresco.lib.common.math.integer.TestProductAndSum.TestProduct;
 import dk.alexandra.fresco.lib.common.math.integer.TestProductAndSum.TestSum;
 import dk.alexandra.fresco.lib.common.math.integer.binary.BinaryOperationsTests;
+import dk.alexandra.fresco.lib.common.math.integer.binary.BinaryOperationsTests.TestGenerateRandomBitMask;
 import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSelectTests;
 import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSwapNeighborsTests;
 import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSwapRowsTests;
@@ -19,11 +28,20 @@ import dk.alexandra.fresco.lib.common.math.integer.inv.InversionTests.TestInvert
 import dk.alexandra.fresco.lib.common.math.integer.linalg.LinAlgTests;
 import dk.alexandra.fresco.lib.common.math.integer.log.LogTests;
 import dk.alexandra.fresco.lib.common.math.integer.min.MinTests;
+import dk.alexandra.fresco.lib.common.math.integer.mod.Mod2mTests.TestMod2mBaseCase;
 import dk.alexandra.fresco.lib.common.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.lib.common.math.integer.stat.StatisticsTests;
+import dk.alexandra.fresco.lib.common.math.logical.LogicalOperationsTests.TestAnd;
+import dk.alexandra.fresco.lib.common.math.logical.LogicalOperationsTests.TestAndKnown;
+import dk.alexandra.fresco.lib.common.math.logical.LogicalOperationsTests.TestNot;
+import dk.alexandra.fresco.lib.common.math.logical.LogicalOperationsTests.TestOr;
+import dk.alexandra.fresco.lib.common.math.logical.LogicalOperationsTests.TestOrList;
+import dk.alexandra.fresco.lib.common.math.logical.LogicalOperationsTests.TestXorKnown;
 import dk.alexandra.fresco.lib.common.math.polynomial.PolynomialTests;
 import dk.alexandra.fresco.logging.arithmetic.NumericLoggingDecorator;
 import dk.alexandra.fresco.suite.dummy.arithmetic.AbstractDummyArithmeticTest;
+import java.math.BigInteger;
+import java.util.Random;
 import org.junit.Test;
 
 public class TestArithmetic extends AbstractDummyArithmeticTest {
@@ -133,7 +151,7 @@ public class TestArithmetic extends AbstractDummyArithmeticTest {
             .get(1)
             .getLoggedValues()
             .get(NumericLoggingDecorator.ARITHMETIC_BASIC_SUB),
-        is((long) 19));
+        is((long) 14));
   }
 
   @Test
@@ -253,6 +271,106 @@ public class TestArithmetic extends AbstractDummyArithmeticTest {
   @Test
   public void testProduct() {
     runTest(new TestProduct<>(), new TestParameters());
+  }
+
+  @Test
+  public void testAndKnown() {
+    runTest(new TestAndKnown<>(), new TestParameters());
+  }
+
+  @Test
+  public void testAnd() {
+    runTest(new TestAnd<>(), new TestParameters());
+  }
+
+  @Test
+  public void testOr() {
+    runTest(new TestOr<>(), new TestParameters());
+  }
+
+  @Test
+  public void testOrList() {
+    runTest(new TestOrList<>(), new TestParameters());
+  }
+
+  @Test
+  public void testNot() {
+    runTest(new TestNot<>(), new TestParameters());
+  }
+
+  @Test
+  public void testXorKnown() {
+    runTest(new TestXorKnown<>(), new TestParameters());
+  }
+
+  @Test
+  public void testMod2mBaseCase() {
+    runTest(new TestMod2mBaseCase<>(), new TestParameters());
+  }
+
+  @Test
+  public void testPreCarryBits() {
+    runTest(new TestPreCarryBits<>(), new TestParameters());
+  }
+
+  @Test
+  public void testCarryOutZero() {
+    runTest(new TestCarryOut<>(0x00000000, 0x00000000), new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void testCarryOutOne() {
+    runTest(new TestCarryOut<>(0x80000000, 0x80000000), new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void testCarryOutAllOnes() {
+    runTest(new TestCarryOut<>(0xffffffff, 0xffffffff), new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void testCarryOutOneFromCarry() {
+    runTest(new TestCarryOut<>(0x40000000, 0xc0000000), new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void testCarryOutRandom() {
+    runTest(new TestCarryOut<>(new Random(42).nextInt(), new Random(1).nextInt()),
+        new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void testBitLessThanOpen() {
+    BigInteger modulus = ModulusFinder.findSuitableModulus(128);
+    TestParameters parameters = new TestParameters().numParties(2).field(new BigIntegerFieldDefinition(modulus));
+    runTest(new TestBitLessThanOpen<>(), parameters);
+  }
+
+  @Test
+  public void testLessThanZero() {
+    BigInteger modulus = ModulusFinder.findSuitableModulus(128);
+    int maxBitLength = 64;
+    TestParameters parameters = new TestParameters().numParties(2).field(new BigIntegerFieldDefinition(modulus)).maxBitLength(
+        maxBitLength);
+    runTest(new TestLessThanZero<>(modulus), parameters);
+  }
+
+  @Test
+  public void testLessThanLogRounds() {
+    BigInteger modulus = ModulusFinder.findSuitableModulus(128);
+    int maxBitLength = 64;
+    TestParameters parameters = new TestParameters().numParties(2).field(new BigIntegerFieldDefinition(modulus)).maxBitLength(
+        maxBitLength);
+    runTest(new TestLessThanLogRounds<>(maxBitLength), parameters);
+  }
+
+  @Test
+  public void testGenerateRandomBitMask() {
+    BigInteger modulus = ModulusFinder.findSuitableModulus(128);
+    int maxBitLength = 64;
+    TestParameters parameters = new TestParameters().numParties(2).field(new BigIntegerFieldDefinition(modulus)).maxBitLength(
+        maxBitLength);
+    runTest(new TestGenerateRandomBitMask<>(), parameters);
   }
 
 }
