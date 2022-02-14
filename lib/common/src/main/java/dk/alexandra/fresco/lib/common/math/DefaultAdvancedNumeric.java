@@ -71,7 +71,8 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
 
   @Override
   public DRes<SInt> mod2m(DRes<SInt> dividend, int m) {
-    return builder.seq(new Mod2m(dividend, m, builder.getBasicNumericContext().getMaxBitLength(),
+    return builder.seq(new Mod2m(dividend, m,
+        builder.getBasicNumericContext().getMaxBitLength(),
         builder.getBasicNumericContext().getStatisticalSecurityParam()));
   }
 

@@ -12,6 +12,7 @@ import dk.alexandra.fresco.lib.common.compare.CompareTests;
 import dk.alexandra.fresco.lib.common.compare.CompareTests.TestCompareEQModulusTooSmall;
 import dk.alexandra.fresco.lib.common.compare.CompareTests.TestCompareLTModulusTooSmall;
 import dk.alexandra.fresco.lib.common.compare.CompareTests.TestCompareLTUnsupportedAlgorithm;
+import dk.alexandra.fresco.lib.common.compare.CompareTests.TestCompareZero;
 import dk.alexandra.fresco.lib.common.compare.CompareTests.TestCompareZeroInputTooLarge;
 import dk.alexandra.fresco.lib.common.compare.CompareTests.TestLessThanLogRounds;
 import dk.alexandra.fresco.lib.common.compare.lt.BitLessThanOpenTests.TestBitLessThanOpen;
@@ -39,6 +40,8 @@ import dk.alexandra.fresco.lib.common.math.integer.log.LogTests;
 import dk.alexandra.fresco.lib.common.math.integer.min.MinTests;
 import dk.alexandra.fresco.lib.common.math.integer.min.MinTests.TestArgMin;
 import dk.alexandra.fresco.lib.common.math.integer.min.MinTests.TestArgMinTrivial;
+import dk.alexandra.fresco.lib.common.math.integer.mod.Mod2mTests;
+import dk.alexandra.fresco.lib.common.math.integer.mod.Mod2mTests.TestMod2m;
 import dk.alexandra.fresco.lib.common.math.integer.mod.Mod2mTests.TestMod2mBaseCase;
 import dk.alexandra.fresco.lib.common.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.lib.common.math.integer.stat.StatisticsTests;
@@ -443,4 +446,15 @@ public class TestArithmetic extends AbstractDummyArithmeticTest {
   public void testLTUnsupportedAlgorithm() {
     runTest(new TestCompareLTUnsupportedAlgorithm<>(), new TestParameters());
   }
+
+  @Test
+  public void testCompareZero() {
+    runTest(new TestCompareZero<>(), new TestParameters());
+  }
+
+  @Test
+  public void testMod2m() {
+    runTest(new TestMod2m<>(), new TestParameters());
+  }
+
 }

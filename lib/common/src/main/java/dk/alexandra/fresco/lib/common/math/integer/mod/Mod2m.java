@@ -27,7 +27,7 @@ public class Mod2m implements Computation<SInt, ProtocolBuilderNumeric> {
    * @param input value to reduce
    * @param m exponent (2^{m})
    * @param k bitlength of the input
-   * @param kappa Computational security parameter
+   * @param kappa Statistical security parameter
    */
   public Mod2m(DRes<SInt> input, int m, int k, int kappa) {
     this.input = input;
