@@ -13,6 +13,7 @@ import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.common.compare.Comparison.Algorithm;
 import dk.alexandra.fresco.lib.common.compare.eq.FracEq;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -81,7 +82,7 @@ public class CompareTests {
             Comparison comparison = Comparison.using(builder);
             DRes<SInt> compResult1 = comparison.equals(x, x);
             DRes<SInt> compResult2 = comparison.equals(x, y);
-            DRes<SInt> compResult3 = comparison.equals(1, x, y);
+            DRes<SInt> compResult3 = comparison.equals(x, y, 1);
             Numeric open = builder.numeric();
             DRes<BigInteger> res1 = open.open(compResult1);
             DRes<BigInteger> res2 = open.open(compResult2);
@@ -335,6 +336,109 @@ public class CompareTests {
           };
           List<BigInteger> actual = runApplication(app);
           Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+  }
+
+  public static class TestCompareEQModulusTooSmall<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    private final int bitlength;
+
+    public TestCompareEQModulusTooSmall(int bitlength) {
+      this.bitlength = bitlength;
+    }
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() throws Exception {
+          Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
+            Numeric input = builder.numeric();
+            DRes<SInt> x = input.known(BigInteger.valueOf(3));
+            DRes<SInt> y = input.known(BigInteger.valueOf(5));
+            Comparison comparison = Comparison.using(builder);
+            DRes<SInt> result = comparison.equals(x, y, bitlength);
+            return input.open(result);
+          };
+          runApplication(app);
+        }
+      };
+    }
+  }
+
+  public static class TestCompareZeroInputTooLarge<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    private final int bitlength;
+
+    public TestCompareZeroInputTooLarge(int bitlength) {
+      this.bitlength = bitlength;
+    }
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() throws Exception {
+          Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
+            Numeric input = builder.numeric();
+            DRes<SInt> x = input.known(BigInteger.valueOf(3));
+            Comparison comparison = Comparison.using(builder);
+            DRes<SInt> result = comparison.compareZero(x, bitlength);
+            return input.open(result);
+          };
+          runApplication(app);
+        }
+      };
+    }
+  }
+
+  public static class TestCompareLTModulusTooSmall<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() throws Exception {
+          Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
+            Numeric input = builder.numeric();
+            DRes<SInt> x = input.known(BigInteger.valueOf(3));
+            DRes<SInt> y = input.known(BigInteger.valueOf(5));
+            Comparison comparison = Comparison.using(builder);
+            DRes<SInt> result = comparison.compareLT(x, y);
+            return input.open(result);
+          };
+          runApplication(app);
+        }
+      };
+    }
+  }
+
+  public static class TestCompareLTUnsupportedAlgorithm<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() throws Exception {
+          Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
+            Numeric input = builder.numeric();
+            DRes<SInt> x = input.known(BigInteger.valueOf(3));
+            DRes<SInt> y = input.known(BigInteger.valueOf(5));
+            Comparison comparison = Comparison.using(builder);
+            DRes<SInt> result = comparison.compareLT(x, y, Algorithm.CONST_ROUNDS);
+            return input.open(result);
+          };
+          runApplication(app);
         }
       };
     }

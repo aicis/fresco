@@ -3,13 +3,22 @@ package dk.alexandra.fresco.lib.common.math;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+import dk.alexandra.fresco.framework.TestFrameworkException;
 import dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests;
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
+import dk.alexandra.fresco.lib.common.compare.CompareTests;
+import dk.alexandra.fresco.lib.common.compare.CompareTests.TestCompareEQModulusTooSmall;
+import dk.alexandra.fresco.lib.common.compare.CompareTests.TestCompareLTModulusTooSmall;
+import dk.alexandra.fresco.lib.common.compare.CompareTests.TestCompareLTUnsupportedAlgorithm;
+import dk.alexandra.fresco.lib.common.compare.CompareTests.TestCompareZeroInputTooLarge;
 import dk.alexandra.fresco.lib.common.compare.CompareTests.TestLessThanLogRounds;
 import dk.alexandra.fresco.lib.common.compare.lt.BitLessThanOpenTests.TestBitLessThanOpen;
+import dk.alexandra.fresco.lib.common.compare.lt.CarryOutTests;
 import dk.alexandra.fresco.lib.common.compare.lt.CarryOutTests.TestCarryOut;
+import dk.alexandra.fresco.lib.common.compare.lt.CarryOutTests.TestCarryOutSizeMismatch;
+import dk.alexandra.fresco.lib.common.compare.lt.CarryOutTests.TestCarrySingleton;
 import dk.alexandra.fresco.lib.common.compare.lt.LessThanZeroTests.TestLessThanZero;
 import dk.alexandra.fresco.lib.common.compare.lt.PreCarryTests.TestPreCarryBits;
 import dk.alexandra.fresco.lib.common.math.AdvancedNumericTests.TestMinInfFrac;
@@ -28,14 +37,19 @@ import dk.alexandra.fresco.lib.common.math.integer.inv.InversionTests.TestInvert
 import dk.alexandra.fresco.lib.common.math.integer.linalg.LinAlgTests;
 import dk.alexandra.fresco.lib.common.math.integer.log.LogTests;
 import dk.alexandra.fresco.lib.common.math.integer.min.MinTests;
+import dk.alexandra.fresco.lib.common.math.integer.min.MinTests.TestArgMin;
+import dk.alexandra.fresco.lib.common.math.integer.min.MinTests.TestArgMinTrivial;
 import dk.alexandra.fresco.lib.common.math.integer.mod.Mod2mTests.TestMod2mBaseCase;
 import dk.alexandra.fresco.lib.common.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.lib.common.math.integer.stat.StatisticsTests;
+import dk.alexandra.fresco.lib.common.math.logical.LogicalOperationsTests;
 import dk.alexandra.fresco.lib.common.math.logical.LogicalOperationsTests.TestAnd;
 import dk.alexandra.fresco.lib.common.math.logical.LogicalOperationsTests.TestAndKnown;
 import dk.alexandra.fresco.lib.common.math.logical.LogicalOperationsTests.TestNot;
 import dk.alexandra.fresco.lib.common.math.logical.LogicalOperationsTests.TestOr;
 import dk.alexandra.fresco.lib.common.math.logical.LogicalOperationsTests.TestOrList;
+import dk.alexandra.fresco.lib.common.math.logical.LogicalOperationsTests.TestOrNeighbors;
+import dk.alexandra.fresco.lib.common.math.logical.LogicalOperationsTests.TestXor;
 import dk.alexandra.fresco.lib.common.math.logical.LogicalOperationsTests.TestXorKnown;
 import dk.alexandra.fresco.lib.common.math.polynomial.PolynomialTests;
 import dk.alexandra.fresco.logging.arithmetic.NumericLoggingDecorator;
@@ -289,6 +303,16 @@ public class TestArithmetic extends AbstractDummyArithmeticTest {
   }
 
   @Test
+  public void testXor() {
+    runTest(new TestXor<>(), new TestParameters());
+  }
+
+  @Test
+  public void testOrNeighbours() {
+    runTest(new TestOrNeighbors<>(), new TestParameters());
+  }
+
+  @Test
   public void testOrList() {
     runTest(new TestOrList<>(), new TestParameters());
   }
@@ -340,6 +364,16 @@ public class TestArithmetic extends AbstractDummyArithmeticTest {
   }
 
   @Test
+  public void testCarrySingleton() {
+    runTest(new TestCarrySingleton<>(), new TestParameters());
+  }
+
+  @Test(expected = TestFrameworkException.class)
+  public void testCarryOutSizeMismatch() {
+    runTest(new TestCarryOutSizeMismatch<>(), new TestParameters());
+  }
+
+  @Test
   public void testBitLessThanOpen() {
     BigInteger modulus = ModulusFinder.findSuitableModulus(128);
     TestParameters parameters = new TestParameters().numParties(2).field(new BigIntegerFieldDefinition(modulus));
@@ -373,4 +407,40 @@ public class TestArithmetic extends AbstractDummyArithmeticTest {
     runTest(new TestGenerateRandomBitMask<>(), parameters);
   }
 
+  @Test
+  public void testArgMin() {
+    runTest(new TestArgMin<>(), new TestParameters());
+  }
+
+  @Test(expected = TestFrameworkException.class)
+  public void testArgMinTrivial() {
+    runTest(new TestArgMinTrivial<>(), new TestParameters());
+  }
+
+  @Test(expected = TestFrameworkException.class)
+  public void testEQModulusTooSmall() {
+    BigInteger modulus = ModulusFinder.findSuitableModulus(128);
+    TestParameters parameters = new TestParameters().numParties(2).field(new BigIntegerFieldDefinition(modulus));
+    runTest(new TestCompareEQModulusTooSmall<>(127), parameters);
+  }
+
+  @Test(expected = TestFrameworkException.class)
+  public void testCompareZeroInputTooLarge() {
+    BigInteger modulus = ModulusFinder.findSuitableModulus(128);
+    int maxBitLength = 64;
+    TestParameters parameters = new TestParameters().numParties(2).field(new BigIntegerFieldDefinition(modulus)).maxBitLength(maxBitLength);
+    runTest(new TestCompareZeroInputTooLarge<>(65), parameters);
+  }
+
+  @Test(expected = TestFrameworkException.class)
+  public void testLTModulusTooSmall() {
+    BigInteger modulus = ModulusFinder.findSuitableModulus(128);
+    TestParameters parameters = new TestParameters().numParties(2).field(new BigIntegerFieldDefinition(modulus)).maxBitLength(127);
+    runTest(new TestCompareLTModulusTooSmall<>(), parameters);
+  }
+
+  @Test(expected = TestFrameworkException.class)
+  public void testLTUnsupportedAlgorithm() {
+    runTest(new TestCompareLTUnsupportedAlgorithm<>(), new TestParameters());
+  }
 }

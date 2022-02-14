@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.compare.eq.Equality;
 import dk.alexandra.fresco.lib.common.compare.lt.BitLessThanOpen;
 import dk.alexandra.fresco.lib.common.compare.lt.Carry;
 import dk.alexandra.fresco.lib.common.compare.lt.LessThanOrEquals;
@@ -51,12 +50,7 @@ public class DefaultComparison implements Comparison {
   @Override
   public DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y) {
     int maxBitLength = builder.getBasicNumericContext().getMaxBitLength();
-    return equals(maxBitLength, x, y);
-  }
-
-  @Override
-  public DRes<SInt> equals(int bitLength, DRes<SInt> x, DRes<SInt> y) {
-    return builder.seq(new Equality(bitLength, x, y));
+    return equals(x, y, maxBitLength);
   }
 
   @Override
@@ -111,14 +105,12 @@ public class DefaultComparison implements Comparison {
       throw new IllegalArgumentException(
           "The max bitlength plus the statistical security parameter overflows the size of the modulus.");
     }
-    switch (algorithm) {
-      case CONST_ROUNDS:
-        return builder.seq(new ZeroTestConstRounds(x, bitlength));
-      case LOG_ROUNDS:
-        return builder.seq(new ZeroTestLogRounds(x, bitlength));
-      default:
-        throw new UnsupportedOperationException("Not implemented yet");
-    }  }
+    if (algorithm == Algorithm.LOG_ROUNDS) {
+      return builder.seq(new ZeroTestLogRounds(x, bitlength));
+    } else {
+      return builder.seq(new ZeroTestConstRounds(x, bitlength));
+    }
+  }
 
   @Override
   public DRes<Pair<List<DRes<SInt>>, SInt>> argMin(List<DRes<SInt>> xs) {

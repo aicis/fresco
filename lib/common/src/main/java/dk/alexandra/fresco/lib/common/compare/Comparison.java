@@ -146,13 +146,4 @@ public interface Comparison extends ComputationDirectory {
     return compareZero(x, bitlength, Algorithm.LOG_ROUNDS);
   }
 
-  /**
-   * Compares two values and return x == y
-   * @param bitLength The maximum bit-length of the numbers to compare. 
-   * @param x The first number
-   * @param y The second number
-   * @return A deferred result computing x == y
-   */
-  DRes<SInt> equals(int bitLength, DRes<SInt> x, DRes<SInt> y);
-
 }

@@ -50,7 +50,7 @@ public class EqualsDemo implements Application<BigInteger, ProtocolBuilderNumeri
       Pair<DRes<SInt>, DRes<SInt>> input = new Pair<>(x1, x2);
       return () -> input;
     }).seq((seq, input) -> {
-      DRes<SInt> equals = Comparison.using(seq).equals(32, input.getFirst(), input.getSecond());
+      DRes<SInt> equals = Comparison.using(seq).equals(input.getFirst(), input.getSecond(), 32);
       DRes<BigInteger> open = seq.numeric().open(equals);
       return open;
     });

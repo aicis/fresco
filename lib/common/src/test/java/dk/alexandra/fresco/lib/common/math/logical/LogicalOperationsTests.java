@@ -125,7 +125,7 @@ public class LogicalOperationsTests {
                 List<DRes<SInt>> rightClosed = right.stream().map(root.numeric()::known).collect(Collectors.toList());
                 DRes<List<DRes<SInt>>> anded = Logical.using(root)
                     .pairWiseAnd(DRes.of(leftClosed), DRes.of(rightClosed));
-                return Collections.using(root).openList(anded);
+                return Logical.using(root).openAsBits(anded);
               };
           List<BigInteger> actual = runApplication(app).stream().map(DRes::out)
               .collect(Collectors.toList());
@@ -165,13 +165,54 @@ public class LogicalOperationsTests {
               root -> {
                 List<DRes<SInt>> leftClosed = left.stream().map(root.numeric()::known).collect(Collectors.toList());
                 List<DRes<SInt>> rightClosed = right.stream().map(root.numeric()::known).collect(Collectors.toList());
-                DRes<List<DRes<SInt>>> anded = Logical.using(root).pairWiseOr(DRes.of(leftClosed), DRes.of(rightClosed));
-                return Collections.using(root).openList(anded);
+                DRes<List<DRes<SInt>>> ored = Logical.using(root).pairWiseOr(DRes.of(leftClosed), DRes.of(rightClosed));
+                return Logical.using(root).openAsBits(ored);
               };
           List<BigInteger> actual = runApplication(app).stream().map(DRes::out)
               .collect(Collectors.toList());
           List<BigInteger> expected = Arrays.asList(
               BigInteger.ONE,
+              BigInteger.ONE,
+              BigInteger.ONE,
+              BigInteger.ZERO
+          );
+          Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+  }
+
+  public static class TestXor<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        private final List<BigInteger> left = Arrays.asList(
+            BigInteger.ONE,
+            BigInteger.ZERO,
+            BigInteger.ONE,
+            BigInteger.ZERO);
+        private final List<BigInteger> right = Arrays.asList(
+            BigInteger.ONE,
+            BigInteger.ONE,
+            BigInteger.ZERO,
+            BigInteger.ZERO);
+
+        @Override
+        public void test() {
+          Application<List<DRes<BigInteger>>, ProtocolBuilderNumeric> app =
+              root -> {
+                List<DRes<SInt>> leftClosed = left.stream().map(root.numeric()::known).collect(Collectors.toList());
+                List<DRes<SInt>> rightClosed = right.stream().map(root.numeric()::known).collect(Collectors.toList());
+                DRes<List<DRes<SInt>>> xored = Logical.using(root).pairWiseXor(DRes.of(leftClosed), DRes.of(rightClosed));
+                return Logical.using(root).openAsBits(xored);
+              };
+          List<BigInteger> actual = runApplication(app).stream().map(DRes::out)
+              .collect(Collectors.toList());
+          List<BigInteger> expected = Arrays.asList(
+              BigInteger.ZERO,
               BigInteger.ONE,
               BigInteger.ONE,
               BigInteger.ZERO
