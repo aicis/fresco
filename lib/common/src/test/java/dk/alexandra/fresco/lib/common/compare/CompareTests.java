@@ -474,4 +474,34 @@ public class CompareTests {
     }
   }
 
+  public static class TestCompareZeroAlgorithms<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() throws Exception {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
+            Numeric input = builder.numeric();
+            Comparison comparison = Comparison.using(builder);
+            List<DRes<SInt>> results = new ArrayList<>();
+            results.add(comparison.compareZero(input.known(1), builder.getBasicNumericContext().getMaxBitLength(), Algorithm.CONST_ROUNDS));
+            results.add(comparison.compareZero(input.known(-1), builder.getBasicNumericContext().getMaxBitLength(), Algorithm.CONST_ROUNDS));
+            results.add(comparison.compareZero(input.known(0), builder.getBasicNumericContext().getMaxBitLength(), Algorithm.CONST_ROUNDS));
+            results.add(comparison.compareZero(input.known(1), builder.getBasicNumericContext().getMaxBitLength(), Algorithm.LOG_ROUNDS));
+            results.add(comparison.compareZero(input.known(-1), builder.getBasicNumericContext().getMaxBitLength(), Algorithm.LOG_ROUNDS));
+            results.add(comparison.compareZero(input.known(0), builder.getBasicNumericContext().getMaxBitLength(), Algorithm.LOG_ROUNDS));
+            List<DRes<BigInteger>> open = results.stream().map(input::open).collect(Collectors.toList());
+            return () -> open.stream().map(DRes::out).collect(Collectors.toList());
+          };
+          List<BigInteger> output = runApplication(app);
+          Assert.assertArrayEquals(
+              new int[]{0, 0, 1, 0, 0, 1}, output.stream().mapToInt(BigInteger::intValue).toArray());
+        }
+      };
+    }
+  }
+
 }
