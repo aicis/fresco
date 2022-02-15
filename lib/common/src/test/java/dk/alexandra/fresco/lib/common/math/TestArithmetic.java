@@ -475,9 +475,4 @@ public class TestArithmetic extends AbstractDummyArithmeticTest {
     runTest(new TestMod2mTrivial<>(), new TestParameters());
   }
 
-  @Test
-  public void testHammingDistance() {
-    runTest(new TestHammingDistance<>(), new TestParameters());
-  }
-
 }

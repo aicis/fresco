@@ -517,6 +517,7 @@ public class CompareTests {
             Numeric input = builder.numeric();
             List<DRes<SInt>> results = new ArrayList<>();
             results.add(new HammingDistance(Arrays.asList(input.known(0)), BigInteger.ONE).buildComputation(builder));
+            results.add(new HammingDistance(Arrays.asList(input.known(0)), BigInteger.ZERO).buildComputation(builder));
             results.add(new HammingDistance(Arrays.asList(input.known(1), input.known(0)), BigInteger.ONE).buildComputation(builder));
             results.add(new HammingDistance(Arrays.asList(input.known(1), input.known(1)), BigInteger.ONE).buildComputation(builder));
             results.add(new HammingDistance(Arrays.asList(input.known(1), input.known(1)), BigInteger.valueOf(3)).buildComputation(builder));
@@ -526,7 +527,7 @@ public class CompareTests {
           };
           List<BigInteger> output = runApplication(app);
           Assert.assertArrayEquals(
-              new int[]{1, 0, 1, 0, 4}, output.stream().mapToInt(BigInteger::intValue).toArray());
+              new int[]{1, 0, 0, 1, 0, 4}, output.stream().mapToInt(BigInteger::intValue).toArray());
         }
       };
     }

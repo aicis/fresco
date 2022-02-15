@@ -49,6 +49,12 @@ public class TestSpdzComparison extends AbstractSpdzTest {
   }
 
   @Test
+  public void test_compare_zero() {
+    runTest(new CompareTests.TestCompareZeroAlgorithms<>(),
+        PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
   public void testCompareEQEdgeCasesSequential() {
     runTest(new CompareTests.TestCompareEQEdgeCases<>(),
         PreprocessingStrategy.DUMMY, 2);
