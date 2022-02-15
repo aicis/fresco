@@ -15,6 +15,7 @@ import dk.alexandra.fresco.lib.common.compare.CompareTests.TestCompareLTUnsuppor
 import dk.alexandra.fresco.lib.common.compare.CompareTests.TestCompareZero;
 import dk.alexandra.fresco.lib.common.compare.CompareTests.TestCompareZeroAlgorithms;
 import dk.alexandra.fresco.lib.common.compare.CompareTests.TestCompareZeroInputTooLarge;
+import dk.alexandra.fresco.lib.common.compare.CompareTests.TestHammingDistance;
 import dk.alexandra.fresco.lib.common.compare.CompareTests.TestLessThanLogRounds;
 import dk.alexandra.fresco.lib.common.compare.lt.BitLessThanOpenTests.TestBitLessThanOpen;
 import dk.alexandra.fresco.lib.common.compare.lt.CarryOutTests;
@@ -468,4 +469,10 @@ public class TestArithmetic extends AbstractDummyArithmeticTest {
   public void testMod2mTrivial() {
     runTest(new TestMod2mTrivial<>(), new TestParameters());
   }
+
+  @Test
+  public void testHammingDistance() {
+    runTest(new TestHammingDistance<>(), new TestParameters());
+  }
+
 }

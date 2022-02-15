@@ -504,4 +504,32 @@ public class CompareTests {
     }
   }
 
+  public static class TestHammingDistance<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() throws Exception {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
+            Numeric input = builder.numeric();
+            List<DRes<SInt>> results = new ArrayList<>();
+            results.add(new HammingDistance(Arrays.asList(input.known(0)), BigInteger.ONE).buildComputation(builder));
+            results.add(new HammingDistance(Arrays.asList(input.known(1), input.known(0)), BigInteger.ONE).buildComputation(builder));
+            results.add(new HammingDistance(Arrays.asList(input.known(1), input.known(1)), BigInteger.ONE).buildComputation(builder));
+            results.add(new HammingDistance(Arrays.asList(input.known(1), input.known(1)), BigInteger.valueOf(3)).buildComputation(builder));
+            results.add(new HammingDistance(Arrays.asList(input.known(0), input.known(0), input.known(0), input.known(0)), BigInteger.valueOf(15)).buildComputation(builder));
+            List<DRes<BigInteger>> open = results.stream().map(input::open).collect(Collectors.toList());
+            return () -> open.stream().map(DRes::out).collect(Collectors.toList());
+          };
+          List<BigInteger> output = runApplication(app);
+          Assert.assertArrayEquals(
+              new int[]{1, 0, 1, 0, 4}, output.stream().mapToInt(BigInteger::intValue).toArray());
+        }
+      };
+    }
+  }
+
 }

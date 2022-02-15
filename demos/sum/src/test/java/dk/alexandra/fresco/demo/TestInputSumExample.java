@@ -126,7 +126,7 @@ public class TestInputSumExample {
       try {
         InputSumExample.main(
             new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
-                "dummyArithmetic"});
+                "spdz"});
       } catch (IOException e) {
         System.exit(-1);
       }
@@ -136,7 +136,7 @@ public class TestInputSumExample {
       try {
         InputSumExample.main(
             new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
-                "dummyArithmetic"});
+                "spdz"});
       } catch (IOException e) {
         System.exit(-1);
       }

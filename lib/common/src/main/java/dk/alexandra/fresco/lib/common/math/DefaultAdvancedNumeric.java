@@ -151,7 +151,7 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
 
   @Override
   public DRes<SInt> truncate(DRes<SInt> input, int shifts) {
-    return builder.seq(new Truncate(input, shifts));
+    return builder.seq(new Truncate(input, builder.getBasicNumericContext().getMaxBitLength(), shifts));
   }
 
   @Override
