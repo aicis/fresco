@@ -11,6 +11,7 @@ import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSelect
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * If n is the bitlength of the input and l is an upper bound for the bit length, this protocol
@@ -32,7 +33,7 @@ public class NormalizeSInt
   public DRes<Pair<DRes<SInt>, DRes<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.par(par -> {
       AdvancedNumeric advancedNumeric = AdvancedNumeric.using(par);
-      DRes<List<SInt>> bits = advancedNumeric.toBits(input, l);
+      DRes<List<DRes<SInt>>> bits = advancedNumeric.toBits(input, l);
 
       // Sign bit (0 or 1)
       Comparison comparison = Comparison.using(par);
@@ -45,8 +46,8 @@ public class NormalizeSInt
       DRes<SInt> sign = seq.numeric().add(1, seq.numeric().mult(-2, params.getSecond()));
       
       DRes<List<DRes<SInt>>> norm =
-          new InternalNorm(params.getFirst().out(), params.getSecond(), sign)
-              .buildComputation(seq);
+          new InternalNorm(params.getFirst().out().stream().map(DRes::out).collect(Collectors.toList()),
+              params.getSecond(), sign).buildComputation(seq);
       
       return () -> new Pair<>(sign, norm);
     }).seq((seq, signAndNorm) -> {

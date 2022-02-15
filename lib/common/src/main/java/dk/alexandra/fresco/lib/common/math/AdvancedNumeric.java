@@ -85,7 +85,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * @param in SInt
    * @return A deferred result computing the list of bits
    */
-  DRes<List<SInt>> toBits(DRes<SInt> in, int maxInputLength);
+  DRes<List<DRes<SInt>>> toBits(DRes<SInt> in, int maxInputLength);
 
   /**
    * Computes the exponentiation of x^e.

@@ -33,7 +33,7 @@ public class ExponentiationOpenBase implements Computation<SInt, ProtocolBuilder
           BigInteger e = base;
           Numeric numeric = seq.numeric();
           DRes<SInt> result = null;
-          for (SInt bit : bits) {
+          for (DRes<SInt> bit : bits) {
             /*
              * result += bits[i] * (result * r - r) + r
              *
@@ -45,10 +45,10 @@ public class ExponentiationOpenBase implements Computation<SInt, ProtocolBuilder
              */
             if (result == null) {
               BigInteger sub = e.subtract(BigInteger.ONE);
-              result = numeric.add(BigInteger.ONE, numeric.mult(sub, () -> bit));
+              result = numeric.add(BigInteger.ONE, numeric.mult(sub, bit));
             } else {
               DRes<SInt> sub = numeric.sub(numeric.mult(e, result), result);
-              result = numeric.add(result, numeric.mult(sub, () -> bit));
+              result = numeric.add(result, numeric.mult(sub, bit));
             }
             e = e.multiply(e);
           }

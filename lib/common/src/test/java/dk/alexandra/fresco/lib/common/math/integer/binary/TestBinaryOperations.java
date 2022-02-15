@@ -11,6 +11,6 @@ public class TestBinaryOperations {
   public void testRepeatedRightShiftBadLength1() {
     BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition("10");
     FieldElement value = definition.createElement(2);
-    new RightShift(2, new DummyArithmeticSInt(value), -1);
+    new RightShift(new DummyArithmeticSInt(value), -1, 2);
   }
 }

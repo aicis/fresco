@@ -26,7 +26,7 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
   private final int shifts;
   private final int bitlength;
 
-  public Truncate(DRes<SInt> input, int bitlength, int shifts) {
+  public Truncate(DRes<SInt> input, int shifts, int bitlength) {
     this.input = input;
     this.bitlength = bitlength;
     this.shifts = shifts;

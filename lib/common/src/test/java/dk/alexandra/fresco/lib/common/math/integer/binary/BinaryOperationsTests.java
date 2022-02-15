@@ -224,6 +224,41 @@ public class BinaryOperationsTests {
     }
   }
 
+  public static class TestTruncationTrivial<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      List<BigInteger> openInputs = Stream.of(123, 1234, 12345, 123456, 1234567, 12345678)
+          .map(BigInteger::valueOf).collect(Collectors.toList());
+      int shifts = 32;
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> {
+
+            List<DRes<SInt>> closed1 =
+                openInputs.stream().map(producer.numeric()::known).collect(Collectors.toList());
+
+            List<DRes<SInt>> result = new ArrayList<>();
+            for (DRes<SInt> inputX : closed1) {
+              result.add(new Truncate(inputX, shifts, 30).buildComputation(producer));
+            }
+
+            List<DRes<BigInteger>> opened =
+                result.stream().map(producer.numeric()::open).collect(Collectors.toList());
+            return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
+          };
+          List<BigInteger> output = runApplication(app);
+
+          for (BigInteger x : output) {
+            Assert.assertEquals(BigInteger.ZERO, x);
+          }
+        }
+      };
+    }
+  }
+
   public static class TestGenerateRandomBitMask<ResourcePoolT extends NumericResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 

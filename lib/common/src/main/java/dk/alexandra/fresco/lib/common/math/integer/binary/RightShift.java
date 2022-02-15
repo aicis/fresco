@@ -20,14 +20,14 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
   private final int shifts;
 
   /**
-   * @param bitLength An upper bound for the bitLength of the input.
    * @param input     The input.
+   * @param bitLength An upper bound for the bitLength of the input.
    */
-  public RightShift(int bitLength, DRes<SInt> input) {
-    this(bitLength, input, 1);
+  public RightShift(DRes<SInt> input, int bitLength) {
+    this(input, 1, bitLength);
   }
 
-  public RightShift(int bitLength, DRes<SInt> input, int shifts) {
+  public RightShift(DRes<SInt> input, int shifts, int bitLength) {
 
     if (shifts < 0) {
       throw new IllegalArgumentException();

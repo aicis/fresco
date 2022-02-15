@@ -144,6 +144,11 @@ public class TestArithmetic extends AbstractDummyArithmeticTest {
     runTest(new BinaryOperationsTests.TestTruncation<>(), new TestParameters().numParties(2));
   }
 
+  @Test
+  public void test_truncation_trivial() {
+    runTest(new BinaryOperationsTests.TestTruncationTrivial<>(), new TestParameters().numParties(2));
+  }
+
   // Math tests
 
   @Test
@@ -171,7 +176,7 @@ public class TestArithmetic extends AbstractDummyArithmeticTest {
             .get(1)
             .getLoggedValues()
             .get(NumericLoggingDecorator.ARITHMETIC_BASIC_SUB),
-        is((long) 14));
+        is((long) 18));
   }
 
   @Test
