@@ -176,7 +176,7 @@ public class TestArithmetic extends AbstractDummyArithmeticTest {
             .get(1)
             .getLoggedValues()
             .get(NumericLoggingDecorator.ARITHMETIC_BASIC_SUB),
-        is((long) 18));
+        is((long) 25));
   }
 
   @Test
