@@ -5,21 +5,18 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
-import dk.alexandra.fresco.lib.common.collections.Collections;
-import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
-import dk.alexandra.fresco.lib.common.math.AdvancedNumeric.RightShiftResult;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.common.collections.Collections;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.Assert;
-
 
 /**
  * Generic test cases for basic finite field operations.
@@ -45,22 +42,19 @@ public class BinaryOperationsTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
+          Application<BigInteger, ProtocolBuilderNumeric> app =
               (ProtocolBuilderNumeric builder) -> {
                 AdvancedNumeric rightShift = AdvancedNumeric.using(builder);
                 DRes<SInt> encryptedInput = builder.numeric().known(input);
-                DRes<RightShiftResult> shiftedRight =
-                    rightShift.rightShiftWithRemainder(encryptedInput, shifts);
+                DRes<SInt> shiftedRight =
+                    rightShift.rightShift(encryptedInput, shifts);
                 DRes<BigInteger> openResult =
-                    builder.numeric().open(() -> shiftedRight.out().getResult());
-                DRes<BigInteger> openRemainder =
-                    builder.numeric().open(() -> shiftedRight.out().getRemainder());
-                return () -> Arrays.asList(openResult.out(), openRemainder.out());
+                    builder.numeric().open(shiftedRight);
+                return openResult;
               };
-              List<BigInteger> output = runApplication(app);
+              BigInteger output = runApplication(app);
 
-          Assert.assertEquals(input.shiftRight(shifts), output.get(0));
-          Assert.assertEquals(input.mod(BigInteger.ONE.shiftLeft(shifts)), output.get(1));
+          Assert.assertEquals(input.shiftRight(shifts), output);
         }
       };
     }

@@ -192,30 +192,6 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<SInt> rightShift(DRes<SInt> input, int shifts);
 
   /**
-   * Calculating the result of right shifting of the input by one, including the remainder.
-   *
-   * @param input input
-   * @return A deferred result computing<br>
-   *     result: input &gt;&gt; 1<br>
-   *     remainder: The <code>shifts</code> least significant bits of the input with the least
-   *     significant having index 0.
-   */
-  DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input);
-
-  /**
-   * Calculating the result of right shifting of the input by a given amount, including the
-   * remainder.
-   *
-   * @param input input
-   * @param shifts Number of shifts
-   * @return A deferred result computing <br>
-   *     result: input &gt;&gt; shifts<br>
-   *     remainder: The <code>shifts</code> least significant bits of the input with the least
-   *     significant having index 0.
-   */
-  DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input, int shifts);
-
-  /**
    * Compute the truncation of a secret input. The result will in most cases be equal to <code>input
    * &gt;&gt; shifts</code> , but may be one larger. {@link #rightShift(DRes)} gives the exact result, but
    * is slower to compute.
@@ -293,28 +269,6 @@ public interface AdvancedNumeric extends ComputationDirectory {
       Pair<DRes<SInt>, List<DRes<SInt>>> rightKeyAndValue);
 
   DRes<SInt> bitsToInteger(List<DRes<SInt>> bits);
-
-    /**
-     * Container holding the deferred result and remainder of shifting a number.
-     */
-  class RightShiftResult {
-
-    final SInt result;
-    final SInt remainder;
-
-    public RightShiftResult(SInt result, SInt remainder) {
-      this.result = result;
-      this.remainder = remainder;
-    }
-
-    public SInt getResult() {
-      return result;
-    }
-
-    public SInt getRemainder() {
-      return remainder;
-    }
-  }
 
   /**
    * Container holding a random bitvector and its SInt representation.

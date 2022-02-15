@@ -124,28 +124,13 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   @Override
   public DRes<SInt> rightShift(DRes<SInt> input) {
     return builder.seq(new RightShift(
-        input, builder.getBasicNumericContext().getMaxBitLength()
-    )).seq((seq, result) -> result.result);
+        input, builder.getBasicNumericContext().getMaxBitLength()));
   }
 
   @Override
   public DRes<SInt> rightShift(DRes<SInt> input, int shifts) {
     return builder.seq(new RightShift(
         input, shifts, builder.getBasicNumericContext().getMaxBitLength()
-    )).seq((seq, result) -> result.result);
-  }
-
-  @Override
-  public DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input) {
-    return builder.seq(
-        new RightShift(
-            input, builder.getBasicNumericContext().getMaxBitLength()
-        ));
-  }
-
-  @Override
-  public DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input, int shifts) {
-    return builder.seq(new RightShift(input, shifts, builder.getBasicNumericContext().getMaxBitLength()
     ));
   }
 
