@@ -75,7 +75,7 @@ public class TestSpdzComparison extends AbstractSpdzTest {
   @Test
   public void testCompareLTBatchedMascot() {
     runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        PreprocessingStrategy.MASCOT, 2, 64, 2, 1);
+        PreprocessingStrategy.MASCOT, 2, 64, 8, 1);
   }
 
   @Test

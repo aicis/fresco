@@ -26,7 +26,7 @@ public class CompareTests {
 
   /**
    * Compares the two numbers 3 and 5 and checks that 3 <= 5. Also checks that 5 is not <= 3 and
-   * that 3 <= 3
+   * that 3 < 3
    */
   public static class TestCompareLT<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
@@ -42,9 +42,9 @@ public class CompareTests {
             DRes<SInt> x = input.input(BigInteger.valueOf(3), 1);
             DRes<SInt> y = input.input(BigInteger.valueOf(5), 1);
             Comparison comparison = Comparison.using(builder);
-            DRes<SInt> compResult1 = comparison.compareLEQ(x, y);
-            DRes<SInt> compResult2 = comparison.compareLEQ(y, x);
-            DRes<SInt> compResult3 = comparison.compareLEQ(x, x);
+            DRes<SInt> compResult1 = comparison.compareLT(x, y);
+            DRes<SInt> compResult2 = comparison.compareLT(y, x);
+            DRes<SInt> compResult3 = comparison.compareLT(x, x);
             Numeric open = builder.numeric();
             DRes<BigInteger> res1;
             DRes<BigInteger> res2;
@@ -56,7 +56,7 @@ public class CompareTests {
           List<BigInteger> output = runApplication(app);
           Assert.assertEquals(BigInteger.ONE, output.get(0));
           Assert.assertEquals(BigInteger.ZERO, output.get(1));
-          Assert.assertEquals(BigInteger.ONE, output.get(2));
+          Assert.assertEquals(BigInteger.ZERO, output.get(2));
         }
       };
     }
