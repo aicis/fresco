@@ -66,6 +66,7 @@ public interface Comparison extends ComputationDirectory {
    * @param y the second input
    * @return A deferred result computing x <= y. Result will be either [1] (true) or [0] (false).
    */
+  @Deprecated
   DRes<SInt> compareLEQ(DRes<SInt> x, DRes<SInt> y);
 
   /**
@@ -74,7 +75,7 @@ public interface Comparison extends ComputationDirectory {
    * @param x the first input
    * @param y the second input
    * @param algorithm the algorithm to use
-   * @return A deferred result computing x <= y. Result will be either [1] (true) or [0] (false).
+   * @return A deferred result computing x < y. Result will be either [1] (true) or [0] (false).
    */
   DRes<SInt> compareLT(DRes<SInt> x, DRes<SInt> y, Algorithm algorithm);
 
@@ -103,6 +104,7 @@ public interface Comparison extends ComputationDirectory {
    * @param y the second input
    * @return A deferred result computing x <= y. Result will be either [1] (true) or [0] (false).
    */
+  @Deprecated
   DRes<SInt> compareLEQLong(DRes<SInt> x, DRes<SInt> y);
 
   /**

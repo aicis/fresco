@@ -18,37 +18,39 @@ public class Mod2m implements Computation<SInt, ProtocolBuilderNumeric> {
 
   private final DRes<SInt> input;
   private final int m;
-  private final int k;
-  private final int kappa;
+  private final int maxBitLength;
+  private final int statisticalSecurityParameter;
 
   /**
    * Constructs new {@link Mod2m}.
    *
-   * @param input value to reduce
-   * @param m exponent (2^{m})
-   * @param k bitlength of the input
-   * @param kappa Statistical security parameter
+   * @param input                        value to reduce
+   * @param m                            exponent (2^{m})
+   * @param maxBitLength                 bitlength of the input
+   * @param statisticalSecurityParameter Statistical security parameter
    */
-  public Mod2m(DRes<SInt> input, int m, int k, int kappa) {
+  public Mod2m(DRes<SInt> input, int m, int maxBitLength, int statisticalSecurityParameter) {
     this.input = input;
     this.m = m;
-    this.k = k;
-    this.kappa = kappa;
+    this.maxBitLength = maxBitLength;
+    this.statisticalSecurityParameter = statisticalSecurityParameter;
   }
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    if (m >= k) {
+    if (m >= maxBitLength) {
       return input;
     }
-    final DRes<RandomAdditiveMask> r = AdvancedNumeric.using(builder).additiveMask(k + kappa);
+    final DRes<RandomAdditiveMask> r = AdvancedNumeric.using(builder)
+        .additiveMask(maxBitLength + statisticalSecurityParameter);
     return builder.seq(seq -> {
       // Construct a new RandomBitMask consisting of the first m bits of r
       final List<DRes<SInt>> rPrimeBits = r.out().bits.subList(0, m);
       DRes<SInt> rPrimeValue = AdvancedNumeric.using(seq).bitsToInteger(rPrimeBits);
       RandomAdditiveMask rPrime = new RandomAdditiveMask(rPrimeBits, rPrimeValue);
       // Use the integer interpretation of r to compute c = 2^{k-1}+(input + r)
-      DRes<BigInteger> c = seq.numeric().open(seq.numeric().add(BigInteger.ONE.shiftLeft(k - 1),
+      DRes<BigInteger> c = seq.numeric().open(seq.numeric().add(BigInteger.ONE.shiftLeft(
+          maxBitLength - 1),
           seq.numeric().add(input, r.out().value)));
       return Pair.lazy(rPrime, c);
     }).seq((seq, pair) -> {

@@ -19,19 +19,19 @@ public class RightShift implements Computation<SInt, ProtocolBuilderNumeric> {
 
   /**
    * @param input     The input.
-   * @param bitLength An upper bound for the bitLength of the input.
+   * @param maxBitLength An upper bound for the maxBitLength of the input.
    */
-  public RightShift(DRes<SInt> input, int bitLength) {
-    this(input, 1, bitLength);
+  public RightShift(DRes<SInt> input, int maxBitLength) {
+    this(input, 1, maxBitLength);
   }
 
-  public RightShift(DRes<SInt> input, int shifts, int bitLength) {
+  public RightShift(DRes<SInt> input, int shifts, int maxBitLength) {
 
     if (shifts < 0) {
       throw new IllegalArgumentException();
     }
 
-    this.bitLength = bitLength;
+    this.bitLength = maxBitLength;
     this.input = input;
     this.shifts = shifts;
   }

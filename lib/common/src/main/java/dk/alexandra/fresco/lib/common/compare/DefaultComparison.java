@@ -55,7 +55,7 @@ public class DefaultComparison implements Comparison {
 
   @Override
   public DRes<SInt> compareLEQ(DRes<SInt> x, DRes<SInt> y) {
-    return builder.seq(new LessThanOrEquals(maxBitLength, magicSecureNumber, x, y));
+    return compareLT(builder.numeric().sub(x, 1), y);
   }
 
   @Override

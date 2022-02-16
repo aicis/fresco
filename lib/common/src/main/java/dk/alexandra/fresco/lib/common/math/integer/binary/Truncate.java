@@ -24,17 +24,17 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
   // Input
   private final DRes<SInt> input;
   private final int shifts;
-  private final int bitlength;
+  private final int maxBitLength;
 
-  public Truncate(DRes<SInt> input, int shifts, int bitlength) {
+  public Truncate(DRes<SInt> input, int shifts, int maxBitLength) {
     this.input = input;
-    this.bitlength = bitlength;
+    this.maxBitLength = maxBitLength;
     this.shifts = shifts;
   }
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    if (shifts >= bitlength) {
+    if (shifts >= maxBitLength) {
       return builder.numeric().known(0);
     }
 
@@ -45,7 +45,7 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
        * leakage.
        */
       return AdvancedNumeric.using(seq)
-          .additiveMask(bitlength + builder.getBasicNumericContext().getStatisticalSecurityParam());
+          .additiveMask(maxBitLength + builder.getBasicNumericContext().getStatisticalSecurityParam());
 
     }).seq((seq, randomAdditiveMask) -> {
 

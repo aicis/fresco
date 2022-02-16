@@ -13,6 +13,7 @@ import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSelect
 import java.math.BigInteger;
 import java.util.List;
 
+@Deprecated // Use LessThanZero instead
 public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeric> {
 
   // params etc

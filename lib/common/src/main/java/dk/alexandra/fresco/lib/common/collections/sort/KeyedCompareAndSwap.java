@@ -122,7 +122,7 @@ public class KeyedCompareAndSwap<KeyT, ValueT,
 
     return new KeyedCompareAndSwap<>(leftKeyAndValue, rightKeyAndValue,
         (a, b, builder) -> Comparison
-            .using(builder).compareLEQ(b, a),
+            .using(builder).compareLT(b, a),
         (a, b, builder) -> builder.numeric().add(a, b),
         (a, b, builder) -> builder.numeric().sub(a, b),
         (a, b, builder) -> builder.numeric().add(a, b),

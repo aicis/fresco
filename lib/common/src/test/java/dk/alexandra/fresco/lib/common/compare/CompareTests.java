@@ -181,31 +181,33 @@ public class CompareTests {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
             Numeric input = builder.numeric();
             Comparison comparison = Comparison.using(builder);
-            int maxBitLength = builder.getBasicNumericContext().getMaxBitLength();
+
+            // Reserve upper half for negative values
+            int maxBitLength = builder.getBasicNumericContext().getMaxBitLength() - 1;
 
             List<DRes<SInt>> comps = Arrays.asList(
-                // check MAX <= MAX
-                comparison.compareLEQ(
-                    input.known(maxValMinus(maxBitLength, "0")),
+                // check MAX - 1 < MAX
+                comparison.compareLT(
+                    input.known(maxValMinus(maxBitLength, "1")),
                     input.known(maxValMinus(maxBitLength, "0"))),
-                // check not MAX <= 1
-                comparison.compareLEQ(
+                // check not MAX < 1
+                comparison.compareLT(
                     input.known(maxValMinus(maxBitLength, "0")),
                     input.known(BigInteger.ONE)),
-                // check -3 <= -1
-                comparison.compareLEQ(
+                // check -3 < -1
+                comparison.compareLT(
                     input.known(BigInteger.valueOf(-3)),
                     input.known(BigInteger.valueOf(-1))),
-                // check not -1 <= -3
-                comparison.compareLEQ(
+                // check not -1 < -3
+                comparison.compareLT(
                     input.known(BigInteger.valueOf(-1)),
                     input.known(BigInteger.valueOf(-3))),
-                // check -3 <= 0
-                comparison.compareLEQ(
+                // check -3 < 0
+                comparison.compareLT(
                     input.known(BigInteger.valueOf(-3)),
                     input.known(BigInteger.valueOf(0))),
-                // check -3 <= 1
-                comparison.compareLEQ(
+                // check -3 < 1
+                comparison.compareLT(
                     input.known(BigInteger.valueOf(-3)),
                     input.known(BigInteger.valueOf(1)))
             );
