@@ -14,7 +14,7 @@ public class Carry implements Computation<List<SIntPair>, ProtocolBuilderNumeric
 
   private final List<SIntPair> pairs;
 
-  public Carry(List<SIntPair> pairs) {
+  Carry(List<SIntPair> pairs) {
     this.pairs = pairs;
   }
 

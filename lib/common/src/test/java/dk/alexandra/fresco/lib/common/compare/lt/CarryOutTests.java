@@ -8,12 +8,9 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.compare.Comparison;
-import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import dk.alexandra.fresco.lib.common.util.SIntPair;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,13 +21,12 @@ public class CarryOutTests {
   public static class TestCarryOut<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
-    private final List<BigInteger> left;
     private final List<BigInteger> right;
     private final BigInteger expected;
 
     public TestCarryOut(int l, int r) {
       expected = carry(l, r);
-      left = intToBits(l);
+      List<BigInteger> left = intToBits(l);
       right = new ArrayList<>(left.size());
       right.addAll(intToBits(r));
     }
@@ -88,10 +84,10 @@ public class CarryOutTests {
           Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app =
 
               root -> root.seq(seq -> {
-                List<SIntPair> closed = Arrays.asList(new SIntPair(seq.numeric().known(0),
-                    seq.numeric().known(1)));
-                DRes<List<SIntPair>> result = Comparison.using(seq).carry(closed);
-                return result;
+                List<SIntPair> closed = Collections
+                    .singletonList(new SIntPair(seq.numeric().known(0),
+                        seq.numeric().known(1)));
+                return new Carry(closed).buildComputation(seq);
               }).seq((seq, result) -> Pair.lazy(seq.numeric().open(result.get(0).getFirst()), seq.numeric().open(result.get(0).getSecond()))).seq((seq, result) -> Pair.lazy(result.getFirst().out(), result.getSecond().out()));
           Pair<BigInteger, BigInteger> actual = runApplication(app);
           Assert.assertEquals(new Pair<>(BigInteger.ZERO, BigInteger.ONE), actual);
@@ -122,7 +118,7 @@ public class CarryOutTests {
                         BigInteger.ZERO));
                 return root.numeric().open(carry);
               };
-          BigInteger actual = runApplication(app);
+          runApplication(app);
         }
       };
     }

@@ -80,11 +80,6 @@ public class DefaultComparison implements Comparison {
   }
 
   @Override
-  public DRes<List<SIntPair>> carry(List<SIntPair> bitPairs) {
-    return builder.seq(new Carry(bitPairs));
-  }
-
-  @Override
   public DRes<SInt> sign(DRes<SInt> x) {
     Numeric input = builder.numeric();
     // TODO create a compareLeqOrEqZero on comparison builder

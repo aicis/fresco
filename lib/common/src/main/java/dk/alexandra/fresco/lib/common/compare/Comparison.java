@@ -95,12 +95,6 @@ public interface Comparison extends ComputationDirectory {
   DRes<SInt> compareLTBits(BigInteger openValue, DRes<List<DRes<SInt>>> secretBits);
 
   /**
-   * Method used internally in less-than protocol. <p>This is only here since we need a way to plug
-   * in a backend specific native protocol for it.</p>
-   */
-  DRes<List<SIntPair>> carry(List<SIntPair> bitPairs);
-
-  /**
    * Compares if x <= y, but with twice the possible bit-length. Requires that the maximum bit
    * length is set to something that can handle this scenario. It has to be at least less than half
    * the modulus bit size.
