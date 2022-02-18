@@ -9,21 +9,20 @@ import dk.alexandra.fresco.framework.value.SInt;
  * testing for equality with zero for a bitLength-bit number (positive or negative).
  *
  */
-public class ZeroTest implements Computation<SInt, ProtocolBuilderNumeric> {
+public class ZeroTestConstRounds implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final int securityParameter;
-  private final int bitLength;
   private final DRes<SInt> input;
+  private final int maxBitlength;
 
-  public ZeroTest(int bitLength, DRes<SInt> input, int securityParameter) {
-    this.bitLength = bitLength;
+  public ZeroTestConstRounds(DRes<SInt> input, int maxBitlength) {
     this.input = input;
-    this.securityParameter = securityParameter;
+    this.maxBitlength = maxBitlength;
   }
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    DRes<SInt> reduced = builder.seq(new ZeroTestReducer(bitLength, input, securityParameter));
-    return builder.seq(new ZeroTestBruteforce(bitLength, reduced));
+    final int statisticalSecurity = builder.getBasicNumericContext().getStatisticalSecurityParam();
+    DRes<SInt> reduced = builder.seq(new ZeroTestReducer(maxBitlength, input, statisticalSecurity));
+    return builder.seq(new ZeroTestBruteforce(maxBitlength, reduced));
   }
 }

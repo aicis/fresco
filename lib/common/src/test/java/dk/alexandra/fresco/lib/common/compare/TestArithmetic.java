@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.lib.common.compare;
 
+import dk.alexandra.fresco.lib.common.compare.CompareTests.TestHammingDistance;
 import dk.alexandra.fresco.suite.dummy.arithmetic.AbstractDummyArithmeticTest;
 import org.junit.Test;
 
@@ -28,5 +29,10 @@ public class TestArithmetic extends AbstractDummyArithmeticTest {
   @Test
   public void testCompareEqEdgeCasesSequential() {
     runTest(new CompareTests.TestCompareEQEdgeCases<>(), new TestParameters());
+  }
+
+  @Test
+  public void testHammingDistance() {
+    runTest(new TestHammingDistance<>(), new TestParameters());
   }
 }

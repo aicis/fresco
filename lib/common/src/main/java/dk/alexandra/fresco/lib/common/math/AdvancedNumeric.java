@@ -67,15 +67,10 @@ public interface AdvancedNumeric extends ComputationDirectory {
    */
   DRes<SInt> div(DRes<SInt> dividend, DRes<SInt> divisor);
 
-  /**
-   * This protocol calculates an approximation of <code>floor(dividend / divisor)</code>, which will
-   * be either correct or slightly smaller than the correct result.
-   *
-   * @param dividend The dividend.
-   * @param divisor The divisor.
-   * @return A deferred result computing quotient and remainder.
-   */
   DRes<SInt> mod(DRes<SInt> dividend, BigInteger divisor);
+
+  /** Compute <i>input mod 2<sup>m</sup></i> for some positive integer m. */
+  DRes<SInt> mod2m(DRes<SInt> dividend, int m);
 
   /**
    * Convenience implementation of {@link #mod(DRes, BigInteger)}
@@ -90,7 +85,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * @param in SInt
    * @return A deferred result computing the list of bits
    */
-  DRes<List<SInt>> toBits(DRes<SInt> in, int maxInputLength);
+  DRes<List<DRes<SInt>>> toBits(DRes<SInt> in, int maxInputLength);
 
   /**
    * Computes the exponentiation of x^e.
@@ -197,30 +192,6 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<SInt> rightShift(DRes<SInt> input, int shifts);
 
   /**
-   * Calculating the result of right shifting of the input by one, including the remainder.
-   *
-   * @param input input
-   * @return A deferred result computing<br>
-   *     result: input &gt;&gt; 1<br>
-   *     remainder: The <code>shifts</code> least significant bits of the input with the least
-   *     significant having index 0.
-   */
-  DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input);
-
-  /**
-   * Calculating the result of right shifting of the input by a given amount, including the
-   * remainder.
-   *
-   * @param input input
-   * @param shifts Number of shifts
-   * @return A deferred result computing <br>
-   *     result: input &gt;&gt; shifts<br>
-   *     remainder: The <code>shifts</code> least significant bits of the input with the least
-   *     significant having index 0.
-   */
-  DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input, int shifts);
-
-  /**
    * Compute the truncation of a secret input. The result will in most cases be equal to <code>input
    * &gt;&gt; shifts</code> , but may be one larger. {@link #rightShift(DRes)} gives the exact result, but
    * is slower to compute.
@@ -297,27 +268,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
       Pair<DRes<SInt>, List<DRes<SInt>>> leftKeyAndValue,
       Pair<DRes<SInt>, List<DRes<SInt>>> rightKeyAndValue);
 
-    /**
-     * Container holding the deferred result and remainder of shifting a number.
-     */
-  class RightShiftResult {
-
-    final SInt result;
-    final SInt remainder;
-
-    public RightShiftResult(SInt result, SInt remainder) {
-      this.result = result;
-      this.remainder = remainder;
-    }
-
-    public SInt getResult() {
-      return result;
-    }
-
-    public SInt getRemainder() {
-      return remainder;
-    }
-  }
+  DRes<SInt> bitsToInteger(List<DRes<SInt>> bits);
 
   /**
    * Container holding a random bitvector and its SInt representation.
@@ -325,11 +276,11 @@ public interface AdvancedNumeric extends ComputationDirectory {
   class RandomAdditiveMask {
 
     public final List<DRes<SInt>> bits;
-    public final SInt random;
+    public final DRes<SInt> value;
 
-    public RandomAdditiveMask(List<DRes<SInt>> bits, SInt random) {
+    public RandomAdditiveMask(List<DRes<SInt>> bits, DRes<SInt> random) {
       this.bits = bits;
-      this.random = random;
+      this.value = random;
     }
   }
 }

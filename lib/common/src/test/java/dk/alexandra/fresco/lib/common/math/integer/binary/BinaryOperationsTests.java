@@ -4,20 +4,19 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
-import dk.alexandra.fresco.lib.common.math.AdvancedNumeric.RightShiftResult;
+import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.common.collections.Collections;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.Assert;
-
 
 /**
  * Generic test cases for basic finite field operations.
@@ -43,22 +42,19 @@ public class BinaryOperationsTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
+          Application<BigInteger, ProtocolBuilderNumeric> app =
               (ProtocolBuilderNumeric builder) -> {
                 AdvancedNumeric rightShift = AdvancedNumeric.using(builder);
                 DRes<SInt> encryptedInput = builder.numeric().known(input);
-                DRes<RightShiftResult> shiftedRight =
-                    rightShift.rightShiftWithRemainder(encryptedInput, shifts);
+                DRes<SInt> shiftedRight =
+                    rightShift.rightShift(encryptedInput, shifts);
                 DRes<BigInteger> openResult =
-                    builder.numeric().open(() -> shiftedRight.out().getResult());
-                DRes<BigInteger> openRemainder =
-                    builder.numeric().open(() -> shiftedRight.out().getRemainder());
-                return () -> Arrays.asList(openResult.out(), openRemainder.out());
+                    builder.numeric().open(shiftedRight);
+                return openResult;
               };
-              List<BigInteger> output = runApplication(app);
+              BigInteger output = runApplication(app);
 
-          Assert.assertEquals(input.shiftRight(shifts), output.get(0));
-          Assert.assertEquals(input.mod(BigInteger.ONE.shiftLeft(shifts)), output.get(1));
+          Assert.assertEquals(input.shiftRight(shifts), output);
         }
       };
     }
@@ -217,6 +213,86 @@ public class BinaryOperationsTests {
             Assert.assertTrue(x.subtract(expected).equals(BigInteger.ONE)
                 || x.subtract(expected).equals(BigInteger.ZERO));
           }
+        }
+      };
+    }
+  }
+
+  public static class TestTruncationTrivial<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      List<BigInteger> openInputs = Stream.of(123, 1234, 12345, 123456, 1234567, 12345678)
+          .map(BigInteger::valueOf).collect(Collectors.toList());
+      int shifts = 32;
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> {
+
+            List<DRes<SInt>> closed1 =
+                openInputs.stream().map(producer.numeric()::known).collect(Collectors.toList());
+
+            List<DRes<SInt>> result = new ArrayList<>();
+            for (DRes<SInt> inputX : closed1) {
+              result.add(new Truncate(inputX, shifts, 30).buildComputation(producer));
+            }
+
+            List<DRes<BigInteger>> opened =
+                result.stream().map(producer.numeric()::open).collect(Collectors.toList());
+            return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
+          };
+          List<BigInteger> output = runApplication(app);
+
+          for (BigInteger x : output) {
+            Assert.assertEquals(BigInteger.ZERO, x);
+          }
+        }
+      };
+    }
+  }
+
+  public static class TestGenerateRandomBitMask<ResourcePoolT extends NumericResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        private int numBits = -1;
+        private BigInteger modulus;
+
+        private BigInteger recombine(List<BigInteger> bits) {
+          BigInteger result = BigInteger.ZERO;
+          for (int i = 0; i < bits.size(); i++) {
+            result = result.add(BigInteger.ONE.shiftLeft(i).multiply(bits.get(i)).mod(modulus));
+          }
+          return result.mod(modulus);
+        }
+
+        @Override
+        public void test() {
+          Application<Pair<DRes<BigInteger>, List<DRes<BigInteger>>>, ProtocolBuilderNumeric> app =
+              root -> {
+                numBits = root.getBasicNumericContext().getMaxBitLength() - 1;
+                modulus = root.getBasicNumericContext().getModulus();
+                return root.seq(seq -> AdvancedNumeric.using(seq).additiveMask(numBits))
+                    .seq((seq, mask) -> {
+                      DRes<BigInteger> rec = seq.numeric().open(mask.value);
+                      DRes<List<DRes<BigInteger>>> bits = Collections.using(seq)
+                          .openList(DRes.of(mask.bits));
+                      return () -> new Pair<>(rec, bits.out());
+                    });
+              };
+          Pair<DRes<BigInteger>, List<DRes<BigInteger>>> actual = runApplication(app);
+          BigInteger recombined = actual.getFirst().out();
+          List<BigInteger> bits = actual.getSecond().stream()
+              .map(DRes::out)
+              .collect(Collectors.toList());
+          Assert.assertEquals(numBits, bits.size());
+          Assert.assertEquals(recombine(bits), recombined);
         }
       };
     }
