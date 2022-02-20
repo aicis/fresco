@@ -30,6 +30,4 @@ public interface InterfaceNaorPinkasElement<T extends InterfaceNaorPinkasElement
    * @return
    */
   T exponentiation(BigInteger n);
-
-
 }
