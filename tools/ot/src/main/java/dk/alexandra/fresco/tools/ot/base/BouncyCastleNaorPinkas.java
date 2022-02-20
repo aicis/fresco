@@ -5,12 +5,10 @@ import dk.alexandra.fresco.framework.util.Drbg;
 import java.security.Security;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.crypto.ec.CustomNamedCurves;
-import org.bouncycastle.jcajce.provider.asymmetric.util.EC5Util;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.math.ec.ECCurve;
 
 import java.math.BigInteger;
-import java.security.spec.ECParameterSpec;
 
 /**
  * Needs the Bouncy Castle dependency from the OT pom.xml
