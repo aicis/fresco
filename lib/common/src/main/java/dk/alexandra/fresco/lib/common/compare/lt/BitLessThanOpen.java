@@ -24,13 +24,16 @@ public class BitLessThanOpen implements Computation<SInt, ProtocolBuilderNumeric
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    List<DRes<SInt>> secretBits = secretBitsDef.out();
-    int numBits = secretBits.size();
-    List<BigInteger> openBits = MathUtils.toBits(openValueA, numBits);
-    DRes<List<DRes<SInt>>> secretBitsNegated = Logical.using(builder).batchedNot(secretBitsDef);
-    DRes<SInt> gt = builder
-        .seq(new CarryOut(openBits, secretBitsNegated, BigInteger.ONE, true));
-    return Logical.using(builder).not(gt);
+    return builder.seq(seq -> {
+      List<DRes<SInt>> secretBits = secretBitsDef.out();
+      int numBits = secretBits.size();
+      List<BigInteger> openBits = MathUtils.toBits(openValueA, numBits);
+      Logical logical = Logical.using(seq);
+      DRes<List<DRes<SInt>>> secretBitsNegated = logical.batchedNot(secretBitsDef);
+      DRes<SInt> gt = seq
+          .seq(new CarryOut(openBits, secretBitsNegated, BigInteger.ONE, true));
+      return logical.not(gt);
+    });
   }
 
 }
