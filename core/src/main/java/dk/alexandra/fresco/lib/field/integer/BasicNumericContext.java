@@ -7,7 +7,10 @@ import java.math.BigInteger;
  * Holds the most crucial properties about the finite field we are working within.
  */
 public class BasicNumericContext {
+  // TODO temporary hardcoded statistical security parameter
+  private static final int DEFAULT_STATISTICAL_SECURITY = 40;
 
+  private final int statisticalSecurityParam;
   private final int maxBitLength;
   private final int myId;
   private final int noOfParties;
@@ -23,14 +26,32 @@ public class BasicNumericContext {
    * @param noOfParties number of parties in computation
    * @param fieldDefinition the field definition used in the application
    * @param defaultFixedPointPrecision the fixed point precision when using the fixed point library
+   * @param statisticalSecurityParam the statistical security parameter
    */
   public BasicNumericContext(int maxBitLength, int myId, int noOfParties,
-      FieldDefinition fieldDefinition, int defaultFixedPointPrecision) {
+      FieldDefinition fieldDefinition, int defaultFixedPointPrecision, int statisticalSecurityParam) {
     this.maxBitLength = maxBitLength;
     this.myId = myId;
     this.noOfParties = noOfParties;
     this.fieldDefinition = fieldDefinition;
     this.defaultFixedPointPrecision = defaultFixedPointPrecision;
+    this.statisticalSecurityParam = statisticalSecurityParam;
+  }
+
+  /**
+   * Construct a new BasicNumericContext.
+   *
+   * @param maxBitLength The maximum length in bits that the numbers in the application will
+   *     have.
+   * @param myId my party id
+   * @param noOfParties number of parties in computation
+   * @param fieldDefinition the field definition used in the application
+   * @param defaultFixedPointPrecision the fixed point precision when using the fixed point library
+   */
+  public BasicNumericContext(int maxBitLength, int myId, int noOfParties,
+      FieldDefinition fieldDefinition, int defaultFixedPointPrecision) {
+    this(maxBitLength, myId, noOfParties, fieldDefinition, defaultFixedPointPrecision,
+        DEFAULT_STATISTICAL_SECURITY);
   }
 
   /**
@@ -80,5 +101,11 @@ public class BasicNumericContext {
     return defaultFixedPointPrecision;
   }
 
+  /**
+   * Returns the statistical security parameter.
+   */
+  public int getStatisticalSecurityParam() {
+    return this.statisticalSecurityParam;
+  }
 
 }

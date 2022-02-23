@@ -2,15 +2,20 @@ package dk.alexandra.fresco.framework.builder.numeric.field;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * A finite field where the modulus is known to be pseudo Mersenne prime. This class
- * enables the use of tailored mod computation utilising the knowledge about
- * the modulus structure.
+ * A finite field where the modulus is known to be pseudo Mersenne prime. This class enables the use
+ * of tailored mod computation utilising the knowledge about the modulus structure.
  */
 public final class MersennePrimeFieldDefinition implements FieldDefinition {
 
+  /**
+   * Default field definition for a few bit lengths.
+   */
+  private static final Map<Integer, Integer> precomputed = createPrecomputedModuli();
   private final MersennePrimeModulus modulus;
   private final BigInteger modulusHalf;
   private final int modulusBitLength;
@@ -20,14 +25,22 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
    * Construct a new field definition for a pseudo Mersenne prime.
    *
    * @param bitLength the bitlength of the prime
-   * @param constant the constant subtracted from 2^bitLength
+   * @param constant  the constant subtracted from 2^bitLength
    */
-  public MersennePrimeFieldDefinition(int bitLength, int constant) {
+  MersennePrimeFieldDefinition(int bitLength, int constant) {
     this.modulus = new MersennePrimeModulus(bitLength, constant);
     this.modulusHalf = modulus.getPrime().shiftRight(1);
     this.modulusBitLength = bitLength;
-    this.utils = new FieldUtils(modulusBitLength, this::createElement,
-        MersennePrimeFieldElement::extractValue);
+    this.utils = new FieldUtils(modulusBitLength, this::createElement);
+  }
+
+  /** Try to find a pseudo-Mersenne prime with the given bit length. */
+  public static MersennePrimeFieldDefinition find(int bitlength) {
+    if (!precomputed.containsKey(bitlength)) {
+      throw new IllegalArgumentException("Unknown bit length. Possible choices are "
+          + precomputed.keySet() + ".");
+    }
+    return new MersennePrimeFieldDefinition(bitlength, precomputed.get(bitlength));
   }
 
   @Override
@@ -62,7 +75,7 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
 
   @Override
   public BigInteger convertToUnsigned(FieldElement value) {
-    return MersennePrimeFieldElement.extractValue(value);
+    return value.toBigInteger();
   }
 
   @Override
@@ -88,5 +101,18 @@ public final class MersennePrimeFieldDefinition implements FieldDefinition {
   @Override
   public List<FieldElement> deserializeList(byte[] bytes) {
     return utils.deserializeList(bytes);
+  }
+
+  private static Map<Integer, Integer> createPrecomputedModuli() {
+    return new HashMap<Integer, Integer>() {{
+      put(512, 569);
+      put(384, 317);
+      put(256, 587);
+      put(128, 173);
+      put(64, 59);
+      put(32, 5);
+      put(16, 17);
+      put(8, 5);
+    }};
   }
 }

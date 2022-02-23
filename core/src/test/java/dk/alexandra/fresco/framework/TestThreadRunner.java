@@ -97,7 +97,7 @@ public class TestThreadRunner {
       try {
         // Shut down SCE resources - does not include the resource pool.
         if (conf.sce != null) {
-          conf.sce.shutdownSCE();
+          conf.sce.close();
         }
         tearDown();
       } catch (Exception e) {

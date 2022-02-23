@@ -104,7 +104,7 @@ public class SecureComputationEngineImpl
   }
 
   @Override
-  public synchronized void shutdownSCE() {
+  public synchronized void close() {
     if (this.setup) {
       this.executorService.shutdown();
     }

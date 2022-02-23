@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.common.compare.gt;
+package dk.alexandra.fresco.lib.common.compare.lt;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
@@ -13,6 +13,7 @@ import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSelect
 import java.math.BigInteger;
 import java.util.List;
 
+@Deprecated // Use LessThanZero instead
 public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeric> {
 
   // params etc
@@ -51,7 +52,7 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
                   new MiscBigIntegerGenerators(seq.getBasicNumericContext().getModulus())
                       .getTwoPowersList(bitLengthBottom);
               return Pair.lazy(
-                  mask.random,
+                  mask.value,
                   AdvancedNumeric.using(seq)
                       .innerProductWithPublicPart(twoPowsBottom, rBottomBits));
             },
@@ -69,7 +70,7 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
             (seq, pair) -> {
               DRes<SInt> rTop = pair::getSecond;
               DRes<SInt> rBottom = pair.getFirst().getSecond();
-              SInt r = pair.getFirst().getFirst();
+              SInt r = pair.getFirst().getFirst().out();
 
               // construct r-values (rBar, rBottom, rTop)
               DRes<SInt> rBar;

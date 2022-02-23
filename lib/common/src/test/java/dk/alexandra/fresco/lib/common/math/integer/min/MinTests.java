@@ -9,6 +9,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.common.compare.Comparison;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -193,4 +194,78 @@ public class MinTests {
       };
     }
   }
+
+  public static class TestArgMin<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        private final List<Integer> data =
+            Arrays.asList(20, 14, 9, 21, 93, 54, 52, 53, 49, 45, 43);
+        private final Integer expected = data.stream().min(Integer::compareTo).get();
+
+        @Override
+        public void test() throws Exception {
+          Application<Pair<List<BigInteger>, BigInteger>, ProtocolBuilderNumeric> app = builder -> builder
+              .seq(seq -> {
+                List<DRes<SInt>> dataClosed = data.stream().map(seq.numeric()::known)
+                    .collect(Collectors.toList());
+                return Comparison.using(seq).argMin(dataClosed);
+              }).seq((seq, result) -> {
+                List<DRes<SInt>> out = new ArrayList<>(result.getFirst());
+                return Pair.lazy(dk.alexandra.fresco.lib.common.collections.Collections.using(seq)
+                    .openList(DRes.of(out)), seq.numeric().open(result.getSecond()));
+              }).seq((seq, result) -> Pair.lazy(result.getFirst().out().stream().map(DRes::out).collect(Collectors.toList()), result.getSecond().out()));
+
+          Pair<List<BigInteger>, BigInteger> result = runApplication(app);
+          Assert.assertEquals(expected.intValue(), result.getSecond().intValue());
+
+          int index = data.indexOf(expected);
+          for (int i = 0; i < data.size(); i++) {
+            if (i == index) {
+              Assert.assertEquals(result.getFirst().get(i).intValue(), 1);
+            } else {
+              Assert.assertEquals(result.getFirst().get(i).intValue(), 0);
+            }
+          }
+
+        }
+      };
+    }
+  }
+
+  public static class TestArgMinTrivial<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        private final List<Integer> data =
+            Arrays.asList(20);
+
+        @Override
+        public void test() throws Exception {
+          Application<Pair<List<BigInteger>, BigInteger>, ProtocolBuilderNumeric> app = builder -> builder
+              .seq(seq -> {
+                List<DRes<SInt>> dataClosed = data.stream().map(seq.numeric()::known)
+                    .collect(Collectors.toList());
+                return Comparison.using(seq).argMin(dataClosed);
+              }).seq((seq, result) -> {
+                List<DRes<SInt>> out = new ArrayList<>(result.getFirst());
+                return Pair.lazy(dk.alexandra.fresco.lib.common.collections.Collections.using(seq)
+                    .openList(DRes.of(out)), seq.numeric().open(result.getSecond()));
+              }).seq((seq, result) -> Pair.lazy(result.getFirst().out().stream().map(DRes::out).collect(Collectors.toList()), result.getSecond().out()));
+
+          runApplication(app);
+
+        }
+      };
+    }
+  }
+
 }

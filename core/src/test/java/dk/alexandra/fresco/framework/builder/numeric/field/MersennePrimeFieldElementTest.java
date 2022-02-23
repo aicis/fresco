@@ -1,8 +1,13 @@
 package dk.alexandra.fresco.framework.builder.numeric.field;
 
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.StringContains;
 import org.junit.Before;
@@ -50,22 +55,22 @@ public class MersennePrimeFieldElementTest {
     FieldElement element1 = MersennePrimeFieldElement.create(value, modulus);
     FieldElement element2 = MersennePrimeFieldElement.create("" + value, modulus);
     FieldElement element3 = MersennePrimeFieldElement.create(BigInteger.valueOf(value), modulus);
-    assertThat(MersennePrimeFieldElement.extractValue(element1),
+    assertThat(element1.toBigInteger(),
         Is.is(BigInteger.valueOf(expected)));
-    assertThat(MersennePrimeFieldElement.extractValue(element2),
+    assertThat(element2.toBigInteger(),
         Is.is(BigInteger.valueOf(expected)));
-    assertThat(MersennePrimeFieldElement.extractValue(element3),
+    assertThat(element3.toBigInteger(),
         Is.is(BigInteger.valueOf(expected)));
   }
 
   @Test
   public void negate() {
-    BigInteger result1 = MersennePrimeFieldElement.extractValue(element1.negate());
-    BigInteger result2 = MersennePrimeFieldElement.extractValue(element2.negate());
-    BigInteger result3 = MersennePrimeFieldElement.extractValue(element3.negate());
-    BigInteger value1 = MersennePrimeFieldElement.extractValue(element1);
-    BigInteger value2 = MersennePrimeFieldElement.extractValue(element2);
-    BigInteger value3 = MersennePrimeFieldElement.extractValue(element3);
+    BigInteger result1 = element1.negate().toBigInteger();
+    BigInteger result2 = element2.negate().toBigInteger();
+    BigInteger result3 = element3.negate().toBigInteger();
+    BigInteger value1 = element1.toBigInteger();
+    BigInteger value2 = element2.toBigInteger();
+    BigInteger value3 = element3.toBigInteger();
     assertThat(result1, Is.is(modulus.getPrime().subtract(value1)));
     assertThat(result2, Is.is(modulus.getPrime().subtract(value2)));
     assertThat(result3, Is.is(modulus.getPrime().subtract(value3)));
@@ -75,39 +80,49 @@ public class MersennePrimeFieldElementTest {
   public void sqrt() {
     FieldElement element = MersennePrimeFieldElement.create(2, modulus);
     FieldElement sqrt = element.sqrt();
-    BigInteger value = MersennePrimeFieldElement.extractValue(sqrt);
+    BigInteger value = sqrt.toBigInteger();
     assertThat(value, Is.is(BigInteger.valueOf(62)));
 
     element = MersennePrimeFieldElement
         .create("180740608519057052622341767564917758093", bigModulus);
-    BigInteger expected = MersennePrimeFieldElement.extractValue(element);
+    BigInteger expected = element.toBigInteger();
     sqrt = element.sqrt();
-    value = MersennePrimeFieldElement.extractValue(sqrt);
+    value = sqrt.toBigInteger();
     assertThat(value.pow(2).mod(bigModulus.getPrime()), Is.is(expected));
   }
 
   @Test
   public void modInverse() {
-    BigInteger result1 = MersennePrimeFieldElement
-        .extractValue(MersennePrimeFieldElement.create(1, modulus).modInverse());
-    BigInteger result2 = MersennePrimeFieldElement
-        .extractValue(MersennePrimeFieldElement.create(27, modulus).modInverse());
-    BigInteger result3 = MersennePrimeFieldElement
-        .extractValue(MersennePrimeFieldElement.create(56, modulus).modInverse());
-    BigInteger result4 = MersennePrimeFieldElement
-        .extractValue(MersennePrimeFieldElement.create(77, modulus).modInverse());
-    BigInteger result5 = MersennePrimeFieldElement
-        .extractValue(MersennePrimeFieldElement.create(112, modulus).modInverse());
-    assertThat(result1, Is.is(BigInteger.valueOf(1)));
-    assertThat(result2, Is.is(BigInteger.valueOf(67)));
-    assertThat(result3, Is.is(BigInteger.valueOf(111)));
-    assertThat(result4, Is.is(BigInteger.valueOf(91)));
-    assertThat(result5, Is.is(BigInteger.valueOf(112)));
+    List<Integer> values = Arrays.asList(-123, -12, -1, 1, 12, 123, 1234, 12345, 123456, 1234567);
+    List<MersennePrimeFieldDefinition> definitions = Stream.of(8, 16, 32, 64, 128, 256, 384, 512).map(MersennePrimeFieldDefinition::find).collect(
+        Collectors.toList());
+
+    for (MersennePrimeFieldDefinition definition : definitions) {
+      for (Integer value : values) {
+        testModInverse(BigInteger.valueOf(value), definition, BigInteger.valueOf(value).modInverse(definition.getModulus()));
+      }
+    }
+  }
+
+  private void testModInverse(BigInteger value, MersennePrimeFieldDefinition definition, BigInteger expected) {
+    BigInteger result = definition.createElement(value).modInverse().toBigInteger();
+    assertThat(result, Is.is(expected));
   }
 
   @Test
   public void toStringTest() {
     FieldElement element = MersennePrimeFieldElement.create(BigInteger.valueOf(7854), bigModulus);
     assertThat(element.toString(), StringContains.containsString("7854"));
+  }
+
+  @Test
+  public void testIsZero() {
+    FieldElement element = MersennePrimeFieldElement.create(BigInteger.valueOf(0), bigModulus);
+    assertTrue(element.isZero());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testUnknownBitLength() {
+    MersennePrimeFieldDefinition.find(7);
   }
 }

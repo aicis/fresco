@@ -9,15 +9,13 @@ import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBool;
 
 /**
- * <p>
  * This class represents an AND protocol in the preprocessing phase of the TinyTables protocol.
- * </p>
  *
- * <p>
- * Here, each of the two players picks random shares for the mask of the output wire, <i>r
+ * <p>Here, each of the two players picks random shares for the mask of the output wire, <i>r
  * <sub>O</sub></i>. Each player also has to calculate a so called <i>TinyTable</i> for this
  * protocol, which are 2x2 matrices such that the <i>(c,d)</i>'th entries from the two tables is an
  * additive secret sharing of <i>(r<sub>u</sub> + c)(r<sub>v</sub> + d) + r<sub>o</sub></i>.
+ *
  * <p>
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
@@ -48,8 +46,8 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol<SBool>
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, TinyTablesPreproResourcePool resourcePool,
-      Network network) {
+  public EvaluationStatus evaluate(
+      int round, TinyTablesPreproResourcePool resourcePool, Network network) {
 
     /*
      * Here we only pick the mask of the output wire. The TinyTable is calculated after all AND
@@ -82,5 +80,4 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol<SBool>
     entries[3] = entries[0].add(getInLeft().getValue()).add(getInRight().getValue()).not(playerId);
     return new TinyTable(entries);
   }
-
 }

@@ -41,10 +41,8 @@ public final class FieldDefinitionTest {
 
   private void testDefinition(
       BiConsumer<FieldDefinition, Function<FieldElement, BigInteger>> test) {
-    test.accept(new BigIntegerFieldDefinition(modulusValue),
-        BigIntegerFieldElement::extractValue);
-    test.accept(new MersennePrimeFieldDefinition(bitLength, constant),
-        MersennePrimeFieldElement::extractValue);
+    test.accept(new BigIntegerFieldDefinition(modulusValue), FieldElement::toBigInteger);
+    test.accept(new MersennePrimeFieldDefinition(bitLength, constant), FieldElement::toBigInteger);
   }
 
   /**

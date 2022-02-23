@@ -37,6 +37,10 @@ public class RotList {
    *          The amount of OTs to construct
    */
   public RotList(Drbg rand, int amount) {
+    this(rand,amount,new StrictBitVector(amount, rand));
+  }
+
+  public RotList(Drbg rand, int amount, StrictBitVector choices){
     this.amount = amount;
     sendMessages = new ArrayList<>(amount);
     learnedMessages = new ArrayList<>(amount);
@@ -45,7 +49,7 @@ public class RotList {
       StrictBitVector seedOne = new StrictBitVector(amount, rand);
       sendMessages.add(new Pair<>(seedZero, seedOne));
     }
-    choices = new StrictBitVector(amount, rand);
+    this.choices = choices;
   }
 
   /**

@@ -64,7 +64,7 @@ public class InputSumExample {
     new InputSumExample().runApplication(sce, resourcePool, util.getNetwork());
     
     util.closeNetwork();
-    sce.shutdownSCE();
+    sce.close();
   }
 
 }

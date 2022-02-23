@@ -1,11 +1,11 @@
 
 <p align="center">
-<img src="https://archive.alexandra.dk/logo/fresco-logo-artwork.svg" alt="FRECO logo" width=70% />
+<img src="https://raw.githubusercontent.com/aicis/fresco/master/fresco%20logo-artwork.svg" alt="FRECO logo" width=70% />
 </p>
 
 #
 
-[![Build Status](https://travis-ci.org/aicis/fresco.svg?branch=master)](https://travis-ci.org/aicis/fresco) [![codecov](https://codecov.io/gh/aicis/fresco/branch/master/graph/badge.svg)](https://codecov.io/gh/aicis/fresco) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/dk.alexandra.fresco/core/badge.svg)](https://search.maven.org/search?q=g:dk.alexandra.fresco) [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/FRESCO-MPC/Lobby)
+![Build Status](https://github.com/aicis/fresco/actions/workflows/qa.yml/badge.svg) [![codecov](https://codecov.io/gh/aicis/fresco/branch/master/graph/badge.svg)](https://codecov.io/gh/aicis/fresco) [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/dk.alexandra.fresco/core/badge.svg?gav=true)](https://maven-badges.herokuapp.com/maven-central/dk.alexandra.fresco/core) [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/FRESCO-MPC/Lobby)
 
 FRESCO is a *FRamework for Efficient and Secure COmputation*, written
 in Java and licensed under the open source MIT license.

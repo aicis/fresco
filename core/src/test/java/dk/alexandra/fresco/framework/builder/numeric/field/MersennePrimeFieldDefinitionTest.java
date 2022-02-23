@@ -40,7 +40,7 @@ public class MersennePrimeFieldDefinitionTest {
   public void getModulus() {
     testValues(3, 3);
     testValues(20, 1);
-    testValues(4, 2);
+    testValues(4, 3);
     testValues(3, 3);
     testValues(31, 37);
   }
@@ -64,6 +64,6 @@ public class MersennePrimeFieldDefinitionTest {
     BigInteger modulus = mersennePrimeFieldDefinition.getModulus();
     Assert.assertThat(
         modulus,
-        Is.is(new BigInteger("" + expected)));
+        Is.is(BigInteger.valueOf(expected)));
   }
 }

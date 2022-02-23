@@ -10,6 +10,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.BigIntegerFieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.field.MersennePrimeFieldDefinition;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.AbstractSpdzTest;
@@ -22,8 +23,7 @@ import org.junit.Test;
 
 public class TestSpdzMacCheckTamperWithValues extends AbstractSpdzTest {
 
-  private static BigIntegerFieldDefinition definition = new BigIntegerFieldDefinition(
-      ModulusFinder.findSuitableModulus(8));
+  private static MersennePrimeFieldDefinition definition = MersennePrimeFieldDefinition.find(8);
 
   @Test
   public void testModifyShare() {

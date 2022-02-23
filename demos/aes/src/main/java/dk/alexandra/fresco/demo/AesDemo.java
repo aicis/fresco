@@ -113,7 +113,7 @@ public class AesDemo implements Application<List<Boolean>, ProtocolBuilderBinary
     List<Boolean> aesResult = sce.runApplication(aes, resourcePool, util.getNetwork());
     
     util.closeNetwork();
-    sce.shutdownSCE();
+    sce.close();
 
     // Print result.
     boolean[] res = new boolean[BLOCK_SIZE];

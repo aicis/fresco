@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.builder.numeric.field;
 
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 import org.hamcrest.core.Is;
@@ -50,19 +51,19 @@ public class BigIntegerFieldElementTest {
     FieldElement element1 = BigIntegerFieldElement.create(value, modulus);
     FieldElement element2 = BigIntegerFieldElement.create("" + value, modulus);
     FieldElement element3 = BigIntegerFieldElement.create(BigInteger.valueOf(value), modulus);
-    assertThat(BigIntegerFieldElement.extractValue(element1), Is.is(BigInteger.valueOf(expected)));
-    assertThat(BigIntegerFieldElement.extractValue(element2), Is.is(BigInteger.valueOf(expected)));
-    assertThat(BigIntegerFieldElement.extractValue(element3), Is.is(BigInteger.valueOf(expected)));
+    assertThat(element1.toBigInteger(), Is.is(BigInteger.valueOf(expected)));
+    assertThat(element2.toBigInteger(), Is.is(BigInteger.valueOf(expected)));
+    assertThat(element3.toBigInteger(), Is.is(BigInteger.valueOf(expected)));
   }
 
   @Test
   public void negate() {
-    BigInteger result1 = BigIntegerFieldElement.extractValue(element1.negate());
-    BigInteger result2 = BigIntegerFieldElement.extractValue(element2.negate());
-    BigInteger result3 = BigIntegerFieldElement.extractValue(element3.negate());
-    BigInteger value1 = BigIntegerFieldElement.extractValue(element1);
-    BigInteger value2 = BigIntegerFieldElement.extractValue(element2);
-    BigInteger value3 = BigIntegerFieldElement.extractValue(element3);
+    BigInteger result1 = element1.negate().toBigInteger();
+    BigInteger result2 = element2.negate().toBigInteger();
+    BigInteger result3 = element3.negate().toBigInteger();
+    BigInteger value1 = element1.toBigInteger();
+    BigInteger value2 = element2.toBigInteger();
+    BigInteger value3 = element3.toBigInteger();
     assertThat(result1, Is.is(modulus.getBigInteger().subtract(value1)));
     assertThat(result2, Is.is(modulus.getBigInteger().subtract(value2)));
     assertThat(result3, Is.is(modulus.getBigInteger().subtract(value3)));
@@ -72,29 +73,24 @@ public class BigIntegerFieldElementTest {
   public void sqrt() {
     FieldElement element = BigIntegerFieldElement.create(2, modulus);
     FieldElement sqrt = element.sqrt();
-    BigInteger value = BigIntegerFieldElement.extractValue(sqrt);
+    BigInteger value = sqrt.toBigInteger();
     assertThat(value, Is.is(BigInteger.valueOf(62)));
 
     element = BigIntegerFieldElement
         .create("180740608519057052622341767564917758093", bigModulus);
-    BigInteger expected = BigIntegerFieldElement.extractValue(element);
+    BigInteger expected = element.toBigInteger();
     sqrt = element.sqrt();
-    value = BigIntegerFieldElement.extractValue(sqrt);
+    value = sqrt.toBigInteger();
     assertThat(value.pow(2).mod(bigModulus.getBigInteger()), Is.is(expected));
   }
 
   @Test
   public void modInverse() {
-    BigInteger result1 = BigIntegerFieldElement
-        .extractValue(BigIntegerFieldElement.create(1, modulus).modInverse());
-    BigInteger result2 = BigIntegerFieldElement
-        .extractValue(BigIntegerFieldElement.create(27, modulus).modInverse());
-    BigInteger result3 = BigIntegerFieldElement
-        .extractValue(BigIntegerFieldElement.create(56, modulus).modInverse());
-    BigInteger result4 = BigIntegerFieldElement
-        .extractValue(BigIntegerFieldElement.create(77, modulus).modInverse());
-    BigInteger result5 = BigIntegerFieldElement
-        .extractValue(BigIntegerFieldElement.create(112, modulus).modInverse());
+    BigInteger result1 = BigIntegerFieldElement.create(1, modulus).modInverse().toBigInteger();
+    BigInteger result2 = BigIntegerFieldElement.create(27, modulus).modInverse().toBigInteger();
+    BigInteger result3 = BigIntegerFieldElement.create(56, modulus).modInverse().toBigInteger();
+    BigInteger result4 = BigIntegerFieldElement.create(77, modulus).modInverse().toBigInteger();
+    BigInteger result5 = BigIntegerFieldElement.create(112, modulus).modInverse().toBigInteger();
     assertThat(result1, Is.is(BigInteger.valueOf(1)));
     assertThat(result2, Is.is(BigInteger.valueOf(67)));
     assertThat(result3, Is.is(BigInteger.valueOf(111)));
@@ -107,16 +103,11 @@ public class BigIntegerFieldElementTest {
     FieldElement element1 = BigIntegerFieldElement.create(1, modulus);
     FieldElement element2 = BigIntegerFieldElement.create(2, modulus);
     FieldElement element3 = BigIntegerFieldElement.create(4, modulus);
-    BigInteger result1 = BigIntegerFieldElement
-        .extractValue(BigIntegerFieldElement.create(27, modulus).multiply(element1));
-    BigInteger result2 = BigIntegerFieldElement
-        .extractValue(BigIntegerFieldElement.create(43, modulus).multiply(element2));
-    BigInteger result3 = BigIntegerFieldElement
-        .extractValue(BigIntegerFieldElement.create(76, modulus).multiply(element3));
-    BigInteger result4 = BigIntegerFieldElement
-        .extractValue(BigIntegerFieldElement.create(98, modulus).multiply(element2));
-    BigInteger result5 = BigIntegerFieldElement
-        .extractValue(BigIntegerFieldElement.create(112, modulus).multiply(element3));
+    BigInteger result1 = BigIntegerFieldElement.create(27, modulus).multiply(element1).toBigInteger();
+    BigInteger result2 = BigIntegerFieldElement.create(43, modulus).multiply(element2).toBigInteger();
+    BigInteger result3 = BigIntegerFieldElement.create(76, modulus).multiply(element3).toBigInteger();
+    BigInteger result4 = BigIntegerFieldElement.create(98, modulus).multiply(element2).toBigInteger();
+    BigInteger result5 = BigIntegerFieldElement.create(112, modulus).multiply(element3).toBigInteger();
     assertThat(result1, Is.is(BigInteger.valueOf(27)));
     assertThat(result2, Is.is(BigInteger.valueOf(86)));
     assertThat(result3, Is.is(BigInteger.valueOf(78)));
@@ -128,5 +119,11 @@ public class BigIntegerFieldElementTest {
   public void toStringTest() {
     FieldElement element = BigIntegerFieldElement.create(BigInteger.valueOf(7854), bigModulus);
     assertThat(element.toString(), StringContains.containsString("7854"));
+  }
+
+  @Test
+  public void testIsZero() {
+    FieldElement element = BigIntegerFieldElement.create(BigInteger.valueOf(0), bigModulus);
+    assertTrue(element.isZero());
   }
 }

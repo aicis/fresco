@@ -39,7 +39,7 @@ public class TestSecureComputationEngineImpl {
     ProtocolEvaluator<DummyArithmeticResourcePool> evaluator =
         new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
     sce = new SecureComputationEngineImpl<>(suite, evaluator);
-    sce.shutdownSCE(); // test this before setup
+    sce.close(); // test this before setup
     sce.setup();
   }
 
@@ -109,6 +109,6 @@ public class TestSecureComputationEngineImpl {
    */
   @After
   public void tearDown() {
-    sce.shutdownSCE();
+    sce.close();
   }
 }

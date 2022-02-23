@@ -36,12 +36,12 @@ final class MersennePrimeFieldElement implements FieldElement {
 
   @Override
   public FieldElement add(FieldElement operand) {
-    return create(value.add(extractValue(operand)));
+    return create(value.add(operand.toBigInteger()));
   }
 
   @Override
   public FieldElement subtract(FieldElement operand) {
-    return create(value.subtract(extractValue(operand)));
+    return create(value.subtract(operand.toBigInteger()));
   }
 
   @Override
@@ -51,7 +51,7 @@ final class MersennePrimeFieldElement implements FieldElement {
 
   @Override
   public FieldElement multiply(FieldElement operand) {
-    return create(value.multiply(extractValue(operand)));
+    return create(value.multiply(operand.toBigInteger()));
   }
 
   @Override
@@ -61,11 +61,17 @@ final class MersennePrimeFieldElement implements FieldElement {
 
   @Override
   public FieldElement modInverse() {
-    return create(value.modInverse(getModulus()));
+    return create(modulus.inverse(value));
   }
 
-  static BigInteger extractValue(FieldElement element) {
-    return ((MersennePrimeFieldElement) element).value;
+  @Override
+  public boolean isZero() {
+    return BigInteger.ZERO.equals(value);
+  }
+
+  @Override
+  public BigInteger toBigInteger() {
+    return value;
   }
 
   private BigInteger getModulus() {
