@@ -17,7 +17,7 @@ public class PreCarryBits implements Computation<SInt, ProtocolBuilderNumeric> {
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    return builder.seq(seq -> () -> pairsDef)
+    return builder.seq(seq -> DRes.of(pairsDef))
         .whileLoop((pairs) -> pairs.size() > 1,
             (prevScope, pairs) -> prevScope.par(par -> new Carry(pairs).buildComputation(par)))
         .seq((seq, out) -> out.get(0).getSecond());

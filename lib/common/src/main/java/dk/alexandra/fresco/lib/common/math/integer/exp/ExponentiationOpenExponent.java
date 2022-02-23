@@ -13,8 +13,8 @@ import java.math.BigInteger;
 public class ExponentiationOpenExponent implements
     Computation<SInt, ProtocolBuilderNumeric> {
 
-  private DRes<SInt> base;
-  private BigInteger exponent;
+  private final DRes<SInt> base;
+  private final BigInteger exponent;
 
   /**
    * A new exponentiation computation with secret base and open exponent.

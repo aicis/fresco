@@ -15,8 +15,8 @@ import java.util.List;
  */
 public class BitLength implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private DRes<SInt> input;
-  private int maxBitLength;
+  private final DRes<SInt> input;
+  private final int maxBitLength;
 
   /**
    * Create a protocol for finding the bit length of an integer. This is done by finding the bit

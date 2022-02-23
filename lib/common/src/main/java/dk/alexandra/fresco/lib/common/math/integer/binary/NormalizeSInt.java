@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.compare.Comparison;
+import dk.alexandra.fresco.lib.common.compare.lt.LessThanZero;
 import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSelectRow;
 import java.math.BigInteger;
@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
 public class NormalizeSInt
     implements Computation<Pair<DRes<SInt>, DRes<SInt>>, ProtocolBuilderNumeric> {
 
-  private DRes<SInt> input;
-  private int l;
+  private final DRes<SInt> input;
+  private final int l;
 
   public NormalizeSInt(DRes<SInt> input, int l) {
     this.input = input;
@@ -36,17 +36,17 @@ public class NormalizeSInt
       DRes<List<DRes<SInt>>> bits = advancedNumeric.toBits(input, l);
 
       // Sign bit (0 or 1)
-      Comparison comparison = Comparison.using(par);
-      DRes<SInt> signBit = comparison.compareLEQ(input, par.numeric().known(-1));
+      DRes<SInt> signBit = new LessThanZero(input).buildComputation(par);
 
-      return () -> new Pair<>(bits, signBit);      
+      return Pair.lazy(bits, signBit);
     }).seq((seq, params) -> {
       
       // Sign (-1 or 1)      
       DRes<SInt> sign = seq.numeric().add(1, seq.numeric().mult(-2, params.getSecond()));
       
       DRes<List<DRes<SInt>>> norm =
-          new InternalNorm(params.getFirst().out().stream().map(DRes::out).collect(Collectors.toList()),
+          new InternalNorm(
+              params.getFirst().out().stream().map(DRes::out).collect(Collectors.toList()),
               params.getSecond(), sign).buildComputation(seq);
       
       return () -> new Pair<>(sign, norm);
@@ -58,13 +58,13 @@ public class NormalizeSInt
     });
   }
 
-  private class InternalNorm implements Computation<List<DRes<SInt>>, ProtocolBuilderNumeric> {
+  private static class InternalNorm implements Computation<List<DRes<SInt>>, ProtocolBuilderNumeric> {
 
-    private List<SInt> bits;
-    private DRes<SInt> b;
-    private DRes<SInt> s;
+    private final List<SInt> bits;
+    private final DRes<SInt> b;
+    private final DRes<SInt> s;
 
-    public InternalNorm(List<SInt> bits, DRes<SInt> signBit, DRes<SInt> sign) {
+    private InternalNorm(List<SInt> bits, DRes<SInt> signBit, DRes<SInt> sign) {
       this.bits = bits;
       this.b = signBit;
       this.s = sign;
@@ -79,17 +79,17 @@ public class NormalizeSInt
           DRes<SInt> t = seq.numeric().add(seq.numeric().mult(s, bits.get(0)), b);
           DRes<SInt> twoMinusT = seq.numeric().sub(BigInteger.valueOf(2), t);
           DRes<SInt> oneMinusT = seq.numeric().sub(BigInteger.ONE, t);
-          return () -> Arrays.asList(twoMinusT, t, oneMinusT);
+          return DRes.of(Arrays.asList(twoMinusT, t, oneMinusT));
         } else {
           return seq.par(r1 -> {
 
             DRes<List<DRes<SInt>>> x =
-                new InternalNorm(bits.subList(0, n / 2), b, s).buildComputation(r1);
+                r1.seq(new InternalNorm(bits.subList(0, n / 2), b, s));
 
             DRes<List<DRes<SInt>>> y =
-                new InternalNorm(bits.subList(n / 2, n), b, s).buildComputation(r1);
+                r1.seq(new InternalNorm(bits.subList(n / 2, n), b, s));
 
-            return () -> new Pair<>(x, y);
+            return Pair.lazy(x, y);
           }).seq((r2, p) -> {
 
             List<DRes<SInt>> x = p.getFirst().out();
@@ -102,11 +102,7 @@ public class NormalizeSInt
                 Arrays.asList(y.get(0), r2.numeric().known(BigInteger.ONE), y.get(2));
             List<DRes<SInt>> xPrime = Arrays.asList(x0, x.get(1), x2);
 
-            DRes<List<DRes<SInt>>> result =
-                new ConditionalSelectRow<>(y.get(1), () -> yPrime, () -> xPrime)
-                    .buildComputation(r2);
-
-            return result;
+            return r2.seq(new ConditionalSelectRow<>(y.get(1), DRes.of(yPrime), DRes.of(xPrime)));
           });
         }
       });

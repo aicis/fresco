@@ -28,13 +28,17 @@ public class LessThanZero implements Computation<SInt, ProtocolBuilderNumeric> {
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     final int maxBitlength = builder.getBasicNumericContext().getMaxBitLength();
-    final int statisticalSecurity = builder.getBasicNumericContext().getStatisticalSecurityParam();
-    DRes<SInt> inputMod2m = builder.seq(new Mod2m(input, maxBitlength - 1, maxBitlength,
-        statisticalSecurity));
-    Numeric numeric = builder.numeric();
-    DRes<SInt> difference = numeric.sub(input, inputMod2m);
-    BigInteger twoToMinusM = BigInteger.ONE.shiftLeft(maxBitlength - 1).modInverse(builder.getBasicNumericContext().getModulus());
-    return numeric.sub(BigInteger.ZERO, numeric.mult(twoToMinusM, difference));
+    final int statisticalSecurity = builder.getBasicNumericContext()
+        .getStatisticalSecurityParam();
+    return builder.seq(seq -> {
+      DRes<SInt> inputMod2m = seq.seq(new Mod2m(input, maxBitlength - 1, maxBitlength,
+          statisticalSecurity));
+      Numeric numeric = seq.numeric();
+      DRes<SInt> difference = numeric.sub(input, inputMod2m);
+      BigInteger twoToMinusM = BigInteger.ONE.shiftLeft(maxBitlength - 1)
+          .modInverse(seq.getBasicNumericContext().getModulus());
+      return numeric.sub(BigInteger.ZERO, numeric.mult(twoToMinusM, difference));
+    });
   }
 
 }
