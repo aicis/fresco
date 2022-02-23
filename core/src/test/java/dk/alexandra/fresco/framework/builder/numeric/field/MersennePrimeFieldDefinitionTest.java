@@ -32,9 +32,7 @@ public class MersennePrimeFieldDefinitionTest {
       MersennePrimeFieldElement elementFromBigInt = (MersennePrimeFieldElement) fieldDefintion.createElement(new BigInteger(baseNumber.toString()));
 
       MersennePrimeFieldElement result = (MersennePrimeFieldElement) elementFromLong.multiply(elementFromString).multiply(elementFromBigInt);
-      Assert.assertThat(
-              MersennePrimeFieldElement.extractValue(result).longValue(),
-              Is.is(baseNumber*baseNumber*baseNumber));
+      Assert.assertThat(MersennePrimeFieldElement.extractValue(result).longValue(), Is.is(baseNumber*baseNumber*baseNumber));
 
   }
 
