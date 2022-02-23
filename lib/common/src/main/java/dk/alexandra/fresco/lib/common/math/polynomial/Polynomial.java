@@ -10,7 +10,7 @@ public interface Polynomial {
    * 
    * @return The upper bound of the degree of the polynomial 
    */
-  public int getMaxDegree();
+  int getMaxDegree();
 
   /**
    * Get the coefficient of the term of degree <code>n</code> of this
@@ -19,7 +19,6 @@ public interface Polynomial {
    * @param n The degree
    * @return The coefficient
    */
-  public DRes<SInt> getCoefficient(int n);
-
+  DRes<SInt> getCoefficient(int n);
 
 }

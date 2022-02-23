@@ -25,8 +25,8 @@ import java.math.BigInteger;
 public class SecretSharedDivisor
     implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private DRes<SInt> numerator;
-  private DRes<SInt> denominator;
+  private final DRes<SInt> numerator;
+  private final DRes<SInt> denominator;
 
   public SecretSharedDivisor(
       DRes<SInt> numerator,

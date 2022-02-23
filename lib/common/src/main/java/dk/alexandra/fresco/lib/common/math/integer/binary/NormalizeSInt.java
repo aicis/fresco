@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.compare.Comparison;
 import dk.alexandra.fresco.lib.common.compare.lt.LessThanZero;
 import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSelectRow;
@@ -22,8 +21,8 @@ import java.util.stream.Collectors;
 public class NormalizeSInt
     implements Computation<Pair<DRes<SInt>, DRes<SInt>>, ProtocolBuilderNumeric> {
 
-  private DRes<SInt> input;
-  private int l;
+  private final DRes<SInt> input;
+  private final int l;
 
   public NormalizeSInt(DRes<SInt> input, int l) {
     this.input = input;

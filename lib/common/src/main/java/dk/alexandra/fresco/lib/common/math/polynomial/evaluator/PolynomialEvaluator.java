@@ -19,7 +19,6 @@ public class PolynomialEvaluator implements Computation<SInt, ProtocolBuilderNum
     this.polynomial = p;
   }
 
-
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     int degree = polynomial.getMaxDegree();

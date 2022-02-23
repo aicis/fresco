@@ -20,15 +20,13 @@ import java.math.BigInteger;
 public class Logarithm implements Computation<SInt, ProtocolBuilderNumeric> {
 
   // Input
-  private DRes<SInt> input;
-  private int maxInputLength;
-
+  private final DRes<SInt> input;
+  private final int maxInputLength;
 
   public Logarithm(DRes<SInt> input, int maxInputLength) {
     this.input = input;
     this.maxInputLength = maxInputLength;
   }
-
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
