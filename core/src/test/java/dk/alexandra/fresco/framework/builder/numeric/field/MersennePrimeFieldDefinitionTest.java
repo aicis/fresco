@@ -26,13 +26,13 @@ public class MersennePrimeFieldDefinitionTest {
   @Test
   public void createElement() {
       Long baseNumber = 2L;
-      MersennePrimeFieldDefinition fieldDefintion = new MersennePrimeFieldDefinition(4, 2);
+      MersennePrimeFieldDefinition fieldDefintion = new MersennePrimeFieldDefinition(128,173);
       MersennePrimeFieldElement elementFromString = (MersennePrimeFieldElement) fieldDefintion.createElement(baseNumber.toString());
       MersennePrimeFieldElement elementFromLong = (MersennePrimeFieldElement) fieldDefintion.createElement(baseNumber);
       MersennePrimeFieldElement elementFromBigInt = (MersennePrimeFieldElement) fieldDefintion.createElement(new BigInteger(baseNumber.toString()));
 
       MersennePrimeFieldElement result = (MersennePrimeFieldElement) elementFromLong.multiply(elementFromString).multiply(elementFromBigInt);
-      Assert.assertThat(MersennePrimeFieldElement.extractValue(result).longValue(), Is.is(baseNumber*baseNumber*baseNumber));
+      Assert.assertTrue(result.toBigInteger().longValue() ==baseNumber*baseNumber*baseNumber);
 
   }
 
