@@ -99,8 +99,7 @@ public class TestPrivateSetDemo {
       ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite =
           (ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary>) getTinyTablesPreproProtocolSuite();
       Drbg random = new AesCtrDrbg();
-      TinyTablesOt baseOt = new TinyTablesNaorPinkasOt(Util.otherPlayerId(playerId), random,
-          DhParameters.getStaticDhParams());
+      TinyTablesOt baseOt = new TinyTablesNaorPinkasOt(Util.otherPlayerId(playerId), random);
 
       // More generic configuration
       ProtocolEvaluator<ResourcePoolImpl> evaluator =
