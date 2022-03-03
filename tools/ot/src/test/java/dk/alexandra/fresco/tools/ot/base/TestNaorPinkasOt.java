@@ -93,7 +93,7 @@ public class TestNaorPinkasOt {
   public void testEncDec()
       throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
     BigInteger privateKey = randNum.nextBigInteger(staticSpec.getP());
-    InterfaceNaorPinkasElement publicKey = ot.getDhGenerator().exponentiation(privateKey);
+    InterfaceOtElement publicKey = ot.getDhGenerator().exponentiation(privateKey);
     Pair<InterfaceNaorPinkasElement, byte[]> encryptionData =
         (Pair<InterfaceNaorPinkasElement, byte[]>) encryptMessage.invoke(ot, publicKey);
     byte[] message = encryptionData.getSecond();
@@ -110,7 +110,7 @@ public class TestNaorPinkasOt {
   public void testFailedEncDec()
       throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
     BigInteger privateKey = randNum.nextBigInteger(staticSpec.getP());
-    InterfaceNaorPinkasElement publicKey = ot.getDhGenerator().exponentiation(privateKey);
+    InterfaceOtElement publicKey = ot.getDhGenerator().exponentiation(privateKey);
     Pair<InterfaceNaorPinkasElement, byte[]> encryptionData =
         (Pair<InterfaceNaorPinkasElement, byte[]>) encryptMessage.invoke(ot, publicKey);
     byte[] message = encryptionData.getSecond();

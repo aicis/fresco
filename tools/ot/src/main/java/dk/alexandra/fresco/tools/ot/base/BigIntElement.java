@@ -1,8 +1,13 @@
 package dk.alexandra.fresco.tools.ot.base;
 
-import java.math.BigInteger;
+import org.bouncycastle.crypto.digests.SHAKEDigest;
 
-public class BigIntElement implements InterfaceNaorPinkasElement<BigIntElement> {
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+
+import static org.bouncycastle.pqc.math.linearalgebra.BigEndianConversions.I2OSP;
+
+public class BigIntElement implements InterfaceOtElement<BigIntElement> {
 
   private final BigInteger element;
   private final BigInteger dhModulus;
@@ -32,4 +37,6 @@ public class BigIntElement implements InterfaceNaorPinkasElement<BigIntElement> 
   public BigIntElement exponentiation(BigInteger n) {
     return new BigIntElement(this.element.modPow(n, this.dhModulus), this.dhModulus);
   }
+
+
 }

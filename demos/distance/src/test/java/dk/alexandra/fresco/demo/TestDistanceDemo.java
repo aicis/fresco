@@ -128,7 +128,7 @@ public class TestDistanceDemo {
       try {
         DistanceDemo.main(
             new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
-                "-p", "3:localhost:8083", "-s", "dummyArithmetic", "-x", "10", "-y", "10"});
+                "-p", "3:localhost:8083", "-s", "spdz", "-x", "10", "-y", "10"});
       } catch (IOException e) {
         throw new RuntimeException("Communication error");
       }
@@ -138,7 +138,7 @@ public class TestDistanceDemo {
       try {
         DistanceDemo.main(
             new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
-                "-p", "3:localhost:8083", "-s", "dummyArithmetic", "-x", "20", "-y", "15"});
+                "-p", "3:localhost:8083", "-s", "spdz", "-x", "20", "-y", "15"});
       } catch (IOException e) {
         throw new RuntimeException("Communication error");
       }
@@ -148,7 +148,7 @@ public class TestDistanceDemo {
       try {
         DistanceDemo.main(
             new String[]{"-i", "3", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
-                "-p", "3:localhost:8083", "-s", "dummyArithmetic"});
+                "-p", "3:localhost:8083", "-s", "spdz"});
       } catch (IOException e) {
         throw new RuntimeException("Communication error");
       }

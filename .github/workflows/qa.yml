@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [ master ]
+    branches: [ PROtHl17 ]
   pull_request:
     branches: [ master ]
 

@@ -5,16 +5,18 @@ import dk.alexandra.fresco.framework.util.Drbg;
 import java.security.Security;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.crypto.ec.CustomNamedCurves;
+import org.bouncycastle.jcajce.provider.asymmetric.util.EC5Util;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.math.ec.ECCurve;
-import org.bouncycastle.math.ec.ECPoint;
 
 import java.math.BigInteger;
+import java.security.spec.ECParameterSpec;
+import java.security.spec.ECPoint;
 
 /**
  * Needs the Bouncy Castle dependency from the OT pom.xml
  */
-public class BouncyCastleNaorPinkas extends AbstractNaorPinkasOT {
+public class BouncyCastleNaorPinkas extends AbstractNaorPinkasOT<BouncyCastleECCElement> {
 
   /**
    * The modulus of the Diffie-Hellman group used in the OT.
@@ -23,27 +25,29 @@ public class BouncyCastleNaorPinkas extends AbstractNaorPinkasOT {
   /**
    * The generator of the Diffie-Hellman group used in the OT.
    */
-  private final ECPoint dhGenerator;
+  private final org.bouncycastle.math.ec.ECPoint dhGenerator;
 
   private final ECCurve curve;
 
   public BouncyCastleNaorPinkas(int otherId, Drbg randBit, Network network) {
     super(otherId, randBit, network);
     Security.addProvider(new BouncyCastleProvider());
-    X9ECParameters ecP = CustomNamedCurves.getByName("curve25519");
+    X9ECParameters ecP = CustomNamedCurves.getByName("P-256");
+    ECParameterSpec ecSpec = EC5Util.convertToSpec(ecP);
     this.curve = ecP.getCurve();
     this.dhModulus = curve.getOrder();
-    this.dhGenerator = ecP.getG();
+    ECPoint tmpGenerator = ecSpec.getGenerator();
+    this.dhGenerator = curve.createPoint(tmpGenerator.getAffineX(), tmpGenerator.getAffineY());
   }
 
   @Override
-  InterfaceNaorPinkasElement generateRandomNaorPinkasElement() {
+  BouncyCastleECCElement generateRandomNaorPinkasElement() {
     return new BouncyCastleECCElement(
         this.dhGenerator.multiply(this.randNum.nextBigInteger(this.dhModulus)));
   }
 
   @Override
-  InterfaceNaorPinkasElement decodeElement(byte[] bytes) {
+  BouncyCastleECCElement decodeElement(byte[] bytes) {
     return new BouncyCastleECCElement(this.curve.decodePoint(bytes));
   }
 
@@ -53,7 +57,7 @@ public class BouncyCastleNaorPinkas extends AbstractNaorPinkasOT {
   }
 
   @Override
-  InterfaceNaorPinkasElement getDhGenerator() {
+  BouncyCastleECCElement getDhGenerator() {
     return new BouncyCastleECCElement(this.dhGenerator);
   }
 }
