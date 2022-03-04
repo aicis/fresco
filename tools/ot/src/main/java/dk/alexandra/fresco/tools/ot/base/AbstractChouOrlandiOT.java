@@ -158,11 +158,11 @@ public abstract class AbstractChouOrlandiOT<T extends InterfaceOtElement<T>> imp
 
 
     /**
-     * Needed for Chou Orlandi
+     * Needed for Chou-Orlandi
      *
      * Hashing to finite fields according to [1] in point 5.2
      * [1] https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-06
-     * @return a byte[] intendted to create a new element in the desired filed
+     * @return a byte[] intended to create a new element in the desired filed
      */
     private T hashToFieldElement(T element, String DST) {
         byte[] msg = element.toByteArray();
