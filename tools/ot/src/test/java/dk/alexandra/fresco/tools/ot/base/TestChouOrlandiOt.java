@@ -109,43 +109,9 @@ public class TestChouOrlandiOt {
         else fail("Not recognized Chou-Orlandi class");
     }
 
-//    @SuppressWarnings("unchecked")
-//    @Test
-//    public void testEncDec()
-//            throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-//        BigInteger privateKey = randNum.nextBigInteger(staticSpec.getP());
-//        InterfaceOtElement publicKey = ot.getGenerator().exponentiation(privateKey);
-//        Pair<InterfaceOtElement, byte[]> encryptionData =
-//                (Pair<InterfaceOtElement, byte[]>) encryptMessage.invoke(ot, publicKey);
-//        byte[] message = encryptionData.getSecond();
-//        // Sanity check that the byte array gets initialized, i.e. is not the 0-array
-//        assertFalse(Arrays.equals(new byte[32], message));
-//        byte[] decryptedMessage =
-//                (byte[]) decryptMessage.invoke(ot, encryptionData.getFirst(), privateKey);
-//        assertArrayEquals(message, decryptedMessage);
-//    }
-
-
     /**** NEGATIVE TESTS. ****/
 
-
-    @Test
-    public void testUnequalLengthMessages() throws SecurityException, IllegalArgumentException,
-            IllegalAccessException, NoSuchMethodException {
-        Method method = getMethodFromAbstractClass("recoverTrueMessage");
-        // Remove private
-        method.setAccessible(true);
-        boolean thrown = false;
-        try {
-            method.invoke(ot, new byte[] { 0x42, 0x42 }, new byte[] { 0x42 }, new byte[] { 0x42 }, true);
-        } catch (InvocationTargetException e) {
-            assertEquals("The length of the two choice messages is not equal",
-                    e.getTargetException().getMessage());
-            thrown = true;
-        }
-        assertTrue(thrown);
-    }
-
+    
     private Method getMethodFromAbstractClass(String methodToSearch) {
         Class<?> clazz = this.testClass;
         while (clazz != null) {
