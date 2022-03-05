@@ -189,7 +189,7 @@ public class TestFunctionalOT {
       StrictBitVector msgOne = new StrictBitVector(messageLength, rand);
       // Send a wrong random value c, than what is actually used
       // byte on position 0 in encoded EcPoint only specifies Compression
-      ((CheatingNetworkDecorator) network).cheatInNextMessage(0, 1);
+      ((CheatingNetworkDecorator) network).cheatInNextSendMessage(0, 1);
       otSender.send(msgZero, msgOne);
       List<StrictBitVector> messages = new ArrayList<>(2);
       messages.add(msgZero);
