@@ -3,9 +3,12 @@ package dk.alexandra.fresco.lib.fixed.math;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.fixed.AdvancedFixedNumeric;
 import dk.alexandra.fresco.lib.fixed.FixedNumeric;
 import dk.alexandra.fresco.lib.fixed.SFixed;
+import dk.alexandra.fresco.lib.fixed.utils.MultiplyWithSInt;
 
 /**
  * Compute the reciprocal of a secret fixed value.
@@ -24,9 +27,10 @@ public class Reciprocal implements Computation<SFixed, ProtocolBuilderNumeric> {
 
   @Override
   public DRes<SFixed> buildComputation(ProtocolBuilderNumeric builder) {
-    return builder.seq(r1 ->
-      AdvancedFixedNumeric.using(r1).normalize(x)
-    ).seq((r2, norm) -> {
+    return builder.par(r1 -> Pair.lazy(AdvancedFixedNumeric.using(r1).normalize(x), AdvancedFixedNumeric.using(r1).sign(x))
+    ).seq((r2, normAndSign) -> {
+      Pair<DRes<SFixed>, DRes<SInt>> norm = normAndSign.getFirst().out();
+
       FixedNumeric fixedNumeric = FixedNumeric.using(r2);
 
       DRes<SFixed> normalized = fixedNumeric.mult(norm.getFirst(), x);
@@ -49,7 +53,7 @@ public class Reciprocal implements Computation<SFixed, ProtocolBuilderNumeric> {
 
       DRes<SFixed> nPrime = AdvancedFixedNumeric.using(r2).twoPower(norm.getSecond());
 
-      return fixedNumeric.mult(xi, nPrime);
+      return new MultiplyWithSInt(fixedNumeric.mult(xi, nPrime), normAndSign.getSecond()).buildComputation(r2);
     });
   }
 
