@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.net.ServerSocketFactory;
+import javax.net.SocketFactory;
 
 /**
  * Abstract class which handles a lot of boiler plate testing code. This makes running a single test
@@ -120,7 +122,8 @@ public abstract class AbstractDummyArithmeticTest {
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId, noOfParties, fieldDefinition),
               () -> {
-                Network asyncNetwork = new SocketNetwork(partyNetConf);
+                Network asyncNetwork = new SocketNetwork(partyNetConf, SocketFactory.getDefault(),
+                    ServerSocketFactory.getDefault());
                 if (logPerformance) {
                   NetworkLoggingDecorator network = new NetworkLoggingDecorator(asyncNetwork);
                   aggregate.add(network);
