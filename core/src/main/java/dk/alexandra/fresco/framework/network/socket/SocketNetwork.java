@@ -15,6 +15,8 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import javax.net.ServerSocketFactory;
+import javax.net.SocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,6 +106,19 @@ public class SocketNetwork implements CloseableNetwork {
    */
   public SocketNetwork(NetworkConfiguration conf) {
     this(conf, new Connector(conf, Duration.of(1, ChronoUnit.MINUTES)).getSocketMap());
+  }
+
+  /**
+   * Construct a socket network with specific implementations of socket factories.
+   *
+   * @param conf the configuration to load the network from.
+   * @param socketFactory factory for creating client sockets.
+   * @param serverSocketFactory factory for creating server sockets.
+   */
+  public SocketNetwork(NetworkConfiguration conf, SocketFactory socketFactory,
+      ServerSocketFactory serverSocketFactory) {
+    this(conf, new Connector(conf, Duration.of(1, ChronoUnit.MINUTES), socketFactory,
+        serverSocketFactory).getSocketMap());
   }
 
   /**
