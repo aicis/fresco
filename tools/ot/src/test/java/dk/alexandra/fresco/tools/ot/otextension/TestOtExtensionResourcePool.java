@@ -12,6 +12,7 @@ import org.junit.Test;
 import java.lang.reflect.Field;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TestOtExtensionResourcePool {
   private Drbg rand;
@@ -81,7 +82,7 @@ public class TestOtExtensionResourcePool {
           e.getMessage());
       thrown = true;
     }
-    assertEquals(thrown, true);
+    assertTrue(thrown);
     thrown = false;
     try {
       new CoteReceiver(new BristolOtExtensionResourcePool(1, 2, 128, 0, 1, rand,
@@ -91,7 +92,7 @@ public class TestOtExtensionResourcePool {
           e.getMessage());
       thrown = true;
     }
-    assertEquals(thrown, true);
+    assertTrue(thrown);
     thrown = false;
     try {
       new CoteSender(new BristolOtExtensionResourcePool(1, 2, 127, 40, 1, rand, ct,
@@ -101,7 +102,7 @@ public class TestOtExtensionResourcePool {
           e.getMessage());
       thrown = true;
     }
-    assertEquals(thrown, true);
+    assertTrue(thrown);
     thrown = false;
     try {
       new CoteReceiver(new BristolOtExtensionResourcePool(1, 2, 128, 60, 1, rand,
@@ -111,7 +112,7 @@ public class TestOtExtensionResourcePool {
           e.getMessage());
       thrown = true;
     }
-    assertEquals(thrown, true);
+    assertTrue(thrown);
   }
 
   @Test
@@ -125,7 +126,7 @@ public class TestOtExtensionResourcePool {
       assertEquals("Seed OTs have not been sent yet.", e.getMessage());
       thrown = true;
     }
-    assertEquals(thrown, true);
+    assertTrue(thrown);
     thrown = false;
     Field sent = RotList.class.getDeclaredField("sent");
     sent.setAccessible(true);
@@ -136,7 +137,7 @@ public class TestOtExtensionResourcePool {
       assertEquals("Seed OTs have already been sent.", e.getMessage());
       thrown = true;
     }
-    assertEquals(thrown, true);
+    assertTrue(thrown);
   }
 
   @Test
@@ -150,7 +151,7 @@ public class TestOtExtensionResourcePool {
       assertEquals("Seed OTs have not been received yet.", e.getMessage());
       thrown = true;
     }
-    assertEquals(thrown, true);
+    assertTrue(thrown);
     thrown = false;
     try {
       ots.getChoices();
@@ -158,7 +159,7 @@ public class TestOtExtensionResourcePool {
       assertEquals("Seed OTs have not been received yet.", e.getMessage());
       thrown = true;
     }
-    assertEquals(thrown, true);
+    assertTrue(thrown);
 
     Field receive = RotList.class.getDeclaredField("received");
     receive.setAccessible(true);
@@ -170,6 +171,6 @@ public class TestOtExtensionResourcePool {
       assertEquals("Seed OTs have already been received.", e.getMessage());
       thrown = true;
     }
-    assertEquals(thrown, true);
+    assertTrue(thrown);
   }
 }

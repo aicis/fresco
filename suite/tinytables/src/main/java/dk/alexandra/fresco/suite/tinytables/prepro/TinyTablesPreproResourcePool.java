@@ -167,18 +167,21 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
      * Store the TinyTables to a file.
      */
     ExceptionConverter.safe(() -> {
-      storeTinyTables(storage, tinyTablesFile);
-      LOGGER.info("TinyTables stored to " + tinyTablesFile);
+      if (storeTinyTables(storage, tinyTablesFile)) {
+        LOGGER.info("TinyTables stored to {}", tinyTablesFile);
+      }
+      LOGGER.info("Failed to store TinyTables to {}", tinyTablesFile);
       return null;
     }, "Failed to store TinyTables");
   }
 
-  private void storeTinyTables(TinyTablesStorage tinyTablesStorage, File file) throws IOException {
-    file.createNewFile();
-    FileOutputStream fout = new FileOutputStream(file);
-    ObjectOutputStream oos = new ObjectOutputStream(fout);
-    oos.writeObject(tinyTablesStorage);
-    oos.close();
+  private boolean storeTinyTables(TinyTablesStorage tinyTablesStorage, File file) throws IOException {
+    try (FileOutputStream fout = new FileOutputStream(file);
+         ObjectOutputStream oos = new ObjectOutputStream(fout)) {
+      boolean status = file.createNewFile();
+      oos.writeObject(tinyTablesStorage);
+      return status;
+    }
   }
 
   public TinyTablesStorage getStorage() {
