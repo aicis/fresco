@@ -10,10 +10,11 @@ import dk.alexandra.fresco.tools.bitTriples.prg.BytePrgImpl;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import dk.alexandra.fresco.tools.ot.base.AbstractNaorPinkasOT;
 import dk.alexandra.fresco.tools.ot.base.BigIntNaorPinkas;
+import dk.alexandra.fresco.tools.ot.otextension.BristolOtExtensionResourcePool;
 import dk.alexandra.fresco.tools.ot.otextension.CoteFactory;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
-import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
+
 import java.security.MessageDigest;
 
 public class BitTripleResourcePoolImpl extends ResourcePoolImpl implements BitTripleResourcePool {
@@ -90,15 +91,15 @@ public class BitTripleResourcePoolImpl extends ResourcePoolImpl implements BitTr
       currentSeedOts.send(ot);
     }
     OtExtensionResourcePool otResources =
-        new OtExtensionResourcePoolImpl(
-            getMyId(),
-            otherId,
-            choices.getSize(),
-            getStatisticalSecurityByteParameter(),
-            getInstanceId(),
-            getRandomGenerator(),
-            ct,
-            currentSeedOts);
+            new BristolOtExtensionResourcePool(
+                    getMyId(),
+                    otherId,
+                    choices.getSize(),
+                    getStatisticalSecurityByteParameter(),
+                    getInstanceId(),
+                    getRandomGenerator(),
+                    ct,
+                    currentSeedOts);
 
     return new CoteFactory(otResources, network);
   }

@@ -1,8 +1,5 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -11,6 +8,10 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.helper.HelperForTests;
 import dk.alexandra.fresco.tools.helper.RuntimeForTests;
 import dk.alexandra.fresco.tools.ot.base.Ot;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -19,9 +20,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class TestFunctionalBristolOt {
   private final int kbitLength = 128;
@@ -125,44 +126,44 @@ public class TestFunctionalBristolOt {
 
   private List<Pair<StrictBitVector, StrictBitVector>> bristolRotBatchSend(
       OtExtensionTestContext ctx, int batchSize, int id) {
-    OtExtensionResourcePool resources = ctx.createResources(id);
-    BristolRotBatch rotBatchSender =
-        new BristolRotBatch(new RotFactory(resources, ctx.getNetwork()),
-            resources.getComputationalSecurityParameter(), resources.getLambdaSecurityParam());
-    List<Pair<StrictBitVector, StrictBitVector>> messages =
-        rotBatchSender.send(batchSize, messageLength);
+      OtExtensionResourcePool resources = ctx.createResources(id);
+      BristolRotBatch rotBatchSender =
+              new BristolRotBatch(new RotFactory(resources, ctx.getNetwork())
+              );
+      List<Pair<StrictBitVector, StrictBitVector>> messages =
+              rotBatchSender.send(batchSize, messageLength);
     return messages;
   }
 
   private List<Pair<StrictBitVector, StrictBitVector>> bristolRotBatchSendTwice(
       OtExtensionTestContext ctx, int batchSize, int id) {
-    OtExtensionResourcePool resources = ctx.createResources(id);
-    BristolRotBatch rotBatchSender =
-        new BristolRotBatch(new RotFactory(resources, ctx.getNetwork()),
-            resources.getComputationalSecurityParameter(), resources.getLambdaSecurityParam());
-    List<Pair<StrictBitVector, StrictBitVector>> messages =
-        rotBatchSender.send(batchSize, messageLength);
+      OtExtensionResourcePool resources = ctx.createResources(id);
+      BristolRotBatch rotBatchSender =
+              new BristolRotBatch(new RotFactory(resources, ctx.getNetwork())
+              );
+      List<Pair<StrictBitVector, StrictBitVector>> messages =
+              rotBatchSender.send(batchSize, messageLength);
     messages.addAll(rotBatchSender.send(batchSize, messageLength));
     return messages;
   }
 
   private List<StrictBitVector> bristolRotBatchReceive(OtExtensionTestContext ctx,
       StrictBitVector choices, int id) {
-    OtExtensionResourcePool resources = ctx.createResources(id);
-    BristolRotBatch rotBatchReceiver =
-        new BristolRotBatch(new RotFactory(resources, ctx.getNetwork()),
-            resources.getComputationalSecurityParameter(), resources.getLambdaSecurityParam());
-    List<StrictBitVector> messages = rotBatchReceiver.receive(choices, messageLength);
+      OtExtensionResourcePool resources = ctx.createResources(id);
+      BristolRotBatch rotBatchReceiver =
+              new BristolRotBatch(new RotFactory(resources, ctx.getNetwork())
+              );
+      List<StrictBitVector> messages = rotBatchReceiver.receive(choices, messageLength);
     return messages;
   }
 
   private List<StrictBitVector> bristolRotBatchReceiveTwice(OtExtensionTestContext ctx,
       StrictBitVector choices, int id) {
-    OtExtensionResourcePool resources = ctx.createResources(id);
-    BristolRotBatch rotBatchReceiver =
-        new BristolRotBatch(new RotFactory(resources, ctx.getNetwork()),
-            resources.getComputationalSecurityParameter(), resources.getLambdaSecurityParam());
-    List<StrictBitVector> messages = rotBatchReceiver.receive(choices, messageLength);
+      OtExtensionResourcePool resources = ctx.createResources(id);
+      BristolRotBatch rotBatchReceiver =
+              new BristolRotBatch(new RotFactory(resources, ctx.getNetwork())
+              );
+      List<StrictBitVector> messages = rotBatchReceiver.receive(choices, messageLength);
     messages.addAll(rotBatchReceiver.receive(choices, messageLength));
     return messages;
   }

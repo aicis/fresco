@@ -1,18 +1,17 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import static org.junit.Assert.assertEquals;
-
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import dk.alexandra.fresco.tools.helper.HelperForTests;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.lang.reflect.Field;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class TestOtExtensionResourcePool {
   private Drbg rand;
@@ -49,9 +48,25 @@ public class TestOtExtensionResourcePool {
   /**** POSITIVE TESTS. ****/
   @Test
   public void testConstantAmountOfParties() {
-    OtExtensionResourcePool resources = new OtExtensionResourcePoolImpl(1, 2,
-        128, 40, 1, rand, ct, seedOts);
+    OtExtensionResourcePool resources = new BristolOtExtensionResourcePool(1, 2,
+            128, 40, 1, rand, ct, seedOts);
     assertEquals(2, resources.getNoOfParties());
+  }
+
+  @Test
+  public void testCorrectLambdaAdjustment() {
+    OtExtensionResourcePool resources = new BristolOtExtensionResourcePool(1, 2,
+            128, 40, 1, rand, ct, seedOts);
+    // The adjusted lambda parameter must be 150% the argument (40) AND rounded up to be divisible by 8.
+    assertEquals(40 + 20 + 4, resources.getLambdaSecurityParam());
+  }
+
+  @Test
+  public void testCorrectLambdaAdjustment2() {
+    OtExtensionResourcePool resources = new BristolOtExtensionResourcePool(1, 2,
+            128, 48, 1, rand, ct, seedOts);
+    // The adjusted lambda parameter must be 150% the argument (40) AND rounded up to be divisible by 8.
+    assertEquals(48 + 24, resources.getLambdaSecurityParam());
   }
 
   /**** NEGATIVE TESTS. ****/
@@ -59,8 +74,8 @@ public class TestOtExtensionResourcePool {
   public void testIllegalInit() {
     boolean thrown = false;
     try {
-      new CoteSender(new OtExtensionResourcePoolImpl(1, 2, 0, 40, 1, rand, ct,
-          seedOts), network);
+      new CoteSender(new BristolOtExtensionResourcePool(1, 2, 0, 40, 1, rand, ct,
+              seedOts), network);
     } catch (IllegalArgumentException e) {
       assertEquals("Security parameters must be at least 1 and divisible by 8",
           e.getMessage());
@@ -69,8 +84,8 @@ public class TestOtExtensionResourcePool {
     assertEquals(thrown, true);
     thrown = false;
     try {
-      new CoteReceiver(new OtExtensionResourcePoolImpl(1, 2, 128, 0, 1, rand,
-          ct, seedOts), network);
+      new CoteReceiver(new BristolOtExtensionResourcePool(1, 2, 128, 0, 1, rand,
+              ct, seedOts), network);
     } catch (IllegalArgumentException e) {
       assertEquals("Security parameters must be at least 1 and divisible by 8",
           e.getMessage());
@@ -79,8 +94,8 @@ public class TestOtExtensionResourcePool {
     assertEquals(thrown, true);
     thrown = false;
     try {
-      new CoteSender(new OtExtensionResourcePoolImpl(1, 2, 127, 40, 1, rand, ct,
-          seedOts), network);
+      new CoteSender(new BristolOtExtensionResourcePool(1, 2, 127, 40, 1, rand, ct,
+              seedOts), network);
     } catch (IllegalArgumentException e) {
       assertEquals("Security parameters must be at least 1 and divisible by 8",
           e.getMessage());
@@ -89,8 +104,8 @@ public class TestOtExtensionResourcePool {
     assertEquals(thrown, true);
     thrown = false;
     try {
-      new CoteReceiver(new OtExtensionResourcePoolImpl(1, 2, 128, 60, 1, rand,
-          ct, seedOts), network);
+      new CoteReceiver(new BristolOtExtensionResourcePool(1, 2, 128, 60, 1, rand,
+              ct, seedOts), network);
     } catch (IllegalArgumentException e) {
       assertEquals("Security parameters must be at least 1 and divisible by 8",
           e.getMessage());

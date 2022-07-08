@@ -3,6 +3,7 @@ package dk.alexandra.fresco.tools.ot.otextension;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,21 +23,19 @@ public class BristolRotBatch implements RotBatch {
   private RotSender sender;
   private RotReceiver receiver;
 
-  /**
-   * Constructs a new random batch OT protocol and constructs the internal sender and receiver
-   * objects.
-   *
-   * @param randomOtExtension An instance of the underlying random OT extension
-   * @param comSecParam The computational security parameter
-   * @param statSecParam The statistical security parameter
-   */
-  public BristolRotBatch(RotFactory randomOtExtension, int comSecParam, int statSecParam) {
-    this.rot = randomOtExtension;
-    this.comSecParam = comSecParam;
-    this.statSecParam = statSecParam;
-  }
+    /**
+     * Constructs a new random batch OT protocol and constructs the internal sender and receiver
+     * objects.
+     *
+     * @param randomOtExtension An instance of the underlying random OT extension
+     */
+    public BristolRotBatch(RotFactory randomOtExtension) {
+        this.rot = randomOtExtension;
+        this.comSecParam = rot.getResources().getComputationalSecurityParameter();
+        this.statSecParam = rot.getResources().getLambdaSecurityParam();
+    }
 
-  @Override
+    @Override
   public List<Pair<StrictBitVector, StrictBitVector>> send(int numMessages, int sizeOfEachMessage) {
     if (this.sender == null) {
       this.sender = rot.createSender();

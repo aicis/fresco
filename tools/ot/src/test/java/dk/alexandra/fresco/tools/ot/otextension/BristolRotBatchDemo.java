@@ -3,6 +3,7 @@ package dk.alexandra.fresco.tools.ot.otextension;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
@@ -27,10 +28,10 @@ public class BristolRotBatchDemo {
         lambdaSecurityParam);
     OtExtensionResourcePool resources = ctx.createResources(1);
     RotBatch rotBatch = new BristolRotBatch(new RotFactory(ctx.createResources(1), ctx
-            .getNetwork()), resources.getComputationalSecurityParameter(),
-        resources.getLambdaSecurityParam());
+            .getNetwork())
+    );
     StrictBitVector choices = new StrictBitVector(amountOfOTs, ctx.createRand(
-        1));
+            1));
     List<StrictBitVector> messages = rotBatch.receive(choices, messageSize);
     for (int i = 0; i < amountOfOTs; i++) {
       System.out.println("Iteration " + i + ", Choice " + choices.getBit(i,
@@ -51,10 +52,10 @@ public class BristolRotBatchDemo {
         lambdaSecurityParam);
     OtExtensionResourcePool resources = ctx.createResources(1);
     RotBatch rotBatch = new BristolRotBatch(new RotFactory(ctx.createResources(1), ctx
-            .getNetwork()), resources.getComputationalSecurityParameter(),
-        resources.getLambdaSecurityParam());
+            .getNetwork())
+    );
     List<Pair<StrictBitVector, StrictBitVector>> messages = rotBatch.send(
-        amountOfOTs, messageSize);
+            amountOfOTs, messageSize);
     for (int i = 0; i < amountOfOTs; i++) {
       System.out.println("Iteration " + i);
       System.out.println("Message 0: " + messages.get(i).getFirst());

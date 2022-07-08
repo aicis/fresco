@@ -18,17 +18,21 @@ public class RotFactory {
    * @param network The network instance
    */
   public RotFactory(OtExtensionResourcePool resources, Network network) {
-    this.resources = resources;
-    this.network = network;
+      this.resources = resources;
+      this.network = network;
   }
 
-  public RotSender createSender() {
-    CoteSender sender = new CoteSender(resources, network);
-    return new RotSenderImpl(sender, resources, network);
-  }
+    public OtExtensionResourcePool getResources() {
+        return resources;
+    }
 
-  public RotReceiver createReceiver() {
-    CoteReceiver receiver = new CoteReceiver(resources, network);
-    return new RotReceiverImpl(receiver, resources, network);
-  }
+    public RotSender createSender() {
+        CoteSender sender = new CoteSender(resources, network);
+        return new RotSenderImpl(sender, resources, network);
+    }
+
+    public RotReceiver createReceiver() {
+        CoteReceiver receiver = new CoteReceiver(resources, network);
+        return new RotReceiverImpl(receiver, resources, network);
+    }
 }

@@ -1,17 +1,17 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import static org.junit.Assert.assertEquals;
-
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import dk.alexandra.fresco.tools.helper.HelperForTests;
-
-import java.lang.reflect.Field;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.lang.reflect.Field;
+
+import static org.junit.Assert.assertEquals;
 
 public class TestCote {
   private final int kbitSecurity = 128;
@@ -50,8 +50,8 @@ public class TestCote {
     received.setAccessible(true);
     received.set(seedOts, true);
     CoinTossing ct = new CoinTossing(1, 2, rand);
-    OtExtensionResourcePool resources = new OtExtensionResourcePoolImpl(1, 2,
-        kbitSecurity, 40, 1, rand, ct, seedOts);
+    OtExtensionResourcePool resources = new BristolOtExtensionResourcePool(1, 2,
+            kbitSecurity, 40, 1, rand, ct, seedOts);
     this.cote = new CoteFactory(resources, network);
   }
 
