@@ -38,7 +38,7 @@ public class BristolRotBatch implements RotBatch {
     @Override
   public List<Pair<StrictBitVector, StrictBitVector>> send(int numMessages, int sizeOfEachMessage) {
     if (this.sender == null) {
-      this.sender = rot.createSender();
+          this.sender = rot.createSender();
     }
     int amountToPreprocess = computeExtensionSize(numMessages, comSecParam, statSecParam);
     Pair<List<StrictBitVector>, List<StrictBitVector>> messages = sender.extend(amountToPreprocess);

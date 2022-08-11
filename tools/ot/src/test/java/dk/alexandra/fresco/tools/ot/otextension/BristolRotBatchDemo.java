@@ -37,7 +37,7 @@ public class BristolRotBatchDemo {
       System.out.println("Iteration " + i + ", Choice " + choices.getBit(i,
           false) + ": " + messages.get(i));
     }
-    System.out.println("done receiver");
+        System.out.println("done receiver");
     ((Closeable) ctx.getNetwork()).close();
   }
 

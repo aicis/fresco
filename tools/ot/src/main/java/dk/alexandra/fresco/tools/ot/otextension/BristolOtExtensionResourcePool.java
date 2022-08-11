@@ -56,7 +56,7 @@ public class BristolOtExtensionResourcePool extends ResourcePoolImpl implements
     int adjustment = (lambdaSecurityParam % 16 == 0 ? 0 : 4);
     // Set the internal statistical security parameter to 150% of the input. This is because there is a deterioration
     // of the security parameter in the Bristol OT protocol, as pointed out in section 4.1.3 here https://eprint.iacr.org/2022/192.pdf
-    this.adjustedLambdaSecurityParam = lambdaSecurityParam + (lambdaSecurityParam / 2) + adjustment;
+      this.adjustedLambdaSecurityParam = lambdaSecurityParam + (lambdaSecurityParam / 2) + adjustment;
     this.instanceId = instanceId;
     this.digest = ExceptionConverter.safe(() -> MessageDigest
                     .getInstance("SHA-256"),

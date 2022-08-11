@@ -58,7 +58,7 @@ public class TestCote {
   /**** NEGATIVE TESTS. ****/
   @Test
   public void testIllegalExtendSender() {
-    boolean thrown = false;
+       boolean thrown = false;
     try {
       cote.getSender().extend(127);
     } catch (IllegalArgumentException e) {

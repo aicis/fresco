@@ -48,7 +48,7 @@ public class BitTripleResourcePoolImpl extends ResourcePoolImpl implements BitTr
     this.bitTripleSecurityParameters = bitTripleSecurityParameters;
     this.localSampler = new BytePrgImpl(drbg);
     this.messageDigest =
-        ExceptionConverter.safe(
+           ExceptionConverter.safe(
             () -> MessageDigest.getInstance("SHA-256"),
             "Configuration error, SHA-256 is needed for Mascot");
   }

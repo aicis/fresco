@@ -169,7 +169,7 @@ public class TestOtExtensionResourcePool {
       ots.receive(new DummyOt(2, network));
     } catch (IllegalStateException e) {
       assertEquals("Seed OTs have already been received.", e.getMessage());
-      thrown = true;
+        thrown = true;
     }
     assertTrue(thrown);
   }

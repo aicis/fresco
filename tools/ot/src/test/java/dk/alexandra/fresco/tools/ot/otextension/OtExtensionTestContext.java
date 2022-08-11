@@ -38,7 +38,7 @@ public class OtExtensionTestContext {
     this.network = new CheatingNetworkDecorator(
         new SocketNetwork(RuntimeForTests.defaultNetworkConfiguration(myId, Arrays.asList(1, 2))));
     DummyOt dummyOt = new DummyOt(otherId, network);
-    Drbg rand = new AesCtrDrbg(HelperForTests.seedOne);
+        Drbg rand = new AesCtrDrbg(HelperForTests.seedOne);
     this.seedOts = new RotList(rand, kbitLength);
     if (myId < otherId) {
       this.seedOts.send(dummyOt);

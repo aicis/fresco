@@ -65,7 +65,7 @@ public class TestFunctionalBristolOt {
   }
 
   private OtExtensionTestContext bristolInitReceiver() {
-    OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength, lambdaSecurityParam);
+      OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength, lambdaSecurityParam);
     return ctx;
   }
 
