@@ -15,6 +15,7 @@ import java.util.stream.IntStream;
  * amount of bits.
  */
 public class BristolRotBatch implements RotBatch {
+
   private final RotFactory rot;
   private final int comSecParam;
   private final int statSecParam;
@@ -22,51 +23,16 @@ public class BristolRotBatch implements RotBatch {
   private RotSender sender;
   private RotReceiver receiver;
 
-    /**
-     * Constructs a new random batch OT protocol and constructs the internal sender and receiver
-     * objects.
-     *
-     * @param randomOtExtension An instance of the underlying random OT extension
-     */
-    public BristolRotBatch(RotFactory randomOtExtension) {
-        this.rot = randomOtExtension;
-        this.comSecParam = rot.getResources().getComputationalSecurityParameter();
-        this.statSecParam = rot.getResources().getLambdaSecurityParam();
-    }
-
-    @Override
-  public List<Pair<StrictBitVector, StrictBitVector>> send(int numMessages, int sizeOfEachMessage) {
-    if (this.sender == null) {
-          this.sender = rot.createSender();
-    }
-    int amountToPreprocess = computeExtensionSize(numMessages, comSecParam, statSecParam);
-    Pair<List<StrictBitVector>, List<StrictBitVector>> messages = sender.extend(amountToPreprocess);
-    List<StrictBitVector> zeroMessages = messages.getFirst().parallelStream().limit(numMessages)
-        .map(m -> LengthAdjustment.adjust(m.toByteArray(), sizeOfEachMessage / Byte.SIZE))
-        .map(StrictBitVector::new)
-        .collect(Collectors.toList());
-    List<StrictBitVector> oneMessages = messages.getSecond().parallelStream().limit(numMessages)
-        .map(m -> LengthAdjustment.adjust(m.toByteArray(), sizeOfEachMessage / Byte.SIZE))
-        .map(StrictBitVector::new)
-        .collect(Collectors.toList());
-    return IntStream.range(0, numMessages).parallel()
-        .mapToObj(i -> new Pair<>(zeroMessages.get(i), oneMessages.get(i)))
-        .collect(Collectors.toList());
-  }
-
-  @Override
-  public List<StrictBitVector> receive(StrictBitVector choiceBits, int sizeOfEachMessage) {
-    if (this.receiver == null) {
-      this.receiver = rot.createReceiver();
-    }
-    int amountToPreprocess = computeExtensionSize(choiceBits.getSize(), comSecParam, statSecParam);
-    byte[] extraByteChoices = Arrays.copyOf(choiceBits.toByteArray(),
-        amountToPreprocess / Byte.SIZE);
-    List<StrictBitVector> messages = receiver.extend(new StrictBitVector(extraByteChoices));
-    return messages.parallelStream().limit(choiceBits.getSize())
-        .map(m -> LengthAdjustment.adjust(m.toByteArray(), sizeOfEachMessage / Byte.SIZE))
-        .map(StrictBitVector::new)
-        .collect(Collectors.toList());
+  /**
+   * Constructs a new random batch OT protocol and constructs the internal sender and receiver
+   * objects.
+   *
+   * @param randomOtExtension An instance of the underlying random OT extension
+   */
+  public BristolRotBatch(RotFactory randomOtExtension) {
+    this.rot = randomOtExtension;
+    this.comSecParam = rot.getResources().getComputationalSecurityParameter();
+    this.statSecParam = rot.getResources().getLambdaSecurityParam();
   }
 
   /**
@@ -74,11 +40,11 @@ public class BristolRotBatch implements RotBatch {
    * <i>usable</i> OTs. This is not trivial since kbitLength+lambdaParam amount of OTs must be
    * sacrificed in the underlying process.
    *
-   * @param minSize The amount of usable OTs we wish to have in the end
-   * @param kbitLength The computational security parameter
+   * @param minSize     The amount of usable OTs we wish to have in the end
+   * @param kbitLength  The computational security parameter
    * @param lambdaParam The statistical security parameter
    * @return The amount of OTs that must be extended such that the transposition algorithm in
-   *         correlated OT with errors work.
+   * correlated OT with errors work.
    */
   public static int computeExtensionSize(int minSize, int kbitLength, int lambdaParam) {
     // Increase the amount of OTs if needed, to ensure that the result is of the
@@ -97,5 +63,40 @@ public class BristolRotBatch implements RotBatch {
       return (1 << exponent) - kbitLength - lambdaParam;
     }
     return newNum - kbitLength - lambdaParam;
+  }
+
+  @Override
+  public List<StrictBitVector> receive(StrictBitVector choiceBits, int sizeOfEachMessage) {
+    if (this.receiver == null) {
+      this.receiver = rot.createReceiver();
+    }
+    int amountToPreprocess = computeExtensionSize(choiceBits.getSize(), comSecParam, statSecParam);
+    byte[] extraByteChoices = Arrays.copyOf(choiceBits.toByteArray(),
+        amountToPreprocess / Byte.SIZE);
+    List<StrictBitVector> messages = receiver.extend(new StrictBitVector(extraByteChoices));
+    return messages.parallelStream().limit(choiceBits.getSize())
+        .map(m -> LengthAdjustment.adjust(m.toByteArray(), sizeOfEachMessage / Byte.SIZE))
+        .map(StrictBitVector::new)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<Pair<StrictBitVector, StrictBitVector>> send(int numMessages, int sizeOfEachMessage) {
+    if (this.sender == null) {
+      this.sender = rot.createSender();
+    }
+    int amountToPreprocess = computeExtensionSize(numMessages, comSecParam, statSecParam);
+    Pair<List<StrictBitVector>, List<StrictBitVector>> messages = sender.extend(amountToPreprocess);
+    List<StrictBitVector> zeroMessages = messages.getFirst().parallelStream().limit(numMessages)
+        .map(m -> LengthAdjustment.adjust(m.toByteArray(), sizeOfEachMessage / Byte.SIZE))
+        .map(StrictBitVector::new)
+        .collect(Collectors.toList());
+    List<StrictBitVector> oneMessages = messages.getSecond().parallelStream().limit(numMessages)
+        .map(m -> LengthAdjustment.adjust(m.toByteArray(), sizeOfEachMessage / Byte.SIZE))
+        .map(StrictBitVector::new)
+        .collect(Collectors.toList());
+    return IntStream.range(0, numMessages).parallel()
+        .mapToObj(i -> new Pair<>(zeroMessages.get(i), oneMessages.get(i)))
+        .collect(Collectors.toList());
   }
 }

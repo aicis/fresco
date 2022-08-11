@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestOtExtensionResourcePool {
+
   private Drbg rand;
   private Network network;
   private RotList seedOts;
@@ -49,14 +50,14 @@ public class TestOtExtensionResourcePool {
   @Test
   public void testConstantAmountOfParties() {
     OtExtensionResourcePool resources = new BristolOtExtensionResourcePool(1, 2,
-            128, 40, 1, rand, ct, seedOts);
+        128, 40, 1, rand, ct, seedOts);
     assertEquals(2, resources.getNoOfParties());
   }
 
   @Test
   public void testCorrectLambdaAdjustment() {
     OtExtensionResourcePool resources = new BristolOtExtensionResourcePool(1, 2,
-            128, 40, 1, rand, ct, seedOts);
+        128, 40, 1, rand, ct, seedOts);
     // The adjusted lambda parameter must be 150% the argument (40) AND rounded up to be divisible by 8.
     assertEquals(40 + 20 + 4, resources.getLambdaSecurityParam());
   }
@@ -64,7 +65,7 @@ public class TestOtExtensionResourcePool {
   @Test
   public void testCorrectLambdaAdjustment2() {
     OtExtensionResourcePool resources = new BristolOtExtensionResourcePool(1, 2,
-            128, 48, 1, rand, ct, seedOts);
+        128, 48, 1, rand, ct, seedOts);
     // The adjusted lambda parameter must be 150% the argument (40) AND rounded up to be divisible by 8.
     assertEquals(48 + 24, resources.getLambdaSecurityParam());
   }
@@ -75,7 +76,7 @@ public class TestOtExtensionResourcePool {
     boolean thrown = false;
     try {
       new CoteSender(new BristolOtExtensionResourcePool(1, 2, 0, 40, 1, rand, ct,
-              seedOts), network);
+          seedOts), network);
     } catch (IllegalArgumentException e) {
       assertEquals("Security parameters must be at least 1 and divisible by 8",
           e.getMessage());
@@ -85,7 +86,7 @@ public class TestOtExtensionResourcePool {
     thrown = false;
     try {
       new CoteReceiver(new BristolOtExtensionResourcePool(1, 2, 128, 0, 1, rand,
-              ct, seedOts), network);
+          ct, seedOts), network);
     } catch (IllegalArgumentException e) {
       assertEquals("Security parameters must be at least 1 and divisible by 8",
           e.getMessage());
@@ -95,7 +96,7 @@ public class TestOtExtensionResourcePool {
     thrown = false;
     try {
       new CoteSender(new BristolOtExtensionResourcePool(1, 2, 127, 40, 1, rand, ct,
-              seedOts), network);
+          seedOts), network);
     } catch (IllegalArgumentException e) {
       assertEquals("Security parameters must be at least 1 and divisible by 8",
           e.getMessage());
@@ -105,7 +106,7 @@ public class TestOtExtensionResourcePool {
     thrown = false;
     try {
       new CoteReceiver(new BristolOtExtensionResourcePool(1, 2, 128, 60, 1, rand,
-              ct, seedOts), network);
+          ct, seedOts), network);
     } catch (IllegalArgumentException e) {
       assertEquals("Security parameters must be at least 1 and divisible by 8",
           e.getMessage());
@@ -168,7 +169,7 @@ public class TestOtExtensionResourcePool {
       ots.receive(new DummyOt(2, network));
     } catch (IllegalStateException e) {
       assertEquals("Seed OTs have already been received.", e.getMessage());
-        thrown = true;
+      thrown = true;
     }
     assertTrue(thrown);
   }

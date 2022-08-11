@@ -28,7 +28,7 @@ public interface MascotResourcePool extends NumericResourcePool {
    *
    * @return the instance ID of this particular object
    */
-      int getInstanceId();
+  int getInstanceId();
 
   /**
    * {@link FieldDefinition#getBitLength()}.

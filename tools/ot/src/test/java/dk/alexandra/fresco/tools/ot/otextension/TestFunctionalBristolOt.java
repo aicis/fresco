@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestFunctionalBristolOt {
+
   private final int kbitLength = 128;
   private final int lambdaSecurityParam = 56;
   private final int messageLength = 1024;
@@ -64,7 +65,7 @@ public class TestFunctionalBristolOt {
   }
 
   private OtExtensionTestContext bristolInitReceiver() {
-      OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength, lambdaSecurityParam);
+    OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength, lambdaSecurityParam);
     return ctx;
   }
 
@@ -125,44 +126,44 @@ public class TestFunctionalBristolOt {
 
   private List<Pair<StrictBitVector, StrictBitVector>> bristolRotBatchSend(
       OtExtensionTestContext ctx, int batchSize, int id) {
-      OtExtensionResourcePool resources = ctx.createResources(id);
-      BristolRotBatch rotBatchSender =
-              new BristolRotBatch(new RotFactory(resources, ctx.getNetwork())
-              );
-      List<Pair<StrictBitVector, StrictBitVector>> messages =
-              rotBatchSender.send(batchSize, messageLength);
+    OtExtensionResourcePool resources = ctx.createResources(id);
+    BristolRotBatch rotBatchSender =
+        new BristolRotBatch(new RotFactory(resources, ctx.getNetwork())
+        );
+    List<Pair<StrictBitVector, StrictBitVector>> messages =
+        rotBatchSender.send(batchSize, messageLength);
     return messages;
   }
 
   private List<Pair<StrictBitVector, StrictBitVector>> bristolRotBatchSendTwice(
       OtExtensionTestContext ctx, int batchSize, int id) {
-      OtExtensionResourcePool resources = ctx.createResources(id);
-      BristolRotBatch rotBatchSender =
-              new BristolRotBatch(new RotFactory(resources, ctx.getNetwork())
-              );
-      List<Pair<StrictBitVector, StrictBitVector>> messages =
-              rotBatchSender.send(batchSize, messageLength);
+    OtExtensionResourcePool resources = ctx.createResources(id);
+    BristolRotBatch rotBatchSender =
+        new BristolRotBatch(new RotFactory(resources, ctx.getNetwork())
+        );
+    List<Pair<StrictBitVector, StrictBitVector>> messages =
+        rotBatchSender.send(batchSize, messageLength);
     messages.addAll(rotBatchSender.send(batchSize, messageLength));
     return messages;
   }
 
   private List<StrictBitVector> bristolRotBatchReceive(OtExtensionTestContext ctx,
       StrictBitVector choices, int id) {
-      OtExtensionResourcePool resources = ctx.createResources(id);
-      BristolRotBatch rotBatchReceiver =
-              new BristolRotBatch(new RotFactory(resources, ctx.getNetwork())
-              );
-      List<StrictBitVector> messages = rotBatchReceiver.receive(choices, messageLength);
+    OtExtensionResourcePool resources = ctx.createResources(id);
+    BristolRotBatch rotBatchReceiver =
+        new BristolRotBatch(new RotFactory(resources, ctx.getNetwork())
+        );
+    List<StrictBitVector> messages = rotBatchReceiver.receive(choices, messageLength);
     return messages;
   }
 
   private List<StrictBitVector> bristolRotBatchReceiveTwice(OtExtensionTestContext ctx,
       StrictBitVector choices, int id) {
-      OtExtensionResourcePool resources = ctx.createResources(id);
-      BristolRotBatch rotBatchReceiver =
-              new BristolRotBatch(new RotFactory(resources, ctx.getNetwork())
-              );
-      List<StrictBitVector> messages = rotBatchReceiver.receive(choices, messageLength);
+    OtExtensionResourcePool resources = ctx.createResources(id);
+    BristolRotBatch rotBatchReceiver =
+        new BristolRotBatch(new RotFactory(resources, ctx.getNetwork())
+        );
+    List<StrictBitVector> messages = rotBatchReceiver.receive(choices, messageLength);
     messages.addAll(rotBatchReceiver.receive(choices, messageLength));
     return messages;
   }
@@ -185,7 +186,6 @@ public class TestFunctionalBristolOt {
   }
 
 
-
   @SuppressWarnings("unchecked")
   @Test
   public void testBristolRot() {
@@ -201,7 +201,6 @@ public class TestFunctionalBristolOt {
     HelperForTests.verifyOts((List<Pair<StrictBitVector, StrictBitVector>>) extendResults.get(0),
         (List<StrictBitVector>) extendResults.get(1), choices);
   }
-
 
 
   @SuppressWarnings("unchecked")
@@ -280,7 +279,7 @@ public class TestFunctionalBristolOt {
     method.setAccessible(true);
     Exception exception = null;
     try {
-      method.invoke(receiver.get(otReceiver), new byte[] { 0x42 }, new byte[] { 0x42, 0x43 });
+      method.invoke(receiver.get(otReceiver), new byte[]{0x42}, new byte[]{0x42, 0x43});
     } catch (Exception e) {
       exception = e;
     }

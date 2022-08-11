@@ -27,13 +27,13 @@ public class BitTripleResourcePoolImpl extends ResourcePoolImpl implements BitTr
   /**
    * Creates new {@link BitTripleResourcePoolImpl}.
    *
-   * @param myId this party's id
-   * @param noOfParties number of parties
-   * @param instanceId the instance ID which is unique for this particular resource pool object, but
-   *     only in the given execution.
-   * @param drbg source of randomness - Must be initiated with same seed
-   * @param bitTripleSecurityParameters mascot security parameters ({@link
-   *     BitTripleSecurityParameters})
+   * @param myId                        this party's id
+   * @param noOfParties                 number of parties
+   * @param instanceId                  the instance ID which is unique for this particular resource
+   *                                    pool object, but only in the given execution.
+   * @param drbg                        source of randomness - Must be initiated with same seed
+   * @param bitTripleSecurityParameters mascot security parameters
+   *                                    ({@link BitTripleSecurityParameters})
    */
   public BitTripleResourcePoolImpl(
       int myId,
@@ -47,9 +47,9 @@ public class BitTripleResourcePoolImpl extends ResourcePoolImpl implements BitTr
     this.bitTripleSecurityParameters = bitTripleSecurityParameters;
     this.localSampler = new BytePrgImpl(drbg);
     this.messageDigest =
-            ExceptionConverter.safe(
-                () -> MessageDigest.getInstance("SHA-256"),
-                "Configuration error, SHA-256 is needed for Mascot");
+        ExceptionConverter.safe(
+            () -> MessageDigest.getInstance("SHA-256"),
+            "Configuration error, SHA-256 is needed for Mascot");
   }
 
   @Override
@@ -90,15 +90,15 @@ public class BitTripleResourcePoolImpl extends ResourcePoolImpl implements BitTr
       currentSeedOts.send(ot);
     }
     OtExtensionResourcePool otResources =
-            new BristolOtExtensionResourcePool(
-                    getMyId(),
-                    otherId,
-                    choices.getSize(),
-                    getStatisticalSecurityByteParameter(),
-                    getInstanceId(),
-                    getRandomGenerator(),
-                    ct,
-                    currentSeedOts);
+        new BristolOtExtensionResourcePool(
+            getMyId(),
+            otherId,
+            choices.getSize(),
+            getStatisticalSecurityByteParameter(),
+            getInstanceId(),
+            getRandomGenerator(),
+            ct,
+            currentSeedOts);
 
     return new CoteFactory(otResources, network);
   }

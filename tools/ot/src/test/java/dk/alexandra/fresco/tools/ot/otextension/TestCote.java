@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestCote {
+
   private final int kbitSecurity = 128;
   private CoteFactory cote;
   private Drbg rand;
@@ -50,14 +51,14 @@ public class TestCote {
     received.set(seedOts, true);
     CoinTossing ct = new CoinTossing(1, 2, rand);
     OtExtensionResourcePool resources = new BristolOtExtensionResourcePool(1, 2,
-            kbitSecurity, 40, 1, rand, ct, seedOts);
+        kbitSecurity, 40, 1, rand, ct, seedOts);
     this.cote = new CoteFactory(resources, network);
   }
 
   /**** NEGATIVE TESTS. ****/
   @Test
   public void testIllegalExtendSender() {
-       boolean thrown = false;
+    boolean thrown = false;
     try {
       cote.getSender().extend(127);
     } catch (IllegalArgumentException e) {
