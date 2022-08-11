@@ -20,10 +20,10 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
-import dk.alexandra.fresco.lib.common.compare.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.bristol.BristolCryptoTests;
-import dk.alexandra.fresco.lib.common.math.field.FieldBoolTests;
+import dk.alexandra.fresco.lib.common.compare.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.common.math.bool.add.AddTests;
+import dk.alexandra.fresco.lib.common.math.field.FieldBoolTests;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.ot.TinyTablesDummyOt;
 import dk.alexandra.fresco.suite.tinytables.ot.TinyTablesNaorPinkasOt;
@@ -31,7 +31,6 @@ import dk.alexandra.fresco.suite.tinytables.ot.TinyTablesOt;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
-import dk.alexandra.fresco.tools.ot.base.DhParameters;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -44,7 +43,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
-import javax.crypto.spec.DHParameterSpec;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -357,6 +355,24 @@ public class TestTinyTables {
         true, "testEQ");
     runTest(new ComparisonBooleanTests.TestEquality<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED,
         false, "testEQ");
+  }
+
+  @Test
+  public void fileStorageFailure() throws Exception {
+    File fileToExist = new File(getFilenameForTest(1, "toExist"));
+    fileToExist.createNewFile();
+    TinyTablesOt baseOt = new TinyTablesDummyOt(Util.otherPlayerId(1));
+    Drbg random = new AesCtrDrbg(new byte[32]);
+    List<Integer> ports = NetworkUtil.getFreePorts(1);
+    Map<Integer, NetworkConfiguration> netConf = NetworkUtil
+        .getNetworkConfigurations(ports);
+    Supplier<Network> network = new NetworkSupplier(1, netConf);
+    TinyTablesPreproResourcePool resourcePool = new TinyTablesPreproResourcePool(
+        1, baseOt, random,
+        COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE, fileToExist,
+        network);
+    // Ensure that file storing failure gets covered
+    resourcePool.closeEvaluation();
   }
 
   @Test
