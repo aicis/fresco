@@ -11,7 +11,6 @@ import dk.alexandra.fresco.tools.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.tools.commitment.HashBasedCommitmentSerializer;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
-
 import java.security.MessageDigest;
 
 public interface MascotResourcePool extends NumericResourcePool {

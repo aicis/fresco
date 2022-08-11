@@ -1,5 +1,8 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -8,10 +11,6 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.helper.HelperForTests;
 import dk.alexandra.fresco.tools.helper.RuntimeForTests;
 import dk.alexandra.fresco.tools.ot.base.Ot;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -20,9 +19,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class TestFunctionalBristolOt {
   private final int kbitLength = 128;

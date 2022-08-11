@@ -14,7 +14,6 @@ import dk.alexandra.fresco.tools.ot.otextension.BristolOtExtensionResourcePool;
 import dk.alexandra.fresco.tools.ot.otextension.CoteFactory;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
-
 import java.security.MessageDigest;
 
 public class BitTripleResourcePoolImpl extends ResourcePoolImpl implements BitTripleResourcePool {
@@ -48,9 +47,9 @@ public class BitTripleResourcePoolImpl extends ResourcePoolImpl implements BitTr
     this.bitTripleSecurityParameters = bitTripleSecurityParameters;
     this.localSampler = new BytePrgImpl(drbg);
     this.messageDigest =
-           ExceptionConverter.safe(
-            () -> MessageDigest.getInstance("SHA-256"),
-            "Configuration error, SHA-256 is needed for Mascot");
+            ExceptionConverter.safe(
+                () -> MessageDigest.getInstance("SHA-256"),
+                "Configuration error, SHA-256 is needed for Mascot");
   }
 
   @Override

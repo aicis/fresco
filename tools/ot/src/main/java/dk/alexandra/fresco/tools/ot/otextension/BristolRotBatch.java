@@ -3,7 +3,6 @@ package dk.alexandra.fresco.tools.ot.otextension;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;

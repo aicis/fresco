@@ -9,7 +9,6 @@ import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import dk.alexandra.fresco.tools.helper.HelperForTests;
 import dk.alexandra.fresco.tools.helper.RuntimeForTests;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
-
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -67,8 +66,8 @@ public class OtExtensionTestContext {
    * @return A new resources pool
    */
   public OtExtensionResourcePool createResources(int instanceId) {
-      Drbg rand = createRand(instanceId);
-      CoinTossing ct = new CoinTossing(myId, otherId, rand);
+        Drbg rand = createRand(instanceId);
+    CoinTossing ct = new CoinTossing(myId, otherId, rand);
       ct.initialize(network);
       return new BristolOtExtensionResourcePool(myId, otherId, kbitLength,
               lambdaSecurityParam, instanceId, rand, ct, seedOts);

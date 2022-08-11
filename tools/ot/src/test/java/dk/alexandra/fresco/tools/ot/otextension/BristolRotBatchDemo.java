@@ -3,7 +3,6 @@ package dk.alexandra.fresco.tools.ot.otextension;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
@@ -61,7 +60,7 @@ public class BristolRotBatchDemo {
       System.out.println("Message 0: " + messages.get(i).getFirst());
       System.out.println("Message 1: " + messages.get(i).getSecond());
     }
-    System.out.println("done sender");
+      System.out.println("done sender");
     ((Closeable) ctx.getNetwork()).close();
   }
 

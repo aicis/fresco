@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
-
 import java.security.MessageDigest;
 
 public class BristolOtExtensionResourcePool extends ResourcePoolImpl implements
