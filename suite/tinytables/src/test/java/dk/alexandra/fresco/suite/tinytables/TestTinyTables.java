@@ -358,24 +358,6 @@ public class TestTinyTables {
   }
 
   @Test
-  public void fileStorageFailure() throws Exception {
-    File fileToExist = new File(getFilenameForTest(1, "toExist"));
-    fileToExist.createNewFile();
-    TinyTablesOt baseOt = new TinyTablesDummyOt(Util.otherPlayerId(1));
-    Drbg random = new AesCtrDrbg(new byte[32]);
-    List<Integer> ports = NetworkUtil.getFreePorts(1);
-    Map<Integer, NetworkConfiguration> netConf = NetworkUtil
-        .getNetworkConfigurations(ports);
-    Supplier<Network> network = new NetworkSupplier(1, netConf);
-    TinyTablesPreproResourcePool resourcePool = new TinyTablesPreproResourcePool(
-        1, baseOt, random,
-        COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE, fileToExist,
-        network);
-    // Ensure that file storing failure gets covered
-    resourcePool.closeEvaluation();
-  }
-
-  @Test
   public void testNaorPinkasBaseOtDes() {
     int noPlayers = 2;
     List<Integer> ports = NetworkUtil.getFreePorts(noPlayers);
