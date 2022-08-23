@@ -10,7 +10,7 @@ import java.math.BigInteger;
 import java.util.List;
 
 /**
- * Given known value a and secret value b represented as bits, computes a <? b.
+ * Given known value a and secret value b represented as bits, computes a &lt;? b.
  */
 public class BitLessThanOpen implements Computation<SInt, ProtocolBuilderNumeric> {
 

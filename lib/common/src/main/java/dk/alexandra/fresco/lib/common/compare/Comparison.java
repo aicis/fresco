@@ -64,18 +64,18 @@ public interface Comparison extends ComputationDirectory {
    *
    * @param x the first input
    * @param y the second input
-   * @return A deferred result computing x <= y. Result will be either [1] (true) or [0] (false).
+   * @return A deferred result computing x &leq; y. Result will be either [1] (true) or [0] (false).
    */
   @Deprecated
   DRes<SInt> compareLEQ(DRes<SInt> x, DRes<SInt> y);
 
   /**
-   * Computes if x < y.
+   * Computes if x &lt; y.
    *
    * @param x the first input
    * @param y the second input
    * @param algorithm the algorithm to use
-   * @return A deferred result computing x < y. Result will be either [1] (true) or [0] (false).
+   * @return A deferred result computing x &lt; y. Result will be either [1] (true) or [0] (false).
    */
   DRes<SInt> compareLT(DRes<SInt> x, DRes<SInt> y, Algorithm algorithm);
 
@@ -96,13 +96,13 @@ public interface Comparison extends ComputationDirectory {
   DRes<SInt> compareLTBits(BigInteger openValue, DRes<List<DRes<SInt>>> secretBits);
 
   /**
-   * Compares if x <= y, but with twice the possible bit-length. Requires that the maximum bit
+   * Compares if x &leq; y, but with twice the possible bit-length. Requires that the maximum bit
    * length is set to something that can handle this scenario. It has to be at least less than half
    * the modulus bit size.
    *
    * @param x the first input
    * @param y the second input
-   * @return A deferred result computing x <= y. Result will be either [1] (true) or [0] (false).
+   * @return A deferred result computing x &leq; y. Result will be either [1] (true) or [0] (false).
    */
   @Deprecated
   DRes<SInt> compareLEQLong(DRes<SInt> x, DRes<SInt> y);

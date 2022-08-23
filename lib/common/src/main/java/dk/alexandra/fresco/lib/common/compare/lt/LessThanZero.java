@@ -9,7 +9,7 @@ import dk.alexandra.fresco.lib.common.math.integer.mod.Mod2m;
 import java.math.BigInteger;
 
 /**
- * Given secret value a, computes a <? 0.
+ * Given secret value a, computes a &lt;? 0.
  */
 public class LessThanZero implements Computation<SInt, ProtocolBuilderNumeric> {
   // TODO add reference to protocol description
