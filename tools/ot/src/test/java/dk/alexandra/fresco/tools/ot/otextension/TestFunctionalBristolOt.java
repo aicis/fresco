@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestFunctionalBristolOt {
+
   private final int kbitLength = 128;
   private final int lambdaSecurityParam = 56;
   private final int messageLength = 1024;
@@ -127,8 +128,8 @@ public class TestFunctionalBristolOt {
       OtExtensionTestContext ctx, int batchSize, int id) {
     OtExtensionResourcePool resources = ctx.createResources(id);
     BristolRotBatch rotBatchSender =
-        new BristolRotBatch(new RotFactory(resources, ctx.getNetwork()),
-            resources.getComputationalSecurityParameter(), resources.getLambdaSecurityParam());
+        new BristolRotBatch(new RotFactory(resources, ctx.getNetwork())
+        );
     List<Pair<StrictBitVector, StrictBitVector>> messages =
         rotBatchSender.send(batchSize, messageLength);
     return messages;
@@ -138,8 +139,8 @@ public class TestFunctionalBristolOt {
       OtExtensionTestContext ctx, int batchSize, int id) {
     OtExtensionResourcePool resources = ctx.createResources(id);
     BristolRotBatch rotBatchSender =
-        new BristolRotBatch(new RotFactory(resources, ctx.getNetwork()),
-            resources.getComputationalSecurityParameter(), resources.getLambdaSecurityParam());
+        new BristolRotBatch(new RotFactory(resources, ctx.getNetwork())
+        );
     List<Pair<StrictBitVector, StrictBitVector>> messages =
         rotBatchSender.send(batchSize, messageLength);
     messages.addAll(rotBatchSender.send(batchSize, messageLength));
@@ -150,8 +151,8 @@ public class TestFunctionalBristolOt {
       StrictBitVector choices, int id) {
     OtExtensionResourcePool resources = ctx.createResources(id);
     BristolRotBatch rotBatchReceiver =
-        new BristolRotBatch(new RotFactory(resources, ctx.getNetwork()),
-            resources.getComputationalSecurityParameter(), resources.getLambdaSecurityParam());
+        new BristolRotBatch(new RotFactory(resources, ctx.getNetwork())
+        );
     List<StrictBitVector> messages = rotBatchReceiver.receive(choices, messageLength);
     return messages;
   }
@@ -160,8 +161,8 @@ public class TestFunctionalBristolOt {
       StrictBitVector choices, int id) {
     OtExtensionResourcePool resources = ctx.createResources(id);
     BristolRotBatch rotBatchReceiver =
-        new BristolRotBatch(new RotFactory(resources, ctx.getNetwork()),
-            resources.getComputationalSecurityParameter(), resources.getLambdaSecurityParam());
+        new BristolRotBatch(new RotFactory(resources, ctx.getNetwork())
+        );
     List<StrictBitVector> messages = rotBatchReceiver.receive(choices, messageLength);
     messages.addAll(rotBatchReceiver.receive(choices, messageLength));
     return messages;
@@ -185,7 +186,6 @@ public class TestFunctionalBristolOt {
   }
 
 
-
   @SuppressWarnings("unchecked")
   @Test
   public void testBristolRot() {
@@ -201,7 +201,6 @@ public class TestFunctionalBristolOt {
     HelperForTests.verifyOts((List<Pair<StrictBitVector, StrictBitVector>>) extendResults.get(0),
         (List<StrictBitVector>) extendResults.get(1), choices);
   }
-
 
 
   @SuppressWarnings("unchecked")
@@ -280,7 +279,7 @@ public class TestFunctionalBristolOt {
     method.setAccessible(true);
     Exception exception = null;
     try {
-      method.invoke(receiver.get(otReceiver), new byte[] { 0x42 }, new byte[] { 0x42, 0x43 });
+      method.invoke(receiver.get(otReceiver), new byte[]{0x42}, new byte[]{0x42, 0x43});
     } catch (Exception e) {
       exception = e;
     }

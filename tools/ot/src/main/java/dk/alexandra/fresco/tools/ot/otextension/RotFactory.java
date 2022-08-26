@@ -11,15 +11,18 @@ public class RotFactory {
   private final Network network;
 
   /**
-   * Constructs a new random OT protocol and constructs the internal sender and
-   * receiver objects.
+   * Constructs a new random OT protocol and constructs the internal sender and receiver objects.
    *
    * @param resources The common resource pool for OT extension
-   * @param network The network instance
+   * @param network   The network instance
    */
   public RotFactory(OtExtensionResourcePool resources, Network network) {
     this.resources = resources;
     this.network = network;
+  }
+
+  public OtExtensionResourcePool getResources() {
+    return resources;
   }
 
   public RotSender createSender() {

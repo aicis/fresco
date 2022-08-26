@@ -2,12 +2,7 @@ package dk.alexandra.fresco.suite.tinytables.prepro;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.Drng;
-import dk.alexandra.fresco.framework.util.DrngImpl;
-import dk.alexandra.fresco.framework.util.ExceptionConverter;
-import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.util.RegularBitVector;
+import dk.alexandra.fresco.framework.util.*;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElementVector;
@@ -22,11 +17,10 @@ import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesTripleProvider;
 import dk.alexandra.fresco.suite.tinytables.util.TinyTablesTripleGenerator;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
-import dk.alexandra.fresco.tools.ot.otextension.BristolOtFactory;
-import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
-import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
-import dk.alexandra.fresco.tools.ot.otextension.RotFactory;
-import dk.alexandra.fresco.tools.ot.otextension.RotList;
+import dk.alexandra.fresco.tools.ot.otextension.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -37,8 +31,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
 
@@ -73,9 +65,9 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
     this.supplier = () -> {
       RotList rotList = new RotList(drbg, computationalSecurity);
       CoinTossing ct = new CoinTossing(myId, Util.otherPlayerId(myId), drbg);
-      OtExtensionResourcePool otExtRes = new OtExtensionResourcePoolImpl(myId,
-          Util.otherPlayerId(myId),
-          computationalSecurity, statisticalSecurity, 1, drbg, ct, rotList);
+      OtExtensionResourcePool otExtRes = new BristolOtExtensionResourcePool(myId,
+              Util.otherPlayerId(myId),
+              computationalSecurity, statisticalSecurity, 1, drbg, ct, rotList);
       baseOt.init(network.get());
       int otherId = Util.otherPlayerId(getMyId());
       // Execute random seed OTs
@@ -176,17 +168,17 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
      */
     ExceptionConverter.safe(() -> {
       storeTinyTables(storage, tinyTablesFile);
-      LOGGER.info("TinyTables stored to " + tinyTablesFile);
+      LOGGER.info("TinyTables stored to {}", tinyTablesFile);
       return null;
     }, "Failed to store TinyTables");
   }
 
   private void storeTinyTables(TinyTablesStorage tinyTablesStorage, File file) throws IOException {
     file.createNewFile();
-    FileOutputStream fout = new FileOutputStream(file);
-    ObjectOutputStream oos = new ObjectOutputStream(fout);
-    oos.writeObject(tinyTablesStorage);
-    oos.close();
+    try (FileOutputStream fout = new FileOutputStream(file);
+      ObjectOutputStream oos = new ObjectOutputStream(fout)) {
+      oos.writeObject(tinyTablesStorage);
+    }
   }
 
   public TinyTablesStorage getStorage() {

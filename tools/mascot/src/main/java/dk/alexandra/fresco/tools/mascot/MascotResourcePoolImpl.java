@@ -10,11 +10,8 @@ import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
-import dk.alexandra.fresco.tools.ot.otextension.BristolRotBatch;
-import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
-import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
-import dk.alexandra.fresco.tools.ot.otextension.RotFactory;
-import dk.alexandra.fresco.tools.ot.otextension.RotList;
+import dk.alexandra.fresco.tools.ot.otextension.*;
+
 import java.security.MessageDigest;
 import java.util.Map;
 
@@ -90,16 +87,15 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
 
   @Override
   public RotBatch createRot(int otherId, Network network) {
-    if (getMyId() == otherId) {
-      throw new IllegalArgumentException("Cannot initialize with self");
-    }
-    CoinTossing ct = new CoinTossing(getMyId(), otherId, getRandomGenerator());
-    ct.initialize(network);
-    OtExtensionResourcePool otResources = new OtExtensionResourcePoolImpl(getMyId(), otherId,
-        getPrgSeedLength(), getLambdaSecurityParam(), getInstanceId(),
-        getRandomGenerator(), ct, seedOts.get(otherId));
-    return new BristolRotBatch(new RotFactory(otResources, network),
-        getPrgSeedLength(), getLambdaSecurityParam());
+      if (getMyId() == otherId) {
+          throw new IllegalArgumentException("Cannot initialize with self");
+      }
+      CoinTossing ct = new CoinTossing(getMyId(), otherId, getRandomGenerator());
+      ct.initialize(network);
+      OtExtensionResourcePool otResources = new BristolOtExtensionResourcePool(getMyId(), otherId,
+              getPrgSeedLength(), getLambdaSecurityParam(), getInstanceId(),
+              getRandomGenerator(), ct, seedOts.get(otherId));
+      return new BristolRotBatch(new RotFactory(otResources, network));
   }
 
   @Override
