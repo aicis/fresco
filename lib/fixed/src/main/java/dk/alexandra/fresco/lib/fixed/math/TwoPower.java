@@ -44,13 +44,13 @@ public class TwoPower implements Computation<SFixed, ProtocolBuilderNumeric> {
       
       DRes<SInt> abs = r1.numeric().mult(s, exponent);
       
-      DRes<List<SInt>> bits = AdvancedNumeric.using(r1).toBits(abs, l);
+      DRes<List<DRes<SInt>>> bits = AdvancedNumeric.using(r1).toBits(abs, l);
 
       return () -> new Pair<>(b, bits);
     }).seq((r2, signAndBits) -> {
       
       SInt b = signAndBits.getFirst().out();
-      List<SInt> bits = signAndBits.getSecond().out();
+      List<DRes<SInt>> bits = signAndBits.getSecond().out();
       
       FixedNumeric rn = FixedNumeric.using(r2);
       

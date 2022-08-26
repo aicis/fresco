@@ -51,8 +51,6 @@ public class SumSIntList implements Computation<SInt, ProtocolBuilderNumeric> {
           }
           return () -> out;
         })
-    ).seq((builder, currentInput) -> {
-      return currentInput.get(0);
-    });
+    ).seq((builder, currentInput) -> currentInput.get(0));
   }
 }

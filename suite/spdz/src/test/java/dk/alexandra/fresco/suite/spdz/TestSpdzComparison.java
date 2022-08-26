@@ -49,6 +49,18 @@ public class TestSpdzComparison extends AbstractSpdzTest {
   }
 
   @Test
+  public void test_compare_zero() {
+    runTest(new CompareTests.TestCompareZeroAlgorithms<>(),
+        PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void test_compare_zero_mascot() {
+    runTest(new CompareTests.TestCompareZeroAlgorithms<>(),
+        PreprocessingStrategy.MASCOT, 2);
+  }
+
+  @Test
   public void testCompareEQEdgeCasesSequential() {
     runTest(new CompareTests.TestCompareEQEdgeCases<>(),
         PreprocessingStrategy.DUMMY, 2);
@@ -63,7 +75,7 @@ public class TestSpdzComparison extends AbstractSpdzTest {
   @Test
   public void testCompareLTBatchedMascot() {
     runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        PreprocessingStrategy.MASCOT, 2, 64, 2, 1);
+        PreprocessingStrategy.MASCOT, 2, 64, 8, 1);
   }
 
   @Test

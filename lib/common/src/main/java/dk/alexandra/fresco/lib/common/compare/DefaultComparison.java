@@ -4,11 +4,18 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.compare.eq.Equality;
-import dk.alexandra.fresco.lib.common.compare.gt.LessThanOrEquals;
-import dk.alexandra.fresco.lib.common.compare.zerotest.ZeroTest;
+import dk.alexandra.fresco.lib.common.compare.lt.BitLessThanOpen;
+import dk.alexandra.fresco.lib.common.compare.lt.Carry;
+import dk.alexandra.fresco.lib.common.compare.lt.LessThanOrEquals;
+import dk.alexandra.fresco.lib.common.compare.lt.LessThanZero;
+import dk.alexandra.fresco.lib.common.compare.min.ArgMin;
+import dk.alexandra.fresco.lib.common.compare.zerotest.ZeroTestConstRounds;
+import dk.alexandra.fresco.lib.common.compare.zerotest.ZeroTestLogRounds;
+import dk.alexandra.fresco.lib.common.util.SIntPair;
 import java.math.BigInteger;
+import java.util.List;
 
 /**
  * Default way of producing the protocols within the interface. This default class can be
@@ -35,19 +42,41 @@ public class DefaultComparison extends Comparison {
   }
 
   @Override
-  public DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y) {
-    int maxBitLength = builder.getBasicNumericContext().getMaxBitLength();
-    return equals(maxBitLength, x, y);
+  public DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y, int bitlength, Algorithm algorithm) {
+    DRes<SInt> diff = builder.numeric().sub(x, y);
+    return compareZero(diff, bitlength, algorithm);
   }
 
   @Override
-  public DRes<SInt> equals(int bitLength, DRes<SInt> x, DRes<SInt> y) {
-    return builder.seq(new Equality(bitLength, x, y));
+  public DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y) {
+    int maxBitLength = builder.getBasicNumericContext().getMaxBitLength();
+    return equals(x, y, maxBitLength);
   }
 
   @Override
   public DRes<SInt> compareLEQ(DRes<SInt> x, DRes<SInt> y) {
-    return builder.seq(new LessThanOrEquals(maxBitLength, magicSecureNumber, x, y));
+    return compareLT(builder.numeric().sub(x, 1), y);
+  }
+
+  @Override
+  public DRes<SInt> compareLT(DRes<SInt> x, DRes<SInt> y, Algorithm algorithm) {
+    if (algorithm == Algorithm.LOG_ROUNDS) {
+      if (builder.getBasicNumericContext().getStatisticalSecurityParam() + builder
+          .getBasicNumericContext().getMaxBitLength() > builder.getBasicNumericContext()
+          .getModulus().bitLength()) {
+        throw new IllegalArgumentException(
+            "The max bitlength plus the statistical security parameter overflows the size of the modulus.");
+      }
+      DRes<SInt> difference = builder.numeric().sub(x, y);
+      return builder.seq(new LessThanZero(difference));
+    } else {
+      throw new UnsupportedOperationException("Not implemented yet");
+    }
+  }
+
+  @Override
+  public DRes<SInt> compareLTBits(BigInteger openValue, DRes<List<DRes<SInt>>> secretBits) {
+    return builder.seq(new BitLessThanOpen(openValue, secretBits));
   }
 
   @Override
@@ -62,7 +91,25 @@ public class DefaultComparison extends Comparison {
   }
 
   @Override
-  public DRes<SInt> compareZero(DRes<SInt> x, int bitLength) {
-    return builder.seq(new ZeroTest(bitLength, x, magicSecureNumber));
+  public DRes<SInt> compareZero(DRes<SInt> x, int bitlength, Algorithm algorithm) {
+    if (bitlength > builder.getBasicNumericContext().getMaxBitLength()) {
+      throw new IllegalArgumentException("The bitlength is more than allowed for elements.");
+    }
+    if (builder.getBasicNumericContext().getStatisticalSecurityParam()
+        + bitlength > builder.getBasicNumericContext().getModulus().bitLength()) {
+      throw new IllegalArgumentException(
+          "The max bitlength plus the statistical security parameter overflows the size of the modulus.");
+    }
+    if (algorithm == Algorithm.LOG_ROUNDS) {
+      return builder.seq(new ZeroTestLogRounds(x, bitlength));
+    } else {
+      return builder.seq(new ZeroTestConstRounds(x, bitlength));
+    }
   }
+
+  @Override
+  public DRes<Pair<List<DRes<SInt>>, SInt>> argMin(List<DRes<SInt>> xs) {
+    return builder.seq(new ArgMin(xs));
+  }
+
 }

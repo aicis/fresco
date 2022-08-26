@@ -8,8 +8,8 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.bitTriples.prg.BytePrg;
 import dk.alexandra.fresco.tools.bitTriples.prg.BytePrgImpl;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
-import dk.alexandra.fresco.tools.ot.base.DhParameters;
-import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
+import dk.alexandra.fresco.tools.ot.base.AbstractNaorPinkasOT;
+import dk.alexandra.fresco.tools.ot.base.BigIntNaorPinkas;
 import dk.alexandra.fresco.tools.ot.otextension.CoteFactory;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
@@ -79,8 +79,8 @@ public class BitTripleResourcePoolImpl extends ResourcePoolImpl implements BitTr
     }
     CoinTossing ct = new CoinTossing(getMyId(), otherId, getRandomGenerator());
     ct.initialize(network);
-    NaorPinkasOt ot =
-        new NaorPinkasOt(otherId, getRandomGenerator(), network, DhParameters.getStaticDhParams());
+    AbstractNaorPinkasOT ot =
+        new BigIntNaorPinkas(otherId, getRandomGenerator(), network);
     RotList currentSeedOts = new RotList(drbg, choices.getSize(), choices);
     if (getMyId() < otherId) {
       currentSeedOts.send(ot);

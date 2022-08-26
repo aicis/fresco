@@ -10,17 +10,20 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class BasicNumericContextTest {
+
   private BasicNumericContext context;
   private int maxBitLength = 16;
   private int myId = 2;
   private int noOfParties = 2;
   private FieldDefinition fieldDefinition = mock(FieldDefinition.class);
   private int precision = 32;
+  private int statisticalSecurityParameter = 8;
 
   @Before
   public void setup() {
     when(fieldDefinition.getModulus()).thenReturn(BigInteger.ONE);
-    context = new BasicNumericContext(maxBitLength, myId, noOfParties, fieldDefinition, precision);
+    context = new BasicNumericContext(maxBitLength, myId, noOfParties, fieldDefinition, precision,
+        statisticalSecurityParameter);
   }
 
   @Test
@@ -52,4 +55,10 @@ public class BasicNumericContextTest {
   public void getNoOfParties() {
     Assert.assertEquals(context.getNoOfParties(), noOfParties);
   }
+
+  @Test
+  public void getStatisticalSecurityParameter() {
+    Assert.assertEquals(context.getStatisticalSecurityParam(), statisticalSecurityParameter);
+  }
+
 }

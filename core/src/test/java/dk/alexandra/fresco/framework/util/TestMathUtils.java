@@ -54,4 +54,11 @@ public class TestMathUtils {
     MathUtils.modularSqrt(new BigInteger("23"), modulus);
   }
 
+  @Test
+  public void testToBits() {
+    BigInteger value = BigInteger.valueOf(11);
+    List<BigInteger> expected = Arrays.asList(BigInteger.ONE, BigInteger.ZERO, BigInteger.ONE, BigInteger.ONE);
+    assertEquals(expected, MathUtils.toBits(value, 4));
+  }
+
 }

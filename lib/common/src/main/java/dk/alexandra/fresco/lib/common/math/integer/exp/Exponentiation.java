@@ -33,7 +33,7 @@ public class Exponentiation implements Computation<SInt, ProtocolBuilderNumeric>
       DRes<SInt> e = input;
       DRes<SInt> result = null;
       Numeric numeric = seq.numeric();
-      for (SInt bit : bits) {
+      for (DRes<SInt> bit : bits) {
         /*
          * result += bits[i] * (result * r - r) + r
          *
@@ -45,10 +45,10 @@ public class Exponentiation implements Computation<SInt, ProtocolBuilderNumeric>
          */
         if (result == null) {
           DRes<SInt> sub = numeric.sub(e, BigInteger.ONE);
-          result = numeric.add(BigInteger.ONE, numeric.mult(() -> bit, sub));
+          result = numeric.add(BigInteger.ONE, numeric.mult(bit, sub));
         } else {
           DRes<SInt> sub = numeric.sub(numeric.mult(result, e), result);
-          result = numeric.add(result, numeric.mult(() -> bit, sub));
+          result = numeric.add(result, numeric.mult(bit, sub));
         }
         e = numeric.mult(e, e);
       }

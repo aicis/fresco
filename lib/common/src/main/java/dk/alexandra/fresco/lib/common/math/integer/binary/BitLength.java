@@ -15,8 +15,8 @@ import java.util.List;
  */
 public class BitLength implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private DRes<SInt> input;
-  private int maxBitLength;
+  private final DRes<SInt> input;
+  private final int maxBitLength;
 
   /**
    * Create a protocol for finding the bit length of an integer. This is done by finding the bit
@@ -48,14 +48,14 @@ public class BitLength implements Computation<SInt, ProtocolBuilderNumeric> {
   private static class HighestBit implements
       Computation<Pair<DRes<SInt>, DRes<SInt>>, ProtocolBuilderNumeric> {
 
-    private final List<SInt> bits;
+    private final List<DRes<SInt>> bits;
 
     /**
      * Create a new HighestBit computation.
      *
      * @param bits A list of bits.
      */
-    public HighestBit(List<SInt> bits) {
+    public HighestBit(List<DRes<SInt>> bits) {
       this.bits = bits;
     }
 

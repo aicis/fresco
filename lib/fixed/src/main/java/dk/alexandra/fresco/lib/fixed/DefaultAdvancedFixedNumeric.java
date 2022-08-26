@@ -36,7 +36,7 @@ public class DefaultAdvancedFixedNumeric extends AdvancedFixedNumeric {
           AdvancedNumeric.using(seq).additiveMask(seq.getBasicNumericContext().getDefaultFixedPointPrecision());
       return random;
     }).seq((seq, random) -> {
-      return () -> new SFixed(random.random);
+      return () -> new SFixed(random.value);
     });
   }
 
