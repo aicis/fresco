@@ -17,7 +17,6 @@ import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSubtractProtocol;
 import java.math.BigInteger;
 import java.util.Random;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class DummyProtocolSupplier implements
     ProtocolSuiteProtocolSupplier<DummyArithmeticResourcePool> {

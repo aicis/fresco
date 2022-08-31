@@ -14,19 +14,27 @@ public class CRTRingDefinition extends BigIntegerFieldDefinition {
     this.q = q;
   }
 
-  public BigInteger getP() {
+  public BigInteger getLeftModulus() {
     return p;
   }
 
-  public BigInteger getQ() {
+  public BigInteger getRightModulus() {
     return q;
   }
 
-  public Pair<BigInteger, BigInteger> mapToCRT(BigInteger x) {
+  /** Compute the RNS representation of an integer. */
+  public Pair<BigInteger, BigInteger> integerToRNS(BigInteger x) {
     return Util.mapToCRT(x, p, q);
   }
 
-  public BigInteger mapToBigInteger(BigInteger x, BigInteger y) {
+  /** Given (x,y) in RNS representation, compute the value it represents in this ring. */
+  public BigInteger RNStoBigInteger(BigInteger x, BigInteger y) {
     return Util.mapToBigInteger(x, y, p, q);
   }
+
+  /** Given (x,y) in RNS representation, compute the value it represents in this ring. */
+  public BigInteger RNStoBigInteger(Pair<BigInteger, BigInteger> rns) {
+    return RNStoBigInteger(rns.getFirst(), rns.getSecond());
+  }
+
 }

@@ -1,17 +1,16 @@
 package dk.alexandra.fresco.suite.crt;
 
-import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.Computation;
-import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
+import dk.alexandra.fresco.suite.crt.suites.ProtocolSuiteProtocolSupplier;
 import java.math.BigInteger;
-import java.util.function.BiFunction;
 
-public class CRTNumericContext extends BasicNumericContext {
+public class CRTNumericContext<ResourcePoolA extends NumericResourcePool, ResourcePoolB extends NumericResourcePool> extends BasicNumericContext {
 
   private final BigInteger p, q;
-  private final BiFunction<DRes<SInt>, DRes<SInt>, Computation<BigInteger, ProtocolBuilderNumeric>> mixedAdd;
+  private final ProtocolSuiteProtocolSupplier<ResourcePoolA> leftProtocolSupplier;
+  private final ProtocolSuiteProtocolSupplier<ResourcePoolB> rightProtocolSupplier;
 
   /**
    * Construct a new BasicNumericContext.
@@ -21,22 +20,34 @@ public class CRTNumericContext extends BasicNumericContext {
    * @param noOfParties  number of parties in computation
    */
   public CRTNumericContext(int maxBitLength, int myId, int noOfParties,
-      BigInteger p, BigInteger q, BiFunction<DRes<SInt>, DRes<SInt>, Computation<BigInteger, ProtocolBuilderNumeric>> mixedAdd) {
+      ProtocolSuiteProtocolSupplier<ResourcePoolA> left, ProtocolSuiteProtocolSupplier<ResourcePoolB> right,
+      BigInteger p, BigInteger q) {
     super(maxBitLength, myId, noOfParties, new CRTRingDefinition(p, q), p.bitLength());
     this.p = p;
     this.q = q;
-    this.mixedAdd = mixedAdd;
+    this.leftProtocolSupplier = left;
+    this.rightProtocolSupplier = right;
   }
 
-  public BigInteger getP() {
+  /** Get the modulus of the left ring in the RNS representation. */
+  public BigInteger getLeftModulus() {
     return p;
   }
 
-  public BigInteger getQ() {
+  /** Get the modulus of the right ring in the RNS representation. */
+  public BigInteger getRightModulus() {
     return q;
   }
 
-  public Computation<BigInteger, ProtocolBuilderNumeric> mixedAdd(DRes<SInt> x, DRes<SInt> y) {
-    return mixedAdd.apply(x, y);
+  /** Get a {@link ProtocolSuiteProtocolSupplier} for the MPC system on the left ring. */
+  public ProtocolSuiteProtocolSupplier<ResourcePoolA> getLeftProtocolSupplier() {
+    return leftProtocolSupplier;
   }
+
+  /** Get a {@link ProtocolSuiteProtocolSupplier} for the MPC system on the right ring. */
+  public ProtocolSuiteProtocolSupplier<ResourcePoolB> getRightProtocolSupplier() {
+    return rightProtocolSupplier;
+  }
+
+
 }

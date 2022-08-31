@@ -7,6 +7,7 @@ import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePool;
 import dk.alexandra.fresco.suite.crt.protocols.framework.CRTNativeProtocol;
 
+/** Generate a pair of correlated noise, eg <i>(r, r + ep)</i> for some <i>0 &le; e &le; n</i>. */
 public class CorrelatedNoiseProtocol<ResourcePoolA extends NumericResourcePool, ResourcePoolB extends NumericResourcePool> extends
     CRTNativeProtocol<SInt, ResourcePoolA, ResourcePoolB> {
 

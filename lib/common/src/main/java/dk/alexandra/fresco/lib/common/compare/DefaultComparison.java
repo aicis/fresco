@@ -22,7 +22,7 @@ import java.util.List;
  * overwritten when implementing {@link BuilderFactoryNumeric} if the protocol suite has a better
  * and more efficient way of constructing the protocols.
  */
-public class DefaultComparison extends Comparison {
+public class DefaultComparison implements Comparison {
 
   // Security parameter used by protocols using rightshifts and/or additive masks.
   private final int magicSecureNumber = 60;

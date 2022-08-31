@@ -6,7 +6,10 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePool;
 import java.util.function.BiFunction;
 
-/** Abstract CRT protocol which simply forwards evaluations calls to the sub-protocols in the two actual protocol suites */
+/**
+ * Abstract CRT protocol which simply forwards evaluations calls to the sub-protocols in the two
+ * actual protocol suites
+ */
 public class CRTAbstractProtocol<OutputA, OutputB, OutputT, ResourcePoolA extends NumericResourcePool, ResourcePoolB extends NumericResourcePool>
     extends CRTNativeProtocol<OutputT, ResourcePoolA, ResourcePoolB> {
 

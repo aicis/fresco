@@ -2,15 +2,12 @@ package dk.alexandra.fresco.suite.crt.fixed;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import dk.alexandra.fresco.lib.fixed.AdvancedFixedNumeric;
 import dk.alexandra.fresco.lib.fixed.DefaultAdvancedFixedNumeric;
 import dk.alexandra.fresco.lib.fixed.SFixed;
 import dk.alexandra.fresco.suite.crt.CRTNumericContext;
-import dk.alexandra.fresco.suite.crt.protocols.BitLengthProtocol;
-import dk.alexandra.fresco.suite.crt.protocols.LEQProtocol;
 import dk.alexandra.fresco.suite.crt.protocols.RandomModP;
 import dk.alexandra.fresco.suite.crt.protocols.Truncp;
 import java.math.BigDecimal;
@@ -31,7 +28,7 @@ public class CRTAdvancedFixedNumeric extends DefaultAdvancedFixedNumeric {
 
   public CRTAdvancedFixedNumeric(ProtocolBuilderNumeric builder) {
     super(builder);
-    this.p = ((CRTNumericContext) builder.getBasicNumericContext()).getP();
+    this.p = ((CRTNumericContext) builder.getBasicNumericContext()).getLeftModulus();
   }
 
   @Override
@@ -65,23 +62,8 @@ public class CRTAdvancedFixedNumeric extends DefaultAdvancedFixedNumeric {
   }
 
   @Override
-  public DRes<Pair<DRes<SFixed>, DRes<SInt>>> normalize(DRes<SFixed> x) {
-    return builder.seq(
-        new BitLengthProtocol(x.out().getSInt(), p.bitLength() * 2)
-    ).pairInPar(
-        (seq, b) -> new SFixed(b.getSecond()),
-        (seq, b) -> seq.numeric().sub(p.bitLength(), b.getFirst())
-    ).seq((seq, norm) -> Pair.lazy(norm.getFirst(), norm.getSecond()));
-  }
-
-  @Override
   public DRes<SInt> floor(DRes<SFixed> x) {
     return builder.seq(seq -> new Truncp(x.out().getSInt()).buildComputation(seq));
   }
 
-  @Override
-  public DRes<SInt> sign(DRes<SFixed> x) {
-    return builder.seq(
-        seq -> new LEQProtocol(x.out().getSInt(), seq.numeric().known(0)).buildComputation(seq));
-  }
 }

@@ -1,49 +1,39 @@
 package dk.alexandra.fresco.suite.crt;
 
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.lib.common.collections.shuffle.ShuffleRowsTests;
-import dk.alexandra.fresco.lib.common.collections.shuffle.ShuffleRowsTests.TestShuffleRowsGeneric;
-import dk.alexandra.fresco.lib.common.collections.sort.NumericSortingTests;
 import dk.alexandra.fresco.lib.common.collections.sort.NumericSortingTests.TestOddEvenMergeSort;
 import dk.alexandra.fresco.lib.common.collections.sort.NumericSortingTests.TestOddEvenMergeSortDifferentValueLength;
-import dk.alexandra.fresco.lib.common.compare.Comparison;
 import dk.alexandra.fresco.lib.common.math.integer.TestProductAndSum.TestSum;
+import dk.alexandra.fresco.lib.common.math.integer.binary.BinaryOperationsTests.TestGenerateRandomBitMask;
 import dk.alexandra.fresco.lib.common.math.integer.binary.BinaryOperationsTests.TestRightShift;
 import dk.alexandra.fresco.lib.common.math.integer.linalg.LinAlgTests.TestInnerProductClosed;
 import dk.alexandra.fresco.lib.common.math.integer.linalg.LinAlgTests.TestInnerProductOpen;
+import dk.alexandra.fresco.lib.common.math.integer.mod.Mod2mTests.TestMod2m;
 import dk.alexandra.fresco.lib.fixed.AdvancedFixedNumeric;
 import dk.alexandra.fresco.lib.fixed.FixedNumeric;
 import dk.alexandra.fresco.lib.fixed.MathTests;
 import dk.alexandra.fresco.lib.fixed.MathTests.TestLog;
 import dk.alexandra.fresco.lib.fixed.MathTests.TestRandom;
 import dk.alexandra.fresco.lib.fixed.MathTests.TestSqrt;
-import dk.alexandra.fresco.lib.fixed.NormalizeTests;
 import dk.alexandra.fresco.lib.fixed.NormalizeTests.TestNormalizePowerSFixed;
 import dk.alexandra.fresco.lib.fixed.NormalizeTests.TestNormalizeSFixed;
-import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestBitDecomposition;
-import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestBitLength;
 import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestCorrelatedNoise;
-import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestDivision;
 import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestFixedPointDivision;
 import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestFixedPointInput;
 import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestFixedPointMultiplication;
 import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestFixedPointSecretDivision;
 import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestInput;
-import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestLEQ;
 import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestLiftPQ;
 import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestLiftQP;
-import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestMaskAndOpen;
-import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestMixedAdd;
-import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestNormalization;
 import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestProjectionLeft;
 import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestProjectionRight;
 import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestRandomModP;
 import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestTruncp;
-import dk.alexandra.fresco.suite.crt.comparison.CRTComparison;
 import dk.alexandra.fresco.suite.crt.fixed.CRTAdvancedFixedNumeric;
 import dk.alexandra.fresco.suite.crt.fixed.CRTFixedNumeric;
 import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests.TestLotsMult;
 import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests.TestOutputToSingleParty;
+import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests.TestRandomBit;
 import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests.TestSumAndMult;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import org.junit.Before;
@@ -55,7 +45,6 @@ public class TestCRT {
   public void setup() {
     FixedNumeric.load(CRTFixedNumeric::new);
     AdvancedFixedNumeric.load(CRTAdvancedFixedNumeric::new);
-    Comparison.load(CRTComparison::new);
   }
 
   @Test
@@ -94,6 +83,11 @@ public class TestCRT {
   }
 
   @Test
+  public void testMod() {
+    new AbstractSpdzCRTTest().runTest(new TestMod2m<>(), EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
   public void testMults() {
     new AbstractSpdzCRTTest().runTest(new TestLotsMult<>(), EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
   }
@@ -104,15 +98,15 @@ public class TestCRT {
         .runTest(new TestCorrelatedNoise<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
+
   @Test
-  public void testMixedAdd() {
-    new AbstractDummyCRTTest().runTest(new TestMixedAdd<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  public void testGenerateRandomBitMask() {
+    new AbstractDummyCRTTest().runTest(new TestGenerateRandomBitMask<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
-
   @Test
-  public void testMaskAndOpen() {
-    new AbstractDummyCRTTest().runTest(new TestMaskAndOpen<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  public void testRandomBit() {
+    new AbstractDummyCRTTest().runTest(new TestRandomBit<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
@@ -141,36 +135,6 @@ public class TestCRT {
   public void testTruncp() {
     new AbstractSpdzCRTTest()
         .runTest(new TestTruncp<>(), EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.MASCOT, 2);
-  }
-
-  @Test
-  public void testDivision() {
-    new AbstractSpdzCRTTest()
-        .runTest(new TestDivision<>(), EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.MASCOT, 2);
-  }
-
-  @Test
-  public void testLEQ() {
-    new AbstractDummyCRTTest()
-        .runTest(new TestLEQ<>(), EvaluationStrategy.SEQUENTIAL, 2);
-  }
-
-  @Test
-  public void testBitDecomposition() {
-    new AbstractSpdzCRTTest()
-        .runTest(new TestBitDecomposition<>(), EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
-  }
-
-  @Test
-  public void testBitLength() {
-    new AbstractSpdzCRTTest()
-        .runTest(new TestBitLength<>(), EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
-  }
-
-  @Test
-  public void testNormalization() {
-    new AbstractSpdzCRTTest()
-        .runTest(new TestNormalization<>(), EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test

@@ -1,21 +1,19 @@
 package dk.alexandra.fresco.suite.crt;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
 import dk.alexandra.fresco.suite.crt.protocols.CRTSIntProtocol;
 import dk.alexandra.fresco.suite.crt.protocols.framework.CRTBigIntegerProtocol;
-import dk.alexandra.fresco.suite.crt.protocols.DummyMixedAddProtocol;
 import dk.alexandra.fresco.suite.crt.suites.ProtocolSuiteProtocolSupplier;
 import java.math.BigInteger;
-import java.util.function.BiFunction;
 
 public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, ResourcePoolB extends NumericResourcePool>
     implements BuilderFactoryNumeric {
@@ -26,19 +24,12 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
   private final BigInteger p, q;
 
   public CRTBuilderFactory(ResourcePoolA resourcePoolLeft,
-      ProtocolSuiteProtocolSupplier<ResourcePoolA> leftPspp, ResourcePoolB reseroucePoolRight,
+      ProtocolSuiteProtocolSupplier<ResourcePoolA> leftPspp,
+      ResourcePoolB resourcePoolRight,
       ProtocolSuiteProtocolSupplier<ResourcePoolB> rightPspp) {
-    this(resourcePoolLeft, leftPspp, reseroucePoolRight, rightPspp, DummyMixedAddProtocol::new);
-  }
 
-  public CRTBuilderFactory(ResourcePoolA resourcePoolLeft,
-      ProtocolSuiteProtocolSupplier<ResourcePoolA> leftPspp, ResourcePoolB reseroucePoolRight,
-      ProtocolSuiteProtocolSupplier<ResourcePoolB> rightPspp,
-      BiFunction<DRes<SInt>, DRes<SInt>, Computation<BigInteger, ProtocolBuilderNumeric>> mixedAdd
-  ) {
-
-    if (resourcePoolLeft.getMyId() != reseroucePoolRight.getMyId()
-        || resourcePoolLeft.getNoOfParties() != reseroucePoolRight.getNoOfParties()) {
+    if (resourcePoolLeft.getMyId() != resourcePoolRight.getMyId()
+        || resourcePoolLeft.getNoOfParties() != resourcePoolRight.getNoOfParties()) {
       throw new IllegalArgumentException(
           "The protocol suites used must be configured with the same ID and number of players");
     }
@@ -46,10 +37,10 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
     this.left = leftPspp;
     this.right = rightPspp;
     this.p = resourcePoolLeft.getModulus();
-    this.q = reseroucePoolRight.getModulus();
+    this.q = resourcePoolRight.getModulus();
     this.context = new CRTNumericContext(
         p.bitLength() + q.bitLength() - 40, //TODO
-        resourcePoolLeft.getMyId(), resourcePoolLeft.getNoOfParties(), p, q, mixedAdd);
+        resourcePoolLeft.getMyId(), resourcePoolLeft.getNoOfParties(), left, right, p, q);
   }
 
   @Override
@@ -151,7 +142,7 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
 
       @Override
       public DRes<SInt> randomBit() {
-        return builder.seq(seq -> seq.numeric().known(1)); // TODO
+        return builder.seq(seq -> builder.numeric().known(0)); // TODO
       }
 
       @Override

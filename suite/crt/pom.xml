@@ -57,7 +57,7 @@
   <parent>
     <artifactId>fresco-protocol-suites-pom</artifactId>
     <groupId>dk.alexandra.fresco</groupId>
-    <version>1.3.3-SNAPSHOT</version>
+    <version>1.3.4-SNAPSHOT</version>
   </parent>
 
   <build>

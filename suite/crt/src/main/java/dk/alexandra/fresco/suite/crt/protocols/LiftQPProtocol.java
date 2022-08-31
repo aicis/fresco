@@ -1,47 +1,36 @@
 package dk.alexandra.fresco.suite.crt.protocols;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.crt.CRTNumericContext;
-import dk.alexandra.fresco.suite.crt.CRTRingDefinition;
-import dk.alexandra.fresco.suite.crt.Util;
-import dk.alexandra.fresco.suite.crt.protocols.Projection.Coordinate;
+import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
 import dk.alexandra.fresco.suite.crt.protocols.framework.CRTComputation;
-import java.math.BigInteger;
 
-/** Given (x, y) output (y, 0) */
-public class LiftQPProtocol extends
-    CRTComputation<SInt> {
+/**
+ * Given a secret shared <i>[x]<sub>q</sub></dub></i> in <i>&#x2124;<sub>q</sub></i> with <i>x < q - np</i>, output <i>[x]<sub>p</sub></i> in <i>&#x2124;<sub>p</sub></i>.
+ */
+public class LiftQPProtocol<ResourcePoolA extends NumericResourcePool, ResourcePoolB extends NumericResourcePool> extends
+    CRTComputation<SInt, ResourcePoolA, ResourcePoolB> {
 
   private final DRes<SInt> value;
+  private CRTSInt r;
 
   public LiftQPProtocol(DRes<SInt> value) {
     this.value = value;
   }
 
   @Override
-  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder, CRTRingDefinition ring,
-      CRTNumericContext context) {
-    return builder.seq(
-        seq -> seq.append(new CorrelatedNoiseProtocol<>())).seq((seq, r) -> {
-
-      DRes<SInt> x2 = new Projection(value, Coordinate.RIGHT).buildComputation(seq);
-      DRes<SInt> rPrime = new Projection(r, Coordinate.RIGHT).buildComputation(seq);
-      DRes<BigInteger> yPrime = seq.numeric().open(seq.numeric().add(x2, rPrime));
-
-      return Pair.lazy(yPrime, r);
-    }).seq((seq, yPrimeAndR) -> {
-
-      Pair<BigInteger, BigInteger> crt = Util.mapToCRT(yPrimeAndR.getFirst().out(), ring.getP(), ring.getQ());
-      BigInteger yPrimeModP = crt.getSecond().mod(ring.getP());
-      BigInteger toShare = Util.mapToBigInteger(yPrimeModP, BigInteger.ZERO, ring.getP(), ring.getQ());
-      return Pair.lazy(seq.numeric().known(toShare), yPrimeAndR.getSecond());
-
-    }).seq((seq, yPrimeAndR) -> {
-      DRes<SInt> r = new Projection(yPrimeAndR.getSecond(), Coordinate.LEFT).buildComputation(seq);
-      return seq.numeric().sub(yPrimeAndR.getFirst(), r);
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder,
+      CRTNumericContext<ResourcePoolA, ResourcePoolB> context) {
+    return builder.seq(seq -> new CorrelatedNoiseProtocol<>()).seq((seq, noise) -> {
+      this.r = (CRTSInt) noise.out();
+      DRes<SInt> xBar = seq.append(context.getRightProtocolSupplier().add(value, r.getRight()));
+      return seq.append(context.getRightProtocolSupplier().open(xBar));
+    }).seq((seq, xBarOpen) -> {
+      DRes<SInt> xBarRight = context.getLeftProtocolSupplier().known(xBarOpen);
+      return context.getLeftProtocolSupplier().sub(xBarRight, r.getLeft());
     });
   }
 
