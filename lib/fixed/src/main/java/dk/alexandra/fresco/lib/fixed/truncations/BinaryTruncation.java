@@ -23,6 +23,6 @@ public class BinaryTruncation implements Truncation {
 
   @Override
   public DRes<SInt> truncate(DRes<SInt> value, ProtocolBuilderNumeric scope) {
-    return new Truncate(value, precision).buildComputation(scope);
+    return new Truncate(value, precision, scope.getBasicNumericContext().getMaxBitLength()).buildComputation(scope);
   }
 }
