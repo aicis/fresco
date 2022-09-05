@@ -18,7 +18,8 @@ import java.security.MessageDigest;
 import static org.bouncycastle.pqc.math.linearalgebra.BigEndianConversions.I2OSP;
 
 /**
- * Uses Chou-Orlandi with fixes as seen in https://eprint.iacr.org/2017/1011
+ * Uses Chou-Orlandi with fixes as seen in https://eprint.iacr.org/2021/1218
+ *
  */
 public abstract class AbstractChouOrlandiOT<T extends InterfaceOtElement<T>> implements Ot {
 
@@ -94,27 +95,24 @@ public abstract class AbstractChouOrlandiOT<T extends InterfaceOtElement<T>> imp
      * @return The random message received
      */
     private byte[] receiveRandomOt(boolean choiceBit) {
-        // S
-        T S = this.decodeElement(network.receive(otherId));
-        // T = G(S)
-        T T = hashToFieldElement(S, "FRESCO|ChouOrlandi|OT");
-        // R = T^c*g^x
-        // if c = 0 -> R = g^x
-        // if c = 1 -> R = T*g^x
+        // A
+        T A = this.decodeElement(network.receive(otherId));
+        // U = A^b*g^x
+        // if b = 0 -> U = g^x
+        // if b = 1 -> U = A*g^x
         BigInteger x = randNum.nextBigInteger(getDhModulus());
-        T R;
+        T U;
         if (choiceBit == false) {
-            R = T.exponentiation(BigInteger.ZERO).groupOp(getGenerator().exponentiation(x));
+            U = A.exponentiation(BigInteger.ZERO).groupOp(getGenerator().exponentiation(x));
         } else {
-            R = T.exponentiation(BigInteger.ONE).groupOp(getGenerator().exponentiation(x));
+            U = A.exponentiation(BigInteger.ONE).groupOp(getGenerator().exponentiation(x));
         }
-        network.send(otherId, R.toByteArray());
+        network.send(otherId, U.toByteArray());
 
-        // k = H(S, R, S^x)
+        // k = H(A, A^x)
         byte[] key;
-        hashDigest.update(S.toByteArray());
-        hashDigest.update(R.toByteArray());
-        hashDigest.update(S.exponentiation(x).toByteArray());
+        hashDigest.update(A.toByteArray());
+        hashDigest.update(A.exponentiation(x).toByteArray());
         key = hashDigest.digest();
         return key;
     }
@@ -128,28 +126,22 @@ public abstract class AbstractChouOrlandiOT<T extends InterfaceOtElement<T>> imp
     private Pair<byte[], byte[]> sendRandomOt() {
         // y
         BigInteger y = randNum.nextBigInteger(getDhModulus());
-        // S
-        T S = this.getGenerator().exponentiation(y);
-        network.send(otherId, S.toByteArray());
-        // T = G(S)
-        T T = hashToFieldElement(S, "FRESCO|ChouOrlandi|OT");
+        // A
+        T A = this.getGenerator().exponentiation(y);
+        network.send(otherId, A.toByteArray());
         byte[] rBytes = network.receive(otherId);
-        // R
-        T R = decodeElement(rBytes);
+        // U
+        T U = decodeElement(rBytes);
 
         byte[] k0Hash, k1Hash;
-        hashDigest.update(S.toByteArray());
-        hashDigest.update(R.toByteArray());
-        // R^y*T^(-jy) with j = 0:
-        // R^y * T^(-0y) == R^y
-        hashDigest.update(R.exponentiation(y).toByteArray());
+        hashDigest.update(A.toByteArray());
+        // (U * B^(0))^y == U^y
+        hashDigest.update(U.exponentiation(y).toByteArray());
         k0Hash = hashDigest.digest();
 
-        hashDigest.update(S.toByteArray());
-        hashDigest.update(R.toByteArray());
-        // R^y*T^(-jy) with j = 1:
-        // R^y * T^(-1y) == (R + (-T)) * y
-        hashDigest.update((R.groupOp(T.inverse())).exponentiation(y).toByteArray());
+        hashDigest.update(A.toByteArray());
+        // (U * B^(-1))^y
+        hashDigest.update((U.groupOp(A.inverse())).exponentiation(y).toByteArray());
         k1Hash = hashDigest.digest();
 
         // sending of the Encrypted messages is done in outer function
