@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.util.*;
+import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.tools.helper.HelperForTests;
 import dk.alexandra.fresco.tools.helper.RuntimeForTests;
 import dk.alexandra.fresco.tools.ot.otextension.CheatingNetworkDecorator;
@@ -24,10 +25,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import static org.junit.Assert.*;
@@ -100,10 +98,18 @@ public class TestChouOrlandiOt {
             BigInteger randBigInt = randNum.nextBigInteger(staticSpec.getP());
             BigIntElement bigIntElement = new BigIntElement(randBigInt, staticSpec.getP());
             BigIntElement result = (BigIntElement) this.hashToFieldElement.invoke(this.ot, bigIntElement, "Separation|Tag");
-            BigInteger BigIntegerResult = new BigInteger(result.toByteArray());
-            if (BigIntegerResult.compareTo(staticSpec.getP()) != -1 || BigIntegerResult.compareTo(BigInteger.ZERO) <= 0) {
+            BigInteger bigIntegerResult = new BigInteger(result.toByteArray());
+            if (bigIntegerResult.compareTo(staticSpec.getP()) != -1 || bigIntegerResult.compareTo(BigInteger.ZERO) <= 0) {
                 fail("Element not in field");
             }
+
+            // check against a precomputed value to ensure we get the same result.
+            // This will of course fail if the seed used in the tests changes.
+            byte[] expected = Base64.getDecoder().decode("AIJ8xVvqAadbaMfJFX1nfO+gBbTbLgI/q753LfhdL27irzRJAuE35d4J5dJabYv7/LKUk6BfapWe6ONFxMVOW1OZ+b/hPb9OR1nAYXlaSLonJx2okZzUx7eTQqIZzMLM8PY7wcyZCEAhiCTXV9D6z/uFQIZlWBZmhSC8mgRrpTeY9SpRrBOvkz4gAGLynHoqYCHrCni5B4Le+1IklldN9sCNv6qZXNUebdSLvzw1L+TpI4YFQh4wGcQ9SCq8r63lN7xIG2RqoPK/NzgvdZWDbT2j3XUpVl804WwLbR7lsqeagXw+ugevXpUDn45w7hIBUw0C1tOEPlVUHEMT4iI72Fk=");
+            if (!Arrays.equals(bigIntegerResult.toByteArray(), expected)) {
+                fail("Computed result not matching expected value");
+            }
+
         } else if (this.testClass == BouncyCastleChouOrlandi.class) {
             X9ECParameters ecP = CustomNamedCurves.getByName("curve25519");
             ECCurve curve = ecP.getCurve();
@@ -113,7 +119,14 @@ public class TestChouOrlandiOt {
             BouncyCastleECCElement eccElement = new BouncyCastleECCElement(randElement);
             BouncyCastleECCElement result = (BouncyCastleECCElement) this.hashToFieldElement.invoke(this.ot,eccElement, "Separation|Tag");
             // if we can calculate something without an exception, everything went well
-            result.groupOp(eccElement);
+            BouncyCastleECCElement test = result.groupOp(eccElement);
+
+            // check against a precomputed value to ensure we get the same result.
+            // This will of course fail if the seed used in the tests changes.
+            byte[] expected = Base64.getDecoder().decode("BEtK5/CGv5T+TXVXfzKmhmcYrkC/7tb1zkNV6ayQB8qlNIdy125CUqmawW8hW0l1/BBPSpxEanxezSnGPrZ0AqE=");
+            if (!Arrays.equals(test.toByteArray(), expected)) {
+                fail("Computed result not matching expected value");
+            }
         }
         else fail("Not recognized Chou-Orlandi class");
     }
