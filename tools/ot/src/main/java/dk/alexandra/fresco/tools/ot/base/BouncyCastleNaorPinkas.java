@@ -43,35 +43,30 @@ public class BouncyCastleNaorPinkas extends AbstractNaorPinkasOT<BouncyCastleECC
 
   @Override
   BouncyCastleECCElement generateRandomNaorPinkasElement() {
-    return new BouncyCastleECCElement(computePoint(this.randNum.nextBigInteger(this.dhModulus)));
+    return new BouncyCastleECCElement(computePoint(this.randNum.nextBigInteger(curve.getField().getCharacteristic())));
   }
 
   // Specific for curve25519 in Montgomery form
   private ECPoint computePoint(BigInteger integer) {
     ECFieldElement x = this.curve.fromBigInteger(integer);
     ECFieldElement a = this.curve.getA();
+    ECFieldElement b = this.curve.getB();
     ECFieldElement ySquare, y;
     ECPoint resPoint;
     do {
-      x = x.addOne();
-      //      = x^3 + ax^2 + x
-      ySquare = x.multiply(x.square()).add(a.multiply(x.square())).add(x);
-
-//      BigInteger x1 = x.toBigInteger();
-//      ySquare = this.curve.fromBigInteger(
-//              x1.modPow(BigInteger.valueOf(3), this.dhModulus)
-//                      .add(a.toBigInteger().multiply(x1.modPow(BigInteger.valueOf(2), this.dhModulus)))
-//                      .add(x1).mod(this.dhModulus)
-//      );
-
-      y = ySquare.sqrt();
-    } while (y == null);
-    resPoint = this.curve.createPoint(x.toBigInteger(), y.toBigInteger()).normalize();
-
+      do {
+        x = x.addOne();
+        //      = x^3 + ax + b
+        ySquare = x.multiply(x.square()).add(a.multiply(x)).add(b);
+        y = ySquare.sqrt();
+      } while (y == null);
+      resPoint = this.curve.createPoint(x.toBigInteger(), y.toBigInteger());
+      // Ensure we have a point in the correct subgroup
+      resPoint = resPoint.multiply(this.curve.getCofactor()).normalize();
+    } while (!resPoint.isValid());
     if (!resPoint.isValid()) {
       throw new IllegalStateException("EC Point is not a valid curve25519 point");
     }
-
     return resPoint;
   }
 
