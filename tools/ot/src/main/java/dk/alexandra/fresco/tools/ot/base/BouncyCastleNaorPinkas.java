@@ -85,14 +85,4 @@ public class BouncyCastleNaorPinkas extends AbstractNaorPinkasOT<BouncyCastleECC
     return new BouncyCastleECCElement(this.dhGenerator);
   }
 
-  private static BigInteger calculateResidue(BigInteger p) {
-    int bitLength = p.bitLength();
-    if (bitLength >= 96) {
-      BigInteger firstWord = p.shiftRight(bitLength - 64);
-      if (firstWord.longValue() == -1L) {
-        return BigInteger.ONE.shiftLeft(bitLength).subtract(p);
-      }
-    }
-    return BigInteger.ZERO;
-  }
 }
