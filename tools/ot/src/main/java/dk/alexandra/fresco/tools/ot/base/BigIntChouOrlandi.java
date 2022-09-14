@@ -34,7 +34,7 @@ public class BigIntChouOrlandi extends AbstractChouOrlandiOT<BigIntElement> {
 
     @Override
     BigIntElement decodeElement(byte[] bytes) {
-        return new BigIntElement(new BigInteger(bytes), this.dhModulus);
+        return new BigIntElement(new BigInteger(1, bytes), this.dhModulus);
     }
 
     @Override

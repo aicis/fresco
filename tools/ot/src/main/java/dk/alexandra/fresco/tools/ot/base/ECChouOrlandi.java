@@ -10,7 +10,7 @@ import org.bouncycastle.math.ec.ECCurve;
 import java.math.BigInteger;
 import java.security.Security;
 
-public class BouncyCastleChouOrlandi extends AbstractChouOrlandiOT<BouncyCastleECCElement>{
+public class ECChouOrlandi extends AbstractChouOrlandiOT<ECElement>{
 
     /**
      * The modulus of the Diffie-Hellman group used in the OT.
@@ -24,11 +24,11 @@ public class BouncyCastleChouOrlandi extends AbstractChouOrlandiOT<BouncyCastleE
     private final ECCurve curve;
 
     @Override
-    BouncyCastleECCElement multiplyWithGenerator(BigInteger input) {
-        return new BouncyCastleECCElement(this.dhGenerator.multiply(input));
+    ECElement multiplyWithGenerator(BigInteger input) {
+        return new ECElement(this.dhGenerator.multiply(input));
     }
 
-    public BouncyCastleChouOrlandi(int otherId, Drbg randBit, Network network) {
+    public ECChouOrlandi(int otherId, Drbg randBit, Network network) {
         super(otherId, randBit, network);
         Security.addProvider(new BouncyCastleProvider());
         X9ECParameters ecP = CustomNamedCurves.getByName("curve25519");
@@ -38,13 +38,13 @@ public class BouncyCastleChouOrlandi extends AbstractChouOrlandiOT<BouncyCastleE
     }
 
     @Override
-    BouncyCastleECCElement decodeElement(byte[] bytes) {
-        return new BouncyCastleECCElement(this.curve.decodePoint(bytes));
+    ECElement decodeElement(byte[] bytes) {
+        return new ECElement(this.curve.decodePoint(bytes));
     }
 
     @Override
-    BouncyCastleECCElement getGenerator() {
-        return new BouncyCastleECCElement(this.dhGenerator);
+    ECElement getGenerator() {
+        return new ECElement(this.dhGenerator);
     }
 
     @Override

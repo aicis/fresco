@@ -10,12 +10,11 @@ import java.security.MessageDigest;
 
 public abstract class AbstractNaorPinkasOT<T extends InterfaceOtElement<T>> implements Ot {
 
-  private static final String HASH_ALGORITHM = "SHA-256";
+  // The amount of bytes in the random message
+  private static final int MESSAGE_SIZE_BYTES = 32;
   private final int otherId;
   private final Network network;
   protected final Drng randNum;
-
-  private final MessageDigest hashDigest;
 
   /**
    * @return a randomly generated NaorPinkas Element
@@ -37,8 +36,6 @@ public abstract class AbstractNaorPinkasOT<T extends InterfaceOtElement<T>> impl
   public AbstractNaorPinkasOT(int otherId, Drbg randBit, Network network) {
     this.otherId = otherId;
     this.network = network;
-    this.hashDigest = ExceptionConverter.safe(() -> MessageDigest.getInstance(HASH_ALGORITHM),
-        "Missing secure, hash function which is dependent in this library");
     this.randNum = new DrngImpl(randBit);
   }
 
@@ -124,11 +121,12 @@ public abstract class AbstractNaorPinkasOT<T extends InterfaceOtElement<T>> impl
    */
   private Pair<InterfaceOtElement, byte[]> encryptRandomMessage(
       InterfaceOtElement publicKey) {
-
     BigInteger r = randNum.nextBigInteger(getSubgroupOrder());
     InterfaceOtElement cipherText = getGenerator().exponentiation(r);
     InterfaceOtElement toHash = publicKey.exponentiation(r);
-    byte[] message = hashDigest.digest(toHash.toByteArray());
+    HmacDrbg rand = new HmacDrbg(toHash.toByteArray());
+    byte[] message = new byte[MESSAGE_SIZE_BYTES];
+    rand.nextBytes(message);
     return new Pair<>(cipherText, message);
   }
 
@@ -141,7 +139,10 @@ public abstract class AbstractNaorPinkasOT<T extends InterfaceOtElement<T>> impl
    */
   private byte[] decryptRandomMessage(InterfaceOtElement cipher, BigInteger privateKey) {
     InterfaceOtElement toHash = cipher.exponentiation(privateKey);
-    return hashDigest.digest(toHash.toByteArray());
+    HmacDrbg rand = new HmacDrbg(toHash.toByteArray());
+    byte[] message = new byte[MESSAGE_SIZE_BYTES];
+    rand.nextBytes(message);
+    return message;
   }
 
   /**

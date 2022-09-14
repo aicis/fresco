@@ -18,7 +18,7 @@ import java.math.BigInteger;
  * Elliptic curve implementation of the Naor-Pinkas OT
  * Needs the Bouncy Castle dependency from the OT pom.xml
  */
-public class ECNaorPinkasOt extends AbstractNaorPinkasOT<BouncyCastleECCElement> {
+public class ECNaorPinkasOt extends AbstractNaorPinkasOT<ECElement> {
 
   /**
    * The order of the subgroup we use in the elliptic curve. I.e. the size of the domain of valid
@@ -43,11 +43,11 @@ public class ECNaorPinkasOt extends AbstractNaorPinkasOT<BouncyCastleECCElement>
   }
 
   @Override
-  BouncyCastleECCElement generateRandomNaorPinkasElement() {
+  ECElement generateRandomNaorPinkasElement() {
     // Sample random integer over the field of the curve
     BigInteger randomInt = this.randNum.nextBigInteger(curve.getField().getCharacteristic());
     // Compute the closets point on the curve to this
-    return new BouncyCastleECCElement(computePoint(randomInt));
+    return new ECElement(computePoint(randomInt));
   }
 
   /**
@@ -73,8 +73,8 @@ public class ECNaorPinkasOt extends AbstractNaorPinkasOT<BouncyCastleECCElement>
       // Ensure we have a point in the correct subgroup
       resPoint = resPoint.multiply(this.curve.getCofactor()).normalize();
       // Note that we need to validate the point. While multiplying with the co-factor should be
-      // sufficient.
-    } while (!resPoint.isValid());
+      // sufficient if the result is not the point at infinity
+    } while (!resPoint.isValid() && !resPoint.isInfinity());
     return resPoint;
   }
 
@@ -99,8 +99,8 @@ public class ECNaorPinkasOt extends AbstractNaorPinkasOT<BouncyCastleECCElement>
   }
 
   @Override
-  BouncyCastleECCElement decodeElement(byte[] bytes) {
-    return new BouncyCastleECCElement(this.curve.decodePoint(bytes));
+  ECElement decodeElement(byte[] bytes) {
+    return new ECElement(this.curve.decodePoint(bytes));
   }
 
   @Override
@@ -109,8 +109,8 @@ public class ECNaorPinkasOt extends AbstractNaorPinkasOT<BouncyCastleECCElement>
   }
 
   @Override
-  BouncyCastleECCElement getGenerator() {
-    return new BouncyCastleECCElement(this.generator);
+  ECElement getGenerator() {
+    return new ECElement(this.generator);
   }
 
   private static BigInteger calculateResidue(BigInteger p) {

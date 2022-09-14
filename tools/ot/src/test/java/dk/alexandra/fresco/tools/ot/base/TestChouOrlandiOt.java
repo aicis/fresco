@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.util.*;
-import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.tools.helper.HelperForTests;
 import dk.alexandra.fresco.tools.helper.RuntimeForTests;
 import dk.alexandra.fresco.tools.ot.otextension.CheatingNetworkDecorator;
@@ -13,14 +12,12 @@ import org.bouncycastle.crypto.ec.CustomNamedCurves;
 import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import javax.crypto.spec.DHParameterSpec;
 import java.io.Closeable;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -37,7 +34,7 @@ public class TestChouOrlandiOt {
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
-                {BouncyCastleChouOrlandi.class},
+                {ECChouOrlandi.class},
                 {BigIntChouOrlandi.class}
         });
     }
@@ -110,16 +107,16 @@ public class TestChouOrlandiOt {
                 fail("Computed result not matching expected value");
             }
 
-        } else if (this.testClass == BouncyCastleChouOrlandi.class) {
+        } else if (this.testClass == ECChouOrlandi.class) {
             X9ECParameters ecP = CustomNamedCurves.getByName("curve25519");
             ECCurve curve = ecP.getCurve();
             BigInteger dhModulus = curve.getOrder();
             ECPoint dhGenerator = ecP.getG();
             ECPoint randElement = dhGenerator.multiply(randNum.nextBigInteger(dhModulus));
-            BouncyCastleECCElement eccElement = new BouncyCastleECCElement(randElement);
-            BouncyCastleECCElement result = (BouncyCastleECCElement) this.hashToFieldElement.invoke(this.ot,eccElement, "Separation|Tag");
+            ECElement eccElement = new ECElement(randElement);
+            ECElement result = (ECElement) this.hashToFieldElement.invoke(this.ot,eccElement, "Separation|Tag");
             // if we can calculate something without an exception, everything went well
-            BouncyCastleECCElement test = result.groupOp(eccElement);
+            ECElement test = result.groupOp(eccElement);
 
             // check against a precomputed value to ensure we get the same result.
             // This will of course fail if the seed used in the tests changes.
