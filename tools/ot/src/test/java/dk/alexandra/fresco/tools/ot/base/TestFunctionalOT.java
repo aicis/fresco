@@ -41,7 +41,7 @@ public class TestFunctionalOT {
   public static Collection<Object[]> data() {
     return Arrays.asList(new Object[][]{
             {BigIntNaorPinkas.class},
-            {BouncyCastleNaorPinkas.class},
+            {ECNaorPinkasOt.class},
             {BouncyCastleChouOrlandi.class},
             {BigIntChouOrlandi.class}
     });
@@ -236,7 +236,7 @@ public class TestFunctionalOT {
     Callable<List<StrictBitVector>> partyOneInit = () -> otSendCheat();
     Callable<List<StrictBitVector>> partyTwoInit = () -> otReceiveCheat(choice);
     // run tasks and get ordered list of results
-    if (this.testClass == BouncyCastleNaorPinkas.class
+    if (this.testClass == ECNaorPinkasOt.class
         ||  this.testClass == BouncyCastleChouOrlandi.class) {
       // if you (trivially) cheat in ECCNaorPinkas | BouncyCastleNaorPinkas, the cheated Message is not
       // a valid point on the curve anymore, so it should throw an exception

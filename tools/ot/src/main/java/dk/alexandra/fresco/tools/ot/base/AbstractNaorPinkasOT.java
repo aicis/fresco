@@ -29,9 +29,9 @@ public abstract class AbstractNaorPinkasOT<T extends InterfaceOtElement<T>> impl
    */
   abstract InterfaceOtElement decodeElement(byte[] bytes);
 
-  abstract BigInteger getDhModulus();
+  abstract BigInteger getSubgroupOrder();
 
-  abstract InterfaceOtElement getDhGenerator();
+  abstract InterfaceOtElement getGenerator();
 
 
   public AbstractNaorPinkasOT(int otherId, Drbg randBit, Network network) {
@@ -90,8 +90,8 @@ public abstract class AbstractNaorPinkasOT<T extends InterfaceOtElement<T>> impl
    */
   private byte[] receiveRandomOt(boolean choiceBit) {
     InterfaceOtElement randPoint = this.decodeElement(network.receive(otherId));
-    BigInteger privateKey = randNum.nextBigInteger(getDhModulus());
-    InterfaceOtElement publicKeySigma = getDhGenerator().exponentiation(privateKey);
+    BigInteger privateKey = randNum.nextBigInteger(getSubgroupOrder());
+    InterfaceOtElement publicKeySigma = getGenerator().exponentiation(privateKey);
 
     InterfaceOtElement publicKeyNotSigma = publicKeySigma.inverse().groupOp(randPoint);
 
@@ -125,8 +125,8 @@ public abstract class AbstractNaorPinkasOT<T extends InterfaceOtElement<T>> impl
   private Pair<InterfaceOtElement, byte[]> encryptRandomMessage(
       InterfaceOtElement publicKey) {
 
-    BigInteger r = randNum.nextBigInteger(getDhModulus());
-    InterfaceOtElement cipherText = getDhGenerator().exponentiation(r);
+    BigInteger r = randNum.nextBigInteger(getSubgroupOrder());
+    InterfaceOtElement cipherText = getGenerator().exponentiation(r);
     InterfaceOtElement toHash = publicKey.exponentiation(r);
     byte[] message = hashDigest.digest(toHash.toByteArray());
     return new Pair<>(cipherText, message);
