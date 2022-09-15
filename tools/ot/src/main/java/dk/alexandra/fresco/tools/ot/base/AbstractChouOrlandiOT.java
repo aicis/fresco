@@ -107,7 +107,7 @@ public abstract class AbstractChouOrlandiOT<T extends InterfaceOtElement<T>> imp
         BigInteger x = randNum.nextBigInteger(getDhModulus());
         T U;
         if (choiceBit == false) {
-            U = A.exponentiation(BigInteger.ZERO).groupOp(getGenerator().exponentiation(x));
+            U = getGenerator().exponentiation(x);
         } else {
             U = A.exponentiation(BigInteger.ONE).groupOp(getGenerator().exponentiation(x));
         }
