@@ -9,7 +9,13 @@ import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.otextension.PseudoOtp;
+import org.bouncycastle.crypto.Digest;
+import org.bouncycastle.crypto.Mac;
+import org.bouncycastle.crypto.digests.SHA3Digest;
 import org.bouncycastle.crypto.digests.SHAKEDigest;
+import org.bouncycastle.crypto.macs.HMac;
+import org.bouncycastle.jcajce.provider.digest.SHA256;
+import org.bouncycastle.jcajce.provider.digest.SHA3;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -23,12 +29,11 @@ import static org.bouncycastle.pqc.math.linearalgebra.BigEndianConversions.I2OSP
  */
 public abstract class AbstractChouOrlandiOT<T extends InterfaceOtElement<T>> implements Ot {
 
-    private static final String HASH_ALGORITHM = "SHA-256";
     private final int otherId;
     private final Network network;
     protected final Drng randNum;
 
-    private final MessageDigest hashDigest;
+    private final Mac mac;
 
 
     /**
@@ -54,8 +59,7 @@ public abstract class AbstractChouOrlandiOT<T extends InterfaceOtElement<T>> imp
         this.otherId = otherId;
         this.network = network;
         this.randNum = new DrngImpl(randBit);
-        this.hashDigest = ExceptionConverter.safe(() -> MessageDigest.getInstance(HASH_ALGORITHM),
-                "Missing secure, hash function which is dependent in this library");
+        this.mac = new HMac(new SHA3Digest());
     }
 
     @Override
@@ -110,10 +114,12 @@ public abstract class AbstractChouOrlandiOT<T extends InterfaceOtElement<T>> imp
         network.send(otherId, U.toByteArray());
 
         // k = H(A, A^x)
-        byte[] key;
-        hashDigest.update(A.toByteArray());
-        hashDigest.update(A.exponentiation(x).toByteArray());
-        key = hashDigest.digest();
+        byte[] key = new byte[mac.getMacSize()];
+        mac.update(A.toByteArray(), 0, A.toByteArray().length);
+        byte[] Ax = A.exponentiation(x).toByteArray();
+        mac.update(Ax, 0, Ax.length);
+        mac.doFinal(key, 0);
+        mac.reset();
         return key;
     }
 
@@ -133,16 +139,24 @@ public abstract class AbstractChouOrlandiOT<T extends InterfaceOtElement<T>> imp
         // U
         T U = decodeElement(rBytes);
 
-        byte[] k0Hash, k1Hash;
-        hashDigest.update(A.toByteArray());
-        // (U * B^(0))^y == U^y
-        hashDigest.update(U.exponentiation(y).toByteArray());
-        k0Hash = hashDigest.digest();
+        byte[] k0Hash = new byte[mac.getMacSize()];
+        byte[] k1Hash = new byte[mac.getMacSize()];
 
-        hashDigest.update(A.toByteArray());
+        byte[] aBytes = A.toByteArray();
+
+        mac.update(aBytes, 0, aBytes.length);
+        // (U * B^(0))^y == U^y
+        byte[] key0 = U.exponentiation(y).toByteArray();
+        mac.update(key0, 0, key0.length);
+        mac.doFinal(k0Hash, 0);
+        mac.reset();
+
+        mac.update(aBytes, 0, aBytes.length);
         // (U * B^(-1))^y
-        hashDigest.update((U.groupOp(A.inverse())).exponentiation(y).toByteArray());
-        k1Hash = hashDigest.digest();
+        byte[] key1 = (U.groupOp(A.inverse())).exponentiation(y).toByteArray();
+        mac.update(key1, 0, key1.length);
+        mac.doFinal(k1Hash, 0);
+        mac.reset();
 
         // sending of the Encrypted messages is done in outer function
         return new Pair<>(k0Hash, k1Hash);
