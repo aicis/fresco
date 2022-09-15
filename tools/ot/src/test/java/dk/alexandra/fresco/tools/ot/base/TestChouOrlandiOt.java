@@ -102,9 +102,12 @@ public class TestChouOrlandiOt {
 
             // check against a precomputed value to ensure we get the same result.
             // This will of course fail if the seed used in the tests changes.
-            byte[] expected = Base64.getDecoder().decode("AIJ8xVvqAadbaMfJFX1nfO+gBbTbLgI/q753LfhdL27irzRJAuE35d4J5dJabYv7/LKUk6BfapWe6ONFxMVOW1OZ+b/hPb9OR1nAYXlaSLonJx2okZzUx7eTQqIZzMLM8PY7wcyZCEAhiCTXV9D6z/uFQIZlWBZmhSC8mgRrpTeY9SpRrBOvkz4gAGLynHoqYCHrCni5B4Le+1IklldN9sCNv6qZXNUebdSLvzw1L+TpI4YFQh4wGcQ9SCq8r63lN7xIG2RqoPK/NzgvdZWDbT2j3XUpVl804WwLbR7lsqeagXw+ugevXpUDn45w7hIBUw0C1tOEPlVUHEMT4iI72Fk=");
-            if (!Arrays.equals(bigIntegerResult.toByteArray(), expected)) {
-                fail("Computed result not matching expected value");
+            BigInteger expected = new BigInteger(
+                    "2c4fd42d3d9fd9109820d5b3b516edbfb7010f12b58a210bef15537a048db85ad34e60f2025d137e4be6a143707784a99d9ca3aecf24a850f1b120544c814dd48d88e38b7f89fb545e33b39c1940815a79883004893bc4749a5a7293f3d85427d74be3acc0a76d15576409b60b593283c35bca8eb9fd38beb85fb8ea3d6adbb3cd88a9a189f8740a779cae020d6854d5743bdbd2fdbaa94bd5e795a7d6abd4a5f6decfda7477866e7176171385e5708d28fb9f1633628983faf63cd1aa8423f56a2e77bba67e9981be10e48f335e620818d64cd63c0dd02704a512d2a48fcdaa76ab16dd711acc9bb008fd01da02c4753633646ec3c477018d28345fd9439693",
+                    16
+                    );
+            if (!expected.equals(bigIntegerResult)) {
+                fail("Computed result not matching expected value, got: "+bigIntegerResult.toString(16));
             }
 
         } else if (this.testClass == ECChouOrlandi.class) {
