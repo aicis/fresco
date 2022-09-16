@@ -2,26 +2,13 @@ package dk.alexandra.fresco.tools.ot.base;
 
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.Drng;
-import dk.alexandra.fresco.framework.util.DrngImpl;
-import dk.alexandra.fresco.framework.util.ExceptionConverter;
-import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.framework.util.*;
 import dk.alexandra.fresco.tools.ot.otextension.PseudoOtp;
-import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.Mac;
 import org.bouncycastle.crypto.digests.SHA3Digest;
-import org.bouncycastle.crypto.digests.SHAKEDigest;
 import org.bouncycastle.crypto.macs.HMac;
-import org.bouncycastle.jcajce.provider.digest.SHA256;
-import org.bouncycastle.jcajce.provider.digest.SHA3;
 
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-
-import static org.bouncycastle.pqc.math.linearalgebra.BigEndianConversions.I2OSP;
 
 /**
  * Uses Chou-Orlandi with fixes as seen in https://eprint.iacr.org/2021/1218
@@ -163,31 +150,4 @@ public abstract class AbstractChouOrlandiOT<T extends InterfaceOtElement<T>> imp
     }
 
 
-    /**
-     * Needed for Chou-Orlandi
-     *
-     * Hashing to finite fields according to [1] in point 5.2
-     * [1] https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-06
-     * @return a byte[] intended to create a new element in the desired filed
-     */
-    private T hashToFieldElement(T element, String DST) {
-        byte[] msg = element.toByteArray();
-        //security parameter in bits
-        int k = 256;
-        int L = (int) Math.ceil((Math.ceil(getDhModulus().bitLength()) + k) / 8);
-
-        //start of algorithm, we only need one element, and m is 1, so L = lenInBytes
-        int lenInByts = L;
-        // start expand_message_xof
-        SHAKEDigest xof = new SHAKEDigest(256);
-        xof.update(msg, 0, msg.length);
-        xof.update(I2OSP(lenInByts, 2), 0, 2);
-        xof.update(I2OSP(DST.getBytes(StandardCharsets.UTF_8).length, 1), 0, 1);
-        xof.update(DST.getBytes(StandardCharsets.UTF_8), 0, DST.getBytes(StandardCharsets.UTF_8).length);
-        byte[] pseudoRandomBytes = new byte[lenInByts];
-        xof.doFinal(pseudoRandomBytes, 0, lenInByts);
-        // end expand_message_xof
-        BigInteger randBigInt = new BigInteger(1, pseudoRandomBytes);
-        return multiplyWithGenerator(randBigInt);
-    }
 }

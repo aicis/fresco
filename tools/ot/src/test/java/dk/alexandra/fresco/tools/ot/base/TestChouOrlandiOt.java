@@ -81,54 +81,6 @@ public class TestChouOrlandiOt {
         Constructor[] constructors = clazz.getConstructors();
         this.ot = (AbstractChouOrlandiOT) constructors[0]
                 .newInstance(2, randBit, network);
-        // Change visibility of private methods so they can be tested
-        this.hashToFieldElement = getMethodFromAbstractClass("hashToFieldElement");
-        this.hashToFieldElement.setAccessible(true);
-    }
-
-
-    /**** POSITIVE TESTS. ****/
-
-    @Test
-    public void testHashToFieldElement() throws InvocationTargetException, IllegalAccessException {
-        if (this.testClass == BigIntChouOrlandi.class) {
-            BigInteger randBigInt = randNum.nextBigInteger(staticSpec.getP());
-            BigIntElement bigIntElement = new BigIntElement(randBigInt, staticSpec.getP());
-            BigIntElement result = (BigIntElement) this.hashToFieldElement.invoke(this.ot, bigIntElement, "Separation|Tag");
-            BigInteger bigIntegerResult = new BigInteger(result.toByteArray());
-            if (bigIntegerResult.compareTo(staticSpec.getP()) != -1 || bigIntegerResult.compareTo(BigInteger.ZERO) <= 0) {
-                fail("Element not in field");
-            }
-
-            // check against a precomputed value to ensure we get the same result.
-            // This will of course fail if the seed used in the tests changes.
-            BigInteger expected = new BigInteger(
-                    "2c4fd42d3d9fd9109820d5b3b516edbfb7010f12b58a210bef15537a048db85ad34e60f2025d137e4be6a143707784a99d9ca3aecf24a850f1b120544c814dd48d88e38b7f89fb545e33b39c1940815a79883004893bc4749a5a7293f3d85427d74be3acc0a76d15576409b60b593283c35bca8eb9fd38beb85fb8ea3d6adbb3cd88a9a189f8740a779cae020d6854d5743bdbd2fdbaa94bd5e795a7d6abd4a5f6decfda7477866e7176171385e5708d28fb9f1633628983faf63cd1aa8423f56a2e77bba67e9981be10e48f335e620818d64cd63c0dd02704a512d2a48fcdaa76ab16dd711acc9bb008fd01da02c4753633646ec3c477018d28345fd9439693",
-                    16
-                    );
-            if (!expected.equals(bigIntegerResult)) {
-                fail("Computed result not matching expected value, got: "+bigIntegerResult.toString(16));
-            }
-
-        } else if (this.testClass == ECChouOrlandi.class) {
-            X9ECParameters ecP = CustomNamedCurves.getByName("curve25519");
-            ECCurve curve = ecP.getCurve();
-            BigInteger dhModulus = curve.getOrder();
-            ECPoint dhGenerator = ecP.getG();
-            ECPoint randElement = dhGenerator.multiply(randNum.nextBigInteger(dhModulus));
-            ECElement eccElement = new ECElement(randElement);
-            ECElement result = (ECElement) this.hashToFieldElement.invoke(this.ot,eccElement, "Separation|Tag");
-            // if we can calculate something without an exception, everything went well
-            ECElement test = result.groupOp(eccElement);
-
-            // check against a precomputed value to ensure we get the same result.
-            // This will of course fail if the seed used in the tests changes.
-            byte[] expected = Base64.getDecoder().decode("BEtK5/CGv5T+TXVXfzKmhmcYrkC/7tb1zkNV6ayQB8qlNIdy125CUqmawW8hW0l1/BBPSpxEanxezSnGPrZ0AqE=");
-            if (!Arrays.equals(test.toByteArray(), expected)) {
-                fail("Computed result not matching expected value");
-            }
-        }
-        else fail("Not recognized Chou-Orlandi class");
     }
 
     /**** NEGATIVE TESTS. ****/
