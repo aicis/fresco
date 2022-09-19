@@ -39,6 +39,7 @@ public class ECChouOrlandi extends AbstractChouOrlandiOT<ECElement>{
 
     @Override
     ECElement decodeElement(byte[] bytes) {
+        // We expect BouncyCastle to verify that the point is correct.
         return new ECElement(this.curve.decodePoint(bytes));
     }
 

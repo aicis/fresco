@@ -46,10 +46,6 @@ public class TestChouOrlandiOt {
         this.testClass = testClass;
     }
 
-    private AbstractChouOrlandiOT ot;
-    private Method hashToFieldElement;
-    private Drng randNum;
-    private DHParameterSpec staticSpec;
     /**
      * Construct a ChouOrlandiOt instance based on some static Diffie-Hellman parameters.
      *
@@ -60,7 +56,7 @@ public class TestChouOrlandiOt {
     public void setup()
             throws NoSuchMethodException, SecurityException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Drbg randBit = new AesCtrDrbg(HelperForTests.seedOne);
-        randNum = new DrngImpl(randBit);
+        new DrngImpl(randBit);
         // fake network
         Network network = new Network() {
             @Override
@@ -76,11 +72,6 @@ public class TestChouOrlandiOt {
                 return 0;
             }
         };
-        staticSpec = DhParameters.getStaticDhParams();
-        Class clazz = this.testClass;
-        Constructor[] constructors = clazz.getConstructors();
-        this.ot = (AbstractChouOrlandiOT) constructors[0]
-                .newInstance(2, randBit, network);
     }
 
     /**** NEGATIVE TESTS. ****/
@@ -133,19 +124,5 @@ public class TestChouOrlandiOt {
             return messageList;
     }
 
-    private Method getMethodFromAbstractClass(String methodToSearch) {
-        Class<?> clazz = this.testClass;
-        while (clazz != null) {
-            Method[] methods = clazz.getDeclaredMethods();
-            for (Method method : methods) {
-                // Test any other things about it beyond the name...
-                if (method.getName().equals(methodToSearch)) {
-                    return method;
-                }
-            }
-            clazz = clazz.getSuperclass();
-        }
-        return null;
-    }
 }
 
