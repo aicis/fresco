@@ -8,37 +8,34 @@ import dk.alexandra.fresco.tools.ot.otextension.PseudoOtp;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 
-public abstract class AbstractNaorPinkasOT implements Ot {
+public abstract class AbstractNaorPinkasOT<T extends InterfaceOtElement<T>> implements Ot {
 
-  private static final String HASH_ALGORITHM = "SHA-256";
+  // The amount of bytes in the random message
+  private static final int MESSAGE_SIZE_BYTES = 32;
   private final int otherId;
   private final Network network;
   protected final Drng randNum;
 
-  private final MessageDigest hashDigest;
-
   /**
    * @return a randomly generated NaorPinkas Element
    */
-  abstract InterfaceNaorPinkasElement generateRandomNaorPinkasElement();
+  abstract InterfaceOtElement generateRandomNaorPinkasElement();
 
   /**
    * Decodes an encoded element
    * @param bytes the encoded element represented in bytes
    * @return the decoded element
    */
-  abstract InterfaceNaorPinkasElement decodeElement(byte[] bytes);
+  abstract InterfaceOtElement decodeElement(byte[] bytes);
 
-  abstract BigInteger getDhModulus();
+  abstract BigInteger getSubgroupOrder();
 
-  abstract InterfaceNaorPinkasElement getDhGenerator();
+  abstract InterfaceOtElement getGenerator();
 
 
   public AbstractNaorPinkasOT(int otherId, Drbg randBit, Network network) {
     this.otherId = otherId;
     this.network = network;
-    this.hashDigest = ExceptionConverter.safe(() -> MessageDigest.getInstance(HASH_ALGORITHM),
-        "Missing secure, hash function which is dependent in this library");
     this.randNum = new DrngImpl(randBit);
   }
 
@@ -69,13 +66,13 @@ public abstract class AbstractNaorPinkasOT implements Ot {
    * @return The two random messages sent by the sender.
    */
   private Pair<byte[], byte[]> sendRandomOt() {
-    InterfaceNaorPinkasElement randPoint = this.generateRandomNaorPinkasElement();
+    InterfaceOtElement randPoint = this.generateRandomNaorPinkasElement();
     network.send(otherId, randPoint.toByteArray());
     byte[] tmp = network.receive(otherId);
-    InterfaceNaorPinkasElement publicKeyZero = this.decodeElement(tmp);
-    InterfaceNaorPinkasElement publicKeyOne = publicKeyZero.inverse().groupOp(randPoint);
-    Pair<InterfaceNaorPinkasElement, byte[]> zeroChoiceData = encryptRandomMessage(publicKeyZero);
-    Pair<InterfaceNaorPinkasElement, byte[]> oneChoiceData = encryptRandomMessage(publicKeyOne);
+    InterfaceOtElement publicKeyZero = this.decodeElement(tmp);
+    InterfaceOtElement publicKeyOne = publicKeyZero.inverse().groupOp(randPoint);
+    Pair<InterfaceOtElement, byte[]> zeroChoiceData = encryptRandomMessage(publicKeyZero);
+    Pair<InterfaceOtElement, byte[]> oneChoiceData = encryptRandomMessage(publicKeyOne);
     network.send(otherId, zeroChoiceData.getFirst().toByteArray());
     network.send(otherId, oneChoiceData.getFirst().toByteArray());
     return new Pair<>(zeroChoiceData.getSecond(), oneChoiceData.getSecond());
@@ -89,19 +86,19 @@ public abstract class AbstractNaorPinkasOT implements Ot {
    * @return The random message received
    */
   private byte[] receiveRandomOt(boolean choiceBit) {
-    InterfaceNaorPinkasElement randPoint = this.decodeElement(network.receive(otherId));
-    BigInteger privateKey = randNum.nextBigInteger(getDhModulus());
-    InterfaceNaorPinkasElement publicKeySigma = getDhGenerator().exponentiation(privateKey);
+    InterfaceOtElement randPoint = this.decodeElement(network.receive(otherId));
+    BigInteger privateKey = randNum.nextBigInteger(getSubgroupOrder());
+    InterfaceOtElement publicKeySigma = getGenerator().exponentiation(privateKey);
 
-    InterfaceNaorPinkasElement publicKeyNotSigma = publicKeySigma.inverse().groupOp(randPoint);
+    InterfaceOtElement publicKeyNotSigma = publicKeySigma.inverse().groupOp(randPoint);
 
     if (choiceBit == false) {
       network.send(otherId, publicKeySigma.toByteArray());
     } else {
       network.send(otherId, publicKeyNotSigma.toByteArray());
     }
-    InterfaceNaorPinkasElement encZero = decodeElement(network.receive(otherId));
-    InterfaceNaorPinkasElement encOne = decodeElement(network.receive(otherId));
+    InterfaceOtElement encZero = decodeElement(network.receive(otherId));
+    InterfaceOtElement encOne = decodeElement(network.receive(otherId));
     byte[] message;
     if (choiceBit == false) {
       message = decryptRandomMessage(encZero, privateKey);
@@ -122,13 +119,14 @@ public abstract class AbstractNaorPinkasOT implements Ot {
    * @return A pair where the first element is the ciphertext and the second element is the
    * plaintext.
    */
-  private Pair<InterfaceNaorPinkasElement, byte[]> encryptRandomMessage(
-      InterfaceNaorPinkasElement publicKey) {
-
-    BigInteger r = randNum.nextBigInteger(getDhModulus());
-    InterfaceNaorPinkasElement cipherText = getDhGenerator().exponentiation(r);
-    InterfaceNaorPinkasElement toHash = publicKey.exponentiation(r);
-    byte[] message = hashDigest.digest(toHash.toByteArray());
+  private Pair<InterfaceOtElement, byte[]> encryptRandomMessage(
+      InterfaceOtElement publicKey) {
+    BigInteger r = randNum.nextBigInteger(getSubgroupOrder());
+    InterfaceOtElement cipherText = getGenerator().exponentiation(r);
+    InterfaceOtElement toHash = publicKey.exponentiation(r);
+    HmacDrbg rand = new HmacDrbg(toHash.toByteArray());
+    byte[] message = new byte[MESSAGE_SIZE_BYTES];
+    rand.nextBytes(message);
     return new Pair<>(cipherText, message);
   }
 
@@ -139,9 +137,12 @@ public abstract class AbstractNaorPinkasOT implements Ot {
    * @param privateKey The private key to use for decryption
    * @return The plain message
    */
-  private byte[] decryptRandomMessage(InterfaceNaorPinkasElement cipher, BigInteger privateKey) {
-    InterfaceNaorPinkasElement toHash = cipher.exponentiation(privateKey);
-    return hashDigest.digest(toHash.toByteArray());
+  private byte[] decryptRandomMessage(InterfaceOtElement cipher, BigInteger privateKey) {
+    InterfaceOtElement toHash = cipher.exponentiation(privateKey);
+    HmacDrbg rand = new HmacDrbg(toHash.toByteArray());
+    byte[] message = new byte[MESSAGE_SIZE_BYTES];
+    rand.nextBytes(message);
+    return message;
   }
 
   /**

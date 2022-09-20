@@ -12,9 +12,13 @@ public class CheatingNetworkDecorator implements CloseableNetwork {
 
   private final CloseableNetwork network;
   private int cheatByteNo;
-  private int messageNo;
-  private int counter = 0;
-  private boolean cheat = false;
+  private int sendMessageNo;
+  private int receiveMessageNo;
+  private int sendCounter = 0;
+  private int receiveCounter = 0;
+  private boolean cheatinSend = false;
+  private boolean cheatInReceive = false;
+  private byte[] receiveCheatMsg;
 
   public CheatingNetworkDecorator(CloseableNetwork network) {
     this.network = network;
@@ -29,22 +33,35 @@ public class CheatingNetworkDecorator implements CloseableNetwork {
    * @param byteNo
    *          The byte number in the next message to flip a bit in
    */
-  public void cheatInNextMessage(int messageNo, int byteNo) {
-    this.messageNo = messageNo;
+  public void cheatInNextSendMessage(int messageNo, int byteNo) {
+    this.sendMessageNo = messageNo;
     this.cheatByteNo = byteNo;
-    this.cheat = true;
-    this.counter = 0;
+    this.cheatinSend = true;
+    this.sendCounter = 0;
+  }
+
+  /**
+   * The class will receive on "messageNo" message the byte[] specified with "msg"
+   * @param messageNo
+   *          The cheating will occur in the "messageNo"'th call to network.receive
+   * @param msg
+   *          The message which will be received
+   */
+  public void cheatInReceive(int messageNo, byte[] msg) {
+    this.receiveMessageNo = messageNo;
+    this.cheatInReceive = true;
+    this.receiveCheatMsg = msg;
   }
 
   @Override
   public void send(int partyId, byte[] data) {
-    if (cheat == true && counter == messageNo) {
+    if (cheatinSend == true && sendCounter == sendMessageNo) {
       // Flip a bit by XOR'ing with 1 in bit position 2
       data[cheatByteNo] ^= (byte) 0x02;
-      cheat = false;
+      cheatinSend = false;
     }
     network.send(partyId, data);
-    counter++;
+    sendCounter++;
   }
 
   @Override
@@ -54,6 +71,11 @@ public class CheatingNetworkDecorator implements CloseableNetwork {
 
   @Override
   public byte[] receive(int partyId) {
+    if (cheatInReceive == true && receiveCounter == receiveMessageNo) {
+      cheatInReceive = false;
+      return receiveCheatMsg;
+    }
+    receiveCounter++;
     return network.receive(partyId);
   }
 

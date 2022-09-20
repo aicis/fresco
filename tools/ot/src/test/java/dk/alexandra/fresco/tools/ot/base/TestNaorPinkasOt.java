@@ -3,6 +3,7 @@ package dk.alexandra.fresco.tools.ot.base;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.network.Network;
@@ -19,6 +20,9 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collection;
 import javax.crypto.spec.DHParameterSpec;
+import org.bouncycastle.crypto.ec.CustomNamedCurves;
+import org.bouncycastle.math.ec.ECCurve;
+import org.bouncycastle.math.ec.ECFieldElement;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +35,7 @@ public class TestNaorPinkasOt {
   @Parameters
   public static Collection<Object[]> data() {
     return Arrays.asList(new Object[][] {
-        { BigIntNaorPinkas.class }, {BouncyCastleNaorPinkas.class}
+        { BigIntNaorPinkas.class }, {ECNaorPinkasOt.class}
     });
   }
 
@@ -86,14 +90,13 @@ public class TestNaorPinkasOt {
     this.decryptMessage.setAccessible(true);
   }
 
-
   /**** POSITIVE TESTS. ****/
   @SuppressWarnings("unchecked")
   @Test
   public void testEncDec()
       throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
     BigInteger privateKey = randNum.nextBigInteger(staticSpec.getP());
-    InterfaceNaorPinkasElement publicKey = ot.getDhGenerator().exponentiation(privateKey);
+    InterfaceOtElement publicKey = ot.getGenerator().exponentiation(privateKey);
     Pair<InterfaceNaorPinkasElement, byte[]> encryptionData =
         (Pair<InterfaceNaorPinkasElement, byte[]>) encryptMessage.invoke(ot, publicKey);
     byte[] message = encryptionData.getSecond();
@@ -104,13 +107,27 @@ public class TestNaorPinkasOt {
     assertArrayEquals(message, decryptedMessage);
   }
 
+  @Test
+  public void testNextRandomElement() {
+    ECNaorPinkasOt ot = new ECNaorPinkasOt(2, new AesCtrDrbg(HelperForTests.seedOne), null);
+    ECCurve curve = CustomNamedCurves.getByName("curve25519").getCurve();
+    ECFieldElement element = curve.fromBigInteger(BigInteger.ONE);
+    ECFieldElement newElement = ot.nextFieldElement(element);
+    assertNotEquals(element, newElement);
+    // Except with probability 2^-40 this should be true
+    assertTrue(newElement.bitLength() > curve.getFieldSize()-40);
+    ECFieldElement nextElement = ot.nextFieldElement(newElement);
+    assertTrue(nextElement.bitLength() > curve.getFieldSize()-40);
+    assertNotEquals(newElement, nextElement);
+  }
+
   /**** NEGATIVE TESTS. ****/
   @SuppressWarnings("unchecked")
   @Test
   public void testFailedEncDec()
       throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
     BigInteger privateKey = randNum.nextBigInteger(staticSpec.getP());
-    InterfaceNaorPinkasElement publicKey = ot.getDhGenerator().exponentiation(privateKey);
+    InterfaceOtElement publicKey = ot.getGenerator().exponentiation(privateKey);
     Pair<InterfaceNaorPinkasElement, byte[]> encryptionData =
         (Pair<InterfaceNaorPinkasElement, byte[]>) encryptMessage.invoke(ot, publicKey);
     byte[] message = encryptionData.getSecond();

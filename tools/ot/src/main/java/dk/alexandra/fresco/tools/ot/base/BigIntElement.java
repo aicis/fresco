@@ -1,20 +1,39 @@
 package dk.alexandra.fresco.tools.ot.base;
 
-import java.math.BigInteger;
+import org.bouncycastle.crypto.digests.SHAKEDigest;
 
-public class BigIntElement implements InterfaceNaorPinkasElement<BigIntElement> {
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Stream;
+
+import static org.bouncycastle.pqc.math.linearalgebra.BigEndianConversions.I2OSP;
+
+public class BigIntElement implements InterfaceOtElement<BigIntElement> {
 
   private final BigInteger element;
   private final BigInteger dhModulus;
 
+  private final int bitsize;
+
   public BigIntElement(BigInteger element, BigInteger dhModulus) {
     this.element = element;
     this.dhModulus = dhModulus;
+    this.bitsize = dhModulus.subtract(BigInteger.ONE).bitLength();
   }
 
   @Override
   public byte[] toByteArray() {
-    return this.element.toByteArray();
+    // Ensure the bit length always is the same.
+    byte[] val = this.element.mod(this.dhModulus).toByteArray();
+    byte[] out = new byte[(bitsize+7)/8];
+    int startPos =  (bitsize+7)/8  - val.length;
+    if (val[0] == 0x00) {
+      // drop the first byte.
+      System.arraycopy(val, 1, out, startPos + 1, val.length - 1);
+    } else {
+      System.arraycopy(val, 0, out, startPos, val.length);
+    }
+    return out;
   }
 
   @Override
@@ -32,4 +51,6 @@ public class BigIntElement implements InterfaceNaorPinkasElement<BigIntElement> 
   public BigIntElement exponentiation(BigInteger n) {
     return new BigIntElement(this.element.modPow(n, this.dhModulus), this.dhModulus);
   }
+
+
 }

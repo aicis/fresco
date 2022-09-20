@@ -2,32 +2,15 @@ package dk.alexandra.fresco.tools.ot.base;
 
 import java.math.BigInteger;
 
+public interface InterfaceNaorPinkasElement {
 
-public interface InterfaceNaorPinkasElement<T extends InterfaceNaorPinkasElement<T>> {
-
-  /**
-   * @return the Naor-Pinkas Element as a byte[]
-   */
   byte[] toByteArray();
 
-  /**
-   * Performs the group operation
-   * @param other
-   * @return
-   */
-  T groupOp(T other);
+  InterfaceNaorPinkasElement groupOp(InterfaceNaorPinkasElement other);
 
-  /**
-   * Creates the inverse of the Naor-Pinkas Element
-   * @return
-   */
-  T inverse();
+  InterfaceNaorPinkasElement inverse();
+
+  InterfaceNaorPinkasElement multiply(BigInteger other);
 
 
-  /**
-   * Performs the group operation n-times
-   * @param n
-   * @return
-   */
-  T exponentiation(BigInteger n);
 }

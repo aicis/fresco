@@ -197,7 +197,7 @@ public class TestFunctionalOtExtension {
     // randomness used by our tests this happens for choice 1
     int corruptUVecPos = 1;
     ((CheatingNetworkDecorator) receiverNetwork)
-        .cheatInNextMessage(corruptUVecPos, 0);
+        .cheatInNextSendMessage(corruptUVecPos, 0);
     Callable<List<?>> partyTwoExtend = () -> extendRotReceiver(choices);
     // run tasks and get ordered list of results
     List<?> extendResults = testRuntime
