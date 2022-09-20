@@ -23,11 +23,6 @@ public class ECChouOrlandi extends AbstractChouOrlandiOT<ECElement>{
 
     private final ECCurve curve;
 
-    @Override
-    ECElement multiplyWithGenerator(BigInteger input) {
-        return new ECElement(this.dhGenerator.multiply(input));
-    }
-
     public ECChouOrlandi(int otherId, Drbg randBit, Network network) {
         super(otherId, randBit, network);
         Security.addProvider(new BouncyCastleProvider());

@@ -18,18 +18,18 @@ public class BigIntElement implements InterfaceOtElement<BigIntElement> {
   public BigIntElement(BigInteger element, BigInteger dhModulus) {
     this.element = element;
     this.dhModulus = dhModulus;
-    this.bitsize = dhModulus.bitLength();
+    this.bitsize = dhModulus.subtract(BigInteger.ONE).bitLength();
   }
 
   @Override
   public byte[] toByteArray() {
     // Ensure the bit length always is the same.
     byte[] val = this.element.mod(this.dhModulus).toByteArray();
-    byte[] out = new byte[bitsize/8];
-    int startPos = val.length - bitsize/8;
+    byte[] out = new byte[(bitsize+7)/8];
+    int startPos =  (bitsize+7)/8  - val.length;
     if (val[0] == 0x00) {
       // drop the first byte.
-      System.arraycopy(val, 1, out, startPos - 1, val.length - 1);
+      System.arraycopy(val, 1, out, startPos + 1, val.length - 1);
     } else {
       System.arraycopy(val, 0, out, startPos, val.length);
     }

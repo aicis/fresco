@@ -35,13 +35,6 @@ public abstract class AbstractChouOrlandiOT<T extends InterfaceOtElement<T>> imp
 
     abstract BigInteger getDhModulus();
 
-    /**
-     * multiplies the BigInteger with the Generator
-     * @param input
-     * @return a new Element T
-     */
-    abstract T multiplyWithGenerator(BigInteger input);
-
     public AbstractChouOrlandiOT(int otherId, Drbg randBit, Network network) {
         this.otherId = otherId;
         this.network = network;

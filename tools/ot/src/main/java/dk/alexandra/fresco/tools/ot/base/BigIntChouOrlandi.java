@@ -43,11 +43,6 @@ public class BigIntChouOrlandi extends AbstractChouOrlandiOT<BigIntElement> {
     }
 
     @Override
-    BigIntElement multiplyWithGenerator(BigInteger input) {
-        return new BigIntElement(this.dhGenerator.multiply(input).mod(this.dhModulus), this.dhModulus);
-    }
-
-    @Override
     BigIntElement getGenerator() {
         return new BigIntElement(this.dhGenerator, this.dhModulus);
     }

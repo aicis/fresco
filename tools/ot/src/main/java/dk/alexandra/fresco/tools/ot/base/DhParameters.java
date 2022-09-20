@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.tools.ot.base;
 
 import java.math.BigInteger;
-import java.util.Random;
 
 import javax.crypto.spec.DHParameterSpec;
 
@@ -48,14 +47,4 @@ public final class DhParameters {
     return new DHParameterSpec(DhPvalue, DhGvalue);
   }
 
-  // TODO: Delete this.
-  public static DHParameterSpec getRandomDhParams(Random rand) {
-    BigInteger q,p;
-    do {
-      q = BigInteger.probablePrime(2048 / 2, rand);
-      p = q.multiply(BigInteger.valueOf(2)).add(BigInteger.ONE);
-    } while (!p.isProbablePrime(99));
-    BigInteger g = BigInteger.valueOf(2);
-    return new DHParameterSpec(p, g);
-  }
 }
