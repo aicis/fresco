@@ -2,49 +2,38 @@ package dk.alexandra.fresco.tools.ot.base;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.ExceptionConverter;
 
 import java.math.BigInteger;
-import java.security.MessageDigest;
 import javax.crypto.spec.DHParameterSpec;
 
 public class BigIntChouOrlandi extends AbstractChouOrlandiOT<BigIntElement> {
-
-    private static final String HASH_ALGORITHM = "SHA-256";
-    private final MessageDigest hashDigest;
-
-
-    /**
-     * The modulus of the Diffie-Hellman group used in the OT.
-     */
-    private final BigInteger dhModulus;
+    private final BigInteger subgroupOrder;
     /**
      * The generator of the Diffie-Hellman group used in the OT.
      */
-    private final BigInteger dhGenerator;
+    private final BigInteger generator;
 
     public BigIntChouOrlandi(int otherId, Drbg randBit, Network network) {
         super(otherId, randBit, network);
         DHParameterSpec params = DhParameters.getStaticDhParams();
-        this.dhModulus = params.getP();
-        this.dhGenerator = params.getG();
-        this.hashDigest = ExceptionConverter.safe(() -> MessageDigest.getInstance(HASH_ALGORITHM),
-                "Missing secure, hash function which is dependent in this library");
+        // The modulus, P, MUST be a safe prime, so we set the subgroup order to be q=2p-1
+        this.subgroupOrder = params.getP().subtract(BigInteger.ONE).divide(BigInteger.valueOf(2));
+        this.generator = params.getG();
     }
 
     @Override
     BigIntElement decodeElement(byte[] bytes) {
-        return new BigIntElement(new BigInteger(1, bytes), this.dhModulus);
+        return new BigIntElement(new BigInteger(1, bytes), this.subgroupOrder);
     }
 
     @Override
-    BigInteger getDhModulus() {
-        return this.dhModulus;
+    BigInteger getSubgroupOrder() {
+        return this.subgroupOrder;
     }
 
     @Override
     BigIntElement getGenerator() {
-        return new BigIntElement(this.dhGenerator, this.dhModulus);
+        return new BigIntElement(this.generator, this.subgroupOrder);
     }
 
 }

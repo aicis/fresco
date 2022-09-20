@@ -33,7 +33,7 @@ public abstract class AbstractChouOrlandiOT<T extends InterfaceOtElement<T>> imp
 
     abstract T getGenerator();
 
-    abstract BigInteger getDhModulus();
+    abstract BigInteger getSubgroupOrder();
 
     public AbstractChouOrlandiOT(int otherId, Drbg randBit, Network network) {
         this.otherId = otherId;
@@ -84,7 +84,7 @@ public abstract class AbstractChouOrlandiOT<T extends InterfaceOtElement<T>> imp
         // U = A^b*g^x
         // if b = 0 -> U = g^x
         // if b = 1 -> U = A*g^x
-        BigInteger x = randNum.nextBigInteger(getDhModulus());
+        BigInteger x = randNum.nextBigInteger(getSubgroupOrder());
         T U;
         if (choiceBit == false) {
             U = getGenerator().exponentiation(x);
@@ -111,7 +111,7 @@ public abstract class AbstractChouOrlandiOT<T extends InterfaceOtElement<T>> imp
      */
     private Pair<byte[], byte[]> sendRandomOt() {
         // y
-        BigInteger y = randNum.nextBigInteger(getDhModulus());
+        BigInteger y = randNum.nextBigInteger(getSubgroupOrder());
         // A
         T A = this.getGenerator().exponentiation(y);
         network.send(otherId, A.toByteArray());

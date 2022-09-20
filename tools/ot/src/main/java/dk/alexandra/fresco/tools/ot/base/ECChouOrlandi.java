@@ -12,13 +12,7 @@ import java.security.Security;
 
 public class ECChouOrlandi extends AbstractChouOrlandiOT<ECElement>{
 
-    /**
-     * The modulus of the Diffie-Hellman group used in the OT.
-     */
-    private final BigInteger dhModulus;
-    /**
-     * The generator of the Diffie-Hellman group used in the OT.
-     */
+    private final BigInteger curveOrder;
     private final org.bouncycastle.math.ec.ECPoint dhGenerator;
 
     private final ECCurve curve;
@@ -28,7 +22,7 @@ public class ECChouOrlandi extends AbstractChouOrlandiOT<ECElement>{
         Security.addProvider(new BouncyCastleProvider());
         X9ECParameters ecP = CustomNamedCurves.getByName("curve25519");
         this.curve = ecP.getCurve();
-        this.dhModulus = curve.getOrder();
+        this.curveOrder = curve.getOrder();
         this.dhGenerator = ecP.getG();
     }
 
@@ -44,8 +38,8 @@ public class ECChouOrlandi extends AbstractChouOrlandiOT<ECElement>{
     }
 
     @Override
-    BigInteger getDhModulus() {
-        return this.dhModulus;
+    BigInteger getSubgroupOrder() {
+        return this.curveOrder;
     }
 
 }
