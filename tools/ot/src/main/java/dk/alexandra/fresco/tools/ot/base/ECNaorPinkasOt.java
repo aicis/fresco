@@ -74,7 +74,7 @@ public class ECNaorPinkasOt extends AbstractNaorPinkasOT<ECElement> {
       resPoint = resPoint.multiply(this.curve.getCofactor()).normalize();
       // Note that we need to validate the point. While multiplying with the co-factor should be
       // sufficient if the result is not the point at infinity
-    } while (resPoint.isInfinity() || !resPoint.isValid());
+    } while (resPoint.isInfinity() | !resPoint.isValid());
     return resPoint;
   }
 
