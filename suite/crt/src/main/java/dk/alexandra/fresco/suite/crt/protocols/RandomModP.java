@@ -13,7 +13,7 @@ public class RandomModP<ResourcePoolA extends NumericResourcePool, ResourcePoolB
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder,
-      CRTNumericContext context) {
+      CRTNumericContext<ResourcePoolA, ResourcePoolB> context) {
     return builder.seq(seq -> seq.numeric().randomElement())
         .pairInPar(
             (seq, r) -> seq.seq(new Projection<>(r, Coordinate.LEFT)),

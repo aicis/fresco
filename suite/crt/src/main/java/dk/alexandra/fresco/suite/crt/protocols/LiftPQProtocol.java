@@ -11,7 +11,7 @@ import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
 import dk.alexandra.fresco.suite.crt.protocols.framework.CRTComputation;
 
 /**
- * Given a secret shared <i>[x]<sub>p</sub></dub></i> in <i>&#x2124;<sub>p</sub></i>, output <i>[x - ep]<sub>q</sub></i> for some <i>0 &le; e &le; n</i> in  <i>&#x2124;<sub>q</sub></i>.
+ * Given a secret shared <i>([x]<sub>p</sub>, [_]<sub>q</sub>)</dub></i> in <i>&#x2124;<sub>p</sub></i>, output <i>([x]<sub>p</sub>, [x - ep]<sub>q</sub>)</i> for some <i>0 &le; e &le; n</i> in  <i>&#x2124;<sub>q</sub></i>.
  */
 public class LiftPQProtocol<ResourcePoolA extends NumericResourcePool, ResourcePoolB extends NumericResourcePool> extends
         CRTComputation<SInt, ResourcePoolA, ResourcePoolB> {
