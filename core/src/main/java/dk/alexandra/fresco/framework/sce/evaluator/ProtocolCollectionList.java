@@ -38,10 +38,4 @@ public class ProtocolCollectionList<ResourcePoolT extends ResourcePool>
   public int size() {
     return protocols.size();
   }
-
-  public <ResourcePoolS extends ResourcePool> ProtocolCollectionList<ResourcePoolS> map(Function<NativeProtocol<?, ResourcePoolT>, NativeProtocol<?, ResourcePoolS>> map) {
-    ProtocolCollectionList<ResourcePoolS> out = new ProtocolCollectionList<ResourcePoolS>(capacity);
-    out.protocols.addAll(protocols.stream().map(map).collect(Collectors.toList()));
-    return out;
-  }
 }
