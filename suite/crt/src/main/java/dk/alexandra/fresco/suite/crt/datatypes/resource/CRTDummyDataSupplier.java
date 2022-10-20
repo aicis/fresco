@@ -35,8 +35,7 @@ public class CRTDummyDataSupplier implements CRTDataSupplier {
   public CRTSInt getCorrelatedNoise() {
     BigInteger r = Util.randomBigInteger(random, fp.getModulus());
     BigInteger l = Util
-        .randomBigInteger(random, BigInteger.valueOf(players).add(BigInteger.ONE));
-
+        .randomBigInteger(random, BigInteger.valueOf(players));
     return new CRTSInt(wrapperLeft.apply(r),
         wrapperRight.apply(r.add(l.multiply(fp.getModulus()))));
   }

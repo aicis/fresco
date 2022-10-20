@@ -93,4 +93,8 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
     createAndAppend(new LazyProtocolProducerDecorator(() -> builder.createProducer(null, factory)));
     return builder;
   }
+
+  public boolean isParallel() {
+    return parallel;
+  }
 }

@@ -11,11 +11,11 @@ public abstract class CRTComputation<OutputT,
     ResourcePoolB extends NumericResourcePool> implements
     Computation<OutputT, ProtocolBuilderNumeric> {
 
-  public abstract DRes<OutputT> buildComputation(ProtocolBuilderNumeric builder, CRTNumericContext context);
+  public abstract DRes<OutputT> buildComputation(ProtocolBuilderNumeric builder, CRTNumericContext<ResourcePoolA, ResourcePoolB> context);
 
   @Override
   public DRes<OutputT> buildComputation(ProtocolBuilderNumeric builder) {
     return buildComputation(builder,
-        (CRTNumericContext) builder.getBasicNumericContext());
+        (CRTNumericContext<ResourcePoolA, ResourcePoolB>) builder.getBasicNumericContext());
   }
 }

@@ -1,10 +1,12 @@
 package dk.alexandra.fresco.suite.crt.protocols;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.crt.CRTNumericContext;
+import dk.alexandra.fresco.suite.crt.Util;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
 import dk.alexandra.fresco.suite.crt.protocols.framework.CRTComputation;
 
@@ -23,14 +25,26 @@ public class LiftQPProtocol<ResourcePoolA extends NumericResourcePool, ResourceP
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder,
-      CRTNumericContext context) {
-    return builder.seq(seq -> new CorrelatedNoiseProtocol<>()).seq((seq, noise) -> {
+      CRTNumericContext<ResourcePoolA, ResourcePoolB> context) {
+    return builder.seq(seq -> seq.append(new CorrelatedNoiseProtocol<>())).seq((seq, noise) -> {
       this.r = (CRTSInt) noise.out();
-      DRes<SInt> xBar = context.getRight().createNumeric(seq).add(value, r.getRight());
-      return context.getRight().createNumeric(seq).open(xBar);
+
+      // Add noise to the right value. The left is ignored.
+      DRes<SInt> xBar = context.rightNumeric(seq).add(((CRTSInt) value.out()).getRight(), r.getRight());
+      CRTSInt output = new CRTSInt(context.leftNumeric(seq).known(0), xBar);
+      return seq.numeric().open(output); // TODO: We only need to open the right, so we should create an openRight function
+
+        // TODO: We haven't added the noise (c from the protocol)
+
     }).seq((seq, xBarOpen) -> {
-      DRes<SInt> xBarRight = context.getLeft().createNumeric(seq).known(xBarOpen);
-      return context.getLeft().createNumeric(seq).sub(xBarRight, r.getLeft());
+      Numeric left = context.leftNumeric(seq);
+
+      // Extract the right value from xBar
+      DRes<SInt> xBarLeft = left.known(Util.mapToCRT(xBarOpen, context.getLeftModulus(), context.getRightModulus()).getSecond());
+
+      // Remove the noise and return
+      DRes<SInt> adjusted = left.sub(xBarLeft, r.getLeft());
+      return new CRTSInt(adjusted, ((CRTSInt) value.out()).getRight());
     });
   }
 

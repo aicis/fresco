@@ -41,13 +41,14 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
     this.q = resourcePoolRight.getModulus();
     this.context = new CRTNumericContext(
         p.bitLength() + q.bitLength() - 40, //TODO
-        resourcePoolLeft.getMyId(), resourcePoolLeft.getNoOfParties(), left, right, p, q);
+        resourcePoolLeft.getMyId(), resourcePoolLeft.getNoOfParties(), left, right, p, q, resourcePoolLeft, resourcePoolRight);
   }
 
   @Override
   public BasicNumericContext getBasicNumericContext() {
     return context;
   }
+
 
   @Override
   public Numeric createNumeric(ProtocolBuilderNumeric builder) {
@@ -66,8 +67,8 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
           DRes<SInt> bLeft = bOut.getLeft();
           DRes<SInt> bRight = bOut.getRight();
 
-          Numeric l = left.createNumeric(new ProtocolBuilderNumericWrapper<>(par, left, resourcePoolLeft));
-          Numeric r = right.createNumeric(new ProtocolBuilderNumericWrapper<>(par, right, resourcePoolRight));
+          Numeric l = context.leftNumeric(par);
+          Numeric r = context.rightNumeric(par);
 
           return new CRTSInt(
               l.add(aLeft, bLeft),
@@ -96,8 +97,8 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
           DRes<SInt> bLeft = bOut.getLeft();
           DRes<SInt> bRight = bOut.getRight();
 
-          Numeric l = left.createNumeric(new ProtocolBuilderNumericWrapper<>(par, left, resourcePoolLeft));
-          Numeric r = right.createNumeric(new ProtocolBuilderNumericWrapper<>(par, right, resourcePoolRight));
+          Numeric l = context.leftNumeric(par);
+          Numeric r = context.rightNumeric(par);
 
           return new CRTSInt(
                   l.sub(aLeft, bLeft),
@@ -134,8 +135,8 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
           DRes<SInt> bLeft = bOut.getLeft();
           DRes<SInt> bRight = bOut.getRight();
 
-          Numeric l = left.createNumeric(new ProtocolBuilderNumericWrapper<>(par, left, resourcePoolLeft));
-          Numeric r = right.createNumeric(new ProtocolBuilderNumericWrapper<>(par, right, resourcePoolRight));
+          Numeric l = context.leftNumeric(par);
+          Numeric r = context.rightNumeric(par);
 
           return new CRTSInt(
                   l.mult(aLeft, bLeft),
@@ -152,8 +153,8 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
           DRes<SInt> bLeft = bOut.getLeft();
           DRes<SInt> bRight = bOut.getRight();
 
-          Numeric l = left.createNumeric(new ProtocolBuilderNumericWrapper<>(par, left, resourcePoolLeft));
-          Numeric r = right.createNumeric(new ProtocolBuilderNumericWrapper<>(par, right, resourcePoolRight));
+          Numeric l = context.leftNumeric(par);
+          Numeric r = context.rightNumeric(par);
 
           return new CRTSInt(
                   l.mult(aRNS.getFirst(), bLeft),
@@ -170,8 +171,8 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
       public DRes<SInt> randomElement() {
 
         return builder.par(par -> {
-          Numeric l = left.createNumeric(new ProtocolBuilderNumericWrapper<>(par, left, resourcePoolLeft));
-          Numeric r = right.createNumeric(new ProtocolBuilderNumericWrapper<>(par, right, resourcePoolRight));
+          Numeric l = context.leftNumeric(par);
+          Numeric r = context.rightNumeric(par);
           return new CRTSInt(l.randomElement(),
                   r.randomElement());
         });
@@ -182,8 +183,8 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
         Pair<BigInteger, BigInteger> crt = Util.mapToCRT(value, p, q);
 
         return builder.par(par -> {
-          Numeric l = left.createNumeric(new ProtocolBuilderNumericWrapper<>(par, left, resourcePoolLeft));
-          Numeric r = right.createNumeric(new ProtocolBuilderNumericWrapper<>(par, right, resourcePoolRight));
+          Numeric l = context.leftNumeric(par);
+          Numeric r = context.rightNumeric(par);
           return new CRTSInt(l.known(crt.getFirst()), r.known(crt.getSecond()));
         });
       }
@@ -198,8 +199,8 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
         }
 
         return builder.par(par -> {
-          Numeric l = left.createNumeric(new ProtocolBuilderNumericWrapper<>(par, left, resourcePoolLeft));
-          Numeric r = right.createNumeric(new ProtocolBuilderNumericWrapper<>(par, right, resourcePoolRight));
+          Numeric l = context.leftNumeric(par);
+          Numeric r = context.rightNumeric(par);
 
           return new CRTSInt(l.input(crt.getFirst(), inputParty),
                   r.input(crt.getSecond(), inputParty));
@@ -211,8 +212,8 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
         return builder.par(par -> {
           CRTSInt crtsInt = (CRTSInt) secretShare.out();
 
-          Numeric l = left.createNumeric(new ProtocolBuilderNumericWrapper<>(par, left, resourcePoolLeft));
-          Numeric r = right.createNumeric(new ProtocolBuilderNumericWrapper<>(par, right, resourcePoolRight));
+          Numeric l = context.leftNumeric(par);
+          Numeric r = context.rightNumeric(par);
 
           return Pair.lazy(l.open(crtsInt.getLeft()), r.open(crtsInt.getRight()));
         }).seq((seq, opened) -> DRes.of(Util.mapToBigInteger(opened.getFirst().out(), opened.getSecond().out(), p, q)));
