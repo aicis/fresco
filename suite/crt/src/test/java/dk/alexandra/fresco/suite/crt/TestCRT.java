@@ -31,6 +31,7 @@ import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestRandomModP;
 import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestTruncp;
 import dk.alexandra.fresco.suite.crt.fixed.CRTAdvancedFixedNumeric;
 import dk.alexandra.fresco.suite.crt.fixed.CRTFixedNumeric;
+import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests.TestLotsMult;
 import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests.TestOutputToSingleParty;
 import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests.TestRandomBit;
@@ -50,6 +51,11 @@ public class TestCRT {
   @Test
   public void testInput() {
     new AbstractSpdzCRTTest().runTest(new TestInput<>(), EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void testKnown() {
+    new AbstractSpdzCRTTest().runTest(new BasicArithmeticTests.TestKnownSInt<>(), EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test

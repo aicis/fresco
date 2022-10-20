@@ -14,25 +14,20 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
-import dk.alexandra.fresco.logging.PerformanceLogger;
-import dk.alexandra.fresco.logging.PerformanceLoggerCountingAggregate;
-import dk.alexandra.fresco.logging.PerformancePrinter;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTDataSupplier;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTDummyDataSupplier;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePool;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePoolImpl;
-import dk.alexandra.fresco.suite.crt.suites.DummyProtocolSupplier;
+import dk.alexandra.fresco.suite.crt.protocols.framework.CRTSequentialStrategy;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticBuilderFactory;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
+
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Abstract class which handles a lot of boiler plate testing code. This makes running a single test
@@ -64,8 +59,10 @@ public class AbstractDummyCRTTest {
 
     for (int playerId : netConf.keySet()) {
 
+
+
       BatchEvaluationStrategy<CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>> batchEvaluationStrategy =
-          evalStrategy.getStrategy();
+          new CRTSequentialStrategy<>();
       DummyArithmeticResourcePool rpLeft = new DummyArithmeticResourcePoolImpl(playerId,
           noOfParties, DEFAULT_FIELD_LEFT);
       DummyArithmeticResourcePool rpRight = new DummyArithmeticResourcePoolImpl(playerId,
@@ -73,8 +70,10 @@ public class AbstractDummyCRTTest {
 
       ProtocolSuiteNumeric<CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>> ps =
           new CRTProtocolSuite<>(
-              new DummyProtocolSupplier(new Random(0), DEFAULT_FIELD_LEFT),
-              new DummyProtocolSupplier(new Random(1), DEFAULT_FIELD_RIGHT));
+                  new DummyArithmeticBuilderFactory(new BasicNumericContext(DEFAULT_FIELD_LEFT.getBitLength() - 24,
+                  playerId, noOfParties, DEFAULT_FIELD_LEFT, 16, 40)),
+                  new DummyArithmeticBuilderFactory(new BasicNumericContext(DEFAULT_FIELD_RIGHT.getBitLength()- 40,
+                          playerId, noOfParties, DEFAULT_FIELD_RIGHT, 16, 40)));
       ProtocolEvaluator<CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>> evaluator =
           new BatchedProtocolEvaluator<>(batchEvaluationStrategy, ps);
 

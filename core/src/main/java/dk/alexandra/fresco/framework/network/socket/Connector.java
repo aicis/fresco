@@ -85,11 +85,12 @@ public class Connector implements NetworkConnector {
     connectionService.submit(() -> connectServer(conf));
     Duration remainingTime = timeout;
     try {
+      Future<Map<Integer, Socket>> completed;
+
       Instant start = Instant.now();
       for (int i = 0; i < connectionThreads; i++) {
         remainingTime = remainingTime.minus(Duration.between(start, Instant.now()));
-        Future<Map<Integer, Socket>> completed =
-            connectionService.poll(remainingTime.toMillis(), TimeUnit.MILLISECONDS);
+        completed = connectionService.poll(remainingTime.toMillis(), TimeUnit.MILLISECONDS);
         if (completed == null) {
           throw new TimeoutException("Timed out waiting for client connections");
         } else {

@@ -5,18 +5,17 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.suite.crt.CRTNumericContext;
-import dk.alexandra.fresco.suite.crt.CRTRingDefinition;
 
 public abstract class CRTComputation<OutputT,
     ResourcePoolA extends NumericResourcePool,
     ResourcePoolB extends NumericResourcePool> implements
     Computation<OutputT, ProtocolBuilderNumeric> {
 
-  public abstract DRes<OutputT> buildComputation(ProtocolBuilderNumeric builder, CRTNumericContext<ResourcePoolA, ResourcePoolB> context);
+  public abstract DRes<OutputT> buildComputation(ProtocolBuilderNumeric builder, CRTNumericContext context);
 
   @Override
   public DRes<OutputT> buildComputation(ProtocolBuilderNumeric builder) {
     return buildComputation(builder,
-        (CRTNumericContext<ResourcePoolA, ResourcePoolB>) builder.getBasicNumericContext());
+        (CRTNumericContext) builder.getBasicNumericContext());
   }
 }

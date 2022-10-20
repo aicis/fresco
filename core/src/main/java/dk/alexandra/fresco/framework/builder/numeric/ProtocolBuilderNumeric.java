@@ -14,7 +14,7 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
   private BasicNumericContext basicNumericContext;
   private Numeric numeric;
   private PreprocessedValues preprocessedValues;
-  ProtocolBuilderNumeric(BuilderFactoryNumeric factory, boolean parallel) {
+  protected ProtocolBuilderNumeric(BuilderFactoryNumeric factory, boolean parallel) {
     super(factory, parallel);
     this.factory = factory;
     this.basicNumericContext = factory.getBasicNumericContext();

@@ -26,7 +26,7 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
     this.factory = factory;
   }
 
-  private void createAndAppend(ProtocolProducer producer) {
+  protected void createAndAppend(ProtocolProducer producer) {
     if (protocols == null) {
       throw new IllegalStateException("Cannot build this twice, it has all ready been constructed");
     }

@@ -1,16 +1,15 @@
 package dk.alexandra.fresco.suite.crt;
 
-import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
-import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
-import dk.alexandra.fresco.suite.crt.suites.ProtocolSuiteProtocolSupplier;
+
 import java.math.BigInteger;
 
-public class CRTNumericContext<ResourcePoolA extends NumericResourcePool, ResourcePoolB extends NumericResourcePool> extends BasicNumericContext {
+public class CRTNumericContext extends BasicNumericContext {
 
   private final BigInteger p, q;
-  private final ProtocolSuiteProtocolSupplier<ResourcePoolA> leftProtocolSupplier;
-  private final ProtocolSuiteProtocolSupplier<ResourcePoolB> rightProtocolSupplier;
+  private final BuilderFactoryNumeric left;
+  private final BuilderFactoryNumeric right;
 
   /**
    * Construct a new BasicNumericContext.
@@ -20,13 +19,13 @@ public class CRTNumericContext<ResourcePoolA extends NumericResourcePool, Resour
    * @param noOfParties  number of parties in computation
    */
   public CRTNumericContext(int maxBitLength, int myId, int noOfParties,
-      ProtocolSuiteProtocolSupplier<ResourcePoolA> left, ProtocolSuiteProtocolSupplier<ResourcePoolB> right,
-      BigInteger p, BigInteger q) {
+                           BuilderFactoryNumeric left, BuilderFactoryNumeric right,
+                           BigInteger p, BigInteger q) {
     super(maxBitLength, myId, noOfParties, new CRTRingDefinition(p, q), p.bitLength());
     this.p = p;
     this.q = q;
-    this.leftProtocolSupplier = left;
-    this.rightProtocolSupplier = right;
+    this.left = left;
+    this.right = right;
   }
 
   /** Get the modulus of the left ring in the RNS representation. */
@@ -39,14 +38,18 @@ public class CRTNumericContext<ResourcePoolA extends NumericResourcePool, Resour
     return q;
   }
 
-  /** Get a {@link ProtocolSuiteProtocolSupplier} for the MPC system on the left ring. */
-  public ProtocolSuiteProtocolSupplier<ResourcePoolA> getLeftProtocolSupplier() {
-    return leftProtocolSupplier;
+  /**
+   * Get a {@link ProtocolSuiteProtocolSupplier} for the MPC system on the left ring.
+   */
+  public BuilderFactoryNumeric getLeft() {
+    return left;
   }
 
-  /** Get a {@link ProtocolSuiteProtocolSupplier} for the MPC system on the right ring. */
-  public ProtocolSuiteProtocolSupplier<ResourcePoolB> getRightProtocolSupplier() {
-    return rightProtocolSupplier;
+  /**
+   * Get a {@link ProtocolSuiteProtocolSupplier} for the MPC system on the right ring.
+   */
+  public BuilderFactoryNumeric getRight() {
+    return right;
   }
 
 

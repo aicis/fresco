@@ -23,14 +23,14 @@ public class LiftQPProtocol<ResourcePoolA extends NumericResourcePool, ResourceP
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder,
-      CRTNumericContext<ResourcePoolA, ResourcePoolB> context) {
+      CRTNumericContext context) {
     return builder.seq(seq -> new CorrelatedNoiseProtocol<>()).seq((seq, noise) -> {
       this.r = (CRTSInt) noise.out();
-      DRes<SInt> xBar = seq.append(context.getRightProtocolSupplier().add(value, r.getRight()));
-      return seq.append(context.getRightProtocolSupplier().open(xBar));
+      DRes<SInt> xBar = context.getRight().createNumeric(seq).add(value, r.getRight());
+      return context.getRight().createNumeric(seq).open(xBar);
     }).seq((seq, xBarOpen) -> {
-      DRes<SInt> xBarRight = context.getLeftProtocolSupplier().known(xBarOpen);
-      return context.getLeftProtocolSupplier().sub(xBarRight, r.getLeft());
+      DRes<SInt> xBarRight = context.getLeft().createNumeric(seq).known(xBarOpen);
+      return context.getLeft().createNumeric(seq).sub(xBarRight, r.getLeft());
     });
   }
 

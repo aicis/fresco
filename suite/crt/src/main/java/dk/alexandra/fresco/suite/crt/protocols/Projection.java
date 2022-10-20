@@ -23,7 +23,7 @@ public class Projection<ResourcePoolA extends NumericResourcePool, ResourcePoolB
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder,
-      CRTNumericContext<ResourcePoolA, ResourcePoolB> context) {
+      CRTNumericContext context) {
     BigInteger coefficient;
     if (coordinate == Coordinate.LEFT) {
       coefficient = context.getRightModulus().multiply(context.getRightModulus().modInverse(context.getLeftModulus()));

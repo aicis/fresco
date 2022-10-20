@@ -7,26 +7,25 @@ import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
-import dk.alexandra.fresco.suite.crt.protocols.CRTSIntProtocol;
-import dk.alexandra.fresco.suite.crt.protocols.framework.CRTBigIntegerProtocol;
-import dk.alexandra.fresco.suite.crt.suites.ProtocolSuiteProtocolSupplier;
+import dk.alexandra.fresco.suite.crt.protocols.framework.ProtocolBuilderNumericWrapper;
+
 import java.math.BigInteger;
 
 public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, ResourcePoolB extends NumericResourcePool>
     implements BuilderFactoryNumeric {
 
-  private final BasicNumericContext context;
-  private final ProtocolSuiteProtocolSupplier<ResourcePoolA> left;
-  private final ProtocolSuiteProtocolSupplier<ResourcePoolB> right;
+  private final CRTNumericContext context;
+  private final BuilderFactoryNumeric left;
+  private final BuilderFactoryNumeric right;
   private final BigInteger p, q;
+  private final ResourcePoolA resourcePoolLeft;
+  private final ResourcePoolB resourcePoolRight;
 
   public CRTBuilderFactory(ResourcePoolA resourcePoolLeft,
-      ProtocolSuiteProtocolSupplier<ResourcePoolA> leftPspp,
-      ResourcePoolB resourcePoolRight,
-      ProtocolSuiteProtocolSupplier<ResourcePoolB> rightPspp) {
+      BuilderFactoryNumeric left,
+      ResourcePoolB resourcePoolRight, BuilderFactoryNumeric right) {
 
     if (resourcePoolLeft.getMyId() != resourcePoolRight.getMyId()
         || resourcePoolLeft.getNoOfParties() != resourcePoolRight.getNoOfParties()) {
@@ -34,8 +33,10 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
           "The protocol suites used must be configured with the same ID and number of players");
     }
 
-    this.left = leftPspp;
-    this.right = rightPspp;
+    this.left = left;
+    this.resourcePoolLeft = resourcePoolLeft;
+    this.right = right;
+    this.resourcePoolRight = resourcePoolRight;
     this.p = resourcePoolLeft.getModulus();
     this.q = resourcePoolRight.getModulus();
     this.context = new CRTNumericContext(
@@ -65,9 +66,12 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
           DRes<SInt> bLeft = bOut.getLeft();
           DRes<SInt> bRight = bOut.getRight();
 
-          return par.append(new CRTSIntProtocol<>(
-              left.add(aLeft, bLeft),
-              right.add(aRight, bRight)));
+          Numeric l = left.createNumeric(new ProtocolBuilderNumericWrapper<>(par, left, resourcePoolLeft));
+          Numeric r = right.createNumeric(new ProtocolBuilderNumericWrapper<>(par, right, resourcePoolRight));
+
+          return new CRTSInt(
+              l.add(aLeft, bLeft),
+                  r.add(aRight, bRight));
         });
       }
 
@@ -92,8 +96,12 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
           DRes<SInt> bLeft = bOut.getLeft();
           DRes<SInt> bRight = bOut.getRight();
 
-          return par.append(new CRTSIntProtocol<>(
-              left.sub(aLeft, bLeft), right.sub(aRight, bRight)));
+          Numeric l = left.createNumeric(new ProtocolBuilderNumericWrapper<>(par, left, resourcePoolLeft));
+          Numeric r = right.createNumeric(new ProtocolBuilderNumericWrapper<>(par, right, resourcePoolRight));
+
+          return new CRTSInt(
+                  l.sub(aLeft, bLeft),
+                  r.sub(aRight, bRight));
         });
       }
 
@@ -126,17 +134,30 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
           DRes<SInt> bLeft = bOut.getLeft();
           DRes<SInt> bRight = bOut.getRight();
 
-          return par.append(new CRTSIntProtocol<>(
-              left.mult(aLeft, bLeft), right.mult(aRight, bRight)));
+          Numeric l = left.createNumeric(new ProtocolBuilderNumericWrapper<>(par, left, resourcePoolLeft));
+          Numeric r = right.createNumeric(new ProtocolBuilderNumericWrapper<>(par, right, resourcePoolRight));
+
+          return new CRTSInt(
+                  l.mult(aLeft, bLeft),
+                  r.mult(aRight, bRight));
         });
       }
 
       @Override
       public DRes<SInt> mult(BigInteger a, DRes<SInt> b) {
-        return builder.seq(seq -> {
-          Numeric numeric = createNumeric(seq);
-          DRes<SInt> aSecret = numeric.known(a);
-          return numeric.mult(aSecret, b);
+        return builder.par(par -> {
+          Pair<BigInteger, BigInteger> aRNS = Util.mapToCRT(a, p, q);
+
+          CRTSInt bOut = (CRTSInt) b.out();
+          DRes<SInt> bLeft = bOut.getLeft();
+          DRes<SInt> bRight = bOut.getRight();
+
+          Numeric l = left.createNumeric(new ProtocolBuilderNumericWrapper<>(par, left, resourcePoolLeft));
+          Numeric r = right.createNumeric(new ProtocolBuilderNumericWrapper<>(par, right, resourcePoolRight));
+
+          return new CRTSInt(
+                  l.mult(aRNS.getFirst(), bLeft),
+                  r.mult(aRNS.getSecond(), bRight));
         });
       }
 
@@ -147,25 +168,41 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
 
       @Override
       public DRes<SInt> randomElement() {
-        return builder.par(par -> par.append(new CRTSIntProtocol<>(
-            left.randomElement(), right.randomElement())));
+
+        return builder.par(par -> {
+          Numeric l = left.createNumeric(new ProtocolBuilderNumericWrapper<>(par, left, resourcePoolLeft));
+          Numeric r = right.createNumeric(new ProtocolBuilderNumericWrapper<>(par, right, resourcePoolRight));
+          return new CRTSInt(l.randomElement(),
+                  r.randomElement());
+        });
       }
 
       @Override
       public DRes<SInt> known(BigInteger value) {
+        Pair<BigInteger, BigInteger> crt = Util.mapToCRT(value, p, q);
+
         return builder.par(par -> {
-          Pair<BigInteger, BigInteger> crt = mapToCRT(value);
-          return par.append(new CRTSIntProtocol<>(
-              left.known(crt.getFirst()), right.known(crt.getSecond())));
+          Numeric l = left.createNumeric(new ProtocolBuilderNumericWrapper<>(par, left, resourcePoolLeft));
+          Numeric r = right.createNumeric(new ProtocolBuilderNumericWrapper<>(par, right, resourcePoolRight));
+          return new CRTSInt(l.known(crt.getFirst()), r.known(crt.getSecond()));
         });
       }
 
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
+         Pair<BigInteger, BigInteger> crt;
+        if (value != null) {
+          crt = Util.mapToCRT(value, p, q);
+        } else {
+          crt = new Pair<>(null, null);
+        }
+
         return builder.par(par -> {
-          Pair<BigInteger, BigInteger> crt = mapToCRT(value);
-          return par.append(new CRTSIntProtocol<>(
-              left.input(crt.getFirst(), inputParty), right.input(crt.getSecond(), inputParty)));
+          Numeric l = left.createNumeric(new ProtocolBuilderNumericWrapper<>(par, left, resourcePoolLeft));
+          Numeric r = right.createNumeric(new ProtocolBuilderNumericWrapper<>(par, right, resourcePoolRight));
+
+          return new CRTSInt(l.input(crt.getFirst(), inputParty),
+                  r.input(crt.getSecond(), inputParty));
         });
       }
 
@@ -173,28 +210,27 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
       public DRes<BigInteger> open(DRes<SInt> secretShare) {
         return builder.par(par -> {
           CRTSInt crtsInt = (CRTSInt) secretShare.out();
-          return par.append(new CRTBigIntegerProtocol<>(
-              left.open(crtsInt.getLeft()),
-              right.open(crtsInt.getRight()),
-              p, q));
-        });
+
+          Numeric l = left.createNumeric(new ProtocolBuilderNumericWrapper<>(par, left, resourcePoolLeft));
+          Numeric r = right.createNumeric(new ProtocolBuilderNumericWrapper<>(par, right, resourcePoolRight));
+
+          return Pair.lazy(l.open(crtsInt.getLeft()), r.open(crtsInt.getRight()));
+        }).seq((seq, opened) -> DRes.of(Util.mapToBigInteger(opened.getFirst().out(), opened.getSecond().out(), p, q)));
       }
 
       @Override
       public DRes<BigInteger> open(DRes<SInt> secretShare, int outputParty) {
         return builder.par(par -> {
           CRTSInt crtsInt = (CRTSInt) secretShare.out();
-          return par.append(new CRTBigIntegerProtocol<>(
-              left.open(crtsInt.getLeft(), outputParty),
-              right.open(crtsInt.getRight(), outputParty),
-              p, q));
-        });
+
+          Numeric l = left.createNumeric(new ProtocolBuilderNumericWrapper<>(par, left, resourcePoolLeft));
+          Numeric r = right.createNumeric(new ProtocolBuilderNumericWrapper<>(par, right, resourcePoolRight));
+
+          return Pair.lazy(l.open(crtsInt.getLeft(), outputParty), r.open(crtsInt.getRight(), outputParty));
+        }).seq((seq, opened) -> DRes.of(opened.getFirst() == null ? null : Util.mapToBigInteger(opened.getFirst().out(), opened.getSecond().out(), p, q)));
+
       }
     };
-  }
-
-  public Pair<BigInteger, BigInteger> mapToCRT(BigInteger x) {
-    return Util.mapToCRT(x, p, q);
   }
 
 }

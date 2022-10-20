@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.crt.CRTNumericContext;
-import dk.alexandra.fresco.suite.crt.CRTRingDefinition;
 import dk.alexandra.fresco.suite.crt.protocols.Projection.Coordinate;
 import dk.alexandra.fresco.suite.crt.protocols.framework.CRTComputation;
 import java.math.BigInteger;
@@ -22,7 +21,7 @@ public class Truncp<ResourcePoolA extends NumericResourcePool, ResourcePoolB ext
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder,
-      CRTNumericContext<ResourcePoolA, ResourcePoolB> context) {
+      CRTNumericContext context) {
 
     // The multiplicative inverse of p mod q
     BigInteger n2 = context.getLeftModulus().modInverse(context.getRightModulus());

@@ -6,6 +6,8 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class ProtocolCollectionList<ResourcePoolT extends ResourcePool>
     implements ProtocolCollection<ResourcePoolT> {
@@ -35,5 +37,11 @@ public class ProtocolCollectionList<ResourcePoolT extends ResourcePool>
 
   public int size() {
     return protocols.size();
+  }
+
+  public <ResourcePoolS extends ResourcePool> ProtocolCollectionList<ResourcePoolS> map(Function<NativeProtocol<?, ResourcePoolT>, NativeProtocol<?, ResourcePoolS>> map) {
+    ProtocolCollectionList<ResourcePoolS> out = new ProtocolCollectionList<ResourcePoolS>(capacity);
+    out.protocols.addAll(protocols.stream().map(map).collect(Collectors.toList()));
+    return out;
   }
 }

@@ -48,4 +48,9 @@ public class SingleProtocolProducer<T> implements ProtocolProducer, DRes<T> {
     }
     return result;
   }
+
+  public NativeProtocol<T, ?> getProtocol() {
+    return protocol;
+  }
+
 }

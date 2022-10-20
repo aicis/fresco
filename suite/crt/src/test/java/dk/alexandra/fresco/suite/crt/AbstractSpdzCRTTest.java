@@ -1,8 +1,5 @@
 package dk.alexandra.fresco.suite.crt;
 
-import static dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy.DUMMY;
-import static dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy.MASCOT;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
@@ -25,23 +22,15 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
-import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.OpenedValueStoreImpl;
-import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.util.*;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTDataSupplier;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTDummyDataSupplier;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePool;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePoolImpl;
-import dk.alexandra.fresco.suite.crt.suites.SpdzProtocolSupplier;
-import dk.alexandra.fresco.suite.spdz.NetManager;
-import dk.alexandra.fresco.suite.spdz.SpdzBuilder;
-import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
-import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
+import dk.alexandra.fresco.suite.crt.protocols.framework.CRTSequentialStrategy;
+import dk.alexandra.fresco.suite.spdz.*;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
@@ -51,15 +40,15 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDataSupplier;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
+
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy.DUMMY;
+import static dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy.MASCOT;
 
 /**
  * Abstract class which handles a lot of boiler plate testing code. This makes running a single test
@@ -117,11 +106,13 @@ public class AbstractSpdzCRTTest {
 
     for (int playerId : netConf.keySet()) {
 
-      BatchEvaluationStrategy<CRTResourcePool<SpdzResourcePool, SpdzResourcePool>> strategy = evalStrategy
-          .getStrategy();
+      BatchEvaluationStrategy<CRTResourcePool<SpdzResourcePool, SpdzResourcePool>> strategy = new CRTSequentialStrategy<>();
 
       CRTProtocolSuite<SpdzResourcePool, SpdzResourcePool> ps = new CRTProtocolSuite<>(
-          new SpdzProtocolSupplier(), new SpdzProtocolSupplier());
+          new SpdzBuilder(new BasicNumericContext(DEFAULT_FIELD_LEFT.getBitLength() - 24,
+                  playerId, noOfParties, DEFAULT_FIELD_LEFT, 16, 40)),
+      new SpdzBuilder(new BasicNumericContext(DEFAULT_FIELD_RIGHT.getBitLength() - 40,
+              playerId, noOfParties, DEFAULT_FIELD_RIGHT, 16, 40)));
 
       ProtocolEvaluator<CRTResourcePool<SpdzResourcePool, SpdzResourcePool>> evaluator =
           new BatchedProtocolEvaluator<>(strategy, ps);
