@@ -164,7 +164,7 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
 
       @Override
       public DRes<SInt> randomBit() {
-        return builder.seq(seq -> builder.numeric().known(0)); // TODO
+        return builder.seq(seq -> seq.numeric().known(0)); // TODO
       }
 
       @Override
