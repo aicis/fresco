@@ -6,6 +6,7 @@ import dk.alexandra.fresco.lib.common.collections.sort.NumericSortingTests.TestO
 import dk.alexandra.fresco.lib.common.math.integer.TestProductAndSum.TestSum;
 import dk.alexandra.fresco.lib.common.math.integer.binary.BinaryOperationsTests.TestGenerateRandomBitMask;
 import dk.alexandra.fresco.lib.common.math.integer.binary.BinaryOperationsTests.TestRightShift;
+import dk.alexandra.fresco.lib.common.math.integer.division.DivisionTests;
 import dk.alexandra.fresco.lib.common.math.integer.linalg.LinAlgTests.TestInnerProductClosed;
 import dk.alexandra.fresco.lib.common.math.integer.linalg.LinAlgTests.TestInnerProductOpen;
 import dk.alexandra.fresco.lib.common.math.integer.mod.Mod2mTests.TestMod2m;
@@ -81,6 +82,16 @@ public class TestCRT {
   @Test
   public void testMultAndAdd() {
     new AbstractSpdzCRTTest().runTest(new TestSumAndMult<>(), EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.MASCOT, 2);
+  }
+
+  @Test
+  public void testDivision() {
+    new AbstractSpdzCRTTest().runTest(new DivisionTests.TestDivision<>(), EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void testDivisionKnownDivisor() {
+    new AbstractSpdzCRTTest().runTest(new DivisionTests.TestKnownDivisorDivision<>(), EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test

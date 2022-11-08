@@ -59,7 +59,7 @@ public class AbstractSpdzCRTTest {
   protected static final FieldDefinition DEFAULT_FIELD_LEFT =
       MersennePrimeFieldDefinition.find(64);
   protected static final FieldDefinition DEFAULT_FIELD_RIGHT = new BigIntegerFieldDefinition(
-      new BigInteger(128 + 40, new Random(1234)).nextProbablePrime());
+      new BigInteger(152 + 40, new Random(1234)).nextProbablePrime());
   private static final int PRG_SEED_LENGTH = 256;
 
   private static Drbg getDrbg(int myId) {

@@ -169,7 +169,6 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
 
       @Override
       public DRes<SInt> randomElement() {
-
         return builder.par(par -> {
           Numeric l = context.leftNumeric(par);
           Numeric r = context.rightNumeric(par);

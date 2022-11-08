@@ -35,10 +35,12 @@ import java.util.*;
  */
 public class AbstractDummyCRTTest {
 
+  // Note that the modulus on the right should have twice the bit length of that to the left in order for RandomModP to
+  // work correctly.
   protected static final FieldDefinition DEFAULT_FIELD_LEFT =
       MersennePrimeFieldDefinition.find(64);
   protected static final FieldDefinition DEFAULT_FIELD_RIGHT = new BigIntegerFieldDefinition(
-      new BigInteger(128 + 40, new Random(1234)).nextProbablePrime());
+      new BigInteger(152 + 40, new Random(1234)).nextProbablePrime());
 
   public void runTest(
       TestThreadRunner.TestThreadFactory<CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>, ProtocolBuilderNumeric> f,
@@ -58,8 +60,6 @@ public class AbstractDummyCRTTest {
         > conf = new HashMap<>();
 
     for (int playerId : netConf.keySet()) {
-
-
 
       BatchEvaluationStrategy<CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>> batchEvaluationStrategy =
           new CRTSequentialStrategy<>();
