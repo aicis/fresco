@@ -14,10 +14,7 @@ public class RandomModP<ResourcePoolA extends NumericResourcePool, ResourcePoolB
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder,
       CRTNumericContext<ResourcePoolA, ResourcePoolB> context) {
-    //TODO: This assumes that the bit length of q is three that of p
-    return builder.seq(seq -> seq.numeric().randomElement())
-        .seq((seq, r) -> seq.seq(new Truncp<ResourcePoolA, ResourcePoolB>(r)))
-        .seq((seq, r) -> seq.seq(new Truncp<ResourcePoolA, ResourcePoolB>(r)))
-        .seq((seq, r) -> seq.seq(new Truncp<ResourcePoolA, ResourcePoolB>(r)));
+    //TODO
+    return builder.numeric().known(7);
   }
 }
