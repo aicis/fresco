@@ -43,7 +43,11 @@ public class InputSumExample {
 
     network.sendToAll(ByteBuffer.allocate(4).putInt(myArraySize).array());
     List<byte[]> received = network.receiveFromAll();
-    int[] allInputSizes = received.stream().mapToInt(binary -> ByteBuffer.allocate(4).put(binary).rewind().getInt()).toArray();
+    int[] allInputSizes = received.stream().mapToInt(binary -> binary[3]
+                    | binary[2] << 8
+                    | binary[1] << 16
+                    | binary[0] << 24
+            ).toArray();
 
     if (myId == 1) {
       // party input

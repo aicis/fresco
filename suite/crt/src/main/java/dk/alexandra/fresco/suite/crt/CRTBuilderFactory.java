@@ -16,7 +16,7 @@ import java.math.BigInteger;
 public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, ResourcePoolB extends NumericResourcePool>
     implements BuilderFactoryNumeric {
 
-  private final CRTNumericContext context;
+  private final CRTNumericContext<ResourcePoolA, ResourcePoolB> context;
   private final BuilderFactoryNumeric left;
   private final BuilderFactoryNumeric right;
   private final BigInteger p, q;
@@ -39,9 +39,9 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
     this.resourcePoolRight = resourcePoolRight;
     this.p = resourcePoolLeft.getModulus();
     this.q = resourcePoolRight.getModulus();
-    this.context = new CRTNumericContext(
-        p.bitLength() + q.bitLength() - 40, //TODO
-        resourcePoolLeft.getMyId(), resourcePoolLeft.getNoOfParties(), left, right, p, q, resourcePoolLeft, resourcePoolRight);
+    this.context = new CRTNumericContext<>(
+            p.bitLength() + q.bitLength() - 40, //TODO
+            resourcePoolLeft.getMyId(), resourcePoolLeft.getNoOfParties(), left, right, p, q, resourcePoolLeft, resourcePoolRight);
   }
 
   @Override

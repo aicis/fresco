@@ -111,40 +111,40 @@ public class TestCRT {
 
   @Test
   public void testCorrelatedNoise() {
-    new AbstractDummyCRTTest()
+    new AbstractSemiHonestDummyCRTTest()
         .runTest(new TestCorrelatedNoise<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
 
   @Test
   public void testGenerateRandomBitMask() {
-    new AbstractDummyCRTTest().runTest(new TestGenerateRandomBitMask<>(), EvaluationStrategy.SEQUENTIAL, 2);
+    new AbstractSemiHonestDummyCRTTest().runTest(new TestGenerateRandomBitMask<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void testRandomBit() {
-    new AbstractDummyCRTTest().runTest(new TestRandomBit<>(), EvaluationStrategy.SEQUENTIAL, 2);
+    new AbstractSemiHonestDummyCRTTest().runTest(new TestRandomBit<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void testLiftPQ() {
-    new AbstractDummyCRTTest().runTest(new TestLiftPQ<>(), EvaluationStrategy.SEQUENTIAL, 2);
+    new AbstractSemiHonestDummyCRTTest().runTest(new TestLiftPQ<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void testLiftQP() {
-    new AbstractDummyCRTTest().runTest(new TestLiftQP<>(), EvaluationStrategy.SEQUENTIAL, 2);
+    new AbstractSemiHonestDummyCRTTest().runTest(new TestLiftQP<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void testProjectionLeft() {
-    new AbstractDummyCRTTest()
+    new AbstractSemiHonestDummyCRTTest()
         .runTest(new TestProjectionLeft<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void testProjectionRight() {
-    new AbstractDummyCRTTest()
+    new AbstractSemiHonestDummyCRTTest()
         .runTest(new TestProjectionRight<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 

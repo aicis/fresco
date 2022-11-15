@@ -20,6 +20,14 @@ public class CRTProtocolSuite<A extends NumericResourcePool, B extends NumericRe
     this.right = right;
   }
 
+  public BuilderFactoryNumeric getLeft() {
+    return left;
+  }
+
+  public BuilderFactoryNumeric getRight() {
+    return right;
+  }
+
   @Override
   public BuilderFactoryNumeric init(CRTResourcePool<A, B> resourcePool) {
     Pair<A, B> resourcePools = resourcePool.getSubResourcePools();
