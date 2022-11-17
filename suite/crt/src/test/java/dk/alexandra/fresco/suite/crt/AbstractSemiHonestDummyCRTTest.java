@@ -8,6 +8,7 @@ import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.field.MersennePrimeFieldDefinition;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
@@ -26,6 +27,7 @@ import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImp
 
 import java.math.BigInteger;
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * Abstract class which handles a lot of boiler plate testing code. This makes running a single test
@@ -65,27 +67,35 @@ public class AbstractSemiHonestDummyCRTTest {
           noOfParties, DEFAULT_FIELD_LEFT);
       DummyArithmeticResourcePool rpRight = new DummyArithmeticResourcePoolImpl(playerId,
           noOfParties, DEFAULT_FIELD_RIGHT);
+      CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool> rp =
+          new CRTResourcePoolImpl<>(playerId, noOfParties, null, rpLeft, rpRight);
 
-      CRTProtocolSuite<DummyArithmeticResourcePool, DummyArithmeticResourcePool> ps = new CRTProtocolSuite<>(
+      CRTProtocolSuite<DummyArithmeticResourcePool, DummyArithmeticResourcePool> ps =
+          new CRTProtocolSuite<>(
               new DummyArithmeticBuilderFactory(new BasicNumericContext(DEFAULT_FIELD_LEFT.getBitLength() - 24,
               playerId, noOfParties, DEFAULT_FIELD_LEFT, 16, 40)),
               new DummyArithmeticBuilderFactory(new BasicNumericContext(DEFAULT_FIELD_RIGHT.getBitLength()- 40,
                       playerId, noOfParties, DEFAULT_FIELD_RIGHT, 16, 40)));
-      ProtocolEvaluator<CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>> evaluator =
+      ProtocolEvaluator<CRTResourcePool<DummyArithmeticResourcePool,
+          DummyArithmeticResourcePool>> evaluator =
           new BatchedProtocolEvaluator<>(batchEvaluationStrategy, ps);
 
       NetworkConfiguration partyNetConf = netConf.get(playerId);
-      SecureComputationEngine<CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>, ProtocolBuilderNumeric> sce =
+      SecureComputationEngine<CRTResourcePool<DummyArithmeticResourcePool,
+          DummyArithmeticResourcePool>, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
 
-      CRTDataSupplier dataSupplier = new CRTSemiHonestDataSupplier<>(playerId, noOfParties, ps);
+      Supplier<Network> networkSupplier =  () -> new SocketNetwork(partyNetConf);
+      CRTDataSupplier dataSupplier = new CRTSemiHonestDataSupplier<DummyArithmeticResourcePool,
+          DummyArithmeticResourcePool>(playerId
+          , noOfParties, rp);
 
       TestThreadRunner.TestThreadConfiguration<
           CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>,
           ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new CRTResourcePoolImpl<>(playerId, noOfParties, dataSupplier, rpLeft, rpRight),
-              () -> new SocketNetwork(partyNetConf));
+              networkSupplier);
       conf.put(playerId, ttc);
     }
 

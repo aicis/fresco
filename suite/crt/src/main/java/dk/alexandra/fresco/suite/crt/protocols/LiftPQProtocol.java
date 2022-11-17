@@ -27,7 +27,8 @@ public class LiftPQProtocol<ResourcePoolA extends NumericResourcePool, ResourceP
     @Override
     public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder,
                                        CRTNumericContext<ResourcePoolA, ResourcePoolB> context) {
-        return builder.seq(seq -> seq.append(new CorrelatedNoiseProtocol<>())).seq((seq, noise) -> {
+        DRes<SInt> noise = new CorrelatedNoiseProtocol<>(builder);
+        return builder.seq(seq -> {
             this.r = (CRTSInt) noise.out();
 
             // Add noise to the left value. The right is ignored.

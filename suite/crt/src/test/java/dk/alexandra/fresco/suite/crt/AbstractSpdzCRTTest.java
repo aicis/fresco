@@ -110,14 +110,15 @@ public class AbstractSpdzCRTTest {
 
       BatchEvaluationStrategy<CRTResourcePool<SpdzResourcePool, SpdzResourcePool>> strategy = new CRTSequentialStrategy<>();
 
-      CRTProtocolSuite<SpdzResourcePool, SpdzResourcePool> ps = new CRTProtocolSuite<>(
+      CRTProtocolSuite<SpdzResourcePool, SpdzResourcePool> ps =
+          new CRTProtocolSuite<>(
           new SpdzBuilder(new BasicNumericContext(DEFAULT_FIELD_LEFT.getBitLength() - 24,
                   playerId, noOfParties, DEFAULT_FIELD_LEFT, 16, 40)),
       new SpdzBuilder(new BasicNumericContext(DEFAULT_FIELD_RIGHT.getBitLength() - 40,
               playerId, noOfParties, DEFAULT_FIELD_RIGHT, 16, 40)));
 
       ProtocolEvaluator<CRTResourcePool<SpdzResourcePool, SpdzResourcePool>> evaluator =
-          new BatchedProtocolEvaluator<>(strategy, ps);
+          new BatchedProtocolEvaluator<CRTResourcePool<SpdzResourcePool, SpdzResourcePool>>(strategy, ps);
 
       SecureComputationEngine<CRTResourcePool<SpdzResourcePool, SpdzResourcePool>, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);

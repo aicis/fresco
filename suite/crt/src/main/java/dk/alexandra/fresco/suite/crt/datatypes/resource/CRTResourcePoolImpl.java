@@ -19,8 +19,8 @@ public class CRTResourcePoolImpl<ResourcePoolA extends NumericResourcePool, Reso
     super(myId, noOfPlayers);
     this.dataSupplier = dataSupplier;
     this.definition = new CRTRingDefinition(
-        dataSupplier.getFieldDefinitions().getFirst().getModulus(),
-        dataSupplier.getFieldDefinitions().getSecond().getModulus());
+        resourcePoolLeft.getFieldDefinition().getModulus(),
+        resourcePoolRight.getFieldDefinition().getModulus());
     this.resourcePools = new Pair<>(resourcePoolLeft, resourcePoolRight);
   }
 
@@ -31,7 +31,7 @@ public class CRTResourcePoolImpl<ResourcePoolA extends NumericResourcePool, Reso
 
   @Override
   public Pair<FieldDefinition, FieldDefinition> getFieldDefinitions() {
-    return dataSupplier.getFieldDefinitions();
+    return new Pair<>(resourcePools.getFirst().getFieldDefinition(), resourcePools.getSecond().getFieldDefinition());
   }
 
   @Override
