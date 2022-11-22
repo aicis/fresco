@@ -31,8 +31,7 @@ public class LiftQPProtocol<ResourcePoolA extends NumericResourcePool, ResourceP
         //q' = q / 2 is divisible by p, so adding it to the input only affects the output by q mod p = 1 if there's an overflow.
         BigInteger qPrime = new BigInteger("3138550867693340351802905239100779285196644626743924002860");
 
-        DRes<SInt> noise = new CorrelatedNoiseProtocol<>(builder);
-        return builder.seq(seq -> {
+        return builder.seq(new CorrelatedNoiseProtocol<>()).seq((seq, noise) -> {
             this.r = (CRTSInt) noise.out();
             return seq.numeric().add(qPrime, value);
         }).seq((seq, value) -> {

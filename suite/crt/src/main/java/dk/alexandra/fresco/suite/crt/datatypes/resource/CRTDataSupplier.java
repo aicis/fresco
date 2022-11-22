@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.crt.datatypes.resource;
 
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -12,8 +13,7 @@ public interface CRTDataSupplier {
    *
    * @return r
    */
-  CRTSInt getCorrelatedNoise(
-      ProtocolBuilderNumeric builder);
+  DRes<CRTSInt> getCorrelatedNoise(ProtocolBuilderNumeric builder);
 
   /**
    * Supply the next random bit

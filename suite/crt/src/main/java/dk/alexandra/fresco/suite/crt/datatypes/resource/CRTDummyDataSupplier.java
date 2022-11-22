@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.crt.datatypes.resource;
 
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -33,12 +34,12 @@ public class CRTDummyDataSupplier implements CRTDataSupplier {
   }
 
   @Override
-  public CRTSInt getCorrelatedNoise(ProtocolBuilderNumeric builder) {
+  public DRes<CRTSInt> getCorrelatedNoise(ProtocolBuilderNumeric builder) {
     BigInteger r = Util.randomBigInteger(random, fp.getModulus());
     BigInteger l = Util
         .randomBigInteger(random, BigInteger.valueOf(players));
-    return new CRTSInt(wrapperLeft.apply(r),
-        wrapperRight.apply(r.add(l.multiply(fp.getModulus()))));
+    return DRes.of(new CRTSInt(wrapperLeft.apply(r),
+        wrapperRight.apply(r.add(l.multiply(fp.getModulus())))));
   }
 
   @Override

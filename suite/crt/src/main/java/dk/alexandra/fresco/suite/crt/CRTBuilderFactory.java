@@ -9,6 +9,7 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
+import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePool;
 import dk.alexandra.fresco.suite.crt.protocols.framework.ProtocolBuilderNumericWrapper;
 
 import java.math.BigInteger;
@@ -23,25 +24,25 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
   private final ResourcePoolA resourcePoolLeft;
   private final ResourcePoolB resourcePoolRight;
 
-  public CRTBuilderFactory(ResourcePoolA resourcePoolLeft,
-      BuilderFactoryNumeric left,
-      ResourcePoolB resourcePoolRight, BuilderFactoryNumeric right) {
+  public CRTBuilderFactory(CRTResourcePool<ResourcePoolA, ResourcePoolB> resourcePool,
+                           BuilderFactoryNumeric left,
+                           BuilderFactoryNumeric right) {
 
-    if (resourcePoolLeft.getMyId() != resourcePoolRight.getMyId()
-        || resourcePoolLeft.getNoOfParties() != resourcePoolRight.getNoOfParties()) {
+    if (resourcePool.getSubResourcePools().getFirst().getMyId() != resourcePool.getSubResourcePools().getSecond().getMyId()
+        || resourcePool.getSubResourcePools().getFirst().getNoOfParties() != resourcePool.getSubResourcePools().getSecond().getNoOfParties()) {
       throw new IllegalArgumentException(
           "The protocol suites used must be configured with the same ID and number of players");
     }
 
     this.left = left;
-    this.resourcePoolLeft = resourcePoolLeft;
+    this.resourcePoolLeft = resourcePool.getSubResourcePools().getFirst();
     this.right = right;
-    this.resourcePoolRight = resourcePoolRight;
+    this.resourcePoolRight = resourcePool.getSubResourcePools().getSecond();
     this.p = resourcePoolLeft.getModulus();
     this.q = resourcePoolRight.getModulus();
     this.context = new CRTNumericContext<>(
             p.bitLength() + q.bitLength() - 40, //TODO
-            resourcePoolLeft.getMyId(), resourcePoolLeft.getNoOfParties(), left, right, p, q, resourcePoolLeft, resourcePoolRight);
+            resourcePoolLeft.getMyId(), resourcePoolLeft.getNoOfParties(), left, right, p, q, resourcePool);
   }
 
   @Override
