@@ -1,13 +1,12 @@
 package dk.alexandra.fresco.suite.crt.datatypes.resource;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.ComputationParallel;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.crt.CRTNumericContext;
 import dk.alexandra.fresco.suite.crt.Util;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
@@ -18,19 +17,16 @@ import java.security.SecureRandom;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class CRTSemiHonestDataSupplier<ResourcePoolL extends NumericResourcePool,
     ResourcePoolR extends NumericResourcePool>
         implements CRTDataSupplier {
 
-  private final int myId;
   private final int players;
-  private final CRTResourcePool<ResourcePoolL, ResourcePoolR> resourcePool;
-  private final Random random;
-  private ArrayDeque<CRTSInt> noisePairs = new ArrayDeque<>();
-  private final FieldDefinition leftDef;
-  private final FieldDefinition rightDef;
+  private final SecureRandom random;
+  private final ArrayDeque<CRTSInt> noisePairs = new ArrayDeque<>();
+  private final FieldDefinition fp;
+  private final FieldDefinition fq;
 
   private class NoiseGenerator extends CRTComputation<List<CRTSInt>, ResourcePoolL, ResourcePoolR> {
 
@@ -43,33 +39,29 @@ public class CRTSemiHonestDataSupplier<ResourcePoolL extends NumericResourcePool
     @Override
     public DRes<List<CRTSInt>> buildComputation(ProtocolBuilderNumeric builder, CRTNumericContext<ResourcePoolL, ResourcePoolR> context) {
       return builder.par(par -> {
-        Numeric numeric = par.numeric();
+        Numeric left = context.leftNumeric(par);
+        Numeric right = context.rightNumeric(par);
         List<CRTSInt> list = new ArrayList<>(batchSize);
         for (int i = 0; i < batchSize; i++) {
-          // TODO: Actually do the protocol
-          BigInteger r = Util.randomBigInteger(random, resourcePool.getFieldDefinitions().getFirst().getModulus());
+          DRes<SInt> rp = left.randomElement();
+          // not really sure how `l` (delta) should be selected.
           BigInteger l = Util.randomBigInteger(random, BigInteger.valueOf(players));
-          CRTSInt noisePair = new CRTSInt(
-                  context.leftNumeric(par).known(leftDef.createElement(r).toBigInteger()),
-                  context.rightNumeric(par).known(rightDef.createElement(r.add(l.multiply(leftDef.getModulus()))).toBigInteger())
-          );
+          DRes<SInt> rq = right.add(rp, left.known(l.multiply(fp.getModulus())));
+          CRTSInt noisePair = new CRTSInt(rp, rq);
           list.add(noisePair);
         }
-        return () ->  list;
+        return DRes.of(list);
       });
     }
 
   }
 
-  public CRTSemiHonestDataSupplier(int myId, int players, CRTResourcePool<ResourcePoolL,
+  public CRTSemiHonestDataSupplier(int players, CRTResourcePool<ResourcePoolL,
       ResourcePoolR> resourcePool) {
-    this.myId = myId;
     this.players = players;
-    this.resourcePool = resourcePool;
-
     this.random = new SecureRandom();
-    this.leftDef = resourcePool.getFieldDefinitions().getFirst();
-    this.rightDef = resourcePool.getFieldDefinitions().getFirst();
+    this.fp = resourcePool.getFieldDefinitions().getFirst();
+    this.fq = resourcePool.getFieldDefinitions().getFirst();
   }
 
   @Override
@@ -92,6 +84,6 @@ public class CRTSemiHonestDataSupplier<ResourcePoolL extends NumericResourcePool
 
   @Override
   public Pair<FieldDefinition, FieldDefinition> getFieldDefinitions() {
-    return new Pair<>(leftDef, rightDef);
+    return new Pair<>(fp, fq);
   }
 }

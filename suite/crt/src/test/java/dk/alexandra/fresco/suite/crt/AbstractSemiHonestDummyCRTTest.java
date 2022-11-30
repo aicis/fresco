@@ -87,8 +87,8 @@ public class AbstractSemiHonestDummyCRTTest {
 
       Supplier<Network> networkSupplier =  () -> new SocketNetwork(partyNetConf);
       CRTDataSupplier dataSupplier = new CRTSemiHonestDataSupplier<DummyArithmeticResourcePool,
-          DummyArithmeticResourcePool>(playerId
-          , noOfParties, rp);
+          DummyArithmeticResourcePool>(
+              noOfParties, rp);
 
       TestThreadRunner.TestThreadConfiguration<
           CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>,
