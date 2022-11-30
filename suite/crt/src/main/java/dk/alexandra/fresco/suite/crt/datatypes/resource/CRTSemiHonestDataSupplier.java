@@ -8,11 +8,9 @@ import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.crt.CRTNumericContext;
-import dk.alexandra.fresco.suite.crt.Util;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
 import dk.alexandra.fresco.suite.crt.protocols.framework.CRTComputation;
 
-import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -39,15 +37,13 @@ public class CRTSemiHonestDataSupplier<ResourcePoolL extends NumericResourcePool
     @Override
     public DRes<List<CRTSInt>> buildComputation(ProtocolBuilderNumeric builder, CRTNumericContext<ResourcePoolL, ResourcePoolR> context) {
       return builder.par(par -> {
+        int partyNo = context.getMyId();
         Numeric left = context.leftNumeric(par);
         Numeric right = context.rightNumeric(par);
         List<CRTSInt> list = new ArrayList<>(batchSize);
         for (int i = 0; i < batchSize; i++) {
-          DRes<SInt> rp = left.randomElement();
-          // not really sure how `l` (delta) should be selected.
-          BigInteger l = Util.randomBigInteger(random, BigInteger.valueOf(players));
-          DRes<SInt> rq = right.add(rp, left.known(l.multiply(fp.getModulus())));
-          CRTSInt noisePair = new CRTSInt(rp, rq);
+          DRes<SInt> r = left.randomElement();
+          CRTSInt noisePair = new CRTSInt(r, r);
           list.add(noisePair);
         }
         return DRes.of(list);
