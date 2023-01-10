@@ -16,10 +16,10 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
+import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTCovertDataSupplier;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTDataSupplier;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePool;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePoolImpl;
-import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTSemiHonestDataSupplier;
 import dk.alexandra.fresco.suite.crt.protocols.framework.CRTSequentialStrategy;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticBuilderFactory;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
@@ -33,7 +33,7 @@ import java.util.function.Supplier;
  * Abstract class which handles a lot of boiler plate testing code. This makes running a single test
  * using different parameters quite easy.
  */
-public class AbstractSemiHonestDummyCRTTest {
+public class AbstractCovertDummyCRTTest {
 
   // Note that the modulus on the right should have twice the bit length of that to the left in order for RandomModP to
   // work correctly.
@@ -86,7 +86,9 @@ public class AbstractSemiHonestDummyCRTTest {
           new SecureComputationEngineImpl<>(ps, evaluator);
 
       Supplier<Network> networkSupplier =  () -> new SocketNetwork(partyNetConf);
-      CRTDataSupplier dataSupplier = new CRTSemiHonestDataSupplier<>(rp);
+      CRTDataSupplier dataSupplier = new CRTCovertDataSupplier<DummyArithmeticResourcePool,
+                DummyArithmeticResourcePool>(
+              rp);
 
       TestThreadRunner.TestThreadConfiguration<
           CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>,
