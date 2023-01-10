@@ -25,8 +25,6 @@ public class CRTCovertDataSupplier<ResourcePoolL extends NumericResourcePool,
   private final FieldDefinition fp;
   private final FieldDefinition fq;
 
-  private final int partySize;
-  private final int myId;
   private final int deterrenceFactor = 10;
 
   private class CovertNoiseGenerator extends CRTComputation<List<CRTSInt>, ResourcePoolL, ResourcePoolR> {
@@ -51,15 +49,17 @@ public class CRTCovertDataSupplier<ResourcePoolL extends NumericResourcePool,
           toKeep.add(c);
         }
         return Pair.lazy(toKeep, honestNoisePairs);
+
       }).par((par, pair) -> { // Open selected pairs
 
         // prepare pairs indices to keep
-        int[] toKeep = new int[batchSize];
         int i = 0;
+        int[] toKeep = new int[batchSize];
         for (DRes<BigInteger> keep : pair.getFirst()) {
-          long k = keep.out().longValue();
+          long k = keep.out().abs().longValue();
           // ensure we have c between 0 and gamma.
           toKeep[i] = (int) k % deterrenceFactor; // TODO: this might have to be done differently
+          i++;
         }
         List<CRTSInt> honestNoisePairs = pair.getSecond();
 
@@ -87,7 +87,9 @@ public class CRTCovertDataSupplier<ResourcePoolL extends NumericResourcePool,
           noisePairs.add(honestNoisePairs.get(k));
         }
         return Pair.lazy(noisePairs, testSet);
+
       }).par((par, pair) -> { // Check selected pairs
+
         List<Pair<DRes<BigInteger>, DRes<BigInteger>>> testSet = pair.getSecond();
         for (Pair<DRes<BigInteger>, DRes<BigInteger>> noisePair : testSet) {
           BigInteger rp = noisePair.getFirst().out();
@@ -106,8 +108,6 @@ public class CRTCovertDataSupplier<ResourcePoolL extends NumericResourcePool,
       ResourcePoolR> resourcePool) {
     this.fp = resourcePool.getFieldDefinitions().getFirst();
     this.fq = resourcePool.getFieldDefinitions().getFirst();
-    this.partySize = resourcePool.getNoOfParties();
-    this.myId = resourcePool.getMyId();
   }
 
   @Override
