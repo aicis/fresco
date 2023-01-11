@@ -25,8 +25,8 @@ public class CovertNoiseGenerator<ResourcePoolL extends NumericResourcePool, Res
 
   private final SemiHonestNoiseGenerator<ResourcePoolL, ResourcePoolR> noiseGenerator;
   private final CoinTossingComputation coinToss;
+  private AesCtrDrbg jointDrbg;
 
-  private byte[] seed;
 
   public CovertNoiseGenerator(int batchSize, int deterrenceFactor, int securityParam) {
     this.batchSize = batchSize;
@@ -44,18 +44,18 @@ public class CovertNoiseGenerator<ResourcePoolL extends NumericResourcePool, Res
                                               CRTNumericContext<ResourcePoolL, ResourcePoolR> context) {
     return builder.par(noiseGenerator::buildComputation).par((par, honestNoisePairs) -> {
       // Sample batchsize random noise pairs to keep, mark all other to be checked/selected
-      DRes<byte[]> newSeed;
-      if (this.seed == null) {
-        newSeed = coinToss.buildComputation(par);
-      } else { // reuse seed if already computed.
-        newSeed = DRes.of(this.seed);
-      }
-      return Pair.lazy(newSeed, honestNoisePairs);
+      DRes<byte[]> seed = null;
+      if (this.jointDrbg == null) {
+        seed = coinToss.buildComputation(par);
+      }  // reuse seed if already computed.
+
+      return Pair.lazy(seed, honestNoisePairs);
     }).par((par, pair) -> { // Open selected pairs
       // prepare pairs indices to keep
-      this.seed = pair.getFirst().out();
-
-      AesCtrDrbg jointDrbg = new AesCtrDrbg(seed);
+      byte[] seed = pair.getFirst().out();
+      if (this.jointDrbg == null) {
+        jointDrbg = new AesCtrDrbg(seed);
+      }
       int[] toKeep = new int[batchSize];
       for (int i = 0; i < batchSize; i++) {
         byte[] sample = new byte[securityParam + Integer.numberOfLeadingZeros(deterrenceFactor)];
