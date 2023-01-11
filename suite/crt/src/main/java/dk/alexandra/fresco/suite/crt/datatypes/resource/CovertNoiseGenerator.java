@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.crt.CRTNumericContext;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
-import dk.alexandra.fresco.suite.crt.protocols.framework.CRTComputation;
 import dk.alexandra.fresco.tools.commitment.CoinTossingComputation;
 import dk.alexandra.fresco.tools.commitment.HashBasedCommitmentSerializer;
 
@@ -18,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CovertNoiseGenerator<ResourcePoolL extends NumericResourcePool, ResourcePoolR extends NumericResourcePool>
-        extends CRTComputation<List<CRTSInt>, ResourcePoolL, ResourcePoolR> {
+        extends CRTNoiseGenerator<ResourcePoolL, ResourcePoolR> {
 
   private final int batchSize;
   private final int deterrenceFactor;

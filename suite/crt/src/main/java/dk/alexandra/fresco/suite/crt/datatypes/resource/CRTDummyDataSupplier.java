@@ -11,10 +11,9 @@ import java.math.BigInteger;
 import java.util.Random;
 import java.util.function.Function;
 
-public class CRTDummyDataSupplier implements CRTDataSupplier {
+public class CRTDummyDataSupplier extends CRTDataSupplier {
 
   private final FieldDefinition fp, fq;
-  private final int myId;
   private final int players;
   private final Random random;
   private final Function<BigInteger, SInt> wrapperLeft, wrapperRight;
@@ -22,7 +21,7 @@ public class CRTDummyDataSupplier implements CRTDataSupplier {
   public CRTDummyDataSupplier(int myId, int players, FieldDefinition leftField,
       FieldDefinition rightField, Function<BigInteger, SInt> wrapperLeft,
       Function<BigInteger, SInt> wrapperRight) {
-    this.myId = myId;
+    super(null, null);
     this.players = players;
     this.fp = leftField;
     this.fq = rightField;

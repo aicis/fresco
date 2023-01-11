@@ -7,13 +7,12 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.crt.CRTNumericContext;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
-import dk.alexandra.fresco.suite.crt.protocols.framework.CRTComputation;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SemiHonestNoiseGenerator<ResourcePoolL extends NumericResourcePool, ResourcePoolR extends NumericResourcePool>
-        extends CRTComputation<List<CRTSInt>, ResourcePoolL, ResourcePoolR> {
+        extends CRTNoiseGenerator<ResourcePoolL, ResourcePoolR> {
 
   private final int batchSize;
 
