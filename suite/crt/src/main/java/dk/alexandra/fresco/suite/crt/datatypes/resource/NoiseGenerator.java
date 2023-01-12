@@ -9,7 +9,7 @@ import dk.alexandra.fresco.suite.crt.protocols.framework.CRTComputation;
 
 import java.util.List;
 
-public abstract class CRTNoiseGenerator<ResourcePoolL extends NumericResourcePool, ResourcePoolR extends NumericResourcePool>
+public abstract class NoiseGenerator<ResourcePoolL extends NumericResourcePool, ResourcePoolR extends NumericResourcePool>
         extends CRTComputation<List<CRTSInt>, ResourcePoolL, ResourcePoolR> {
 
   @Override

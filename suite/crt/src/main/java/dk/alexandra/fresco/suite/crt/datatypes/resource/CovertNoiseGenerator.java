@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CovertNoiseGenerator<ResourcePoolL extends NumericResourcePool, ResourcePoolR extends NumericResourcePool>
-        extends CRTNoiseGenerator<ResourcePoolL, ResourcePoolR> {
+        extends NoiseGenerator<ResourcePoolL, ResourcePoolR> {
 
   private final int batchSize;
   private final int deterrenceFactor;
@@ -56,6 +56,7 @@ public class CovertNoiseGenerator<ResourcePoolL extends NumericResourcePool, Res
       if (this.jointDrbg == null) {
         jointDrbg = new AesCtrDrbg(seed);
       }
+
       int[] toKeep = new int[batchSize];
       for (int i = 0; i < batchSize; i++) {
         byte[] sample = new byte[securityParam + Integer.numberOfLeadingZeros(deterrenceFactor)];

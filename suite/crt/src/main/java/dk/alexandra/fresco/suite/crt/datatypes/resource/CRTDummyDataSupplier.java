@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.crt.datatypes.resource;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -11,7 +12,7 @@ import java.math.BigInteger;
 import java.util.Random;
 import java.util.function.Function;
 
-public class CRTDummyDataSupplier extends CRTDataSupplier {
+public class CRTDummyDataSupplier<L extends NumericResourcePool,R extends NumericResourcePool> extends CRTDataSupplier<L,R> {
 
   private final FieldDefinition fp, fq;
   private final int players;

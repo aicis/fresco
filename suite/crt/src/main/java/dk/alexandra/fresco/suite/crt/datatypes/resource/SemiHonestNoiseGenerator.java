@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SemiHonestNoiseGenerator<ResourcePoolL extends NumericResourcePool, ResourcePoolR extends NumericResourcePool>
-        extends CRTNoiseGenerator<ResourcePoolL, ResourcePoolR> {
+        extends NoiseGenerator<ResourcePoolL, ResourcePoolR> {
 
   private final int batchSize;
 

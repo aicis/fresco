@@ -3,7 +3,7 @@ package dk.alexandra.fresco.suite.crt.datatypes.resource;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 
 public class CRTCovertDataSupplier<L extends NumericResourcePool, R extends NumericResourcePool>
-        extends CRTDataSupplier<L,R,CovertNoiseGenerator<L,R>> {
+        extends CRTDataSupplier<L, R> {
 
   public CRTCovertDataSupplier(CRTResourcePool<L,
       R> resourcePool) {

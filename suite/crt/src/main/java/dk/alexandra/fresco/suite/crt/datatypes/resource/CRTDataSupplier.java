@@ -9,15 +9,14 @@ import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
 
 import java.util.ArrayDeque;
 
-public abstract class CRTDataSupplier<L extends NumericResourcePool, R extends NumericResourcePool,
-        T extends CRTNoiseGenerator<L,R>> {
+public abstract class CRTDataSupplier<L extends NumericResourcePool, R extends NumericResourcePool> {
 
   private final ArrayDeque<CRTSInt> noisePairs = new ArrayDeque<>();
-  private final T noiseGenerator;
+  private final NoiseGenerator<L, R> noiseGenerator;
   private final CRTResourcePool<L, R> resourcePool;
 
 
-  protected CRTDataSupplier(T noiseGenerator, CRTResourcePool<L,R> resourcePool) {
+  protected CRTDataSupplier(NoiseGenerator<L, R> noiseGenerator, CRTResourcePool<L,R> resourcePool) {
     this.noiseGenerator = noiseGenerator;
     this.resourcePool = resourcePool;
   }
