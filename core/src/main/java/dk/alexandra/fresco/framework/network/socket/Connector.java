@@ -2,26 +2,19 @@ package dk.alexandra.fresco.framework.network.socket;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.net.ServerSocketFactory;
+import javax.net.SocketFactory;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import javax.net.ServerSocketFactory;
-import javax.net.SocketFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.concurrent.*;
 
 public class Connector implements NetworkConnector {
 
@@ -73,34 +66,34 @@ public class Connector implements NetworkConnector {
    */
   private Map<Integer, Socket> connectNetwork(final NetworkConfiguration conf,
       final Duration timeout) {
+
     Map<Integer, Socket> socketMap = new HashMap<>(conf.noOfParties());
+
     // We use two threads. One for the client connections and one for the server connections.
     final int connectionThreads = 2;
     ExecutorService connectionExecutor = Executors.newFixedThreadPool(connectionThreads);
+
     // If either the client or the server thread fails we would like cancel the other as soon as
     // possible. For this purpose we use a CompletionService.
-    CompletionService<Map<Integer, Socket>> connectionService =
-        new ExecutorCompletionService<>(connectionExecutor);
-    connectionService.submit(() -> connectClient(conf));
-    connectionService.submit(() -> connectServer(conf));
-    Duration remainingTime = timeout;
-    try {
-      Instant start = Instant.now();
-      for (int i = 0; i < connectionThreads; i++) {
-        remainingTime = remainingTime.minus(Duration.between(start, Instant.now()));
-        Future<Map<Integer, Socket>> completed =
-            connectionService.poll(remainingTime.toMillis(), TimeUnit.MILLISECONDS);
-        if (completed == null) {
-          throw new TimeoutException("Timed out waiting for client connections");
-        } else {
-          // Below, will either collect the connections made by the completed thread, or throw an
-          // ExecutionException, if the thread failed while trying to make the required connections.
-          socketMap.putAll(completed.get());
+
+    try { // like maybe just use threads, since this is getting silly
+      Future<Map<Integer, Socket>> clients = connectionExecutor.submit(() -> connectClient(conf));
+      Future<Map<Integer, Socket>> servers = connectionExecutor.submit(() -> connectServer(conf));
+      connectionExecutor.shutdown();
+      boolean termination = connectionExecutor.awaitTermination(timeout.toMillis(), TimeUnit.MILLISECONDS);
+      if (!termination) {
+        throw new RuntimeException("Timed out waiting for client connections");
+      }
+      socketMap.putAll(clients.get());
+      socketMap.putAll(servers.get());
+    } catch (ExecutionException | InterruptedException e) {
+      for (Map.Entry<?, Socket> entry : socketMap.entrySet()) {
+        try {
+          entry.getValue().close();
+        } catch (IOException e1){
+          e1.printStackTrace();
         }
       }
-    } catch (ExecutionException e) {
-      throw new RuntimeException("Failed to connect network", e.getCause());
-    } catch (Exception e) {
       throw new RuntimeException("Failed to connect network", e);
     } finally {
       connectionExecutor.shutdownNow();
