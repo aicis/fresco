@@ -3,22 +3,19 @@ package dk.alexandra.fresco.framework.network.socket;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.CloseableNetwork;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.net.ServerSocketFactory;
+import javax.net.SocketFactory;
+import java.io.IOException;
 import java.net.Socket;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import javax.net.ServerSocketFactory;
-import javax.net.SocketFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A {@link CloseableNetwork} implementation based on regular the {@link Socket} interface (i.e.,
@@ -194,10 +191,11 @@ public class SocketNetwork implements CloseableNetwork {
       r.stop();
     }
     for (Socket sock : sockets) {
-      ExceptionConverter.safe(() -> {
+      try {
         sock.close();
-        return null;
-      }, "Unable to properly close socket");
+      } catch (IOException e) {
+        // ignored
+      }
     }
   }
 

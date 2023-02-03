@@ -76,7 +76,7 @@ public class Connector implements NetworkConnector {
     // If either the client or the server thread fails we would like cancel the other as soon as
     // possible. For this purpose we use a CompletionService.
 
-    try { // like maybe just use threads, since this is getting silly
+    try {
       Future<Map<Integer, Socket>> clients = connectionExecutor.submit(() -> connectClient(conf));
       Future<Map<Integer, Socket>> servers = connectionExecutor.submit(() -> connectServer(conf));
       connectionExecutor.shutdown();
@@ -90,11 +90,19 @@ public class Connector implements NetworkConnector {
       for (Map.Entry<?, Socket> entry : socketMap.entrySet()) {
         try {
           entry.getValue().close();
-        } catch (IOException e1){
-          e1.printStackTrace();
+        }
+        catch (IOException e1){
+          // ignore, we don't care that it is already closed.
         }
       }
-      throw new RuntimeException("Failed to connect network", e);
+      // These two exceptions are expected in this form for some tests, they might break things if they change (maybe).
+      if (e instanceof ExecutionException) {
+        // ExecutionExceptions are not a cause in their own right.
+        throw new RuntimeException("Failed to connect network", e.getCause());
+      } else {
+        // InterruptedExceptions, however, are except from this behaviour.
+        throw new RuntimeException("Failed to connect network", e);
+      }
     } finally {
       connectionExecutor.shutdownNow();
     }
@@ -127,7 +135,7 @@ public class Connector implements NetworkConnector {
         } catch (ConnectException e) {
           // A connect exception is expected if the opposing side is not listening for our
           // connection attempt yet. We ignore this and try again.
-          Thread.sleep(1 << ++attempts);
+          Thread.sleep(1L << ++attempts);
         }
       }
     }
