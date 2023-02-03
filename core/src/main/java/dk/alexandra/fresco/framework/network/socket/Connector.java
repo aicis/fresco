@@ -91,7 +91,7 @@ public class Connector implements NetworkConnector {
         try {
           entry.getValue().close();
         }
-        catch (IOException e1){
+        catch (IOException ignored){
           // ignore, we don't care that it is already closed.
         }
       }
@@ -119,6 +119,7 @@ public class Connector implements NetworkConnector {
       throws InterruptedException, IOException {
     Map<Integer, Socket> socketMap = new HashMap<>(conf.noOfParties() - conf.getMyId());
     for (int i = conf.getMyId() + 1; i <= conf.noOfParties(); i++) {
+      // TODO: Split this up into N async tasks instead
       Party p = conf.getParty(i);
       boolean connectionMade = false;
       int attempts = 0;
@@ -133,9 +134,10 @@ public class Connector implements NetworkConnector {
           socketMap.put(i, sock);
           logger.info("P{}: connected to {}", conf.getMyId(), p);
         } catch (ConnectException e) {
-          // A connect exception is expected if the opposing side is not listening for our
+          // A ConnectionException is expected if the opposing side is not listening for our
           // connection attempt yet. We ignore this and try again.
           Thread.sleep(1L << ++attempts);
+          // This should probably not busy-wait for each party
         }
       }
     }

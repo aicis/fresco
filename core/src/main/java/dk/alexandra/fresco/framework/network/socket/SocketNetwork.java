@@ -193,8 +193,7 @@ public class SocketNetwork implements CloseableNetwork {
     for (Socket sock : sockets) {
       try {
         sock.close();
-      } catch (IOException e) {
-        // ignored
+      } catch (IOException ignored) {
       }
     }
   }
