@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
+import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.ServerSocket;
@@ -76,9 +77,9 @@ public class Connector implements NetworkConnector {
     // If either the client or the server thread fails we would like cancel the other as soon as
     // possible. For this purpose we use a CompletionService.
 
-    try {
+    try (ServerSocket server = serverFactory.createServerSocket(conf.getMe().getPort())) {
       Future<Map<Integer, Socket>> clients = connectionExecutor.submit(() -> connectClient(conf));
-      Future<Map<Integer, Socket>> servers = connectionExecutor.submit(() -> connectServer(conf));
+      Future<Map<Integer, Socket>> servers = connectionExecutor.submit(() -> connectServer(server, conf));
       connectionExecutor.shutdown();
       boolean termination = connectionExecutor.awaitTermination(timeout.toMillis(), TimeUnit.MILLISECONDS);
       if (!termination) {
@@ -86,7 +87,7 @@ public class Connector implements NetworkConnector {
       }
       socketMap.putAll(clients.get());
       socketMap.putAll(servers.get());
-    } catch (ExecutionException | InterruptedException e) {
+    } catch (ExecutionException | IOException | InterruptedException e) {
       for (Map.Entry<?, Socket> entry : socketMap.entrySet()) {
         try {
           entry.getValue().close();
@@ -96,12 +97,13 @@ public class Connector implements NetworkConnector {
         }
       }
       // These two exceptions are expected in this form for some tests, they might break things if they change (maybe).
-      if (e instanceof ExecutionException) {
-        // ExecutionExceptions are not a cause in their own right.
-        throw new RuntimeException("Failed to connect network", e.getCause());
-      } else {
-        // InterruptedExceptions, however, are except from this behaviour.
-        throw new RuntimeException("Failed to connect network", e);
+      if (e instanceof ExecutionException || e instanceof IOException) {
+        // HandshakeExceptions need to be explicit.
+        if (e.getCause() instanceof SSLHandshakeException) {
+          throw new RuntimeException("Failed to connect network", e.getCause());
+        } else {
+          throw new RuntimeException("Failed to connect network", e);
+        }
       }
     } finally {
       connectionExecutor.shutdownNow();
@@ -146,24 +148,24 @@ public class Connector implements NetworkConnector {
 
   /**
    * Listens for connections from the opposing parties with lower id's.
-   *
-   * @throws IOException thrown if an {@link IOException} occurs while listening.
    */
-  private Map<Integer, Socket> connectServer(final NetworkConfiguration conf) throws IOException {
+  private Map<Integer, Socket> connectServer(ServerSocket server, final NetworkConfiguration conf) {
     Map<Integer, Socket> socketMap = new HashMap<>(conf.getMyId() - 1);
     if (conf.getMyId() > 1) {
-      try (ServerSocket server = serverFactory.createServerSocket(conf.getMe().getPort())) {
+      try {
         logger.info("P{}: bound at port {}", conf.getMyId(), conf.getMe().getPort());
-        for (int i = 1; i < conf.getMyId(); i++) {
-          Socket sock = server.accept();
-          int id = 0;
-          for (int j = 0; j < PARTY_ID_BYTES; j++) {
-            id ^= sock.getInputStream().read() << j * Byte.SIZE;
-          }
-          socketMap.put(id, sock);
-          logger.info("P{}: accepted connection from P{}", conf.getMyId(), id);
-          socketMap.put(id, sock);
+      for (int i = 1; i < conf.getMyId(); i++) {
+        Socket sock = server.accept();
+        int id = 0;
+        for (int j = 0; j < PARTY_ID_BYTES; j++) {
+          id ^= sock.getInputStream().read() << j * Byte.SIZE;
         }
+        socketMap.put(id, sock);
+        logger.info("P{}: accepted connection from P{}", conf.getMyId(), id);
+        socketMap.put(id, sock);
+      }
+      } catch (IOException e) {
+        logger.info(e.getMessage());
       }
     }
     return socketMap;

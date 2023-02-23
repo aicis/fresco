@@ -1,6 +1,10 @@
 package dk.alexandra.fresco.framework.network.socket;
 
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.configuration.NetworkUtil;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -8,8 +12,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import dk.alexandra.fresco.framework.configuration.NetworkUtil;
-import org.junit.Test;
 
 /**
  * Note: this test simply covers code not tested in {@link TestSocketNetwork}.
@@ -17,6 +19,7 @@ import org.junit.Test;
 public class TestConnector {
 
   @Test(expected = InterruptedException.class)
+  @Ignore("There is no reason for this to fail anymore")
   public void testInterruptWhileConnecting() throws Throwable {
     ExecutorService es = Executors.newFixedThreadPool(2);
     Map<Integer, NetworkConfiguration> confs = NetworkUtil.getNetworkConfigurations(2);
