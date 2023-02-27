@@ -9,7 +9,7 @@
 	</properties>
 	<groupId>dk.alexandra.fresco</groupId>
 	<artifactId>master-pom</artifactId>
-	<version>1.3.4-SNAPSHOT</version>
+	<version>1.3.5</version>
 	<packaging>pom</packaging>
 
 	<name>FRESCO parent pom</name>
