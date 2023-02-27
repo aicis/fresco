@@ -8,7 +8,7 @@
   <parent>
     <groupId>dk.alexandra.fresco</groupId>
     <artifactId>tools-master-pom</artifactId>
-    <version>1.3.4-SNAPSHOT</version>
+    <version>1.3.5</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -39,7 +39,7 @@
       <groupId>dk.alexandra.fresco</groupId>
       <scope>test</scope>
       <type>test-jar</type>
-      <version>1.3.4-SNAPSHOT</version>
+      <version>1.3.5</version>
     </dependency>
   </dependencies>
 
