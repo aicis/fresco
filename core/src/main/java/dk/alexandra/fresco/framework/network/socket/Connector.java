@@ -69,7 +69,6 @@ public class Connector implements NetworkConnector {
       final Duration timeout) {
 
     Map<Integer, Socket> socketMap = new HashMap<>(conf.noOfParties());
-//    Map<Integer, Socket> socketMap = new ConcurrentHashMap<>(conf.noOfParties());
 
     // We use two threads. One for the client connections and one for the server connections.
     final int connectionThreads = 2;
@@ -79,6 +78,7 @@ public class Connector implements NetworkConnector {
     // possible. For this purpose we use a CompletionService.
 
     try (ServerSocket server = serverFactory.createServerSocket(conf.getMe().getPort())) {
+      server.setSoTimeout((int) timeout.toMillis());
       Future<Map<Integer, Socket>> clients = connectionExecutor.submit(() -> connectClient(conf));
       Future<Map<Integer, Socket>> servers = connectionExecutor.submit(() -> connectServer(server, conf));
       connectionExecutor.shutdown();
