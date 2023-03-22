@@ -123,7 +123,7 @@ public class AbstractSpdzCRTTest {
       SecureComputationEngine<CRTResourcePool<SpdzResourcePool, SpdzResourcePool>, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
 
-      CRTDataSupplier dataSupplier = new CRTDummyDataSupplier(playerId, noOfParties,
+      CRTDataSupplier<?,?> dataSupplier = new CRTDummyDataSupplier<>(playerId, noOfParties,
           DEFAULT_FIELD_LEFT, DEFAULT_FIELD_RIGHT,
           x -> toSpdzSInt(x, playerId, noOfParties, DEFAULT_FIELD_LEFT, new Random(1234),
               new BigInteger(DEFAULT_FIELD_LEFT.getModulus().bitLength(), new Random(0))
