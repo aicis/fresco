@@ -52,8 +52,8 @@ public class CovertNoiseGenerator<ResourcePoolL extends NumericResourcePool, Res
       return Pair.lazy(seed, honestNoisePairs);
     }).par((par, pair) -> { // Open selected pairs
       // prepare pairs indices to keep
-      byte[] seed = pair.getFirst().out();
       if (this.jointDrbg == null) {
+        byte[] seed = pair.getFirst().out();
         jointDrbg = new AesCtrDrbg(seed);
       }
 
