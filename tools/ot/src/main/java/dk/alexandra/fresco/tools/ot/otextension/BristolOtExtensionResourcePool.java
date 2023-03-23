@@ -35,9 +35,9 @@ public class BristolOtExtensionResourcePool extends ResourcePoolImpl implements
       int computationalSecurityParam, int lambdaSecurityParam, int instanceId,
       Drbg drbg, CoinTossing ct, RotList seedOts) {
     super(myId, 2);
-    if (computationalSecurityParam < 1 || lambdaSecurityParam < 1
-        || lambdaSecurityParam % 8 != 0 || computationalSecurityParam
-        % 8 != 0) {
+    boolean isComputationalSecurityParamInvalid = computationalSecurityParam < 1 || computationalSecurityParam % 8 != 0;
+    boolean isLambdaSecurityParamInvalid = lambdaSecurityParam < 1 || lambdaSecurityParam % 8 != 0;
+    if (isComputationalSecurityParamInvalid || isLambdaSecurityParamInvalid) {
       throw new IllegalArgumentException(
           "Security parameters must be at least 1 and divisible by 8");
     }
