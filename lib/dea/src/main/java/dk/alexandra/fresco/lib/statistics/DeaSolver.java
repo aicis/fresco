@@ -52,8 +52,8 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
    * @param setOutput    Matrix containing the basis output
    */
   public DeaSolver(AnalysisType type, List<List<DRes<SInt>>> inputValues,
-      List<List<DRes<SInt>>> outputValues, List<List<DRes<SInt>>> setInput,
-      List<List<DRes<SInt>>> setOutput) {
+                   List<List<DRes<SInt>>> outputValues, List<List<DRes<SInt>>> setInput,
+                   List<List<DRes<SInt>>> setOutput) {
     this(LPSolver.PivotRule.DANZIG, type, inputValues, outputValues, setInput, setOutput, 50);
   }
 
@@ -71,9 +71,9 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
    * @param maxNumberOfIterations the LpSolver might not terminate, the solver stops after this no
    */
   public DeaSolver(LPSolver.PivotRule pivotRule, AnalysisType type,
-      List<List<DRes<SInt>>> inputValues,
-      List<List<DRes<SInt>>> outputValues, List<List<DRes<SInt>>> setInput,
-      List<List<DRes<SInt>>> setOutput, int maxNumberOfIterations) {
+                   List<List<DRes<SInt>>> inputValues,
+                   List<List<DRes<SInt>>> outputValues, List<List<DRes<SInt>>> setInput,
+                   List<List<DRes<SInt>>> setOutput, int maxNumberOfIterations) {
     this.pivotRule = pivotRule;
     this.type = type;
     this.targetInputs = inputValues;
@@ -86,50 +86,58 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
     }
   }
 
+  class CheckConsistencyInputs
+  {
+    private boolean areInputsConsistent(int inputVariables, List<List<DRes<SInt>>> targetInputs, List<List<DRes<SInt>>> inputDataSet) {
+      for (List<DRes<SInt>> x : targetInputs) {
+        if (x.size() != inputVariables) {
+          return true;
+        }
+      }
+      for (List<DRes<SInt>> x : inputDataSet) {
+        if (x.size() != inputVariables) {
+          return true;
+        }
+      }
+      return false;
+    }
+    private boolean isSizeValid(int targetInputSize, int targetOutputSize)
+    {
+      return targetInputSize == targetOutputSize;
+    }
+
+  }
+
   /**
    * Verify that the input is consistent
    *
    * @return If the input is consistent.
    */
   private boolean consistencyCheck() {
+    CheckConsistencyInputs checkConsistencyInputs = new CheckConsistencyInputs();
 
     int inputVariables = inputDataSet.get(0).size();
     int outputVariables = outputDataSet.get(0).size();
-    if (inputDataSet.size() != outputDataSet.size()) {
+    if ( checkConsistencyInputs.isSizeValid(inputDataSet.size(), outputDataSet.size())) {
       return false;
     }
-    if (targetInputs.size() != targetOutputs.size()) {
+    if (checkConsistencyInputs.isSizeValid(targetInputs.size(), targetOutputs.size())) {
       return false;
     }
-    for (List<DRes<SInt>> x : targetInputs) {
-      if (x.size() != inputVariables) {
-        return false;
-      }
-    }
-    for (List<DRes<SInt>> x : inputDataSet) {
-      if (x.size() != inputVariables) {
-        return false;
-      }
-    }
-    for (List<DRes<SInt>> x : targetOutputs) {
-      if (x.size() != outputVariables) {
-        return false;
-      }
-    }
-    for (List<DRes<SInt>> x : outputDataSet) {
-      if (x.size() != outputVariables) {
-        return false;
-      }
-    }
+
+    if (checkConsistencyInputs.areInputsConsistent(inputVariables, targetInputs, inputDataSet)) return false;
+    if (checkConsistencyInputs.areInputsConsistent(outputVariables, targetOutputs, outputDataSet)) return false;
     return true;
   }
+
+
 
   @Override
   public DRes<List<DeaResult>> buildComputation(ProtocolBuilderNumeric builder) {
     List<DRes<SimpleLPPrefix>> prefixes = getPrefixWithSecretSharedValues(builder);
     return builder.par((par) -> {
       List<DRes<Pair<Pair<List<SInt>, List<SInt>>, DRes<OptimalValue.Result>>>> result =
-          new ArrayList<>(targetInputs.size());
+              new ArrayList<>(targetInputs.size());
       for (int i = 0; i < targetInputs.size(); i++) {
         SimpleLPPrefix prefix = prefixes.get(i).out();
         DRes<SInt> pivot = prefix.getPivot();
@@ -139,13 +147,13 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
 
         result.add(par.seq(subSeq -> subSeq.seq((solverSec) -> {
           LPSolver lpSolver = new LPSolver(
-              pivotRule, tableau, update, pivot, initialBasis, maxNumberOfIterations);
+                  pivotRule, tableau, update, pivot, initialBasis, maxNumberOfIterations);
           return lpSolver.buildComputation(solverSec);
         }).seq((optSec, lpOutput) -> {
           if (lpOutput.isAborted()) {
             return Pair.lazy(
-                new Pair<>(new ArrayList<>(), new ArrayList<>()),
-                () -> new OptimalValue.Result(null, null, null));
+                    new Pair<>(new ArrayList<>(), new ArrayList<>()),
+                    () -> new OptimalValue.Result(null, null, null));
           }
           // Compute peers from lpOutput
           DRes<SInt> invPivot = AdvancedNumeric.using(optSec).invert(lpOutput.pivot);
@@ -162,22 +170,22 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
           // These could be done in parallel
           return optSec.par(innerPar -> {
             List<DRes<SInt>> upColumn =
-                umRows.stream().map(row -> AdvancedNumeric.using(innerPar).innerProduct(row, column))
-                    .collect(Collectors.toList());
+                    umRows.stream().map(row -> AdvancedNumeric.using(innerPar).innerProduct(row, column))
+                            .collect(Collectors.toList());
             return () -> upColumn;
           }).par((innerPar, upColumn) -> {
             upColumn.remove(upColumn.size() - 1);
             List<DRes<SInt>> basisValues = upColumn.stream()
-                .map(n -> innerPar.numeric().mult(invPivot, n)).collect(Collectors.toList());
+                    .map(n -> innerPar.numeric().mult(invPivot, n)).collect(Collectors.toList());
             return () -> basisValues;
           }).par((innerPar, basisValues) -> {
             Comparison comparison = Comparison.using(innerPar);
             List<DRes<SInt>> above =
-                lpOutput.basis.stream().map(n -> comparison.compareLEQ(firstPeer, n))
-                    .collect(Collectors.toList());
+                    lpOutput.basis.stream().map(n -> comparison.compareLEQ(firstPeer, n))
+                            .collect(Collectors.toList());
             List<DRes<SInt>> below =
-                lpOutput.basis.stream().map(n -> comparison.compareLEQ(n, lastPeer))
-                    .collect(Collectors.toList());
+                    lpOutput.basis.stream().map(n -> comparison.compareLEQ(n, lastPeer))
+                            .collect(Collectors.toList());
             List<List<DRes<SInt>>> newState = new ArrayList<>(3);
             newState.add(above);
             newState.add(below);
@@ -185,45 +193,45 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
             return () -> newState;
           }).par((innerPar, state) -> {
             List<DRes<SInt>> inRange = IntStream.range(0, lpOutput.basis.size())
-                .mapToObj(n -> innerPar.numeric().mult(state.get(0).get(n), state.get(1).get(n)))
-                .collect(Collectors.toList());
+                    .mapToObj(n -> innerPar.numeric().mult(state.get(0).get(n), state.get(1).get(n)))
+                    .collect(Collectors.toList());
             List<List<DRes<SInt>>> newState = new ArrayList<>(2);
             newState.add(inRange);
             newState.add(state.get(2));
             return () -> newState;
           }).par((innerPar, state) -> {
             List<DRes<SInt>> peers = IntStream.range(0, lpOutput.basis.size())
-                .mapToObj(n -> innerPar.numeric().mult(lpOutput.basis.get(n), state.get(0).get(n)))
-                .collect(Collectors.toList());
+                    .mapToObj(n -> innerPar.numeric().mult(lpOutput.basis.get(n), state.get(0).get(n)))
+                    .collect(Collectors.toList());
             List<DRes<SInt>> peerValues = IntStream.range(0, lpOutput.basis.size())
-                .mapToObj(n -> innerPar.numeric().mult(state.get(0).get(n), state.get(1).get(n)))
-                .collect(Collectors.toList());
+                    .mapToObj(n -> innerPar.numeric().mult(state.get(0).get(n), state.get(1).get(n)))
+                    .collect(Collectors.toList());
             List<List<DRes<SInt>>> newState = new ArrayList<>(2);
             newState.add(peers);
             newState.add(peerValues);
             return () -> newState;
           }).par((innerPar, state) -> {
             List<DRes<SInt>> peersFromZero = state.get(0).stream()
-                .map(n -> innerPar.numeric().sub(n, f)).collect(Collectors.toList());
+                    .map(n -> innerPar.numeric().sub(n, f)).collect(Collectors.toList());
             return () -> new Pair<>(
-                peersFromZero.stream().map(DRes::out).collect(Collectors.toList()),
-                state.get(1).stream().map(DRes::out).collect(Collectors.toList())
+                    peersFromZero.stream().map(DRes::out).collect(Collectors.toList()),
+                    state.get(1).stream().map(DRes::out).collect(Collectors.toList())
             );
           }).seq((seq, state) -> Pair.lazy(state,
-              new OptimalValue(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot)
-                  .buildComputation(seq)));
+                  new OptimalValue(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot)
+                          .buildComputation(seq)));
         })));
       }
       return () -> result;
     }).seq((seq, result) -> {
       List<DeaResult> convertedResult =
-          result.stream().map(DeaResult::new).collect(Collectors.toList());
+              result.stream().map(DeaResult::new).collect(Collectors.toList());
       return () -> convertedResult;
     });
   }
 
   private List<DRes<SimpleLPPrefix>> getPrefixWithSecretSharedValues(
-      ProtocolBuilderNumeric builder) {
+          ProtocolBuilderNumeric builder) {
     int dataSetSize = this.inputDataSet.size();
 
     int noOfSolvers = this.targetInputs.size();
@@ -253,16 +261,16 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
     for (int i = 0; i < noOfSolvers; i++) {
       if (type == AnalysisType.INPUT_EFFICIENCY) {
         prefixes.add(
-            builder.seq(new DEAInputEfficiencyPrefixBuilder(
-                Collections.unmodifiableList(basisInputs),
-                Collections.unmodifiableList(basisOutputs),
-                targetInputs.get(i), targetOutputs.get(i))));
+                builder.seq(new DEAInputEfficiencyPrefixBuilder(
+                        Collections.unmodifiableList(basisInputs),
+                        Collections.unmodifiableList(basisOutputs),
+                        targetInputs.get(i), targetOutputs.get(i))));
       } else {
         prefixes.add(
-            builder.seq(new DEAPrefixBuilderMaximize(
-                Collections.unmodifiableList(basisInputs),
-                Collections.unmodifiableList(basisOutputs),
-                targetInputs.get(i), targetOutputs.get(i))));
+                builder.seq(new DEAPrefixBuilderMaximize(
+                        Collections.unmodifiableList(basisInputs),
+                        Collections.unmodifiableList(basisOutputs),
+                        targetInputs.get(i), targetOutputs.get(i))));
       }
     }
     return prefixes;
@@ -281,11 +289,11 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
     public final SInt denominator;
 
     private DeaResult(
-        DRes<Pair<Pair<List<SInt>, List<SInt>>, DRes<OptimalValue.Result>>> output) {
+            DRes<Pair<Pair<List<SInt>, List<SInt>>, DRes<OptimalValue.Result>>> output) {
       Pair<Pair<List<SInt>, List<SInt>>, DRes<OptimalValue.Result>> out = output.out();
       this.peers = out.getFirst().getFirst().stream().map(DRes::out).collect(Collectors.toList());
       this.peerValues =
-          out.getFirst().getSecond().stream().map(DRes::out).collect(Collectors.toList());
+              out.getFirst().getSecond().stream().map(DRes::out).collect(Collectors.toList());
       this.optimal = out.getSecond().out().optimal;
       this.numerator = out.getSecond().out().numerator;
       this.denominator = out.getSecond().out().denominator;
