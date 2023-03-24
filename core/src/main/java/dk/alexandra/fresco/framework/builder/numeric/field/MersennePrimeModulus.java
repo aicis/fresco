@@ -40,7 +40,7 @@ final class MersennePrimeModulus implements Serializable {
     this.prime = shifted.subtract(BigInteger.valueOf(constant));
     if (prime.compareTo(BigInteger.ZERO) <= 0) {
       throw new IllegalArgumentException(
-          "Constant is too large, the prime is now less than or equal to zero");
+              "Constant is too large, the prime is now less than or equal to zero");
     }
 
     initInverse();
@@ -58,8 +58,8 @@ final class MersennePrimeModulus implements Serializable {
   @Override
   public String toString() {
     return "MersennePrimeModulus{"
-        + "value=" + prime
-        + '}';
+            + "value=" + prime
+            + '}';
   }
 
   /**
@@ -133,6 +133,38 @@ final class MersennePrimeModulus implements Serializable {
     int n = bitLength;
 
     // Phase 1
+    BigInteger[] h = computePhase1(value);
+
+    // Use precomputed values for b, j and d
+    int b = b0;
+    int j = j0;
+    int d = d0;
+
+    // Calculate key
+    BigInteger k = calculateKey(h, b, j, d);
+
+    // Phase 2
+    h = computePhase2(h, j, b);
+
+    // Complete addition chain
+    BigInteger r = completeAdditionChain(h, n, b);
+
+    // Phase 3
+    r= computePhase3(b,k,r);
+
+    return r;
+  }
+  BigInteger computePhase3(int b, BigInteger k,BigInteger r)
+  {
+    for (int i = 0; i < b; i++) {
+      r = ensureInField(r.multiply(r));
+    }
+    r = ensureInField(r.multiply(k));
+    return r;
+  }
+
+  private BigInteger[] computePhase1(BigInteger value) {
+    int n = bitLength;
     BigInteger[] h = new BigInteger[11];
     h[0] = value;
     h[1] = ensureInField(h[0].multiply(h[0]));
@@ -145,13 +177,10 @@ final class MersennePrimeModulus implements Serializable {
     h[8] = ensureInField(h[7].multiply(h[7]));
     h[9] = ensureInField(h[8].multiply(h[8]));
     h[10] = ensureInField(h[9].multiply(h[5]));
+    return h;
+  }
 
-    // Use precomputed values for b, j and d
-    int b = b0;
-    int j = j0;
-    int d = d0;
-
-    // Calculate key
+  private BigInteger calculateKey(BigInteger[] h, int b, int j, int d) {
     BigInteger k = h[d];
     while (j != 0) {
       d = d - 1;
@@ -160,17 +189,11 @@ final class MersennePrimeModulus implements Serializable {
         j = j - a[d];
       }
     }
-
-    // Phase 2
-    // Re-use the array
-    h[1] = h[2];
-    h[2] = h[5];
-    h[3] = h[10];
-    j = 3;
+    return k;
+  }
+  private BigInteger[] computePhase2(BigInteger[] h, int j, int b) {
     int m = 8;
-    n = n - b;
-
-    // Double up
+    int n = bitLength - b;
     while (2 * m < n) {
       BigInteger t = h[j];
       j = j + 1;
@@ -180,11 +203,13 @@ final class MersennePrimeModulus implements Serializable {
       h[j] = ensureInField(t.multiply(h[j - 1]));
       m = 2 * m;
     }
-
-    int l = n - m;
+    return new BigInteger[]{h[2], h[5], h[10]};
+  }
+  private BigInteger completeAdditionChain(BigInteger[] h, int n, int b) {
+    int l = n - (2 * b);
+    int j = 3;
+    int m = 8;
     BigInteger r = h[j];
-
-    // Complete addition chain
     while (l != 0) {
       m = m / 2;
       j = j - 1;
@@ -197,13 +222,9 @@ final class MersennePrimeModulus implements Serializable {
         r = ensureInField(t.multiply(h[j]));
       }
     }
-
-    // Phase 3
     for (int i = 0; i < b; i++) {
       r = ensureInField(r.multiply(r));
     }
-    r = ensureInField(r.multiply(k));
-
     return r;
   }
 }
