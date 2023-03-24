@@ -72,7 +72,6 @@ public interface BitTripleResourcePool extends ResourcePool {
    */
   MessageDigest getMessageDigest();
 
-  CoteFactory createCote(int otherId, Network network, StrictBitVector choices);
 
   /**
    * The DRBG is useful for protocols which needs a form of shared randomness where the random bytes

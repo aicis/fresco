@@ -36,20 +36,20 @@ public class BitTripleResourcePoolImpl extends ResourcePoolImpl implements BitTr
    *                                    ({@link BitTripleSecurityParameters})
    */
   public BitTripleResourcePoolImpl(
-      int myId,
-      int noOfParties,
-      int instanceId,
-      Drbg drbg,
-      BitTripleSecurityParameters bitTripleSecurityParameters) {
+          int myId,
+          int noOfParties,
+          int instanceId,
+          Drbg drbg,
+          BitTripleSecurityParameters bitTripleSecurityParameters) {
     super(myId, noOfParties);
     this.drbg = drbg;
     this.instanceId = instanceId;
     this.bitTripleSecurityParameters = bitTripleSecurityParameters;
     this.localSampler = new BytePrgImpl(drbg);
     this.messageDigest =
-        ExceptionConverter.safe(
-            () -> MessageDigest.getInstance("SHA-256"),
-            "Configuration error, SHA-256 is needed for Mascot");
+            ExceptionConverter.safe(
+                    () -> MessageDigest.getInstance("SHA-256"),
+                    "Configuration error, SHA-256 is needed for Mascot");
   }
 
   @Override
@@ -72,7 +72,6 @@ public class BitTripleResourcePoolImpl extends ResourcePoolImpl implements BitTr
     return localSampler;
   }
 
-  @Override
   public CoteFactory createCote(int otherId, Network network, StrictBitVector choices) {
     if (getMyId() == otherId) {
       throw new IllegalArgumentException("Cannot initialize with self");
@@ -80,7 +79,7 @@ public class BitTripleResourcePoolImpl extends ResourcePoolImpl implements BitTr
     CoinTossing ct = new CoinTossing(getMyId(), otherId, getRandomGenerator());
     ct.initialize(network);
     AbstractNaorPinkasOT ot =
-        new BigIntNaorPinkas(otherId, getRandomGenerator(), network);
+            new BigIntNaorPinkas(otherId, getRandomGenerator(), network);
     RotList currentSeedOts = new RotList(drbg, choices.getSize(), choices);
     if (getMyId() < otherId) {
       currentSeedOts.send(ot);
@@ -90,15 +89,15 @@ public class BitTripleResourcePoolImpl extends ResourcePoolImpl implements BitTr
       currentSeedOts.send(ot);
     }
     OtExtensionResourcePool otResources =
-        new BristolOtExtensionResourcePool(
-            getMyId(),
-            otherId,
-            choices.getSize(),
-            getStatisticalSecurityByteParameter(),
-            getInstanceId(),
-            getRandomGenerator(),
-            ct,
-            currentSeedOts);
+            new BristolOtExtensionResourcePool(
+                    getMyId(),
+                    otherId,
+                    choices.getSize(),
+                    getStatisticalSecurityByteParameter(),
+                    getInstanceId(),
+                    getRandomGenerator(),
+                    ct,
+                    currentSeedOts);
 
     return new CoteFactory(otResources, network);
   }
