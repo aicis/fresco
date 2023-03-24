@@ -8,7 +8,7 @@ import dk.alexandra.fresco.tools.ot.otextension.PseudoOtp;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 
-public abstract class AbstractNaorPinkasOT<T extends InterfaceOtElement<T>> implements Ot {
+public abstract class AbstractNaorPinkasOT<T extends InterfaceOtElement<T>> extends GetMessage implements Ot {
 
   // The amount of bytes in the random message
   private static final int MESSAGE_SIZE_BYTES = 32;
@@ -44,9 +44,9 @@ public abstract class AbstractNaorPinkasOT<T extends InterfaceOtElement<T>> impl
     int maxBitLength = Math.max(messageZero.getSize(), messageOne.getSize());
     Pair<byte[], byte[]> seedMessages = sendRandomOt();
     byte[] encryptedZeroMessage = PseudoOtp.encrypt(messageZero.toByteArray(),
-        seedMessages.getFirst(), maxBitLength / Byte.SIZE);
+            seedMessages.getFirst(), maxBitLength / Byte.SIZE);
     byte[] encryptedOneMessage = PseudoOtp.encrypt(messageOne.toByteArray(),
-        seedMessages.getSecond(), maxBitLength / Byte.SIZE);
+            seedMessages.getSecond(), maxBitLength / Byte.SIZE);
     network.send(otherId, encryptedZeroMessage);
     network.send(otherId, encryptedOneMessage);
   }
@@ -120,7 +120,7 @@ public abstract class AbstractNaorPinkasOT<T extends InterfaceOtElement<T>> impl
    * plaintext.
    */
   private Pair<InterfaceOtElement, byte[]> encryptRandomMessage(
-      InterfaceOtElement publicKey) {
+          InterfaceOtElement publicKey) {
     BigInteger r = randNum.nextBigInteger(getSubgroupOrder());
     InterfaceOtElement cipherText = getGenerator().exponentiation(r);
     InterfaceOtElement toHash = publicKey.exponentiation(r);
@@ -157,17 +157,8 @@ public abstract class AbstractNaorPinkasOT<T extends InterfaceOtElement<T>> impl
    * @return The unpadded message as a StrictBitVector
    */
   private StrictBitVector recoverTrueMessage(byte[] encryptedZeroMessage,
-      byte[] encryptedOneMessage, byte[] seed, boolean choiceBit) {
-    if (encryptedZeroMessage.length != encryptedOneMessage.length) {
-      throw new MaliciousException("The length of the two choice messages is not equal");
-    }
-    byte[] unpaddedMessage;
-    if (choiceBit == false) {
-      unpaddedMessage = PseudoOtp.decrypt(encryptedZeroMessage, seed);
-    } else {
-      unpaddedMessage = PseudoOtp.decrypt(encryptedOneMessage, seed);
-    }
-    return new StrictBitVector(unpaddedMessage);
+                                             byte[] encryptedOneMessage, byte[] seed, boolean choiceBit) {
+    return getUnpaddedMessage(choiceBit, seed, encryptedZeroMessage, encryptedOneMessage);
   }
 
 

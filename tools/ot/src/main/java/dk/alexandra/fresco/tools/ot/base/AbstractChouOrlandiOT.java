@@ -14,7 +14,9 @@ import java.math.BigInteger;
  * Uses Chou-Orlandi with fixes as seen in https://eprint.iacr.org/2021/1218
  *
  */
-public abstract class AbstractChouOrlandiOT<T extends InterfaceOtElement<T>> implements Ot {
+
+
+public abstract class AbstractChouOrlandiOT<T extends InterfaceOtElement<T>> extends GetMessage implements Ot {
 
     private final int otherId;
     private final Network network;
@@ -60,17 +62,10 @@ public abstract class AbstractChouOrlandiOT<T extends InterfaceOtElement<T>> imp
         byte[] encryptedZeroMessage = network.receive(otherId);
         byte[] encryptedOneMessage = network.receive(otherId);
 
-        if (encryptedZeroMessage.length != encryptedOneMessage.length) {
-            throw new MaliciousException("The length of the two choice messages is not equal");
-        }
-        byte[] unpaddedMessage;
-        if (choiceBit == false) {
-            unpaddedMessage = PseudoOtp.decrypt(encryptedZeroMessage, seed);
-        } else {
-            unpaddedMessage = PseudoOtp.decrypt(encryptedOneMessage, seed);
-        }
-        return new StrictBitVector(unpaddedMessage);
+        return getUnpaddedMessage(choiceBit, seed, encryptedZeroMessage, encryptedOneMessage);
     }
+
+
 
     /**
      * Completes the receiver's part of the Chou-Orlandi OT in order to receive a random message of the
