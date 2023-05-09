@@ -10,6 +10,7 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.crt.CRTNumericContext;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTCombinedPad;
+import dk.alexandra.fresco.suite.crt.datatypes.CRTNoise;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
 import dk.alexandra.fresco.tools.commitment.CoinTossingComputation;
 import dk.alexandra.fresco.tools.commitment.HashBasedCommitmentSerializer;
@@ -52,7 +53,7 @@ public class CovertNoiseGenerator<ResourcePoolL extends NumericResourcePool, Res
   public DRes<List<CRTCombinedPad>> buildComputation(ProtocolBuilderNumeric builder,
                                                      CRTNumericContext context) {
     return builder.par(par -> {
-      DRes<List<CRTSInt>> semiHonestNoise = noiseGenerator.buildComputation(par, context);
+      DRes<List<CRTNoise>> semiHonestNoise = noiseGenerator.buildComputation(par, context);
       DRes<List<CRTSInt>> rhoPad = padGenerator.buildComputation(par, context);
       DRes<List<CRTSInt>> psiPad = padGenerator.buildComputation(par, context);
       // Sample batchsize random noise pairs to keep, mark all other to be checked/selected
@@ -70,7 +71,7 @@ public class CovertNoiseGenerator<ResourcePoolL extends NumericResourcePool, Res
       List<CRTCombinedPad> combinedPads = new ArrayList<>(securityParam * batchSize);
       for (int i = 0; i < deterrenceFactor * batchSize; i++) {
         combinedPads.add(new CRTCombinedPad(
-                ((DRes<List<CRTSInt>>) data[0]).out().get(i),
+                ((DRes<List<CRTNoise>>) data[0]).out().get(i).getNoisePair(),
                 ((DRes<List<CRTSInt>>) data[1]).out().get(i).getRight(),
                 ((DRes<List<CRTSInt>>) data[2]).out().get(i).getRight()));
       }
@@ -134,6 +135,7 @@ public class CovertNoiseGenerator<ResourcePoolL extends NumericResourcePool, Res
           throw new MaliciousException("Cheating in the noise pair");
         }
       }
+      // TODO identify which party is malicious
       for (int i = 0; i < 2*batchSize*(deterrenceFactor-1); i++) {
         if (padTestSet.get(i).out().compareTo(modulo) >= 0) {
           throw new MaliciousException("Cheating in the size of psi or rho");

@@ -7,13 +7,14 @@ import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.crt.Util;
+import dk.alexandra.fresco.suite.crt.datatypes.CRTNoise;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
 
 import java.math.BigInteger;
 import java.util.Random;
 import java.util.function.Function;
 
-public class CRTSemiHonestDummyDataSupplier<L extends NumericResourcePool,R extends NumericResourcePool> extends CRTDataSupplier<L,R, CRTSInt> {
+public class CRTSemiHonestDummyDataSupplier<L extends NumericResourcePool,R extends NumericResourcePool> extends CRTDataSupplier<L,R, CRTNoise> {
 
     private final FieldDefinition fp, fq;
     private final int players;
@@ -35,12 +36,12 @@ public class CRTSemiHonestDummyDataSupplier<L extends NumericResourcePool,R exte
     }
 
     @Override
-    public DRes<CRTSInt> getCorrelatedNoise(ProtocolBuilderNumeric builder) {
+    public DRes<CRTNoise> getCorrelatedNoise(ProtocolBuilderNumeric builder) {
         BigInteger r = Util.randomBigInteger(random, fp.getModulus());
         BigInteger l = Util
                 .randomBigInteger(random, BigInteger.valueOf(players));
-        return DRes.of(new CRTSInt(wrapperLeft.apply(r),
-                                wrapperRight.apply(r.add(l.multiply(fp.getModulus())))));
+        return DRes.of(new CRTNoise(new CRTSInt(wrapperLeft.apply(r),
+                                wrapperRight.apply(r.add(l.multiply(fp.getModulus()))))));
     }
 
     @Override

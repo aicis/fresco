@@ -6,11 +6,12 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTCombinedPad;
+import dk.alexandra.fresco.suite.crt.datatypes.CRTNoise;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
 
 import java.util.ArrayDeque;
 
-public abstract class CRTDataSupplier<L extends NumericResourcePool, R extends NumericResourcePool, NoiseT> {
+public abstract class CRTDataSupplier<L extends NumericResourcePool, R extends NumericResourcePool, NoiseT extends CRTNoise> {
 
   private final ArrayDeque<NoiseT> noisePairs = new ArrayDeque<>();
   private final NoiseGenerator<L, R, NoiseT> noiseGenerator;
