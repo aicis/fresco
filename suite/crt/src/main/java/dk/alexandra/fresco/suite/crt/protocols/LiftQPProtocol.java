@@ -20,6 +20,8 @@ public class LiftQPProtocol<ResourcePoolA extends NumericResourcePool, ResourceP
 
     private final DRes<SInt> value;
     private CRTSInt r;
+    private DRes<SInt> rho;
+    private DRes<SInt> psi;
 
     public LiftQPProtocol(DRes<SInt> value) {
         this.value = value;
@@ -33,24 +35,21 @@ public class LiftQPProtocol<ResourcePoolA extends NumericResourcePool, ResourceP
 
         return builder.seq(new CorrelatedNoiseProtocol<>()).seq((seq, noise) -> {
             this.r = (CRTSInt) noise.getNoisePair().out();
+            this.rho = noise.getRho();
+            this.psi = noise.getPsi();
             return seq.numeric().add(qPrime, value);
         }).seq((seq, value) -> {
 
             // Add noise to the right value. The left is ignored.
-            DRes<SInt> xBar = context.rightNumeric(seq).add(((CRTSInt) value.out()).getRight(), r.getRight());
-            CRTSInt output = new CRTSInt(context.leftNumeric(seq).known(0), xBar);
-            return seq.numeric().open(output); // TODO: We only need to open the right, so we should create an openRight function
-
-            // TODO: We haven't added the noise (c from the protocol)
-
+            DRes<SInt> temp = context.rightNumeric(seq).add(((CRTSInt) value.out()).getRight(), r.getRight());
+            // Add statistical noise drowning
+            DRes<SInt> xBar = context.rightNumeric(seq).add(temp,
+                    context.rightNumeric(seq).mult(context.getLeftModulus(), rho));
+            return context.rightNumeric(seq).open(xBar);
         }).seq((seq, xBarOpen) -> {
             Numeric left = context.leftNumeric(seq);
-
-            // Extract the right value from xBar
-            DRes<SInt> xBarLeft = left.known(Util.mapToCRT(xBarOpen, context.getLeftModulus(), context.getRightModulus()).getSecond());
-
             // Remove the noise and return
-            DRes<SInt> adjusted = left.sub(xBarLeft, r.getLeft());
+            DRes<SInt> adjusted = left.sub(xBarOpen, r.getLeft());
             return new CRTSInt(adjusted, ((CRTSInt) value.out()).getRight());
         });
     }

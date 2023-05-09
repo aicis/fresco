@@ -32,17 +32,11 @@ public class LiftPQProtocol<ResourcePoolA extends NumericResourcePool, ResourceP
 
             // Add noise to the left value. The right is ignored.
             DRes<SInt> xBar = context.leftNumeric(seq).add(((CRTSInt) value.out()).getLeft(), r.getLeft());
-            CRTSInt output = new CRTSInt(xBar, context.rightNumeric(seq).known(0));
-            return seq.numeric().open(output); // TODO: We only need to open the left, so we should create an openLeft function
-
+            return  context.leftNumeric(seq).open(xBar);
         }).seq((seq, xBarOpen) -> {
             Numeric right = context.rightNumeric(seq);
-
-            // Extract the left value from xBar
-            DRes<SInt> xBarRight = right.known(Util.mapToCRT(xBarOpen, context.getLeftModulus(), context.getRightModulus()).getFirst());
-
             // Remove the noise and return
-            DRes<SInt> adjusted = right.sub(xBarRight, r.getRight());
+            DRes<SInt> adjusted = right.sub(xBarOpen, r.getRight());
             return new CRTSInt(((CRTSInt) value.out()).getLeft(), adjusted);
         });
     }
