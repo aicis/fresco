@@ -11,6 +11,9 @@ import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
 import java.util.ArrayDeque;
 
 public abstract class CRTDataSupplier<L extends NumericResourcePool, R extends NumericResourcePool> {
+  public static final int DEFAULT_BATCH_SIZE = 8;
+  public static final int DEFAULT_DETERRENCE_FACTOR = 2;
+  public static final int DEFAULT_STATSECURITY = 60;
 
   private final ArrayDeque<CRTCombinedPad> noisePairs = new ArrayDeque<>();
   private final NoiseGenerator<L, R> noiseGenerator;

@@ -26,7 +26,7 @@ import dk.alexandra.fresco.framework.util.*;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTDataSupplier;
-import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTCovertDummyDataSupplier;
+import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTDummyDataSupplier;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePool;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePoolImpl;
 import dk.alexandra.fresco.suite.crt.protocols.framework.CRTSequentialStrategy;
@@ -123,7 +123,7 @@ public class AbstractSpdzCRTTest {
       SecureComputationEngine<CRTResourcePool<SpdzResourcePool, SpdzResourcePool>, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
 
-      CRTDataSupplier<?,?> dataSupplier = new CRTCovertDummyDataSupplier<>(playerId, noOfParties, STATISTICAL_SEC
+      CRTDataSupplier<?,?> dataSupplier = new CRTDummyDataSupplier<>(playerId, noOfParties, STATISTICAL_SEC
               , DEFAULT_FIELD_LEFT, DEFAULT_FIELD_RIGHT,
           x -> toSpdzSInt(x, playerId, noOfParties, DEFAULT_FIELD_LEFT, new Random(1234),
               new BigInteger(DEFAULT_FIELD_LEFT.getModulus().bitLength(), new Random(0))

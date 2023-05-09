@@ -6,6 +6,8 @@ import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.Drng;
+import dk.alexandra.fresco.framework.util.DrngImpl;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.crt.CRTNumericContext;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTCombinedPad;
@@ -20,16 +22,16 @@ public class SemiHonestNoiseGenerator<ResourcePoolL extends NumericResourcePool,
 
   private final int batchSize;
   private final int securityParam;
-  private final Drbg localDrbg;
+  private final Drng localDrng;
 
   public SemiHonestNoiseGenerator(int batchSize, int securityParam) {
-    this(batchSize, securityParam, new AesCtrDrbg());
+    this(batchSize, securityParam, new DrngImpl(new AesCtrDrbg()));
   }
 
-  public SemiHonestNoiseGenerator(int batchSize, int securityParam, Drbg localDrbg) {
+  public SemiHonestNoiseGenerator(int batchSize, int securityParam, Drng localDrng) {
     this.batchSize = batchSize;
     this.securityParam = securityParam;
-    this.localDrbg = localDrbg;
+    this.localDrng = localDrng;
   }
 
   @Override
@@ -42,17 +44,6 @@ public class SemiHonestNoiseGenerator<ResourcePoolL extends NumericResourcePool,
       for (int i = 0; i < batchSize; i++) {
         DRes<SInt> r = left.randomElement();
         CRTSInt noisePair = new CRTSInt(r, r);
-//        List<CRTSInt> partyShares = new ArrayList<>(batchSize);
-//        for (int j = 1; j <= par.getBasicNumericContext().getNoOfParties(); j++) {
-//          BigInteger modulo = BigInteger.valueOf(2).pow(securityParam);
-//          byte[] sample = new byte[1 + (securityParam / 8)];
-//          localDrbg.nextBytes(sample);
-//          BigInteger rho = new BigInteger(1, sample).mod(modulo);
-//          DRes<SInt> sharedRho = right.input(rho, par.getBasicNumericContext().getMyId());
-//          localDrbg.nextBytes(sample);
-//          BigInteger psi = new BigInteger(1, sample).mod(modulo);
-//          DRes<SInt> sharedPsi = right.input(psi, par.getBasicNumericContext().getMyId());
-//        }
         DRes<SInt> rho = getStatisticalShares(right, par.getBasicNumericContext().getMyId(), par.getBasicNumericContext().getNoOfParties());
         DRes<SInt> psi = getStatisticalShares(right, par.getBasicNumericContext().getMyId(), par.getBasicNumericContext().getNoOfParties());
         list.add(new CRTCombinedPad(noisePair, rho, psi));
@@ -67,9 +58,7 @@ public class SemiHonestNoiseGenerator<ResourcePoolL extends NumericResourcePool,
       DRes<SInt> curRand;
       if (j == myId) {
         BigInteger modulo = BigInteger.valueOf(2).pow(securityParam);
-        byte[] sample = new byte[1 + (securityParam / 8)];
-        localDrbg.nextBytes(sample);
-        BigInteger rand = new BigInteger(1, sample).mod(modulo);
+        BigInteger rand = localDrng.nextBigInteger(modulo);
         curRand = right.input(rand, myId);
       } else {
         curRand = right.input(null, j);

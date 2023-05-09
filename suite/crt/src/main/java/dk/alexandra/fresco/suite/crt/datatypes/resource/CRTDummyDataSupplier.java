@@ -13,7 +13,7 @@ import java.math.BigInteger;
 import java.util.Random;
 import java.util.function.Function;
 
-public class CRTCovertDummyDataSupplier<L extends NumericResourcePool,R extends NumericResourcePool> extends CRTDataSupplier<L,R> {
+public class CRTDummyDataSupplier<L extends NumericResourcePool,R extends NumericResourcePool> extends CRTDataSupplier<L,R> {
 
   private final FieldDefinition fp, fq;
   private final int players;
@@ -22,9 +22,9 @@ public class CRTCovertDummyDataSupplier<L extends NumericResourcePool,R extends 
   private final Function<BigInteger, SInt> wrapperLeft, wrapperRight;
 
   // todo could aggregate the semihonest Dummy data supplier to avoid code-copy
-  public CRTCovertDummyDataSupplier(int myId, int players, int statisticalSecurity, FieldDefinition leftField,
-                                    FieldDefinition rightField, Function<BigInteger, SInt> wrapperLeft,
-                                    Function<BigInteger, SInt> wrapperRight) {
+  public CRTDummyDataSupplier(int myId, int players, int statisticalSecurity, FieldDefinition leftField,
+                              FieldDefinition rightField, Function<BigInteger, SInt> wrapperLeft,
+                              Function<BigInteger, SInt> wrapperRight) {
     super(null, null);
     this.players = players;
     this.statisticalSecurity = statisticalSecurity;

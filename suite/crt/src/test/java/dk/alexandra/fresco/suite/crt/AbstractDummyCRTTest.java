@@ -17,7 +17,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTDataSupplier;
-import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTCovertDummyDataSupplier;
+import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTDummyDataSupplier;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePool;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePoolImpl;
 import dk.alexandra.fresco.suite.crt.protocols.framework.CRTSequentialStrategy;
@@ -82,7 +82,7 @@ public class AbstractDummyCRTTest {
       SecureComputationEngine<CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
 
-      CRTDataSupplier<?,?> dataSupplier = new CRTCovertDummyDataSupplier<>(playerId, noOfParties, STATISTICAL_SEC
+      CRTDataSupplier<?,?> dataSupplier = new CRTDummyDataSupplier<>(playerId, noOfParties, STATISTICAL_SEC
               , DEFAULT_FIELD_LEFT, DEFAULT_FIELD_RIGHT,
           x -> new DummyArithmeticSInt(DEFAULT_FIELD_LEFT.createElement(x)),
           y -> new DummyArithmeticSInt(DEFAULT_FIELD_RIGHT.createElement(y)));

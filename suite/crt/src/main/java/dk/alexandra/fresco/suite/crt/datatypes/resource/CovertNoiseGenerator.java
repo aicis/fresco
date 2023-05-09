@@ -4,9 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.util.*;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.crt.CRTNumericContext;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTCombinedPad;
@@ -25,11 +23,11 @@ public class CovertNoiseGenerator<ResourcePoolL extends NumericResourcePool, Res
   private final int deterrenceFactor;
   private final int securityParam;
 
-  private final SemiHonestNoiseGenerator<ResourcePoolL, ResourcePoolR> noiseGenerator;
+  private final PairShareGenerator<ResourcePoolL, ResourcePoolR> pairShareGenerator;
   private final PaddingGenerator padGenerator;
   private final CoinTossingComputation coinToss;
   private AesCtrDrbg jointDrbg;
-  private final Drbg localDrbg;
+  private final Drng localDrng;
 
 
   public CovertNoiseGenerator(int batchSize, int deterrenceFactor, int securityParam) {
@@ -41,10 +39,10 @@ public class CovertNoiseGenerator<ResourcePoolL extends NumericResourcePool, Res
     this.deterrenceFactor = deterrenceFactor;
     this.securityParam = securityParam;
 
-    this.localDrbg = localDrbg;
+    this.localDrng = new DrngImpl(localDrbg);
     HashBasedCommitmentSerializer commitmentSerializer = new HashBasedCommitmentSerializer();
-    this.noiseGenerator = new SemiHonestNoiseGenerator<>(this.deterrenceFactor * batchSize, securityParam);
-    this.padGenerator = new PaddingGenerator(this.deterrenceFactor * batchSize, securityParam, localDrbg);
+    this.pairShareGenerator = new PairShareGenerator<>(this.deterrenceFactor * batchSize, securityParam, localDrng);
+    this.padGenerator = new PaddingGenerator(this.deterrenceFactor * batchSize, securityParam, localDrng);
     this.coinToss = new CoinTossingComputation(32, commitmentSerializer, localDrbg);
   }
 
@@ -52,7 +50,7 @@ public class CovertNoiseGenerator<ResourcePoolL extends NumericResourcePool, Res
   public DRes<List<CRTCombinedPad>> buildComputation(ProtocolBuilderNumeric builder,
                                                      CRTNumericContext context) {
     return builder.par(par -> {
-      DRes<List<CRTCombinedPad>> semiHonestNoise = noiseGenerator.buildComputation(par, context);
+      DRes<List<CRTSInt>> pairShares = pairShareGenerator.buildComputation(par, context);
       DRes<List<CRTSInt>> rhoPad = padGenerator.buildComputation(par, context);
       DRes<List<CRTSInt>> psiPad = padGenerator.buildComputation(par, context);
       // Sample batchsize random noise pairs to keep, mark all other to be checked/selected
@@ -64,13 +62,13 @@ public class CovertNoiseGenerator<ResourcePoolL extends NumericResourcePool, Res
         seed = null;
       }
       return () -> new Object[] {
-              semiHonestNoise, rhoPad, psiPad, seed,
+              pairShares, rhoPad, psiPad, seed,
       };
     }).par((par, data) -> {
       List<CRTCombinedPad> combinedPads = new ArrayList<>(securityParam * batchSize);
       for (int i = 0; i < deterrenceFactor * batchSize; i++) {
         combinedPads.add(new CRTCombinedPad(
-                ((DRes<List<CRTCombinedPad>>) data[0]).out().get(i).getNoisePair(),
+                ((DRes<List<CRTSInt>>) data[0]).out().get(i),
                 ((DRes<List<CRTSInt>>) data[1]).out().get(i).getRight(),
                 ((DRes<List<CRTSInt>>) data[2]).out().get(i).getRight()));
       }
@@ -128,7 +126,6 @@ public class CovertNoiseGenerator<ResourcePoolL extends NumericResourcePool, Res
       BigInteger modulo = BigInteger.valueOf(2).pow(securityParam);
       for (int i = 0; i < batchSize*(deterrenceFactor-1); i++) {
         BigInteger rp = noiseTestSet.get(i).getFirst().out();
-        // TODO there was a bug here previously
         BigInteger rq = noiseTestSet.get(i).getSecond().out();
         if (rp.compareTo(rq) != 0) {
           throw new MaliciousException("Cheating in the noise pair");

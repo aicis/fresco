@@ -1,14 +1,13 @@
 package dk.alexandra.fresco.suite.crt.datatypes.resource;
 
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
-import dk.alexandra.fresco.suite.crt.datatypes.CRTCombinedPad;
 
 public class CRTCovertDataSupplier<L extends NumericResourcePool, R extends NumericResourcePool>
         extends CRTDataSupplier<L, R> {
 
   public CRTCovertDataSupplier(CRTResourcePool<L,
       R> resourcePool) {
-    this(resourcePool, 8, 2, 40);
+    this(resourcePool, DEFAULT_BATCH_SIZE, DEFAULT_DETERRENCE_FACTOR, DEFAULT_STATSECURITY);
   }
 
   public CRTCovertDataSupplier(CRTResourcePool<L, R> resourcePool,

@@ -9,6 +9,7 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
+import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTDataSupplier;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePool;
 import dk.alexandra.fresco.suite.crt.protocols.framework.ProtocolBuilderNumericWrapper;
 
@@ -27,6 +28,12 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
   public CRTBuilderFactory(CRTResourcePool<ResourcePoolA, ResourcePoolB> resourcePool,
                            BuilderFactoryNumeric left,
                            BuilderFactoryNumeric right) {
+    this(resourcePool, left, right, CRTDataSupplier.DEFAULT_STATSECURITY);
+  }
+  public CRTBuilderFactory(CRTResourcePool<ResourcePoolA, ResourcePoolB> resourcePool,
+                           BuilderFactoryNumeric left,
+                           BuilderFactoryNumeric right,
+                           int statisticalSec) {
 
     if (resourcePool.getSubResourcePools().getFirst().getMyId() != resourcePool.getSubResourcePools().getSecond().getMyId()
         || resourcePool.getSubResourcePools().getFirst().getNoOfParties() != resourcePool.getSubResourcePools().getSecond().getNoOfParties()) {
@@ -41,7 +48,7 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
     this.p = resourcePoolLeft.getModulus();
     this.q = resourcePoolRight.getModulus();
     this.context = new CRTNumericContext<>(
-            p.bitLength() + q.bitLength() - 40, //TODO
+            p.bitLength() + q.bitLength() - statisticalSec, //TODO @jonas is this right?
             resourcePoolLeft.getMyId(), resourcePoolLeft.getNoOfParties(), left, right, p, q, resourcePool);
   }
 
