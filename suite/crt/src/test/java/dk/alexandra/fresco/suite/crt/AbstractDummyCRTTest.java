@@ -17,7 +17,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTDataSupplier;
-import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTDummyDataSupplier;
+import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTCovertDummyDataSupplier;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePool;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePoolImpl;
 import dk.alexandra.fresco.suite.crt.protocols.framework.CRTSequentialStrategy;
@@ -41,6 +41,7 @@ public class AbstractDummyCRTTest {
       MersennePrimeFieldDefinition.find(64);
   protected static final FieldDefinition DEFAULT_FIELD_RIGHT = new BigIntegerFieldDefinition(
       new BigInteger(152 + 40, new Random(1234)).nextProbablePrime());
+  protected static final int STATISTICAL_SEC = 40;
 
   public void runTest(
       TestThreadRunner.TestThreadFactory<CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>, ProtocolBuilderNumeric> f,
@@ -71,9 +72,9 @@ public class AbstractDummyCRTTest {
       ProtocolSuiteNumeric<CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>> ps =
           new CRTProtocolSuite<>(
                   new DummyArithmeticBuilderFactory(new BasicNumericContext(DEFAULT_FIELD_LEFT.getBitLength() - 24,
-                  playerId, noOfParties, DEFAULT_FIELD_LEFT, 16, 40)),
+                  playerId, noOfParties, DEFAULT_FIELD_LEFT, 16, STATISTICAL_SEC)),
                   new DummyArithmeticBuilderFactory(new BasicNumericContext(DEFAULT_FIELD_RIGHT.getBitLength()- 40,
-                          playerId, noOfParties, DEFAULT_FIELD_RIGHT, 16, 40)));
+                          playerId, noOfParties, DEFAULT_FIELD_RIGHT, 16, STATISTICAL_SEC)));
       ProtocolEvaluator<CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>> evaluator =
           new BatchedProtocolEvaluator<>(batchEvaluationStrategy, ps);
 
@@ -81,8 +82,8 @@ public class AbstractDummyCRTTest {
       SecureComputationEngine<CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
 
-      CRTDataSupplier<?,?> dataSupplier = new CRTDummyDataSupplier<>(playerId, noOfParties,
-          DEFAULT_FIELD_LEFT, DEFAULT_FIELD_RIGHT,
+      CRTDataSupplier<?,?,?> dataSupplier = new CRTCovertDummyDataSupplier<>(playerId, noOfParties, STATISTICAL_SEC
+              , DEFAULT_FIELD_LEFT, DEFAULT_FIELD_RIGHT,
           x -> new DummyArithmeticSInt(DEFAULT_FIELD_LEFT.createElement(x)),
           y -> new DummyArithmeticSInt(DEFAULT_FIELD_RIGHT.createElement(y)));
 

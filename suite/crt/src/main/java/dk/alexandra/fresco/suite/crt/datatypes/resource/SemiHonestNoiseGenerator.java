@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SemiHonestNoiseGenerator<ResourcePoolL extends NumericResourcePool, ResourcePoolR extends NumericResourcePool>
-        extends NoiseGenerator<ResourcePoolL, ResourcePoolR> {
+        extends NoiseGenerator<ResourcePoolL, ResourcePoolR, CRTSInt> {
 
   private final int batchSize;
 
@@ -22,7 +22,7 @@ public class SemiHonestNoiseGenerator<ResourcePoolL extends NumericResourcePool,
 
   @Override
   public DRes<List<CRTSInt>> buildComputation(ProtocolBuilderNumeric builder,
-                                              CRTNumericContext<ResourcePoolL, ResourcePoolR> context) {
+                                              CRTNumericContext context) {
     return builder.par(par -> {
       Numeric left = context.leftNumeric(par);
       List<CRTSInt> list = new ArrayList<>(batchSize);

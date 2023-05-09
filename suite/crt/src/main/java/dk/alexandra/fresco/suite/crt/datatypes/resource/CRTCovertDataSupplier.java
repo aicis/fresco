@@ -1,9 +1,10 @@
 package dk.alexandra.fresco.suite.crt.datatypes.resource;
 
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
+import dk.alexandra.fresco.suite.crt.datatypes.CRTCombinedPad;
 
 public class CRTCovertDataSupplier<L extends NumericResourcePool, R extends NumericResourcePool>
-        extends CRTDataSupplier<L, R> {
+        extends CRTDataSupplier<L, R, CRTCombinedPad> {
 
   public CRTCovertDataSupplier(CRTResourcePool<L,
       R> resourcePool) {

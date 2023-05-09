@@ -28,7 +28,7 @@ public class LiftPQProtocol<ResourcePoolA extends NumericResourcePool, ResourceP
     public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder,
                                        CRTNumericContext<ResourcePoolA, ResourcePoolB> context) {
         return builder.seq(new CorrelatedNoiseProtocol<>()).seq((seq, noise) -> {
-            this.r = noise;
+            this.r = noise.getNoisePair();
 
             // Add noise to the left value. The right is ignored.
             DRes<SInt> xBar = context.leftNumeric(seq).add(((CRTSInt) value.out()).getLeft(), r.getLeft());

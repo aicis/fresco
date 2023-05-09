@@ -7,23 +7,27 @@ import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.crt.Util;
+import dk.alexandra.fresco.suite.crt.datatypes.CRTCombinedPad;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
 import java.math.BigInteger;
 import java.util.Random;
 import java.util.function.Function;
 
-public class CRTDummyDataSupplier<L extends NumericResourcePool,R extends NumericResourcePool> extends CRTDataSupplier<L,R> {
+public class CRTCovertDummyDataSupplier<L extends NumericResourcePool,R extends NumericResourcePool> extends CRTDataSupplier<L,R, CRTCombinedPad> {
 
   private final FieldDefinition fp, fq;
   private final int players;
+  private final int statisticalSecurity;
   private final Random random;
   private final Function<BigInteger, SInt> wrapperLeft, wrapperRight;
 
-  public CRTDummyDataSupplier(int myId, int players, FieldDefinition leftField,
-      FieldDefinition rightField, Function<BigInteger, SInt> wrapperLeft,
-      Function<BigInteger, SInt> wrapperRight) {
+  // todo could aggregate the semihonest Dummy data supplier to avoid code-copy
+  public CRTCovertDummyDataSupplier(int myId, int players, int statisticalSecurity, FieldDefinition leftField,
+                                    FieldDefinition rightField, Function<BigInteger, SInt> wrapperLeft,
+                                    Function<BigInteger, SInt> wrapperRight) {
     super(null, null);
     this.players = players;
+    this.statisticalSecurity = statisticalSecurity;
     this.fp = leftField;
     this.fq = rightField;
     this.wrapperLeft = wrapperLeft;
@@ -34,12 +38,17 @@ public class CRTDummyDataSupplier<L extends NumericResourcePool,R extends Numeri
   }
 
   @Override
-  public DRes<CRTSInt> getCorrelatedNoise(ProtocolBuilderNumeric builder) {
+  public DRes<CRTCombinedPad> getCorrelatedNoise(ProtocolBuilderNumeric builder) {
     BigInteger r = Util.randomBigInteger(random, fp.getModulus());
     BigInteger l = Util
         .randomBigInteger(random, BigInteger.valueOf(players));
-    return DRes.of(new CRTSInt(wrapperLeft.apply(r),
-        wrapperRight.apply(r.add(l.multiply(fp.getModulus())))));
+    BigInteger rho = new BigInteger(statisticalSecurity, random);
+    BigInteger psi = new BigInteger(statisticalSecurity, random);
+    return DRes.of(
+            new CRTCombinedPad(
+                    new CRTSInt(wrapperLeft.apply(r),
+        wrapperRight.apply(r.add(l.multiply(fp.getModulus())))),
+                    wrapperRight.apply(rho), wrapperRight.apply(psi)));
   }
 
   @Override

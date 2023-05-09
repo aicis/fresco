@@ -32,7 +32,7 @@ public class LiftQPProtocol<ResourcePoolA extends NumericResourcePool, ResourceP
         BigInteger qPrime = new BigInteger("3138550867693340351802905239100779285196644626743924002860");
 
         return builder.seq(new CorrelatedNoiseProtocol<>()).seq((seq, noise) -> {
-            this.r = (CRTSInt) noise.out();
+            this.r = (CRTSInt) noise.getNoisePair().out();
             return seq.numeric().add(qPrime, value);
         }).seq((seq, value) -> {
 

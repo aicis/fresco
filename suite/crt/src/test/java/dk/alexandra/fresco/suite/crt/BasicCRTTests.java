@@ -57,7 +57,7 @@ public class BasicCRTTests {
                 @Override
                 public void test() {
                     Application<BigInteger, ProtocolBuilderNumeric> app = producer -> producer
-                            .seq(new CorrelatedNoiseProtocol<>()).seq((seq, r) -> seq.numeric().open(r));
+                            .seq(new CorrelatedNoiseProtocol<>()).seq((seq, r) -> seq.numeric().open(r.getNoisePair()));
                     BigInteger output = runApplication(app);
 
                     CRTRingDefinition ring = (CRTRingDefinition) this.getFieldDefinition();

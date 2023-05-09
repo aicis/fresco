@@ -26,7 +26,7 @@ import dk.alexandra.fresco.framework.util.*;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTDataSupplier;
-import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTDummyDataSupplier;
+import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTCovertDummyDataSupplier;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePool;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePoolImpl;
 import dk.alexandra.fresco.suite.crt.protocols.framework.CRTSequentialStrategy;
@@ -58,7 +58,7 @@ public class AbstractSpdzCRTTest {
 
   protected static final FieldDefinition DEFAULT_FIELD_LEFT =
       MersennePrimeFieldDefinition.find(64);
-
+  protected static final int STATISTICAL_SEC = 40;
   // q = p^3 + 139p + 1 where q = DEFAULT_FIELD_RIGHT and p = DEFAULT_FIELD_LEFT.
   protected static final FieldDefinition DEFAULT_FIELD_RIGHT = new BigIntegerFieldDefinition(
       new BigInteger("6277101735386680703605810478201558570393289253487848005721")); //152 + 40, new Random(1234)).nextProbablePrime());
@@ -113,9 +113,9 @@ public class AbstractSpdzCRTTest {
       CRTProtocolSuite<SpdzResourcePool, SpdzResourcePool> ps =
           new CRTProtocolSuite<>(
           new SpdzBuilder(new BasicNumericContext(DEFAULT_FIELD_LEFT.getBitLength() - 24,
-                  playerId, noOfParties, DEFAULT_FIELD_LEFT, 16, 40)),
+                  playerId, noOfParties, DEFAULT_FIELD_LEFT, 16, STATISTICAL_SEC)),
       new SpdzBuilder(new BasicNumericContext(DEFAULT_FIELD_RIGHT.getBitLength() - 40,
-              playerId, noOfParties, DEFAULT_FIELD_RIGHT, 16, 40)));
+              playerId, noOfParties, DEFAULT_FIELD_RIGHT, 16, STATISTICAL_SEC)));
 
       ProtocolEvaluator<CRTResourcePool<SpdzResourcePool, SpdzResourcePool>> evaluator =
           new BatchedProtocolEvaluator<CRTResourcePool<SpdzResourcePool, SpdzResourcePool>>(strategy, ps);
@@ -123,8 +123,8 @@ public class AbstractSpdzCRTTest {
       SecureComputationEngine<CRTResourcePool<SpdzResourcePool, SpdzResourcePool>, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
 
-      CRTDataSupplier<?,?> dataSupplier = new CRTDummyDataSupplier<>(playerId, noOfParties,
-          DEFAULT_FIELD_LEFT, DEFAULT_FIELD_RIGHT,
+      CRTDataSupplier<?,?,?> dataSupplier = new CRTCovertDummyDataSupplier<>(playerId, noOfParties, STATISTICAL_SEC
+              , DEFAULT_FIELD_LEFT, DEFAULT_FIELD_RIGHT,
           x -> toSpdzSInt(x, playerId, noOfParties, DEFAULT_FIELD_LEFT, new Random(1234),
               new BigInteger(DEFAULT_FIELD_LEFT.getModulus().bitLength(), new Random(0))
                   .mod(DEFAULT_FIELD_LEFT.getModulus())),
