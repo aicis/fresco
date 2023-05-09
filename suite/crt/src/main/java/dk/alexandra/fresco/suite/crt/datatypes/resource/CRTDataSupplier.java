@@ -6,19 +6,18 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTCombinedPad;
-import dk.alexandra.fresco.suite.crt.datatypes.CRTNoise;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
 
 import java.util.ArrayDeque;
 
-public abstract class CRTDataSupplier<L extends NumericResourcePool, R extends NumericResourcePool, NoiseT extends CRTNoise> {
+public abstract class CRTDataSupplier<L extends NumericResourcePool, R extends NumericResourcePool> {
 
-  private final ArrayDeque<NoiseT> noisePairs = new ArrayDeque<>();
-  private final NoiseGenerator<L, R, NoiseT> noiseGenerator;
+  private final ArrayDeque<CRTCombinedPad> noisePairs = new ArrayDeque<>();
+  private final NoiseGenerator<L, R> noiseGenerator;
   private final CRTResourcePool<L, R> resourcePool;
 
 
-  protected CRTDataSupplier(NoiseGenerator<L, R, NoiseT> noiseGenerator, CRTResourcePool<L,R> resourcePool) {
+  protected CRTDataSupplier(NoiseGenerator<L, R> noiseGenerator, CRTResourcePool<L,R> resourcePool) {
     this.noiseGenerator = noiseGenerator;
     this.resourcePool = resourcePool;
   }
@@ -28,11 +27,11 @@ public abstract class CRTDataSupplier<L extends NumericResourcePool, R extends N
    *
    * @return r
    */
-  public DRes<NoiseT> getCorrelatedNoise(ProtocolBuilderNumeric builder) {
+  public DRes<CRTCombinedPad> getCorrelatedNoise(ProtocolBuilderNumeric builder) {
     if (noisePairs.isEmpty()) {
       return builder.seq(noiseGenerator).seq((seq, noise) -> {
         noisePairs.addAll(noise);
-        NoiseT out = noisePairs.pop();
+        CRTCombinedPad out = noisePairs.pop();
         return DRes.of(out);
       });
     } else {

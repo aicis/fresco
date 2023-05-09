@@ -82,7 +82,7 @@ public class AbstractDummyCRTTest {
       SecureComputationEngine<CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
 
-      CRTDataSupplier<?,?,?> dataSupplier = new CRTCovertDummyDataSupplier<>(playerId, noOfParties, STATISTICAL_SEC
+      CRTDataSupplier<?,?> dataSupplier = new CRTCovertDummyDataSupplier<>(playerId, noOfParties, STATISTICAL_SEC
               , DEFAULT_FIELD_LEFT, DEFAULT_FIELD_RIGHT,
           x -> new DummyArithmeticSInt(DEFAULT_FIELD_LEFT.createElement(x)),
           y -> new DummyArithmeticSInt(DEFAULT_FIELD_RIGHT.createElement(y)));

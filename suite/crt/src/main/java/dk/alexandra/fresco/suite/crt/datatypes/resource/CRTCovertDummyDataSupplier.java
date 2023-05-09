@@ -13,7 +13,7 @@ import java.math.BigInteger;
 import java.util.Random;
 import java.util.function.Function;
 
-public class CRTCovertDummyDataSupplier<L extends NumericResourcePool,R extends NumericResourcePool> extends CRTDataSupplier<L,R, CRTCombinedPad> {
+public class CRTCovertDummyDataSupplier<L extends NumericResourcePool,R extends NumericResourcePool> extends CRTDataSupplier<L,R> {
 
   private final FieldDefinition fp, fq;
   private final int players;

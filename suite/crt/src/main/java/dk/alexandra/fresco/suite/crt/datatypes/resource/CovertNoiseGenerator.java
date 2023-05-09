@@ -10,7 +10,6 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.crt.CRTNumericContext;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTCombinedPad;
-import dk.alexandra.fresco.suite.crt.datatypes.CRTNoise;
 import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
 import dk.alexandra.fresco.tools.commitment.CoinTossingComputation;
 import dk.alexandra.fresco.tools.commitment.HashBasedCommitmentSerializer;
@@ -20,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CovertNoiseGenerator<ResourcePoolL extends NumericResourcePool, ResourcePoolR extends NumericResourcePool>
-        extends NoiseGenerator<ResourcePoolL, ResourcePoolR, CRTCombinedPad> {
+        extends NoiseGenerator<ResourcePoolL, ResourcePoolR> {
 
   private final int batchSize;
   private final int deterrenceFactor;
@@ -30,7 +29,7 @@ public class CovertNoiseGenerator<ResourcePoolL extends NumericResourcePool, Res
   private final PaddingGenerator padGenerator;
   private final CoinTossingComputation coinToss;
   private AesCtrDrbg jointDrbg;
-  private Drbg localDrbg;
+  private final Drbg localDrbg;
 
 
   public CovertNoiseGenerator(int batchSize, int deterrenceFactor, int securityParam) {
@@ -44,7 +43,7 @@ public class CovertNoiseGenerator<ResourcePoolL extends NumericResourcePool, Res
 
     this.localDrbg = localDrbg;
     HashBasedCommitmentSerializer commitmentSerializer = new HashBasedCommitmentSerializer();
-    this.noiseGenerator = new SemiHonestNoiseGenerator<>(this.deterrenceFactor * batchSize);
+    this.noiseGenerator = new SemiHonestNoiseGenerator<>(this.deterrenceFactor * batchSize, securityParam);
     this.padGenerator = new PaddingGenerator(this.deterrenceFactor * batchSize, securityParam, localDrbg);
     this.coinToss = new CoinTossingComputation(32, commitmentSerializer, localDrbg);
   }
@@ -53,7 +52,7 @@ public class CovertNoiseGenerator<ResourcePoolL extends NumericResourcePool, Res
   public DRes<List<CRTCombinedPad>> buildComputation(ProtocolBuilderNumeric builder,
                                                      CRTNumericContext context) {
     return builder.par(par -> {
-      DRes<List<CRTNoise>> semiHonestNoise = noiseGenerator.buildComputation(par, context);
+      DRes<List<CRTCombinedPad>> semiHonestNoise = noiseGenerator.buildComputation(par, context);
       DRes<List<CRTSInt>> rhoPad = padGenerator.buildComputation(par, context);
       DRes<List<CRTSInt>> psiPad = padGenerator.buildComputation(par, context);
       // Sample batchsize random noise pairs to keep, mark all other to be checked/selected
@@ -71,7 +70,7 @@ public class CovertNoiseGenerator<ResourcePoolL extends NumericResourcePool, Res
       List<CRTCombinedPad> combinedPads = new ArrayList<>(securityParam * batchSize);
       for (int i = 0; i < deterrenceFactor * batchSize; i++) {
         combinedPads.add(new CRTCombinedPad(
-                ((DRes<List<CRTNoise>>) data[0]).out().get(i).getNoisePair(),
+                ((DRes<List<CRTCombinedPad>>) data[0]).out().get(i).getNoisePair(),
                 ((DRes<List<CRTSInt>>) data[1]).out().get(i).getRight(),
                 ((DRes<List<CRTSInt>>) data[2]).out().get(i).getRight()));
       }
