@@ -86,7 +86,7 @@ public class AbstractSemiHonestDummyCRTTest {
           new SecureComputationEngineImpl<>(ps, evaluator);
 
       Supplier<Network> networkSupplier =  () -> new SocketNetwork(partyNetConf);
-      CRTDataSupplier dataSupplier = new CRTSemiHonestDataSupplier<>(rp);
+      CRTDataSupplier dataSupplier = new CRTSemiHonestDataSupplier<>();
 
       TestThreadRunner.TestThreadConfiguration<
           CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>,

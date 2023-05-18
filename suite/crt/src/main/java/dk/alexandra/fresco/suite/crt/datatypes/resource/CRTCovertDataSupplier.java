@@ -5,13 +5,11 @@ import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 public class CRTCovertDataSupplier<L extends NumericResourcePool, R extends NumericResourcePool>
         extends CRTDataSupplier<L, R> {
 
-  public CRTCovertDataSupplier(CRTResourcePool<L,
-      R> resourcePool) {
-    this(resourcePool, DEFAULT_BATCH_SIZE, DEFAULT_DETERRENCE_FACTOR, DEFAULT_STATSECURITY);
+  public CRTCovertDataSupplier() {
+    this(DEFAULT_BATCH_SIZE, DEFAULT_DETERRENCE_FACTOR, DEFAULT_STATSECURITY);
   }
 
-  public CRTCovertDataSupplier(CRTResourcePool<L, R> resourcePool,
-                               int batchSize, int deterrenceFactor, int securityParam) {
-    super(new CovertNoiseGenerator<>(batchSize, deterrenceFactor, securityParam), resourcePool);
+  public CRTCovertDataSupplier(int batchSize, int deterrenceFactor, int securityParam) {
+    super(new CovertNoiseGenerator<>(batchSize, deterrenceFactor, securityParam));
   }
 }

@@ -6,7 +6,11 @@ public class CRTSemiHonestDataSupplier<L extends NumericResourcePool,
     R extends NumericResourcePool>
         extends CRTDataSupplier<L, R> {
 
-  public CRTSemiHonestDataSupplier(CRTResourcePool<L,R> resourcePool) {
-    super(new SemiHonestNoiseGenerator<>(DEFAULT_BATCH_SIZE, DEFAULT_STATSECURITY), resourcePool);
+  public CRTSemiHonestDataSupplier() {
+    super(new SemiHonestNoiseGenerator<>(DEFAULT_BATCH_SIZE, DEFAULT_STATSECURITY));
+  }
+
+  public CRTSemiHonestDataSupplier(int batchSize, int statSec) {
+    super(new SemiHonestNoiseGenerator<>(batchSize, statSec));
   }
 }

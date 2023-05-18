@@ -88,7 +88,7 @@ public class AbstractCovertDummyCRTTest {
       Supplier<Network> networkSupplier =  () -> new SocketNetwork(partyNetConf);
       CRTDataSupplier dataSupplier = new CRTCovertDataSupplier<DummyArithmeticResourcePool,
                 DummyArithmeticResourcePool>(
-              rp);
+      );
 
       TestThreadRunner.TestThreadConfiguration<
           CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>,

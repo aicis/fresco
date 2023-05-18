@@ -25,7 +25,7 @@ public class CRTDummyDataSupplier<L extends NumericResourcePool,R extends Numeri
   public CRTDummyDataSupplier(int myId, int players, int statisticalSecurity, FieldDefinition leftField,
                               FieldDefinition rightField, Function<BigInteger, SInt> wrapperLeft,
                               Function<BigInteger, SInt> wrapperRight) {
-    super(null, null);
+    super(null);
     this.players = players;
     this.statisticalSecurity = statisticalSecurity;
     this.fp = leftField;

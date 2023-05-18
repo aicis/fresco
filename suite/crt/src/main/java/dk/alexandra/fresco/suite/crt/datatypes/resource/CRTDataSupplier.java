@@ -17,12 +17,10 @@ public abstract class CRTDataSupplier<L extends NumericResourcePool, R extends N
 
   private final ArrayDeque<CRTCombinedPad> noisePairs = new ArrayDeque<>();
   private final NoiseGenerator<L, R> noiseGenerator;
-  private final CRTResourcePool<L, R> resourcePool;
 
 
-  protected CRTDataSupplier(NoiseGenerator<L, R> noiseGenerator, CRTResourcePool<L,R> resourcePool) {
+  protected CRTDataSupplier(NoiseGenerator<L, R> noiseGenerator) {
     this.noiseGenerator = noiseGenerator;
-    this.resourcePool = resourcePool;
   }
 
   /**
@@ -41,20 +39,16 @@ public abstract class CRTDataSupplier<L extends NumericResourcePool, R extends N
       return DRes.of(noisePairs.pop());
     }
   }
-
   /**
    * Supply the next random bit
    * todo
    * @return b
    */
   public CRTSInt getRandomBit() {
-    return null;
+    throw new IllegalArgumentException("Not implemented yet");
   }
 
   public Pair<FieldDefinition, FieldDefinition> getFieldDefinitions() {
-    return new Pair<>(resourcePool.getSubResourcePools().getFirst().getFieldDefinition(),
-            resourcePool.getSubResourcePools().getSecond().getFieldDefinition()
-    );
+    throw new IllegalArgumentException("Not implemented yet");
   }
-
 }
