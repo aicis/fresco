@@ -20,6 +20,7 @@ import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTCovertDataSupplier;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTDataSupplier;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePool;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePoolImpl;
+import dk.alexandra.fresco.suite.crt.protocols.framework.CRTBatchedStrategy;
 import dk.alexandra.fresco.suite.crt.protocols.framework.CRTSequentialStrategy;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticBuilderFactory;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
@@ -62,7 +63,7 @@ public class AbstractCovertDummyCRTTest {
     for (int playerId : netConf.keySet()) {
 
       BatchEvaluationStrategy<CRTResourcePool<DummyArithmeticResourcePool, DummyArithmeticResourcePool>> batchEvaluationStrategy =
-          new CRTSequentialStrategy<>();
+          new CRTBatchedStrategy<>();
       DummyArithmeticResourcePool rpLeft = new DummyArithmeticResourcePoolImpl(playerId,
           noOfParties, DEFAULT_FIELD_LEFT);
       DummyArithmeticResourcePool rpRight = new DummyArithmeticResourcePoolImpl(playerId,
