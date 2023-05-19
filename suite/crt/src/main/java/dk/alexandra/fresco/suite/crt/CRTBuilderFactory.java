@@ -12,6 +12,7 @@ import dk.alexandra.fresco.suite.crt.datatypes.CRTSInt;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTDataSupplier;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePool;
 import dk.alexandra.fresco.suite.crt.protocols.framework.ProtocolBuilderNumericWrapper;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol;
 
 import java.math.BigInteger;
 
@@ -64,7 +65,6 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
 
       @Override
       public DRes<SInt> add(DRes<SInt> a, DRes<SInt> b) {
-
         return builder.par(par -> {
 
           CRTSInt aOut = (CRTSInt) a.out();
@@ -134,6 +134,8 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
 
       @Override
       public DRes<SInt> mult(DRes<SInt> a, DRes<SInt> b) {
+//        CRTMult crtMult = new CRTMult(a, b);
+//        return builder.append(crtMult);
         return builder.par(par -> {
           CRTSInt aOut = (CRTSInt) a.out();
           DRes<SInt> aLeft = aOut.getLeft();
@@ -188,7 +190,8 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
       @Override
       public DRes<SInt> known(BigInteger value) {
         Pair<BigInteger, BigInteger> crt = Util.mapToCRT(value, p, q);
-
+//        CRTKnown crtMult = new CRTKnown(crt);
+//        return builder.append(crtMult);
         return builder.par(par -> {
           Numeric l = context.leftNumeric(par);
           Numeric r = context.rightNumeric(par);
@@ -216,6 +219,8 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
 
       @Override
       public DRes<BigInteger> open(DRes<SInt> secretShare) {
+//        CRTOpen crtOpen = new CRTOpen(secretShare);
+//        return builder.append(crtOpen);
         return builder.par(par -> {
           CRTSInt crtsInt = (CRTSInt) secretShare.out();
 
