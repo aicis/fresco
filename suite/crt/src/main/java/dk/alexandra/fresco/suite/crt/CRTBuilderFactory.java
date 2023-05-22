@@ -65,6 +65,8 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
 
       @Override
       public DRes<SInt> add(DRes<SInt> a, DRes<SInt> b) {
+//        CRTAdd crtAdd = new CRTAdd(a, b);
+//        return builder.append(crtAdd);
         return builder.par(par -> {
 
           CRTSInt aOut = (CRTSInt) a.out();

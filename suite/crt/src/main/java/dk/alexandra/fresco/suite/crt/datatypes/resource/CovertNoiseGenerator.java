@@ -65,7 +65,7 @@ public class CovertNoiseGenerator<ResourcePoolL extends NumericResourcePool, Res
               pairShares, rhoPad, psiPad, seed,
       };
     }).par((par, data) -> {
-      List<CRTCombinedPad> combinedPads = new ArrayList<>(securityParam * batchSize);
+      List<CRTCombinedPad> combinedPads = new ArrayList<>(this.deterrenceFactor * batchSize);
       for (int i = 0; i < deterrenceFactor * batchSize; i++) {
         combinedPads.add(new CRTCombinedPad(
                 ((DRes<List<CRTSInt>>) data[0]).out().get(i),

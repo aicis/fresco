@@ -17,8 +17,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PaddingGenerator //implements Computation<List<DRes<SInt>>, ProtocolBuilderNumeric> {
-        <ResourcePoolL extends NumericResourcePool, ResourcePoolR extends NumericResourcePool>
+public class PaddingGenerator<ResourcePoolL extends NumericResourcePool, ResourcePoolR extends NumericResourcePool>
         extends CRTComputation<List<CRTSInt>, ResourcePoolL, ResourcePoolR> {
 
     private final int batchSize;
