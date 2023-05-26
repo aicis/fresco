@@ -49,7 +49,7 @@ public class CRTBuilderFactory<ResourcePoolA extends NumericResourcePool, Resour
     this.p = resourcePoolLeft.getModulus();
     this.q = resourcePoolRight.getModulus();
     this.context = new CRTNumericContext<>(
-            p.bitLength() + q.bitLength() - statisticalSec, //TODO @jonas is this right?
+            p.bitLength() + q.bitLength() - statisticalSec, //TODO update based on new detail
             resourcePoolLeft.getMyId(), resourcePoolLeft.getNoOfParties(), left, right, p, q, resourcePool);
   }
 
