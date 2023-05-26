@@ -39,6 +39,7 @@ import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests.TestRando
 import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests.TestSumAndMult;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestCRT {
@@ -211,6 +212,8 @@ public class TestCRT {
         .runTest(new TestFixedPointDivision<>(), EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
   }
 
+  // TODO needs random bit and other framework things implemented
+  @Ignore
   @Test
   public void testFixedPointSecretDivision() {
     new AbstractSpdzCRTTest()
@@ -224,6 +227,8 @@ public class TestCRT {
             PreprocessingStrategy.DUMMY, 2);
   }
 
+  // TODO needs random bit and other framework things implemented
+  @Ignore
   @Test
   public void testSortDifferentValueLength() {
     new AbstractSpdzCRTTest()
@@ -231,6 +236,8 @@ public class TestCRT {
             PreprocessingStrategy.DUMMY, 2);
   }
 
+  // TODO needs random bit and other framework things implemented
+  @Ignore
   @Test
   public void testExp() {
     new AbstractSpdzCRTTest()

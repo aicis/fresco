@@ -14,7 +14,6 @@ public class RandomAdditiveMask implements
     Computation<AdvancedNumeric.RandomAdditiveMask, ProtocolBuilderNumeric> {
 
   private final int noOfBits;
-
   private List<DRes<SInt>> bits;
   private DRes<SInt> value;
 
