@@ -1,7 +1,7 @@
 Babel==2.9.1
 Jinja2==2.11.3
 MarkupSafe==0.23
-Pygments==2.7.4
+Pygments==2.15.0
 Sphinx==1.6.6
 docutils==0.12
 pytz==2015.7
