@@ -23,20 +23,20 @@ public class RandomAdditiveMask implements
 
   @Override
   public DRes<AdvancedNumeric.RandomAdditiveMask> buildComputation(
-      ProtocolBuilderNumeric builder) {
-    Numeric numericBuilder = builder.numeric();
-    bits = new ArrayList<>();
-    for (int i = 0; i < noOfBits; i++) {
-      DRes<SInt> randomBit = numericBuilder.randomBit();
-      bits.add(randomBit);
-    }
-
-    MiscBigIntegerGenerators oIntGenerators = new MiscBigIntegerGenerators(builder.getBasicNumericContext().getModulus());
-    AdvancedNumeric advancedNumeric = AdvancedNumeric.using(builder);
-    List<BigInteger> twoPows = oIntGenerators.getTwoPowersList(noOfBits);
-    value = advancedNumeric.innerProductWithPublicPart(twoPows, bits);
-    return () -> new AdvancedNumeric.RandomAdditiveMask(
-        bits,
-        value.out());
+          ProtocolBuilderNumeric builder) {
+    return builder.par(par -> {
+      Numeric numericBuilder = par.numeric();
+      bits = new ArrayList<>();
+      for (int i = 0; i < noOfBits; i++) {
+        DRes<SInt> randomBit = numericBuilder.randomBit();
+        bits.add(randomBit);
+      }
+      return DRes.of(bits);
+    }).seq((seq, bits) -> {
+      MiscBigIntegerGenerators oIntGenerators = new MiscBigIntegerGenerators(seq.getBasicNumericContext().getModulus());
+      List<BigInteger> twoPows = oIntGenerators.getTwoPowersList(noOfBits);
+      value = AdvancedNumeric.using(seq).innerProductWithPublicPart(twoPows, bits);
+      return DRes.of(new AdvancedNumeric.RandomAdditiveMask(bits, value.out()));
+    });
   }
 }
