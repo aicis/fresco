@@ -2,12 +2,16 @@ package dk.alexandra.fresco.lib.common.math.integer.binary;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.common.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import dk.alexandra.fresco.lib.common.math.AdvancedNumeric.RandomAdditiveMask;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Returns a number which is approximately the input shifted a number of positions to the right. The
@@ -37,20 +41,18 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
     if (shifts >= maxBitLength) {
       return builder.numeric().known(0);
     }
-
-    return builder.seq(seq -> {
-
+    return builder.par(par -> {
       /*
        * Generate random additive mask of the same length as the input + some extra to avoid
        * leakage.
        */
-      return AdvancedNumeric.using(seq)
-          .additiveMask(maxBitLength + builder.getBasicNumericContext().getStatisticalSecurityParam());
+      return AdvancedNumeric.using(par)
+              .additiveMask(maxBitLength + builder.getBasicNumericContext().getStatisticalSecurityParam());
 
-    }).seq((seq, randomAdditiveMask) -> {
+    }).par((par, randomAdditiveMask) -> {
 
-      DRes<SInt> result = seq.numeric().add(input, randomAdditiveMask.value);
-      DRes<BigInteger> open = seq.numeric().open(result);
+      DRes<SInt> result = par.numeric().add(input, randomAdditiveMask.value);
+      DRes<BigInteger> open = par.numeric().open(result);
       return Pair.lazy(open, randomAdditiveMask);
 
     }).seq((seq, maskedInput) -> {
@@ -62,10 +64,10 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
        * rBottom = r (mod 2^shifts).
        */
       final DRes<SInt> rBottom = AdvancedNumeric.using(seq)
-          .bitsToInteger(mask.bits.subList(0, shifts));
+              .bitsToInteger(mask.bits.subList(0, shifts));
 
       BigInteger inverse =
-          BigInteger.ONE.shiftLeft(shifts).modInverse(seq.getBasicNumericContext().getModulus());
+              BigInteger.ONE.shiftLeft(shifts).modInverse(seq.getBasicNumericContext().getModulus());
       DRes<SInt> rTop = seq.numeric().sub(mask.value, rBottom);
 
       /*

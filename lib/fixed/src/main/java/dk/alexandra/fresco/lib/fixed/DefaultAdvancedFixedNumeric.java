@@ -31,9 +31,9 @@ public class DefaultAdvancedFixedNumeric extends AdvancedFixedNumeric {
 
   @Override
   public DRes<SFixed> random() {
-    return builder.seq(seq -> {
+    return builder.par(par -> {
       DRes<RandomAdditiveMask> random =
-          AdvancedNumeric.using(seq).additiveMask(seq.getBasicNumericContext().getDefaultFixedPointPrecision());
+          AdvancedNumeric.using(par).additiveMask(par.getBasicNumericContext().getDefaultFixedPointPrecision());
       return random;
     }).seq((seq, random) -> {
       return () -> new SFixed(random.value);

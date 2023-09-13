@@ -30,10 +30,10 @@ public class RandomAdditiveMask implements
         bits.add(randomBit);
       }
       return DRes.of(bits);
-    }).seq((seq, bits) -> {
-      MiscBigIntegerGenerators oIntGenerators = new MiscBigIntegerGenerators(seq.getBasicNumericContext().getModulus());
+    }).par((par, bits) -> {
+      MiscBigIntegerGenerators oIntGenerators = new MiscBigIntegerGenerators(par.getBasicNumericContext().getModulus());
       List<BigInteger> twoPows = oIntGenerators.getTwoPowersList(noOfBits);
-      return Pair.lazy(bits, AdvancedNumeric.using(seq).innerProductWithPublicPart(twoPows, bits));
-    }).seq((seq, bitsAndValue) -> DRes.of(new AdvancedNumeric.RandomAdditiveMask(bitsAndValue.getFirst(), bitsAndValue.getSecond())));
+      return Pair.lazy(bits, AdvancedNumeric.using(par).innerProductWithPublicPart(twoPows, bits));
+    }).par((par, bitsAndValue) -> DRes.of(new AdvancedNumeric.RandomAdditiveMask(bitsAndValue.getFirst(), bitsAndValue.getSecond())));
   }
 }
