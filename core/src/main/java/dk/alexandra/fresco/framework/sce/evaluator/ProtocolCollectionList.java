@@ -6,6 +6,8 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class ProtocolCollectionList<ResourcePoolT extends ResourcePool>
     implements ProtocolCollection<ResourcePoolT> {

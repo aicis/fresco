@@ -36,6 +36,6 @@ public class InnerProductOpen implements Computation<SInt, ProtocolBuilderNumeri
         result.add(numericBuilder.mult(nextA, nextB));
       }
       return () -> result;
-    }).seq((seq, list) -> AdvancedNumeric.using(seq).sum(list));
+    }).par((par, list) -> AdvancedNumeric.using(par).sum(list));
   }
 }

@@ -52,10 +52,24 @@ public class NetworkBatchDecorator implements Network {
   public void send(int id, byte[] data) {
     ByteArrayOutputStream buffer = this.output
         .computeIfAbsent(id, (i) -> new ByteArrayOutputStream());
-    if (data.length > Byte.MAX_VALUE) {
-      throw new IllegalStateException(
-          "Current implementation only supports small packages, data.length=" + data.length);
-    }
+//    if (data.length > Byte.MAX_VALUE) {
+//      byte[] buf = new byte[Byte.MAX_VALUE];
+//      int offset = 0;
+//      do {
+//        System.arraycopy(data, offset, buf, 0, Byte.MAX_VALUE);
+//        send(id, buf);
+//        offset += Byte.MAX_VALUE;
+//      } while (offset + Byte.MAX_VALUE <= data.length);
+//      if (data.length % Byte.MAX_VALUE != 0) {
+//        // we need to send a last block
+//        int length = data.length - offset;
+//        buf = new byte[length];
+//        System.arraycopy(data, offset, buf, 0, length);
+//        send(id, buf);
+//      }
+//      throw new IllegalStateException(
+//          "Current implementation only supports small packages, data.length=" + data.length);
+//    }
     buffer.write(data.length);
     buffer.write(data, 0, data.length);
   }

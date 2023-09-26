@@ -7,6 +7,7 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.common.collections.sort.KeyedCompareAndSwap;
 import dk.alexandra.fresco.lib.common.compare.MiscBigIntegerGenerators;
+import dk.alexandra.fresco.lib.common.compare.RandomAdditiveMask;
 import dk.alexandra.fresco.lib.common.math.integer.conditional.ConditionalSelect;
 import dk.alexandra.fresco.lib.common.math.integer.conditional.SwapIf;
 import dk.alexandra.fresco.lib.common.math.integer.binary.IntegerToBitsLogRounds;
@@ -178,7 +179,7 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   public DRes<SInt> bitsToInteger(List<DRes<SInt>> bits) {
     MiscBigIntegerGenerators oIntGenerators = new MiscBigIntegerGenerators(
         builder.getBasicNumericContext().getModulus());
-    return builder.seq(seq -> AdvancedNumeric.using(seq)
+    return builder.par(par -> AdvancedNumeric.using(par)
         .innerProductWithPublicPart(oIntGenerators.getTwoPowersList(bits.size()), bits));
   }
 }

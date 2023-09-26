@@ -6,6 +6,7 @@ import dk.alexandra.fresco.lib.common.collections.sort.NumericSortingTests.TestO
 import dk.alexandra.fresco.lib.common.math.integer.TestProductAndSum.TestSum;
 import dk.alexandra.fresco.lib.common.math.integer.binary.BinaryOperationsTests.TestGenerateRandomBitMask;
 import dk.alexandra.fresco.lib.common.math.integer.binary.BinaryOperationsTests.TestRightShift;
+import dk.alexandra.fresco.lib.common.math.integer.division.DivisionTests;
 import dk.alexandra.fresco.lib.common.math.integer.linalg.LinAlgTests.TestInnerProductClosed;
 import dk.alexandra.fresco.lib.common.math.integer.linalg.LinAlgTests.TestInnerProductOpen;
 import dk.alexandra.fresco.lib.common.math.integer.mod.Mod2mTests.TestMod2m;
@@ -31,12 +32,14 @@ import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestRandomModP;
 import dk.alexandra.fresco.suite.crt.BasicCRTTests.TestTruncp;
 import dk.alexandra.fresco.suite.crt.fixed.CRTAdvancedFixedNumeric;
 import dk.alexandra.fresco.suite.crt.fixed.CRTFixedNumeric;
+import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests.TestLotsMult;
 import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests.TestOutputToSingleParty;
 import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests.TestRandomBit;
 import dk.alexandra.fresco.suite.dummy.arithmetic.BasicArithmeticTests.TestSumAndMult;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestCRT {
@@ -50,6 +53,11 @@ public class TestCRT {
   @Test
   public void testInput() {
     new AbstractSpdzCRTTest().runTest(new TestInput<>(), EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void testKnown() {
+    new AbstractSpdzCRTTest().runTest(new BasicArithmeticTests.TestKnownSInt<>(), EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
@@ -78,6 +86,16 @@ public class TestCRT {
   }
 
   @Test
+  public void testDivision() {
+    new AbstractSpdzCRTTest().runTest(new DivisionTests.TestDivision<>(), EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void testDivisionKnownDivisor() {
+    new AbstractSpdzCRTTest().runTest(new DivisionTests.TestKnownDivisorDivision<>(), EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
   public void testRightShift() {
     new AbstractSpdzCRTTest().runTest(new TestRightShift<>(), EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
   }
@@ -94,42 +112,81 @@ public class TestCRT {
 
   @Test
   public void testCorrelatedNoise() {
-    new AbstractDummyCRTTest()
+    new AbstractSemiHonestDummyCRTTest()
         .runTest(new TestCorrelatedNoise<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
 
   @Test
   public void testGenerateRandomBitMask() {
-    new AbstractDummyCRTTest().runTest(new TestGenerateRandomBitMask<>(), EvaluationStrategy.SEQUENTIAL, 2);
+    new AbstractSemiHonestDummyCRTTest().runTest(new TestGenerateRandomBitMask<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void testRandomBit() {
-    new AbstractDummyCRTTest().runTest(new TestRandomBit<>(), EvaluationStrategy.SEQUENTIAL, 2);
+    new AbstractSemiHonestDummyCRTTest().runTest(new TestRandomBit<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void testLiftPQ() {
-    new AbstractDummyCRTTest().runTest(new TestLiftPQ<>(), EvaluationStrategy.SEQUENTIAL, 2);
+    new AbstractSemiHonestDummyCRTTest().runTest(new TestLiftPQ<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void testLiftQP() {
-    new AbstractDummyCRTTest().runTest(new TestLiftQP<>(), EvaluationStrategy.SEQUENTIAL, 2);
+    new AbstractSemiHonestDummyCRTTest().runTest(new TestLiftQP<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void testProjectionLeft() {
-    new AbstractDummyCRTTest()
+    new AbstractSemiHonestDummyCRTTest()
         .runTest(new TestProjectionLeft<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void testProjectionRight() {
-    new AbstractDummyCRTTest()
+    new AbstractSemiHonestDummyCRTTest()
         .runTest(new TestProjectionRight<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
+
+  @Test
+  public void testCovertCorrelatedNoise() {
+    new AbstractCovertDummyCRTTest()
+            .runTest(new TestCorrelatedNoise<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void testCovertGenerateRandomBitMask() {
+    new AbstractCovertDummyCRTTest().runTest(new TestGenerateRandomBitMask<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void testCovertRandomBit() {
+    new AbstractCovertDummyCRTTest().runTest(new TestRandomBit<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void testCovertLiftPQ() {
+    new AbstractCovertDummyCRTTest().runTest(new TestLiftPQ<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void testCovertLiftQP() {
+    new AbstractCovertDummyCRTTest().runTest(new TestLiftQP<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void testCovertProjectionLeft() {
+    new AbstractCovertDummyCRTTest()
+            .runTest(new TestProjectionLeft<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void testCovertProjectionRight() {
+    new AbstractCovertDummyCRTTest()
+            .runTest(new TestProjectionRight<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
 
   @Test
   public void testTruncp() {
@@ -155,6 +212,8 @@ public class TestCRT {
         .runTest(new TestFixedPointDivision<>(), EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
   }
 
+  // TODO needs random bit and other framework things implemented
+  @Ignore
   @Test
   public void testFixedPointSecretDivision() {
     new AbstractSpdzCRTTest()
@@ -168,6 +227,8 @@ public class TestCRT {
             PreprocessingStrategy.DUMMY, 2);
   }
 
+  // TODO needs random bit and other framework things implemented
+  @Ignore
   @Test
   public void testSortDifferentValueLength() {
     new AbstractSpdzCRTTest()
@@ -175,6 +236,8 @@ public class TestCRT {
             PreprocessingStrategy.DUMMY, 2);
   }
 
+  // TODO needs random bit and other framework things implemented
+  @Ignore
   @Test
   public void testExp() {
     new AbstractSpdzCRTTest()

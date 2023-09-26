@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 
 /**
  * A single step in the chained list of lambda that creates protocols to evaluate. The root step is
- * defined in the ProbtocolBuilderImpl.
+ * defined in the ProtocolBuilderImpl.
  *
  * @param <InputT> the type of input for this binary step (the previous step's output).
  * @param <BuilderT> the type iof builder, currently either numeric or binary

@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.crt.protocols.framework;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.crt.datatypes.resource.CRTResourcePool;
 import java.util.function.BiFunction;
 

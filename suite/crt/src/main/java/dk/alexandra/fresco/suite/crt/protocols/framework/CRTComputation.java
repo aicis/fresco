@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.suite.crt.CRTNumericContext;
-import dk.alexandra.fresco.suite.crt.CRTRingDefinition;
 
 public abstract class CRTComputation<OutputT,
     ResourcePoolA extends NumericResourcePool,
