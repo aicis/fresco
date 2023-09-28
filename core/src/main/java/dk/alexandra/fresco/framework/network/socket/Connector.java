@@ -137,7 +137,7 @@ public class Connector implements NetworkConnector {
           } catch (ConnectException e) {
             // A ConnectionException is expected if the opposing side is not listening for our
             // connection attempt yet. We ignore this and try again.
-            Thread.sleep(1L << ++attempts);
+            Thread.sleep(Math.min(1 << attempts++, 5_000));
             // This should probably not busy-wait for each party
           }
         }
