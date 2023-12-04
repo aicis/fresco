@@ -19,11 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Generates "fake" offline data for SPDZ. I.e. correct offline data generated locally to increase
@@ -120,8 +116,8 @@ public class FakeTripGen {
    * share for each party
    */
   public static List<SpdzTriple[]> generateTriples(int amount, int noOfParties,
-      FieldDefinition definition,
-      FieldElement alpha) {
+                                                   FieldDefinition definition,
+                                                   FieldElement alpha) {
     FakeTripGen.rand = new Random();
     FakeTripGen.alpha = alpha;
     FakeTripGen.definition = definition;
@@ -157,7 +153,7 @@ public class FakeTripGen {
    *     outermost is per thread used online.
    */
   public void generateTripleStream(int amount, int noOfParties, FieldDefinition definition,
-      FieldElement alpha, Random rand, List<List<ObjectOutputStream>> streams) throws IOException {
+                                   FieldElement alpha, Random rand, List<List<ObjectOutputStream>> streams) throws IOException {
     FakeTripGen.rand = rand;
     FakeTripGen.alpha = alpha;
     FakeTripGen.definition = definition;
@@ -178,7 +174,7 @@ public class FakeTripGen {
 
         for (int j = 0; j < elementsA.size(); j++) {
           ooss.get(j)
-              .writeObject(new SpdzTriple(elementsA.get(j), elementsB.get(j), elementsC.get(j)));
+                  .writeObject(new SpdzTriple(elementsA.get(j), elementsB.get(j), elementsC.get(j)));
         }
         if (i % 10000 == 0) {
           for (ObjectOutputStream oos : ooss) {
@@ -197,7 +193,7 @@ public class FakeTripGen {
    * knows the real value
    */
   public static List<List<SpdzInputMask[]>> generateInputMasks(int amount, int noOfParties,
-      FieldDefinition definition, FieldElement alpha) {
+                                                               FieldDefinition definition, FieldElement alpha) {
     FakeTripGen.rand = new Random(0);
     FakeTripGen.alpha = alpha;
     FakeTripGen.definition = definition;
@@ -234,7 +230,7 @@ public class FakeTripGen {
    * @param towardsPartyId Id starting from index 1.
    */
   public static List<SpdzInputMask[]> generateInputMasks(int amount, int towardsPartyId,
-      int noOfParties, FieldDefinition definition, FieldElement alpha) {
+                                                         int noOfParties, FieldDefinition definition, FieldElement alpha) {
     FakeTripGen.rand = new Random(0);
     FakeTripGen.alpha = alpha;
     FakeTripGen.definition = definition;
@@ -274,9 +270,9 @@ public class FakeTripGen {
    *     outermost is per thread used online.
    */
   public void generateInputMaskStream(int amount, int noOfParties, int inputterId,
-      FieldDefinition definition, FieldElement alpha, Random rand,
-      List<List<ObjectOutputStream>> streams)
-      throws IOException {
+                                      FieldDefinition definition, FieldElement alpha, Random rand,
+                                      List<List<ObjectOutputStream>> streams)
+          throws IOException {
     FakeTripGen.rand = rand;
     FakeTripGen.alpha = alpha;
     FakeTripGen.definition = definition;
@@ -300,8 +296,8 @@ public class FakeTripGen {
   }
 
   public static List<SpdzSInt[]> generateBits(int amount, int noOfParties,
-      FieldDefinition definition,
-      FieldElement alpha) {
+                                              FieldDefinition definition,
+                                              FieldElement alpha) {
     FakeTripGen.rand = new Random();
     FakeTripGen.alpha = alpha;
     FakeTripGen.definition = definition;
@@ -328,8 +324,8 @@ public class FakeTripGen {
    *     outermost is per thread used online.
    */
   public void generateBitStream(int amount, int noOfParties, FieldDefinition definition,
-      FieldElement alpha,
-      Random rand, List<List<ObjectOutputStream>> streams) throws IOException {
+                                FieldElement alpha,
+                                Random rand, List<List<ObjectOutputStream>> streams) throws IOException {
     FakeTripGen.rand = rand;
     FakeTripGen.alpha = alpha;
     FakeTripGen.definition = definition;
@@ -358,8 +354,8 @@ public class FakeTripGen {
    * i.e. list.get(0)[0] contains the expPipe no. 1 for player 1.
    */
   public static List<SpdzSInt[][]> generateExpPipes(int amount, int noOfParties,
-      FieldDefinition definition,
-      FieldElement alpha) {
+                                                    FieldDefinition definition,
+                                                    FieldElement alpha) {
     FakeTripGen.rand = new Random(0);
     FakeTripGen.alpha = alpha;
     FakeTripGen.definition = definition;
@@ -369,7 +365,7 @@ public class FakeTripGen {
       SpdzSInt[][] expPipe = new SpdzSInt[noOfParties][EXP_PIPE_SIZE];
       FieldElement r = sample();
       FieldElement rInv = definition.createElement(
-          definition.convertToUnsigned(r).modInverse(definition.getModulus()));
+              definition.convertToUnsigned(r).modInverse(definition.getModulus()));
       FieldElement mac = getMac(rInv);
       List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
       for (int i = 0; i < noOfParties; i++) {
@@ -391,7 +387,7 @@ public class FakeTripGen {
   }
 
   public void generateExpPipeStream(int amount, int noOfParties, FieldDefinition definition,
-      FieldElement alpha, Random rand, List<List<ObjectOutputStream>> streams) throws IOException {
+                                    FieldElement alpha, Random rand, List<List<ObjectOutputStream>> streams) throws IOException {
     FakeTripGen.rand = rand;
     FakeTripGen.alpha = alpha;
     FakeTripGen.definition = definition;
@@ -401,7 +397,7 @@ public class FakeTripGen {
         SpdzSInt[][] expPipe = new SpdzSInt[noOfParties][EXP_PIPE_SIZE];
         FieldElement r = sample();
         FieldElement rInv = definition.createElement(
-            definition.convertToUnsigned(r).modInverse(definition.getModulus()));
+                definition.convertToUnsigned(r).modInverse(definition.getModulus()));
         FieldElement mac = getMac(rInv);
         List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
         for (int i = 0; i < noOfParties; i++) {
@@ -431,7 +427,7 @@ public class FakeTripGen {
   }
 
   public static List<FieldElement> generateAlphaShares(int noOfParties,
-      FieldDefinition definition) {
+                                                       FieldDefinition definition) {
     FakeTripGen.rand = new Random();
     FakeTripGen.definition = definition;
 
@@ -519,9 +515,9 @@ public class FakeTripGen {
     String randKey = "-r=";
 
     String usage = "Please give the following arguments: " + primeKey + "[modulus] " + tripKey
-        + "[#triples] " + inputKey + "[#inputs (per player)] " + bitKey + "[#bits] " + expKey
-        + "[#exp pipes] " + partiesKey + "[#parties] " + dirKey + "[directory (to store files)] "
-        + randKey + "[optional. If present, insecure random is used. Secure o/w]";
+            + "[#triples] " + inputKey + "[#inputs (per player)] " + bitKey + "[#bits] " + expKey
+            + "[#exp pipes] " + partiesKey + "[#parties] " + dirKey + "[directory (to store files)] "
+            + randKey + "[optional. If present, insecure random is used. Secure o/w]";
     for (String arg : args) {
       if (arg.length() < 4) {
         throw new IllegalArgumentException("Malformed argument \"" + arg + "\". " + usage);
@@ -562,35 +558,43 @@ public class FakeTripGen {
         throw new IllegalArgumentException("Unrecognized argument \"" + arg + "\"." + usage);
       }
     }
-    if (!(primePresent && tripPresent && bitPresent && partiesPresent && inputPresent && expPresent
-        && dirPresent)) {
-      String missing = usage + "\nThe following arguments were missing: ";
-      if (!primePresent) {
-        missing += primeKey + "[modulus] ";
-      }
-      if (!tripPresent) {
-        missing += tripKey + "[#triples] ";
-      }
-      if (!inputPresent) {
-        missing += inputKey + "[#inputs] ";
-      }
-      if (!bitPresent) {
-        missing += bitKey + "[#bits] ";
-      }
-      if (!partiesPresent) {
-        missing += partiesKey + "[#parties] ";
-      }
-      if (!expPresent) {
-        missing += expKey + "[#exp pipes] ";
-      }
-      if (!dirPresent) {
-        missing += dirKey + "[directory] ";
-      }
-      System.err.println(missing);
+
+    if (!areAllArgumentsPresent(primePresent, tripPresent, bitPresent, partiesPresent, inputPresent, expPresent, dirPresent)) {
+      Map<Boolean, String> ARGS_MSG = new HashMap<>();
+      ARGS_MSG.put(primePresent, primeKey + "[modulus] ");
+      ARGS_MSG.put(tripPresent, tripKey + "[#triples] ");
+      ARGS_MSG.put(inputPresent, inputKey + "[#inputs] ");
+      ARGS_MSG.put(bitPresent, bitKey + "[#bits] ");
+      ARGS_MSG.put(partiesPresent, partiesKey + "[#parties] ");
+      ARGS_MSG.put(expPresent, expKey + "[#exp pipes] ");
+      ARGS_MSG.put(dirPresent, dirKey + "[directory] ");
+
+      String missing = getMissingArgumentsString(ARGS_MSG);
+      System.err.println(usage + "\nThe following arguments were missing: " + missing);
       return false;
     }
     return true;
   }
+
+  private static String getMissingArgumentsString(Map<Boolean, String> argsMsg) {
+    StringBuilder sb = new StringBuilder();
+    argsMsg.forEach((key, value) -> {
+      if (!key) {
+        sb.append(value);
+      }
+    });
+    return sb.toString();
+  }
+
+  private static boolean areAllArgumentsPresent(boolean... args) {
+    for (boolean arg : args) {
+      if (!arg) {
+        return false;
+      }
+    }
+    return true;
+  }
+
 
   /**
    * Generates triples and writes them the appropriate file.
@@ -736,7 +740,7 @@ public class FakeTripGen {
     for (int j = 0; j < numberOfExps; j++) {
       FieldElement r = sample();
       FieldElement rInv = definition.createElement(
-          definition.convertToUnsigned(r).modInverse(definition.getModulus()));
+              definition.convertToUnsigned(r).modInverse(definition.getModulus()));
       writeAsShared(rInv, channels);
       FieldElement exp = definition.createElement(1);
       for (int i = 1; i < EXP_PIPE_SIZE; i++) {
@@ -756,7 +760,7 @@ public class FakeTripGen {
    * @param channels channels to the appropriate files (i.e. one for each player)
    */
   private static void writeElements(List<SpdzSInt> elements, List<FileChannel> channels)
-      throws IOException {
+          throws IOException {
     Iterator<SpdzSInt> eIt = elements.iterator();
     Iterator<FileChannel> cIt = channels.iterator();
     while (eIt.hasNext() && cIt.hasNext()) {
@@ -773,7 +777,7 @@ public class FakeTripGen {
    * @return a list of SpdzElements giving the SPDZ sharing
    */
   private static List<SpdzSInt> toShares(FieldElement value, FieldElement mac,
-      int numberOfParties) {
+                                         int numberOfParties) {
     List<SpdzSInt> elements = new ArrayList<>(numberOfParties);
     FieldElement valShare;
     FieldElement macShare;
