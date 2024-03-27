@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.framework.util.ValidationUtils;
 import dk.alexandra.fresco.tools.bitTriples.prg.BytePrg;
 import dk.alexandra.fresco.tools.bitTriples.prg.BytePrgImpl;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
@@ -42,6 +43,7 @@ public class BitTripleResourcePoolImpl extends ResourcePoolImpl implements BitTr
       Drbg drbg,
       BitTripleSecurityParameters bitTripleSecurityParameters) {
     super(myId, noOfParties);
+    ValidationUtils.assertValidId(myId, noOfParties);
     this.drbg = drbg;
     this.instanceId = instanceId;
     this.bitTripleSecurityParameters = bitTripleSecurityParameters;

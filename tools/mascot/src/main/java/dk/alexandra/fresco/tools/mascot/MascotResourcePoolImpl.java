@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.framework.util.ValidationUtils;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
@@ -14,6 +15,7 @@ import dk.alexandra.fresco.tools.ot.otextension.*;
 
 import java.security.MessageDigest;
 import java.util.Map;
+import java.util.Objects;
 
 public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotResourcePool {
 
@@ -43,11 +45,12 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
       Map<Integer, RotList> seedOts, MascotSecurityParameters mascotSecurityParameters,
       FieldDefinition fieldDefinition) {
     super(myId, noOfParties);
-    this.drbg = drbg;
+    ValidationUtils.assertValidId(myId, noOfParties);
+    this.drbg = Objects.requireNonNull(drbg);
     this.instanceId = instanceId;
-    this.seedOts = seedOts;
-    this.fieldDefinition = fieldDefinition;
-    this.mascotSecurityParameters = mascotSecurityParameters;
+    this.seedOts = Objects.requireNonNull(seedOts);
+    this.fieldDefinition = Objects.requireNonNull(fieldDefinition);
+    this.mascotSecurityParameters = Objects.requireNonNull(mascotSecurityParameters);
     this.localSampler = new FieldElementPrgImpl(
         new StrictBitVector(mascotSecurityParameters.getPrgSeedLength(), drbg),
         this.fieldDefinition);

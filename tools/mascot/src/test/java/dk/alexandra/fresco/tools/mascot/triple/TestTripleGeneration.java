@@ -154,13 +154,14 @@ public class TestTripleGeneration extends NetworkedTest {
 
   private void testMultiplePartiesTriple(List<FieldElement> macKeyShares, int numTriples) {
     // set up runtime environment and get contexts
-    initContexts(macKeyShares.size());
+    final int noOfParties = macKeyShares.size();
+    initContexts(noOfParties);
 
     // define per party task with params
     List<Callable<List<MultiplicationTriple>>> tasks = new ArrayList<>();
-    for (int pid = 1; pid <= macKeyShares.size(); pid++) {
-      MascotTestContext partyCtx = contexts.get(pid);
-      FieldElement macKeyShare = macKeyShares.get(pid - 1);
+    for (int partyId = 1; partyId <= noOfParties; partyId++) {
+      MascotTestContext partyCtx = contexts.get(partyId);
+      FieldElement macKeyShare = macKeyShares.get(partyId - 1);
       Callable<List<MultiplicationTriple>> partyTask =
           () -> runSinglePartyTriple(partyCtx, macKeyShare, numTriples);
       tasks.add(partyTask);

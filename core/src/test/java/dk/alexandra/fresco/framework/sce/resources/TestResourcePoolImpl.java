@@ -9,8 +9,8 @@ public class TestResourcePoolImpl {
 
   @Test
   public void testResourcePoolImpl() {
-    ResourcePoolImpl rp = new ResourcePoolImpl(0, 1);
-    assertThat(rp.getMyId(), is(0));
+    ResourcePoolImpl rp = new ResourcePoolImpl(1, 1);
+    assertThat(rp.getMyId(), is(1));
     assertThat(rp.getNoOfParties(), is(1));
   }
 

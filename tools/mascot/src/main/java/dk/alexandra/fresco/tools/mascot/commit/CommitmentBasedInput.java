@@ -8,6 +8,7 @@ import dk.alexandra.fresco.tools.mascot.broadcast.BroadcastValidation;
 import dk.alexandra.fresco.tools.mascot.broadcast.BroadcastingNetworkProxy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -30,9 +31,9 @@ public abstract class CommitmentBasedInput<T> {
    */
   public CommitmentBasedInput(MascotResourcePool resourcePool, Network network,
       ByteSerializer<T> serializer) {
-    this.resourcePool = resourcePool;
-    this.network = network;
-    this.serializer = serializer;
+    this.resourcePool = Objects.requireNonNull(resourcePool);
+    this.network = Objects.requireNonNull(network);
+    this.serializer = Objects.requireNonNull(serializer);
     // for more than two parties, we need to use broadcast
     if (resourcePool.getNoOfParties() > 2) {
       this.broadcaster =

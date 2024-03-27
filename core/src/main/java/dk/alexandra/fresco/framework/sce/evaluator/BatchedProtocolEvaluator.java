@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,9 +35,9 @@ public class BatchedProtocolEvaluator<ResourcePoolT extends ResourcePool>
   public BatchedProtocolEvaluator(
       BatchEvaluationStrategy<ResourcePoolT> batchEvaluator,
       ProtocolSuite<ResourcePoolT, ?> protocolSuite, int maxBatchSize) {
-    this.batchEvaluator = batchEvaluator;
+    this.batchEvaluator = Objects.requireNonNull(batchEvaluator);
     this.maxBatchSize = maxBatchSize;
-    this.protocolSuite = protocolSuite;
+    this.protocolSuite = Objects.requireNonNull(protocolSuite);
   }
 
   @Override

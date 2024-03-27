@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.framework.util.ValidationUtils;
 
 /**
  * Implements the resource pool needed for the Dummy Arithmetic suite.
@@ -22,6 +23,7 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
   public DummyArithmeticResourcePoolImpl(int myId, int noOfPlayers,
       FieldDefinition fieldDefinition) {
     super(myId, noOfPlayers);
+    ValidationUtils.assertValidId(myId, noOfPlayers);
     this.fieldDefinition = fieldDefinition;
   }
 

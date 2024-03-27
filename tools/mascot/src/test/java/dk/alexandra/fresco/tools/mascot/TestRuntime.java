@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import java.io.Closeable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -77,8 +78,41 @@ public class TestRuntime {
   private <T> List<T> safeInvokeAll(List<Callable<T>> tasks) {
     Callable<List<Future<T>>> runAll = () -> executor.invokeAll(tasks, timeout, TimeUnit.SECONDS);
     List<Future<T>> futures = ExceptionConverter.safe(runAll, "Invoke all failed");
-    return futures.stream().map(future -> ExceptionConverter.safe(future::get, "Party task failed"))
-        .collect(Collectors.toList());
+
+    return collectFromFutures(futures);
+  }
+
+  /**
+   * Utility for collecting all values from the given {link Future}s.
+   *
+   * <p>Will fail if any of the {@link Future}s fails, and show exceptions from
+   * all failed {@link Future}s. This is useful for cases where code running in
+   * {@link Future}s communicates with each other, as the first failing {@link
+   * Future} may not contain the root cause of the issue.
+   *
+   * @param futures Futures to collect from.
+   * @return Values of futures.
+   * @exception RuntimeException Raised if any future fails for any reason:
+   * cancellation or otherwise. Contains all failing exceptions as supressed.
+   */
+  private static <T> List<T> collectFromFutures(Iterable<Future<T>> futures) {
+    final List<T> collectedResults = new ArrayList<>();
+    final List<Exception> exceptions = new ArrayList<>();
+    for (final Future<T> future : futures) {
+      try {
+        collectedResults.add(future.get());
+      } catch (Exception e) {
+        exceptions.add(e);
+      }
+    }
+
+    if (!exceptions.isEmpty()) {
+      final RuntimeException err = new RuntimeException(String.format("Failures in %d futures", exceptions.size()));
+      exceptions.forEach(err::addSuppressed);
+      throw err;
+    }
+
+    return collectedResults;
   }
 
   /**

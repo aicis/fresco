@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.util;
 
 import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  * A simple implementation based on a deterministic bit generator.
@@ -14,10 +15,10 @@ public class DrngImpl implements Drng {
 
   /**
    * Creates a number generator from a bit generator.
-   * @param drbg a deterministic random bit generator
+   * @param drbg a deterministic random bit generator. Not nullable.
    */
   public DrngImpl(Drbg drbg) {
-    this.drbg = drbg;
+    this.drbg = Objects.requireNonNull(drbg);
   }
 
   @Override

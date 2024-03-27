@@ -5,12 +5,14 @@ import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.framework.util.ValidationUtils;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRightHelper;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -41,9 +43,10 @@ public class CopeInputter {
    * seeds used in the <i>Extend</i> sub-protocol.</p>
    */
   public CopeInputter(MascotResourcePool resourcePool, Network network, int otherId) {
+    ValidationUtils.assertValidId(otherId);
     this.otherId = otherId;
-    this.resourcePool = resourcePool;
-    this.network = network;
+    this.resourcePool = Objects.requireNonNull(resourcePool);
+    this.network = Objects.requireNonNull(network);
     this.leftPrgs = new ArrayList<>();
     this.rightPrgs = new ArrayList<>();
     this.helper = new MultiplyRightHelper(resourcePool, network, otherId);

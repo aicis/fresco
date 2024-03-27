@@ -18,6 +18,7 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.OpenedValueStore;
+import dk.alexandra.fresco.framework.util.ValidationUtils;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.spdz2k.Spdz2kBuilder;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
@@ -54,6 +55,7 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
       OpenedValueStore<Spdz2kSInt<PlainT>, PlainT> storage,
       Spdz2kDataSupplier<PlainT> supplier, CompUIntFactory<PlainT> factory) {
     super(myId, noOfPlayers);
+    ValidationUtils.assertValidId(myId, noOfPlayers);
     Objects.requireNonNull(storage);
     Objects.requireNonNull(supplier);
     Objects.requireNonNull(factory);

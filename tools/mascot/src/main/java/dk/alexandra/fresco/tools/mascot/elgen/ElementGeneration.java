@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -44,13 +45,13 @@ public class ElementGeneration {
    */
   public ElementGeneration(MascotResourcePool resourcePool, Network network,
       FieldElement macKeyShare, FieldElementPrg jointSampler) {
-    this.resourcePool = resourcePool;
-    this.network = network;
+    this.resourcePool = Objects.requireNonNull(resourcePool);
+    this.network = Objects.requireNonNull(network);
     this.fieldElementUtils = new FieldElementUtils(resourcePool.getFieldDefinition());
     this.macChecker = new MacCheck(resourcePool, network);
-    this.macKeyShare = macKeyShare;
-    this.localSampler = resourcePool.getLocalSampler();
-    this.jointSampler = jointSampler;
+    this.macKeyShare = Objects.requireNonNull(macKeyShare);
+    this.localSampler = Objects.requireNonNull(resourcePool.getLocalSampler());
+    this.jointSampler = Objects.requireNonNull(jointSampler);
     this.sharer = new AdditiveSecretSharer(localSampler);
     this.copeSigners = new HashMap<>();
     this.copeInputters = new HashMap<>();

@@ -57,7 +57,7 @@ public class TestSecureComputationEngineImpl {
           return builder.numeric().open(builder.numeric().add(a, b));
         };
     DummyArithmeticResourcePool rp =
-        new DummyArithmeticResourcePoolImpl(0, 1, fieldDefinition);
+        new DummyArithmeticResourcePoolImpl(1, 1, fieldDefinition);
 
     BigInteger b = sce.runApplication(app, rp, null);
     assertThat(b, is(BigInteger.valueOf(20)));
@@ -72,7 +72,7 @@ public class TestSecureComputationEngineImpl {
           return builder.numeric().open(builder.numeric().add(a, b));
         };
     DummyArithmeticResourcePool rp =
-        new DummyArithmeticResourcePoolImpl(0, 1, fieldDefinition);
+        new DummyArithmeticResourcePoolImpl(1, 1, fieldDefinition);
 
     BigInteger b = sce.runApplication(app, rp, null);
     assertThat(b, is(BigInteger.valueOf(20)));
@@ -85,7 +85,7 @@ public class TestSecureComputationEngineImpl {
           throw new RuntimeException();
         };
     DummyArithmeticResourcePool rp =
-        new DummyArithmeticResourcePoolImpl(0, 1, fieldDefinition);
+        new DummyArithmeticResourcePoolImpl(1, 1, fieldDefinition);
     sce.runApplication(app, rp, null);
     fail("Should not be reachable");
   }
@@ -99,7 +99,7 @@ public class TestSecureComputationEngineImpl {
           }
         };
     DummyArithmeticResourcePool rp =
-        new DummyArithmeticResourcePoolImpl(0, 1, fieldDefinition);
+        new DummyArithmeticResourcePoolImpl(1, 1, fieldDefinition);
     sce.runApplication(app, rp, null, Duration.ofNanos(1));
     fail("Should not be reachable");
   }

@@ -1,11 +1,12 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.network.Network;
+import java.util.Objects;
 
 /**
  * Abstract factory for a protocol instance of random OT extension.
  */
-public class RotFactory {
+public final class RotFactory {
 
   private final OtExtensionResourcePool resources;
   private final Network network;
@@ -17,8 +18,8 @@ public class RotFactory {
    * @param network   The network instance
    */
   public RotFactory(OtExtensionResourcePool resources, Network network) {
-    this.resources = resources;
-    this.network = network;
+    this.resources = Objects.requireNonNull(resources);
+    this.network = Objects.requireNonNull(network);
   }
 
   public OtExtensionResourcePool getResources() {
