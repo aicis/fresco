@@ -3,6 +3,7 @@ package dk.alexandra.fresco.framework.network.socket;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.CloseableNetwork;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
+import dk.alexandra.fresco.framework.util.ValidationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,7 +137,7 @@ public class SocketNetwork implements CloseableNetwork {
   private void startCommunication(Map<Integer, Socket> sockets) {
     for (Entry<Integer, Socket> entry : sockets.entrySet()) {
       final int id = entry.getKey();
-      inRange(id);
+      assertPartyIdInRange(id);
       Socket socket = entry.getValue();
       Receiver receiver = new Receiver(socket);
       this.receivers.put(id, receiver);
@@ -150,7 +151,7 @@ public class SocketNetwork implements CloseableNetwork {
     if (partyId == conf.getMyId()) {
       this.selfQueue.add(data);
     } else {
-      inRange(partyId);
+      assertPartyIdInRange(partyId);
       if (!senders.get(partyId).isRunning()) {
         throw new RuntimeException(
             "P" + conf.getMyId() + ": Unable to send to P" + partyId + ". Sender not running");
@@ -164,7 +165,7 @@ public class SocketNetwork implements CloseableNetwork {
     if (partyId == conf.getMyId()) {
       return ExceptionConverter.safe(selfQueue::take, "Receiving from self failed");
     }
-    inRange(partyId);
+    assertPartyIdInRange(partyId);
     byte[] data;
     data = receivers.get(partyId).pollMessage(RECEIVE_TIMEOUT);
     while (data == null) {
@@ -182,11 +183,8 @@ public class SocketNetwork implements CloseableNetwork {
    *
    * @param partyId an ID for a party
    */
-  private void inRange(final int partyId) {
-    if (!(0 < partyId && partyId < getNoOfParties() + 1)) {
-      throw new IllegalArgumentException(
-          "Party id " + partyId + " not in range 1 ... " + getNoOfParties());
-    }
+  private void assertPartyIdInRange(final int partyId) {
+    ValidationUtils.assertValidId(partyId, getNoOfParties());
   }
 
   /**

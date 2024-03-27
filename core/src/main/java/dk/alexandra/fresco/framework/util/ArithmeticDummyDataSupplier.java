@@ -9,8 +9,9 @@ import java.util.stream.IntStream;
 
 /**
  * Supplies generic pre-processed material common across arithmetic SPDZ-like suites, including
- * random elements, bits, and multiplication triples. <p>Uses {@link Random} to deterministically
- * generate all material. NOT secure.</p>
+ * random elements, bits, and multiplication triples.
+ *
+ * <p>Uses {@link Random} to deterministically generate all material. This is not secure, and should not be used in production code!
  */
 public class ArithmeticDummyDataSupplier {
 
@@ -21,8 +22,9 @@ public class ArithmeticDummyDataSupplier {
   private final Random random;
   private final SecretSharer<BigInteger> sharer;
   private final ModularReductionAlgorithm reducer;
-  
+
   public ArithmeticDummyDataSupplier(int myId, int noOfParties, BigInteger modulus) {
+    ValidationUtils.assertValidId(myId, noOfParties);
     this.myId = myId;
     this.noOfParties = noOfParties;
     this.modulus = modulus;

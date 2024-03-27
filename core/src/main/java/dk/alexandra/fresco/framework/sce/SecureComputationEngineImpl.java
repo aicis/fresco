@@ -10,6 +10,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.time.Duration;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -39,13 +40,13 @@ public class SecureComputationEngineImpl
   /**
    * Creates a new {@link SecureComputationEngineImpl}.
    *
-   * @param protocolSuite the {@link ProtocolSuite} to use to evaluate the secure computation
-   * @param evaluator the {@link ProtocolEvaluator} to run secure evaluation.
+   * @param protocolSuite {@link ProtocolSuite} to use to evaluate the secure computation. Not nullable.
+   * @param evaluator {@link ProtocolEvaluator} to run secure evaluation. Not nullable.
    */
   public SecureComputationEngineImpl(ProtocolSuite<ResourcePoolT, BuilderT> protocolSuite,
       ProtocolEvaluator<ResourcePoolT> evaluator) {
-    this.protocolSuite = protocolSuite;
-    this.evaluator = evaluator;
+    this.protocolSuite = Objects.requireNonNull(protocolSuite);
+    this.evaluator = Objects.requireNonNull(evaluator);
     this.setup = false;
   }
 

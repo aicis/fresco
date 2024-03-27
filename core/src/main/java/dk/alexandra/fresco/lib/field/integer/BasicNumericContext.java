@@ -1,7 +1,9 @@
 package dk.alexandra.fresco.lib.field.integer;
 
 import dk.alexandra.fresco.framework.builder.numeric.field.FieldDefinition;
+import dk.alexandra.fresco.framework.util.ValidationUtils;
 import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  * Holds the most crucial properties about the finite field we are working within.
@@ -24,12 +26,13 @@ public class BasicNumericContext {
    *     have.
    * @param myId my party id
    * @param noOfParties number of parties in computation
-   * @param fieldDefinition the field definition used in the application
+   * @param fieldDefinition the field definition used in the application. Nullable.
    * @param defaultFixedPointPrecision the fixed point precision when using the fixed point library
    * @param statisticalSecurityParam the statistical security parameter
    */
   public BasicNumericContext(int maxBitLength, int myId, int noOfParties,
       FieldDefinition fieldDefinition, int defaultFixedPointPrecision, int statisticalSecurityParam) {
+    ValidationUtils.assertValidId(myId, noOfParties);
     this.maxBitLength = maxBitLength;
     this.myId = myId;
     this.noOfParties = noOfParties;

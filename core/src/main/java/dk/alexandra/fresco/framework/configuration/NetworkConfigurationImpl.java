@@ -2,6 +2,7 @@ package dk.alexandra.fresco.framework.configuration;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.util.ValidationUtils;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -14,14 +15,22 @@ public class NetworkConfigurationImpl implements NetworkConfiguration {
   private final Map<Integer, Party> parties;
 
   public NetworkConfigurationImpl(int myId, Map<Integer, Party> parties) {
+    // Validation
     Objects.requireNonNull(parties);
     checkAddressesUnique(parties);
+    ValidationUtils.assertValidId(myId);
+    if (parties.get(myId) == null) {
+      throw new RuntimeException(String.format("myId %d must be in the parties map: %s", myId, parties));
+    }
+
+    // Set fields
     this.myId = myId;
     this.parties = parties;
   }
 
   @Override
   public Party getParty(int id) {
+    ValidationUtils.assertValidId(id);
     return parties.get(id);
   }
 

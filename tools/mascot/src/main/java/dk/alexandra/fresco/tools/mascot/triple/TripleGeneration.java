@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -39,13 +40,13 @@ public class TripleGeneration {
    */
   public TripleGeneration(MascotResourcePool resourcePool, Network network,
       ElementGeneration elementGeneration, FieldElementPrg jointSampler) {
-    this.resourcePool = resourcePool;
+    this.resourcePool = Objects.requireNonNull(resourcePool);
     this.fieldElementUtils = new FieldElementUtils(resourcePool.getFieldDefinition());
     this.leftMultipliers = new HashMap<>();
     this.rightMultipliers = new HashMap<>();
     initializeMultipliers(resourcePool, network);
-    this.elementGeneration = elementGeneration;
-    this.jointSampler = jointSampler;
+    this.elementGeneration = Objects.requireNonNull(elementGeneration);
+    this.jointSampler = Objects.requireNonNull(jointSampler);
   }
 
   private void initializeMultipliers(MascotResourcePool resourcePool, Network network) {

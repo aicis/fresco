@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.util.SecretSharer;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import java.util.List;
+import java.util.Objects;
 
 public class AdditiveSecretSharer implements SecretSharer<FieldElement> {
 
@@ -16,7 +17,7 @@ public class AdditiveSecretSharer implements SecretSharer<FieldElement> {
    * @param sampler source of randomness
    */
   AdditiveSecretSharer(FieldElementPrg sampler) {
-    this.sampler = sampler;
+    this.sampler = Objects.requireNonNull(sampler);
   }
 
   @Override

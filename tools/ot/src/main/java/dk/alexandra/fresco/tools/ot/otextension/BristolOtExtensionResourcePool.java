@@ -3,6 +3,7 @@ package dk.alexandra.fresco.tools.ot.otextension;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
+import dk.alexandra.fresco.framework.util.ValidationUtils;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import java.security.MessageDigest;
 
@@ -35,6 +36,7 @@ public class BristolOtExtensionResourcePool extends ResourcePoolImpl implements
       int computationalSecurityParam, int lambdaSecurityParam, int instanceId,
       Drbg drbg, CoinTossing ct, RotList seedOts) {
     super(myId, 2);
+    ValidationUtils.assertValidId(otherId);
     if (computationalSecurityParam < 1 || lambdaSecurityParam < 1
         || lambdaSecurityParam % 8 != 0 || computationalSecurityParam
         % 8 != 0) {
@@ -55,12 +57,6 @@ public class BristolOtExtensionResourcePool extends ResourcePoolImpl implements
         "Configuration error, SHA-256 is needed for OT extension");
     this.ct = ct;
     this.seedOts = seedOts;
-  }
-
-  @Override
-  public int getNoOfParties() {
-    // By definition OT is a two-party protocol
-    return 2;
   }
 
   @Override

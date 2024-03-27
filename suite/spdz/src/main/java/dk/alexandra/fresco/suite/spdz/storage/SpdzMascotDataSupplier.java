@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.builder.numeric.field.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.framework.util.ValidationUtils;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -22,6 +23,7 @@ import java.security.SecureRandom;
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
@@ -61,7 +63,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
    * @param tripleNetwork network supplier for network to be used by Mascot instance
    * @param fieldDefinition field definition
    * @param modBitLength bit length of modulus
-   * @param preprocessedValues callback to generate exponentiation pipes
+   * @param preprocessedValues callback to generate exponentiation pipes. Nullable.
    * @param prgSeedLength bit length of prg
    * @param batchSize batch size in which Mascot will generate pre-processed material
    * @param ssk mac key share
@@ -72,12 +74,13 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       Supplier<Network> tripleNetwork, FieldDefinition fieldDefinition, int modBitLength,
       Function<Integer, SpdzSInt[]> preprocessedValues, int prgSeedLength, int batchSize,
       FieldElement ssk, Map<Integer, RotList> seedOts, Drbg drbg) {
+    ValidationUtils.assertValidId(myId, numberOfPlayers);
     this.myId = myId;
     this.numberOfPlayers = numberOfPlayers;
     this.instanceId = instanceId;
-    this.tripleNetwork = tripleNetwork;
-    this.fieldDefinition = fieldDefinition;
-    this.preprocessedValues = preprocessedValues;
+    this.tripleNetwork = Objects.requireNonNull(tripleNetwork);
+    this.fieldDefinition = Objects.requireNonNull(fieldDefinition);
+    this.preprocessedValues = preprocessedValues; // Allow null.
     this.triples = new ArrayDeque<>();
     this.masks = new HashMap<>();
     for (int partyId = 1; partyId <= numberOfPlayers; partyId++) {
@@ -88,9 +91,9 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     this.prgSeedLength = prgSeedLength;
     this.modBitLength = modBitLength;
     this.batchSize = batchSize;
-    this.ssk = ssk;
-    this.seedOts = seedOts;
-    this.drbg = drbg;
+    this.ssk = Objects.requireNonNull(ssk);
+    this.seedOts = Objects.requireNonNull(seedOts);
+    this.drbg = Objects.requireNonNull(drbg);
   }
 
   /**
