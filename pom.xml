@@ -94,7 +94,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.3</version>
+				<version>0.8.11</version>
 				<executions>
 					<execution>
 						<goals>
@@ -123,7 +123,7 @@
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
-	
+
 	<modules>
 		<module>core</module>
 		<module>lib</module>
