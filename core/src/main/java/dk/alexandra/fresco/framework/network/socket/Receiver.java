@@ -1,6 +1,9 @@
 package dk.alexandra.fresco.framework.network.socket;
 
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.EOFException;
@@ -11,8 +14,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,8 +39,7 @@ class Receiver {
         "Unable to get inputstream from socket.");
     this.queue = new LinkedBlockingQueue<>();
     this.run = new AtomicBoolean(true);
-    this.thread = new Thread(this::run);
-    this.thread.setDaemon(true);
+    this.thread = Thread.ofVirtual().unstarted(this::run);
     this.thread.setName("Receiver-" + this.thread.getId());
     this.thread.start();
   }

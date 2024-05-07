@@ -1,6 +1,9 @@
 package dk.alexandra.fresco.framework.network.socket;
 
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
@@ -8,8 +11,6 @@ import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The sender sending messages.
@@ -37,8 +38,7 @@ class Sender {
     this.queue = new LinkedBlockingQueue<>();
     this.flushAndStop = new AtomicBoolean(false);
     this.ignoreNext = new AtomicBoolean(false);
-    this.thread = new Thread(this::run);
-    this.thread.setDaemon(true);
+    this.thread = Thread.ofVirtual().unstarted(this::run);
     this.thread.setName("sender-" + this.thread.getId());
     this.thread.start();
   }
