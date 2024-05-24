@@ -10,24 +10,26 @@ import java.math.BigInteger;
 
 /**
  * Given secret value a, computes a &lt;? 0.
+ * https://www.researchgate.net/publication/225092133_Improved_Primitives_for_Secure_Multiparty_Integer_Computation
  */
 public class LessThanZero implements Computation<SInt, ProtocolBuilderNumeric> {
-  // TODO add reference to protocol description
 
   private final DRes<SInt> input;
+  private final int maxBitlength;
 
   /**
    * Constructs new {@link LessThanZero}.
    *
    * @param input input to compare to 0
+   * @param maxBitlength number of bits to compare
    */
-  public LessThanZero(DRes<SInt> input) {
+  public LessThanZero(DRes<SInt> input, int maxBitlength) {
     this.input = input;
+    this.maxBitlength = maxBitlength;
   }
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    final int maxBitlength = builder.getBasicNumericContext().getMaxBitLength();
     final int statisticalSecurity = builder.getBasicNumericContext()
         .getStatisticalSecurityParam();
     return builder.seq(seq -> {

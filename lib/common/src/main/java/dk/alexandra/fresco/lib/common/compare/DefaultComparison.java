@@ -59,19 +59,27 @@ public class DefaultComparison implements Comparison {
   }
 
   @Override
-  public DRes<SInt> compareLT(DRes<SInt> x, DRes<SInt> y, Algorithm algorithm) {
+  public DRes<SInt> compareLT(DRes<SInt> x, DRes<SInt> y, int bitlength, Algorithm algorithm) {
+    if (bitlength > builder.getBasicNumericContext().getMaxBitLength()) {
+      throw new IllegalArgumentException("The bitlength is more than allowed for elements.");
+    }
     if (algorithm == Algorithm.LOG_ROUNDS) {
-      if (builder.getBasicNumericContext().getStatisticalSecurityParam() + builder
-          .getBasicNumericContext().getMaxBitLength() > builder.getBasicNumericContext()
-          .getModulus().bitLength()) {
+      if (builder.getBasicNumericContext().getStatisticalSecurityParam() + bitlength
+          > builder.getBasicNumericContext().getModulus().bitLength()) {
         throw new IllegalArgumentException(
             "The max bitlength plus the statistical security parameter overflows the size of the modulus.");
       }
       DRes<SInt> difference = builder.numeric().sub(x, y);
-      return builder.seq(new LessThanZero(difference));
+      return builder.seq(new LessThanZero(difference, bitlength));
     } else {
       throw new UnsupportedOperationException("Not implemented yet");
     }
+  }
+
+  @Override
+  public DRes<SInt> compareLT(DRes<SInt> x, DRes<SInt> y) {
+    int maxBitLength = builder.getBasicNumericContext().getMaxBitLength();
+    return compareLT(x, y, maxBitLength);
   }
 
   @Override
