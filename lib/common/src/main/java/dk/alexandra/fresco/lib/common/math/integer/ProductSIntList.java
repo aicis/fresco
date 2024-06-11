@@ -13,7 +13,7 @@ import java.util.Objects;
  * Builder for a {@link Computation}s that computes the product of a list of {@link SInts}
  * secret-shared values.
  *
- * <p>Empty lists are allowed, and will always produce one.
+ * <p>Empty lists are allowed, and will always produce a value of {@code 1}.
  */
 public class ProductSIntList implements Computation<SInt, ProtocolBuilderNumeric> {
 

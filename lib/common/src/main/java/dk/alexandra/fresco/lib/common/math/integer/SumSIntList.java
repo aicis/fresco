@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * Builder for a {@link Computation}s that sum lists of {@link SInts} secret-shared values.
  *
- * <p>Empty lists are allowed, and will always produce zero.
+ * <p>Empty lists are allowed, and will always produce a value of {@code 0}.
  */
 public class SumSIntList implements Computation<SInt, ProtocolBuilderNumeric> {
 

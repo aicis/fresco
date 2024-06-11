@@ -13,15 +13,43 @@ import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
+/** Test of {@link ProductSIntList} and {@link SumSIntList}. */
 public class TestProductAndSum {
 
-  public static class TestProduct<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  private static final class TestCase {
+    public final BigInteger expectedOutput;
+    public final List<BigInteger> inputs;
 
-    List<BigInteger> inputs = Arrays.asList(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L).stream().map(
-        BigInteger::valueOf).collect(Collectors.toList());
+    public TestCase(long expectedOutput, long... inputs) {
+      this.expectedOutput = BigInteger.valueOf(expectedOutput);
+      this.inputs = Arrays.stream(inputs).mapToObj(BigInteger::valueOf).toList();
+    }
+  }
+
+  private static final List<TestCase> TEST_CASES_SUM =
+      List.of(
+          new TestCase(0),
+          new TestCase(123, 123),
+          new TestCase(2, 1, 1),
+          new TestCase(4, 2, 2),
+          new TestCase(6, 3, 3),
+          new TestCase(15, 1, 2, 4, 8),
+          new TestCase(55, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+
+  private static final List<TestCase> TEST_CASES_PRODUCT =
+      List.of(
+          new TestCase(1),
+          new TestCase(123, 123),
+          new TestCase(1, 1, 1),
+          new TestCase(4, 2, 2),
+          new TestCase(9, 3, 3),
+          new TestCase(64, 1, 2, 4, 8),
+          new TestCase(3628800, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+
+  /** Test of {@link ProductSIntList}. */
+  public static final class TestProduct<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -29,27 +57,27 @@ public class TestProductAndSum {
 
         @Override
         public void test() throws Exception {
-          // define functionality to be tested
-          Application<BigInteger, ProtocolBuilderNumeric> testApplication =
-              root -> {
-                List<DRes<SInt>> closed = inputs.stream().map(root.numeric()::known)
-                    .collect(Collectors.toList());
-                DRes<SInt> result = AdvancedNumeric.using(root).product(closed);
-                DRes<BigInteger> open = root.numeric().open(result);
-                return () -> open.out();
-              };
-          BigInteger output = runApplication(testApplication);
-          assertEquals(output, inputs.stream().reduce(BigInteger.ONE, (a, b) -> a.multiply(b)));
+          for (final TestCase testCase : TEST_CASES_PRODUCT) {
+            // define functionality to be tested
+            Application<BigInteger, ProtocolBuilderNumeric> testApplication =
+                root -> {
+                  List<DRes<SInt>> closed =
+                      testCase.inputs.stream().map(root.numeric()::known).toList();
+                  DRes<SInt> result = AdvancedNumeric.using(root).product(closed);
+                  DRes<BigInteger> open = root.numeric().open(result);
+                  return () -> open.out();
+                };
+            BigInteger output = runApplication(testApplication);
+            assertEquals(testCase.expectedOutput, output);
+          }
         }
       };
     }
   }
 
-  public static class TestSum<ResourcePoolT extends ResourcePool>
+  /** Test of {@link SumSIntList}. */
+  public static final class TestSum<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    List<BigInteger> inputs = Arrays.asList(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L).stream().map(
-        BigInteger::valueOf).collect(Collectors.toList());
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -57,17 +85,19 @@ public class TestProductAndSum {
 
         @Override
         public void test() throws Exception {
-          // define functionality to be tested
-          Application<BigInteger, ProtocolBuilderNumeric> testApplication =
-              root -> {
-                List<DRes<SInt>> closed = inputs.stream().map(root.numeric()::known)
-                    .collect(Collectors.toList());
-                DRes<SInt> result = AdvancedNumeric.using(root).sum(closed);
-                DRes<BigInteger> open = root.numeric().open(result);
-                return () -> open.out();
-              };
-          BigInteger output = runApplication(testApplication);
-          assertEquals(output, inputs.stream().reduce(BigInteger.ZERO, (a, b) -> a.add(b)));
+          for (final TestCase testCase : TEST_CASES_SUM) {
+            // define functionality to be tested
+            Application<BigInteger, ProtocolBuilderNumeric> testApplication =
+                root -> {
+                  List<DRes<SInt>> closed =
+                      testCase.inputs.stream().map(root.numeric()::known).toList();
+                  DRes<SInt> result = AdvancedNumeric.using(root).sum(closed);
+                  DRes<BigInteger> open = root.numeric().open(result);
+                  return () -> open.out();
+                };
+            BigInteger output = runApplication(testApplication);
+            assertEquals(testCase.expectedOutput, output);
+          }
         }
       };
     }
