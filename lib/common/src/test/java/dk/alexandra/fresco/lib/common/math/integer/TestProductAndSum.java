@@ -23,7 +23,10 @@ public class TestProductAndSum {
 
     public TestCase(long expectedOutput, long... inputs) {
       this.expectedOutput = BigInteger.valueOf(expectedOutput);
-      this.inputs = Arrays.stream(inputs).mapToObj(BigInteger::valueOf).toList();
+      this.inputs =
+          Arrays.stream(inputs)
+              .mapToObj(BigInteger::valueOf)
+              .collect(Collectors.toUnmodifiableList());
     }
   }
 
@@ -62,7 +65,9 @@ public class TestProductAndSum {
             Application<BigInteger, ProtocolBuilderNumeric> testApplication =
                 root -> {
                   List<DRes<SInt>> closed =
-                      testCase.inputs.stream().map(root.numeric()::known).toList();
+                      testCase.inputs.stream()
+                          .map(root.numeric()::known)
+                          .collect(Collectors.toUnmodifiableList());
                   DRes<SInt> result = AdvancedNumeric.using(root).product(closed);
                   DRes<BigInteger> open = root.numeric().open(result);
                   return () -> open.out();
@@ -90,7 +95,9 @@ public class TestProductAndSum {
             Application<BigInteger, ProtocolBuilderNumeric> testApplication =
                 root -> {
                   List<DRes<SInt>> closed =
-                      testCase.inputs.stream().map(root.numeric()::known).toList();
+                      testCase.inputs.stream()
+                          .map(root.numeric()::known)
+                          .collect(Collectors.toUnmodifiableList());
                   DRes<SInt> result = AdvancedNumeric.using(root).sum(closed);
                   DRes<BigInteger> open = root.numeric().open(result);
                   return () -> open.out();
