@@ -13,6 +13,7 @@ import dk.alexandra.fresco.lib.common.math.AdvancedNumeric;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /** Test of {@link ProductSIntList} and {@link SumSIntList}. */
 public class TestProductAndSum {
