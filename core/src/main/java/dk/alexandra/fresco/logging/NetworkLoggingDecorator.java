@@ -38,6 +38,11 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
   }
 
   @Override
+  public boolean isAlive() {
+    return delegate.isAlive();
+  }
+
+  @Override
   public void send(int partyId, byte[] data) {
     this.delegate.send(partyId, data);
   }

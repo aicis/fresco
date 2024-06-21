@@ -103,5 +103,10 @@ public class NetworkBatchDecoratorTest {
     public int getNoOfParties() {
       return 3;
     }
+
+    @Override
+    public boolean isAlive() {
+      return false;
+    }
   }
 }

@@ -49,6 +49,11 @@ public class NetworkBatchDecorator implements Network {
   }
 
   @Override
+  public boolean isAlive() {
+    return network.isAlive();
+  }
+
+  @Override
   public void send(int id, byte[] data) {
     ByteArrayOutputStream buffer = this.output
         .computeIfAbsent(id, (i) -> new ByteArrayOutputStream());

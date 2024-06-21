@@ -38,6 +38,13 @@ public interface Network {
   int getNoOfParties();
 
   /**
+   * Boolean indicated if the network is still alive
+   *
+   * @return is alive
+   */
+  boolean isAlive();
+
+  /**
    * Retrieves input from all players (including yourself)
    *
    * @return A list of byte buffers where the data from party 1 resides at
@@ -61,5 +68,4 @@ public interface Network {
       send(i, data);
     }
   }
-
 }

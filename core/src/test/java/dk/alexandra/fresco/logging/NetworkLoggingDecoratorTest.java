@@ -30,8 +30,14 @@ public class NetworkLoggingDecoratorTest {
       public int getNoOfParties() {
         return 22;
       }
+
+      @Override
+      public boolean isAlive() {
+        return true;
+      }
     });
     assertThat(networkLoggingDecorator.getNoOfParties(), is(22));
+    assertThat(networkLoggingDecorator.isAlive(), is(true));
     // This should be a nil operation since my network does not implement closeable
     networkLoggingDecorator.close();
   }

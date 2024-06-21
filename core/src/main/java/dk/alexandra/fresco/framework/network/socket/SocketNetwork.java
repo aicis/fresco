@@ -231,4 +231,9 @@ public class SocketNetwork implements CloseableNetwork {
   public int getNoOfParties() {
     return this.conf.noOfParties();
   }
+
+  @Override
+  public boolean isAlive() {
+    return alive;
+  }
 }
