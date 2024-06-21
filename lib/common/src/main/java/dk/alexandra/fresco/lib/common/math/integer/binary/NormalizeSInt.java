@@ -36,7 +36,9 @@ public class NormalizeSInt
       DRes<List<DRes<SInt>>> bits = advancedNumeric.toBits(input, l);
 
       // Sign bit (0 or 1)
-      DRes<SInt> signBit = new LessThanZero(input).buildComputation(par);
+      DRes<SInt> signBit =
+          new LessThanZero(input, par.getBasicNumericContext().getMaxBitLength())
+              .buildComputation(par);
 
       return Pair.lazy(bits, signBit);
     }).seq((seq, params) -> {

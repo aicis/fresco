@@ -72,19 +72,28 @@ public interface Comparison extends ComputationDirectory {
   /**
    * Computes if x &lt; y.
    *
-   * @param x the first input
-   * @param y the second input
+   * @param x the first input. Must be less than 2^{@code bitlength}
+   * @param y the second input. Must be less than 2^{@code bitlength}
+   * @param bitlength the amount of bits to do the comparison on. Must be less than or equal to
+   * the max bitlength allowed
    * @param algorithm the algorithm to use
-   * @return A deferred result computing x &lt; y. Result will be either [1] (true) or [0] (false).
+   * @return A deferred result computing x' &lt; y'. Where x' and y' represent the {@code bitlength}
+   * least significant bits of x, respectively y. Result will be either [1] (true) or [0] (false).
    */
-  DRes<SInt> compareLT(DRes<SInt> x, DRes<SInt> y, Algorithm algorithm);
+  DRes<SInt> compareLT(DRes<SInt> x, DRes<SInt> y, int bitlength, Algorithm algorithm);
 
   /**
-   * Call to {@link #compareLT(DRes, DRes, Algorithm)} with default comparison algorithm.
+   * Call to {@link #compareLT(DRes, DRes, int, Algorithm)} with default comparison algorithm.
    */
-  default DRes<SInt> compareLT(DRes<SInt> x, DRes<SInt> y) {
-    return compareLT(x, y, Algorithm.LOG_ROUNDS);
+  default DRes<SInt> compareLT(DRes<SInt> x, DRes<SInt> y, int bitlength) {
+    return compareLT(x, y, bitlength, Algorithm.LOG_ROUNDS);
   }
+
+  /**
+   * Call to {@link #compareLT(DRes, DRes, int, Algorithm)} with default comparison algorithm,
+   * comparing all bits.
+   */
+  DRes<SInt> compareLT(DRes<SInt> x, DRes<SInt> y);
 
   /**
    * Computes if the bit decomposition of an open value is less than the bit decomposition of a

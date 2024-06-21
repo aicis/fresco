@@ -331,7 +331,7 @@ public class CompareTests {
             List<DRes<SInt>> actualInner = new ArrayList<>(left.size());
             for (int i = 0; i < left.size(); i++) {
               actualInner.add(Comparison.using(builder).compareLT(left.get(i), right.get(i),
-                  Comparison.Algorithm.LOG_ROUNDS));
+                  builder.getBasicNumericContext().getMaxBitLength(), Comparison.Algorithm.LOG_ROUNDS));
             }
             DRes<List<DRes<BigInteger>>> opened = Collections.using(builder).openList(() -> actualInner);
             return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());
@@ -437,7 +437,7 @@ public class CompareTests {
             DRes<SInt> x = input.known(BigInteger.valueOf(3));
             DRes<SInt> y = input.known(BigInteger.valueOf(5));
             Comparison comparison = Comparison.using(builder);
-            DRes<SInt> result = comparison.compareLT(x, y, Algorithm.CONST_ROUNDS);
+            DRes<SInt> result = comparison.compareLT(x, y, 3, Algorithm.CONST_ROUNDS);
             return input.open(result);
           };
           runApplication(app);
