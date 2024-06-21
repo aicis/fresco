@@ -84,4 +84,8 @@ public class CheatingNetworkDecorator implements CloseableNetwork {
     return network.getNoOfParties();
   }
 
+  @Override
+  public boolean isAlive() {
+    return true;
+  }
 }

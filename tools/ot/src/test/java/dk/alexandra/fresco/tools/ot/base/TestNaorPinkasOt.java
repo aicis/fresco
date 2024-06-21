@@ -77,6 +77,11 @@ public class TestNaorPinkasOt {
       public int getNoOfParties() {
         return 0;
       }
+
+      @Override
+      public boolean isAlive() {
+        return false;
+      }
     };
     staticSpec = DhParameters.getStaticDhParams();
     Class clazz = this.testClass;

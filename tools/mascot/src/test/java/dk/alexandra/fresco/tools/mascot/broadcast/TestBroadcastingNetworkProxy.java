@@ -22,6 +22,11 @@ public class TestBroadcastingNetworkProxy {
     public int getNoOfParties() {
       return 3;
     }
+
+    @Override
+    public boolean isAlive() {
+      return false;
+    }
   }, null);
 
   @Test
@@ -43,6 +48,11 @@ public class TestBroadcastingNetworkProxy {
       @Override
       public int getNoOfParties() {
         return 2;
+      }
+
+      @Override
+      public boolean isAlive() {
+        return false;
       }
     }, null);
   }

@@ -41,6 +41,11 @@ public class TestCote {
       public int getNoOfParties() {
         return 0;
       }
+
+      @Override
+      public boolean isAlive() {
+        return false;
+      }
     };
     RotList seedOts = new RotList(rand, kbitSecurity);
     Field sent = RotList.class.getDeclaredField("sent");

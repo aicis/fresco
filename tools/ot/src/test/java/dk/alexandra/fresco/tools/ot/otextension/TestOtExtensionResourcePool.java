@@ -41,6 +41,11 @@ public class TestOtExtensionResourcePool {
       public int getNoOfParties() {
         return 0;
       }
+
+      @Override
+      public boolean isAlive() {
+        return false;
+      }
     };
     seedOts = new RotList(rand, 128);
     ct = new CoinTossing(1, 2, rand);

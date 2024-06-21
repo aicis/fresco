@@ -71,6 +71,11 @@ public class TestChouOrlandiOt {
             public int getNoOfParties() {
                 return 0;
             }
+
+            @Override
+            public boolean isAlive() {
+                return false;
+            }
         };
     }
 
