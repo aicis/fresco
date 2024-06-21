@@ -51,6 +51,11 @@ public class BroadcastingNetworkProxy implements Network {
   }
 
   @Override
+  public boolean isAlive() {
+    return false;
+  }
+
+  @Override
   public void sendToAll(byte[] data) {
     network.sendToAll(data);
   }
