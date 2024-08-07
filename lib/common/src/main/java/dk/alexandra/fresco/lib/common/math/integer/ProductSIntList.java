@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Builder for a {@link Computation}s that computes the product of a list of {@link SInts}
+ * Builder for a {@link Computation}s that computes the product of a list of {@link SInt}
  * secret-shared values.
  *
  * <p>Empty lists are allowed, and will always produce a value of {@code 1}.
