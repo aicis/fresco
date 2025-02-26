@@ -31,21 +31,22 @@ public class CommitmentComputation implements
   @Override
   public DRes<List<byte[]>> buildComputation(ProtocolBuilderNumeric builder) {
     HashBasedCommitment ownCommitment = new HashBasedCommitment();
-    byte[] ownOpening = ownCommitment.commit(localDrbg, value);
+    byte[] ownOpening = ownCommitment.commit(builder.getBasicNumericContext().getMyId(), localDrbg,
+        value);
     final int noOfParties = builder.getBasicNumericContext().getNoOfParties();
     return builder.seq(
-        seq -> {
-          if (noOfParties > 2) {
-            return new BroadcastComputation<ProtocolBuilderNumeric>(
-                commitmentSerializer.serialize(ownCommitment))
-                .buildComputation(seq);
-          } else {
-            // when there are only two parties, parties can't send mutually inconsistent messages
-            // so no extra validation is necessary
-            return seq.append(new InsecureBroadcastProtocol<>(
-                commitmentSerializer.serialize(ownCommitment)));
-          }
-        })
+            seq -> {
+              if (noOfParties > 2) {
+                return new BroadcastComputation<ProtocolBuilderNumeric>(
+                    commitmentSerializer.serialize(ownCommitment))
+                    .buildComputation(seq);
+              } else {
+                // when there are only two parties, parties can't send mutually inconsistent messages
+                // so no extra validation is necessary
+                return seq.append(new InsecureBroadcastProtocol<>(
+                    commitmentSerializer.serialize(ownCommitment)));
+              }
+            })
         .seq((seq, rawCommitments) -> {
           DRes<List<byte[]>> res = seq.append(new InsecureBroadcastProtocol<>(ownOpening));
           final Pair<DRes<List<byte[]>>, List<byte[]>> dResListPair = new Pair<>(res,
@@ -66,9 +67,8 @@ public class CommitmentComputation implements
     for (int i = 0; i < noOfParties; i++) {
       HashBasedCommitment commitment = commitments.get(i);
       byte[] opening = openings.get(i);
-      result.add(commitment.open(opening));
+      result.add(commitment.open(i + 1, opening));
     }
     return result;
   }
-
 }

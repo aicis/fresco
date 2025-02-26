@@ -29,23 +29,24 @@ public class MaliciousCommitmentComputation extends CommitmentComputation {
   @Override
   public DRes<List<byte[]>> buildComputation(ProtocolBuilderNumeric builder) {
     HashBasedCommitment ownCommitment = new HashBasedCommitment();
-    byte[] ownOpening = ownCommitment.commit(localDrbg, value);
+    byte[] ownOpening = ownCommitment.commit(builder.getBasicNumericContext().getMyId(), localDrbg,
+        value);
     return builder.seq(
-        seq -> {
-          if (noOfParties > 2) {
-            return new BroadcastComputation<ProtocolBuilderNumeric>(
-                commitmentSerializer.serialize(ownCommitment))
-                .buildComputation(seq);
-          } else {
-            // when there are only two parties, parties can't send mutually inconsistent messages
-            // so no extra validation is necessary
-            return seq.append(new InsecureBroadcastProtocol<>(
-                commitmentSerializer.serialize(ownCommitment)));
-          }
-        })
+            seq -> {
+              if (noOfParties > 2) {
+                return new BroadcastComputation<ProtocolBuilderNumeric>(
+                    commitmentSerializer.serialize(ownCommitment))
+                    .buildComputation(seq);
+              } else {
+                // when there are only two parties, parties can't send mutually inconsistent messages
+                // so no extra validation is necessary
+                return seq.append(new InsecureBroadcastProtocol<>(
+                    commitmentSerializer.serialize(ownCommitment)));
+              }
+            })
         .seq((seq, rawCommitments) -> {
           // tamper with opening
-          ownOpening[1] = (byte) (ownOpening[1] ^ 1);
+          ownOpening[9] = (byte) (ownOpening[9] ^ 1);
           DRes<List<byte[]>> res = seq.append(new InsecureBroadcastProtocol<>(ownOpening));
           final Pair<DRes<List<byte[]>>, List<byte[]>> dResListPair = new Pair<>(res,
               rawCommitments);
