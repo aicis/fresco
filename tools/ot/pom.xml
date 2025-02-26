@@ -19,7 +19,7 @@
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
       <artifactId>commitment</artifactId>
-      <version>1.3.6</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.bouncycastle</groupId>

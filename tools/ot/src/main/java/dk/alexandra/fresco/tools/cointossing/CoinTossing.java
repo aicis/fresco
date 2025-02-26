@@ -100,10 +100,10 @@ public class CoinTossing {
       HashBasedCommitment comm = serializer.deserialize(serializedComm);
       network.send(otherId, seed.clone());
       byte[] opening = network.receive(otherId);
-      return comm.open(opening);
+      return comm.open(otherId, opening);
     } else {
       HashBasedCommitment comm = new HashBasedCommitment();
-      byte[] openInfo = comm.commit(rand, seed);
+      byte[] openInfo = comm.commit(myId, rand, seed);
       network.send(otherId, serializer.serialize(comm));
       byte[] otherSeed = network.receive(otherId);
       network.send(otherId, openInfo);
