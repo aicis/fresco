@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.tools.mascot.commit;
 
-import dk.alexandra.fresco.tools.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
+import dk.alexandra.fresco.tools.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.broadcast.BroadcastValidation;
 import dk.alexandra.fresco.tools.mascot.broadcast.BroadcastingNetworkProxy;
@@ -88,7 +88,7 @@ public abstract class CommitmentBasedInput<T> {
     for (int i = 0; i < commitments.size(); i++) {
       HashBasedCommitment comm = commitments.get(i);
       byte[] opening = openings.get(i);
-      T el = serializer.deserialize(comm.open(opening));
+      T el = serializer.deserialize(comm.open(i + 1, opening));
       result.add(el);
     }
     return result;
@@ -107,7 +107,8 @@ public abstract class CommitmentBasedInput<T> {
 
     // commit to value locally
     byte[] ownOpening = ownComm
-        .commit(getResourcePool().getRandomGenerator(), serializer.serialize(value));
+        .commit(getResourcePool().getMyId(), getResourcePool().getRandomGenerator(),
+            serializer.serialize(value));
 
     // all parties commit
     List<HashBasedCommitment> comms = distributeCommitments(ownComm);

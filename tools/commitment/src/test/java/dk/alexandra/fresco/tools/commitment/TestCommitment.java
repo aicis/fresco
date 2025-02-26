@@ -19,6 +19,7 @@ public class TestCommitment {
 
   HashBasedCommitment comm;
   Drbg rand;
+  private static final int myId = 2;
 
   @Before
   public void setup() {
@@ -30,23 +31,23 @@ public class TestCommitment {
   @Test
   public void testHonestExecution() {
     byte[] msg = {(byte) 0x12, (byte) 0x42};
-    byte[] openInfo = comm.commit(rand, msg);
-    byte[] res = comm.open(openInfo);
+    byte[] openInfo = comm.commit(myId, rand, msg);
+    byte[] res = comm.open(myId, openInfo);
     assertArrayEquals(res, msg);
   }
 
   @Test
   public void testEmptyMessage() {
     byte[] msg = {};
-    byte[] openInfo = comm.commit(rand, msg);
-    byte[] res = comm.open(openInfo);
+    byte[] openInfo = comm.commit(myId, rand, msg);
+    byte[] res = comm.open(myId, openInfo);
     assertArrayEquals(res, msg);
   }
 
   @Test
   public void testSerialization() {
     byte[] msg1 = new byte[]{0x42};
-    comm.commit(rand, msg1);
+    comm.commit(myId, rand, msg1);
     HashBasedCommitmentSerializer serializer = new HashBasedCommitmentSerializer();
     byte[] serializedComm = serializer.serialize(comm);
     HashBasedCommitment deserializedComm = serializer.deserialize(serializedComm);
@@ -58,10 +59,10 @@ public class TestCommitment {
   public void testListSerialization() {
     byte[] msg1 = new byte[]{0x42};
     HashBasedCommitment comm1 = new HashBasedCommitment();
-    comm1.commit(rand, msg1);
+    comm1.commit(myId, rand, msg1);
     byte[] msg2 = new byte[]{0x56};
     HashBasedCommitment comm2 = new HashBasedCommitment();
-    comm2.commit(rand, msg2);
+    comm2.commit(myId, rand, msg2);
     List<HashBasedCommitment> list = new ArrayList<>(2);
     list.add(comm1);
     list.add(comm2);
@@ -94,7 +95,7 @@ public class TestCommitment {
       // Randomness generator must not be null
       byte[] val = new byte[]{0x01};
       comm = new HashBasedCommitment();
-      comm.commit(null, val);
+      comm.commit(myId, null, val);
     } catch (NullPointerException e) {
       thrown = true;
     }
@@ -104,18 +105,18 @@ public class TestCommitment {
   @Test
   public void testAlreadyCommitted() {
     String firstMsg = "First!";
-    byte[] openInfo = comm.commit(rand, firstMsg.getBytes());
+    byte[] openInfo = comm.commit(myId, rand, firstMsg.getBytes());
     String secondMsg = "Me, me, me!";
     boolean thrown = false;
     try {
-      comm.commit(rand, secondMsg.getBytes());
+      comm.commit(myId, rand, secondMsg.getBytes());
     } catch (IllegalStateException e) {
       assertEquals("Already committed", e.getMessage());
       thrown = true;
     }
     assertTrue(thrown);
     // Check we can still open correctly
-    String res = new String(comm.open(openInfo));
+    String res = new String(comm.open(myId, openInfo));
     assertEquals(firstMsg, res);
   }
 
@@ -124,7 +125,7 @@ public class TestCommitment {
     boolean thrown = false;
     String firstMsg = "First!";
     try {
-      comm.open(firstMsg.getBytes());
+      comm.open(myId, firstMsg.getBytes());
     } catch (IllegalStateException e) {
       assertEquals("No commitment to open", e.getMessage());
       thrown = true;
@@ -135,11 +136,11 @@ public class TestCommitment {
   @Test
   public void testTooSmallOpening() {
     BigInteger bigInt = new BigInteger("15646534687420546");
-    comm.commit(rand, bigInt.toByteArray());
+    comm.commit(myId, rand, bigInt.toByteArray());
     boolean thrown = false;
     try {
       // The opening must be 32 bytes plus the message length
-      comm.open(bigInt.toByteArray());
+      comm.open(myId, bigInt.toByteArray());
     } catch (MaliciousException e) {
       assertEquals("The opening info is too small to be a commitment.",
           e.getMessage());
@@ -152,13 +153,13 @@ public class TestCommitment {
   public void testBadOpening() {
     BigInteger bigInt = new BigInteger(
         "6534687420653468742065346874205565346874206534687420653468742055");
-    comm.commit(rand, bigInt.toByteArray());
+    comm.commit(myId, rand, bigInt.toByteArray());
     boolean thrown = false;
     try {
       // The message itself is not enough to open the commitment
-      comm.open(new byte[32 + bigInt.toByteArray().length]);
+      comm.open(myId, new byte[4 + 32 + bigInt.toByteArray().length]);
     } catch (MaliciousException e) {
-      assertEquals("The opening info does not match the commitment.",
+      assertEquals("The party id does not match with the commitment party id.",
           e.getMessage());
       thrown = true;
     }
@@ -168,8 +169,8 @@ public class TestCommitment {
       // Try to open using the opening info of another commitment
       HashBasedCommitment comm2 = new HashBasedCommitment();
       BigInteger bigInt2 = new BigInteger("424242424242424242");
-      byte[] openInfo2 = comm2.commit(rand, bigInt2.toByteArray());
-      comm.open(openInfo2);
+      byte[] openInfo2 = comm2.commit(myId, rand, bigInt2.toByteArray());
+      comm.open(myId, openInfo2);
     } catch (MaliciousException e) {
       assertEquals(
           "The opening info does not match the commitment.", e.getMessage());
@@ -183,14 +184,31 @@ public class TestCommitment {
     Random random = new Random(42);
     byte[] bytes = new byte[32];
     random.nextBytes(bytes);
-    byte[] opening = comm.commit(rand, bytes);
+    byte[] opening = comm.commit(myId, rand, bytes);
     boolean thrown = false;
     try {
       // flip bit
-      opening[1] = (byte) (opening[1] ^ 1);
-      comm.open(opening);
+      opening[9] = (byte) (opening[9] ^ 1);
+      comm.open(myId, opening);
     } catch (MaliciousException e) {
       assertEquals("The opening info does not match the commitment.",
+          e.getMessage());
+      thrown = true;
+    }
+    assertTrue(thrown);
+  }
+
+  @Test
+  public void testPartyIdDoesNotMatch() {
+    Random random = new Random(42);
+    byte[] bytes = new byte[32];
+    random.nextBytes(bytes);
+    byte[] opening = comm.commit(myId, rand, bytes);
+    boolean thrown = false;
+    try {
+      comm.open(1, opening);
+    } catch (MaliciousException e) {
+      assertEquals("The party id does not match with the commitment party id.",
           e.getMessage());
       thrown = true;
     }
@@ -200,7 +218,7 @@ public class TestCommitment {
   @SuppressWarnings("unlikely-arg-type")
   @Test
   public void testNotEqual() {
-    comm.commit(rand, new byte[]{0x42});
+    comm.commit(myId, rand, new byte[]{0x42});
     assertNotEquals(comm, new HashBasedCommitment());
     assertNotEquals("something", comm);
   }
