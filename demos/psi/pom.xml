@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>dk.alexandra.fresco</groupId>
 			<artifactId>bristol</artifactId>
-			<version>1.3.6</version>
+			<version>${project.version}</version>
 		</dependency>
   </dependencies>
   
