@@ -125,7 +125,7 @@
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
       <artifactId>commitment</artifactId>
-      <version>1.3.6</version>
+      <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
