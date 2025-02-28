@@ -109,7 +109,7 @@ public class BitSetUtils {
   }
 
   /**
-   * Converts an array of {@link boolean} into a {@link BitSet}.
+   * Converts an array of {@link Boolean} into a {@link BitSet}.
    *
    * @param array an array of booleans
    * @return a BitSet containing <code>array</code>
@@ -123,7 +123,7 @@ public class BitSetUtils {
   }
 
   /**
-   * Converts of a {@link BitSet} to an array of {@link boolean}.
+   * Converts of a {@link BitSet} to an array of {@link Boolean}.
    * @param bitset a BitSet
    * @param length the number of bits of <code>bitset</code> to convert to array
    * @return an array containing the <code>length</code> first bits of <code>bitset</code>
