@@ -87,7 +87,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.18.1</version>
         <configuration>
-          <forkCount>1</forkCount>
+          <forkCount>1.5C</forkCount>
           <reuseForks>false</reuseForks>
           <excludedGroups>dk.alexandra.fresco.IntegrationTest</excludedGroups>
         </configuration>
