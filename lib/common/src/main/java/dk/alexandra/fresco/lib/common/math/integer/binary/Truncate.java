@@ -49,13 +49,15 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
 
     }).seq((seq, randomAdditiveMask) -> {
 
-      DRes<SInt> result = seq.numeric().add(input, randomAdditiveMask.value);
+      DRes<SInt> b = seq.numeric().add(BigInteger.ONE.shiftLeft(maxBitLength - 1), input);
+      DRes<SInt> result = seq.numeric().add(b, randomAdditiveMask.value);
       DRes<BigInteger> open = seq.numeric().open(result);
       return Pair.lazy(open, randomAdditiveMask);
 
     }).seq((seq, maskedInput) -> {
 
       BigInteger masked = maskedInput.getFirst().out();
+      BigInteger maskedPrime = masked.mod(BigInteger.ONE.shiftLeft(shifts));
       RandomAdditiveMask mask = maskedInput.getSecond();
 
       /*
@@ -66,15 +68,10 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
 
       BigInteger inverse =
           BigInteger.ONE.shiftLeft(shifts).modInverse(seq.getBasicNumericContext().getModulus());
-      DRes<SInt> rTop = seq.numeric().sub(mask.value, rBottom);
 
-      /*
-       * rTop is r with the last shifts bits set to zero, and it is hence divisible by 2^shifts, so
-       * multiplying with the inverse in the field corresponds to shifting.
-       */
-      DRes<SInt> rShifted = seq.numeric().mult(inverse, rTop);
-      BigInteger mShifted = masked.shiftRight(shifts);
-      return seq.numeric().sub(mShifted, rShifted);
+      DRes<SInt> aPrime = seq.numeric().sub(maskedPrime, rBottom);
+      DRes<SInt> d = seq.numeric().sub(input, aPrime);
+      return seq.numeric().mult(inverse, d);
     });
   }
 }
