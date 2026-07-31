@@ -117,20 +117,16 @@ public class TestTinyTables {
       }
 
       @Override
-      public FileVisitResult visitFileFailed(final Path file, final IOException e) {
-        return handleException(e);
-      }
-
-      private FileVisitResult handleException(final IOException e) {
-        e.printStackTrace(); // replace with more robust error handling
-        return FileVisitResult.TERMINATE;
+      public FileVisitResult visitFileFailed(final Path file, final IOException e)
+          throws IOException {
+        throw e;
       }
 
       @Override
       public FileVisitResult postVisitDirectory(final Path dir, final IOException e)
           throws IOException {
         if (e != null) {
-          return handleException(e);
+          throw e;
         }
         Files.delete(dir);
         return FileVisitResult.CONTINUE;
